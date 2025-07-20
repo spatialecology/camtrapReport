@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Cameratrap Report Generator
-Version: 0.2-2
-Date: 2025-06-17
+Version: 0.2-4
+Date: 2025-07-14
 Authors@R: c(person(given = "Elham",
                       family = "Ebrahimi",
                       role = c("aut", "cre"),
@@ -16,5 +16,5 @@ Suggests: camtrapdp, camtrapDensity, ctdp
 Description: An extensible framework for exploring and processing cameratrap
     data to automatically generate a report with maps, tables, description, etc.
 License: GPL (>= 3)
-URL: https://www.wur.nl/en/persons/elham-ebrahimi.htm
+URL: https://www.biogeoinformatics.org
 VignetteBuilder: rmarkdown

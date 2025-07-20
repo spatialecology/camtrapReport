@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2025
-# Version 1.1
+# Last Update :  July 2025
+# Version 1.4
 # Licence GPL v3
 #--------
 
@@ -141,9 +141,10 @@
 }
 #---
 
+
 .getRchunk <- function(parent=NULL,name=NULL,setting=NULL,code) {
   
-  if (as.character(substitute(setting))[1] == '{' ) {
+  if (!is.null(setting) && as.character(substitute(setting))[1] == '{' ) {
     setting <- substitute(setting)
     setting <- as.character(setting)[-1]
     setting <- .trim(setting)
@@ -849,5 +850,32 @@
   ))
 }
 
+#-----------
+.loadPKG <- function(pkgs) {
+  options(warn=-1)
+  all(unlist(lapply(pkgs,function(p) {.require(p)})))
+  options(warn=0)
+}
+#---------
 
 
+.plot_effort <- function (x, dynamic = TRUE, main = "Effort", xlab = "time", 
+                          ylab = "nr of active cams", ...) {
+  z <- effort_table(x, startend = TRUE)
+  
+  z <- na.omit(z)
+  if (dynamic) {
+    series <- xts(z$nrCams, order.by = z$time, tz = "GMT")
+    dygraph(series, main = main, xlab = xlab, ylab = ylab, 
+            ...) %>% dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+      dyRangeSelector()
+  }
+  else {
+    plot(z$time, z$nrCams, type = "n", main = main, xlab = xlab, 
+         ylab = ylab, ...)
+    xx <- c(z$time, rev(z$time))
+    yy <- c(z$nrCams, rep(0, length(z$nrCams)))
+    polygon(xx, yy, border = NA, col = 8)
+    lines(z$time, z$nrCams, type = "s")
+  }
+}
