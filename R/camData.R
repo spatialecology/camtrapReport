@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  June 2025
-# Version 1.0
+# Last Update :  July 2025
+# Version 1.3
 # Licence GPL v3
 #--------
 
@@ -59,6 +59,9 @@
 #------
 
 .addReportSections <- function(cm) {
+  .p <- c("ctdp", "camtrapDensity","camtrapdp", "camtraptor", "leaflet", "tidyverse", "spatstat","ggplot2", "corrplot", "suncalc",
+         "dplyr","gt", "camtrapR", "spOccupancy", "leaflet.extras",'frictionless','htmltools')
+  .loadPKG(.p)
   # Introduction:
   .txx <- .getTextObj(name='introduction',title='Introduction',
                       txt=list(p1="Mammals play vital roles in terrestrial ecosystems. Ungulates and carnivores in particular influence vegetation through herbivory and predation, contribute to nutrient cycling, energy flows, and seed dispersal, and act as ecosystem engineers through trampling, digging, and rooting (*Augustine & McNaughton 1998; Lacher et al., 2019*). Mammals are also central to public nature experiences and conservation goals. However, they often come into conflict with humans, causing crop damage, traffic collisions, and disease spread, prompting population control measures (*Torres et al., 2018*). Understanding their distribution, abundance and behavior is therefore crucial for protected area management.",
@@ -460,7 +463,7 @@
     
     
     # Generate Dygraph
-    plot_test <- plot_effort(object$data) %>%
+    plot_test <- .plot_effort(object$data) %>%
       dyAxis("x", label = "Time") %>%
       dyAxis("y", label = "Active Camera Count") %>%
       dyOptions(fillGraph = TRUE, colors = "#033800FF") %>%
@@ -471,7 +474,7 @@
       
       # Save the plot as an HTML widget
       temp_file <- file.path(tempdir(), "effort_plot.html")
-      saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
+      htmlwidgets::saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
       
       # Embed iframe inside a **plain gray box (no shadow)**
       tags$div(
@@ -659,7 +662,7 @@
   
   
   .rxx <- .getRchunk(parent='abundance_trends',name = 'abundance',setting={c(echo=FALSE,results="asis",warning=FALSE,message=FALSE)},code={
-    
+    if (!.require('ggplot2') & .require('ggrepel')) stop('Both the packages of "ggplot2" and "ggrepel" need to be installed...!')
     group_label <- .paste_comma_and(object$setting$focus_groups)
     cat(paste0(
       "The graphs below illustrate temporal trends in the number of captures, the number of active camera locations, ",
@@ -876,58 +879,60 @@
       }
     }
     
-    
-    # Filter density-only data
-    density_data <- estimates_rem %>%
-      filter(Metric == "density") %>%
-      mutate(
-        Year = as.factor(Year),
-        scientificName = factor(scientificName, levels = unique(scientificName)),
-        Year_numeric = as.numeric(as.character(Year))
-      )
-    
-    # Reuse existing color palette from earlier chunk
-    species_list_rem <- unique(density_data$scientificName)
-    species_colors_rem <- species_colors[species_list_rem]
-    
-    # Prepare label data for latest year
-    label_data <- density_data %>%
-      group_by(scientificName) %>%
-      filter(Year_numeric == max(Year_numeric)) %>%
-      ungroup()
-    
-    # Plot
-    plot_density <- ggplot(density_data, aes(x = Year, y = estimate, group = scientificName, color = scientificName)) +
-      geom_line(size = 1.1) +
-      geom_point(shape = 21, size = 2.5, fill = "white") +
-      geom_text_repel(data = label_data, aes(label = scientificName),
-                      size = 3.2, nudge_x = 0.3, hjust = 0,
-                      direction = "y", segment.color = "gray60",
-                      family = "", show.legend = FALSE) +
-      scale_color_manual(values = species_colors_rem) +
-      labs(
-        x = "Survey Year",
-        y = "Density (individuals / km²)"
-      ) +
-      theme_minimal(base_family = "", base_size = 12) +
-      theme(
-        axis.title.x = element_text(size = 12, face = "bold", color = "black"),
-        axis.title.y = element_text(size = 12, face = "bold", color = "black"),
-        axis.text.x = element_text(angle = 0, hjust = 0.5, face = "plain"),  
-        legend.position = "none",
-        panel.grid.minor = element_blank(),
-        plot.margin = ggplot2::margin(20, 40, 20, 40)
-      )
-    
-    # Render plot
-    print(plot_density)
-    
-    # Styled caption
-    HTML(paste0(
-      '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
-      '<b>Figure 6.</b> <i>Trends in estimated REM-based population density for ', 
-      group_label, ' across survey years.</i></p>'
-    ))
+    if (nrow(estimates_rem) > 0) {
+      # Filter density-only data
+      density_data <- estimates_rem %>%
+        dplyr::filter(Metric == "density") %>%
+        mutate(
+          Year = as.factor(Year),
+          scientificName = factor(scientificName, levels = unique(scientificName)),
+          Year_numeric = as.numeric(as.character(Year))
+        )
+      
+      # Reuse existing color palette from earlier chunk
+      species_list_rem <- unique(density_data$scientificName)
+      species_colors_rem <- species_colors[species_list_rem]
+      
+      # Prepare label data for latest year
+      label_data <- density_data %>%
+        group_by(scientificName) %>%
+        filter(Year_numeric == max(Year_numeric)) %>%
+        ungroup()
+      
+      # Plot
+      plot_density <- ggplot(density_data, aes(x = Year, y = estimate, group = scientificName, color = scientificName)) +
+        geom_line(size = 1.1) +
+        geom_point(shape = 21, size = 2.5, fill = "white") +
+        geom_text_repel(data = label_data, aes(label = scientificName),
+                        size = 3.2, nudge_x = 0.3, hjust = 0,
+                        direction = "y", segment.color = "gray60",
+                        family = "", show.legend = FALSE) +
+        scale_color_manual(values = species_colors_rem) +
+        labs(
+          x = "Survey Year",
+          y = "Density (individuals / km²)"
+        ) +
+        theme_minimal(base_family = "", base_size = 12) +
+        theme(
+          axis.title.x = element_text(size = 12, face = "bold", color = "black"),
+          axis.title.y = element_text(size = 12, face = "bold", color = "black"),
+          axis.text.x = element_text(angle = 0, hjust = 0.5, face = "plain"),  
+          legend.position = "none",
+          panel.grid.minor = element_blank(),
+          plot.margin = ggplot2::margin(20, 40, 20, 40)
+        )
+      
+      # Render plot
+      print(plot_density)
+      
+      # Styled caption
+      HTML(paste0(
+        '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
+        '<b>Figure 6.</b> <i>Trends in estimated REM-based population density for ', 
+        group_label, ' across survey years.</i></p>'
+      ))
+      
+    }
     
     
   })
@@ -947,102 +952,107 @@
   
   .rxx <- .getRchunk(parent='model_parameters',name = 'movement',setting={c(echo=FALSE,results="asis")},code={
     
-    cat('\n#### Movement Speed {.tabset .unnumbered}\n\n')
+    
+    if (nrow(estimates_rem) > 0) {
+      cat('\n#### Movement Speed {.tabset .unnumbered}\n\n')
+      
+      
+      # Filter for the desired metrics
+      speed_activity_data <- estimates_rem %>%
+        dplyr::filter(Metric %in% c("active_speed", "activity_level", "overall_speed")) %>%
+        group_by(scientificName, Metric) %>%
+        dplyr::filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Match colors to scientific names
+      unique_species <- unique(speed_activity_data$scientificName)
+      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot active speed with error bars
+      ggplot(speed_activity_data %>% dplyr::filter(Metric == "active_speed"),
+             aes(x = scientificName, y = estimate, fill = scientificName)) +
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Active speed (km/h)") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      # Caption
+      cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
+      
+      
+      cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
+      
+      activity_data <- speed_activity_data %>%
+        dplyr::filter(Metric == "activity_level") %>%
+        group_by(scientificName) %>%
+        filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Generate color map by scientific name
+      unique_species <- unique(activity_data$scientificName)
+      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot
+      ggplot(activity_data, 
+             aes(x = scientificName, y = estimate, fill = scientificName)) + 
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Proportion of Time Active") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      # Caption
+      cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
+      #---------
+      
+      cat('\n#### Day range {.tabset .unnumbered}\n\n')
+      
+      overall_speed_data <- speed_activity_data %>%
+        dplyr::filter(Metric == "overall_speed") %>%
+        group_by(scientificName) %>%
+        filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Define color mapping using scientific names
+      unique_species <- unique(overall_speed_data$scientificName)
+      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot
+      ggplot(overall_speed_data, 
+             aes(x = scientificName, y = estimate, fill = scientificName)) + 
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Day Range (km)") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      # Caption
+      cat("\n\n**Figure 9.** *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
+    }
     
     
-    # Filter for the desired metrics
-    speed_activity_data <- estimates_rem %>%
-      filter(Metric %in% c("active_speed", "activity_level", "overall_speed")) %>%
-      group_by(scientificName, Metric) %>%
-      filter(Year == min(Year)) %>%
-      ungroup()
-    
-    # Match colors to scientific names
-    unique_species <- unique(speed_activity_data$scientificName)
-    species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
-    
-    # Plot active speed with error bars
-    ggplot(speed_activity_data %>% filter(Metric == "active_speed"),
-           aes(x = scientificName, y = estimate, fill = scientificName)) +
-      geom_bar(stat = "identity") +
-      geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
-      labs(x = "Species", y = "Active speed (km/h)") +
-      scale_fill_manual(values = species_colors) +
-      theme_minimal(base_size = 13) +
-      theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.x = element_text(face = "bold", color = "black"),
-        axis.title.y = element_text(face = "bold", color = "black"),
-        plot.title = element_text(face = "bold"),
-        legend.position = "none"
-      )
-    
-    # Caption
-    cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
-    
-    
-    cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
-    
-    activity_data <- speed_activity_data %>%
-      filter(Metric == "activity_level") %>%
-      group_by(scientificName) %>%
-      filter(Year == min(Year)) %>%
-      ungroup()
-    
-    # Generate color map by scientific name
-    unique_species <- unique(activity_data$scientificName)
-    species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
-    
-    # Plot
-    ggplot(activity_data, 
-           aes(x = scientificName, y = estimate, fill = scientificName)) + 
-      geom_bar(stat = "identity") +
-      geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
-      labs(x = "Species", y = "Proportion of Time Active") +
-      scale_fill_manual(values = species_colors) +
-      theme_minimal(base_size = 13) +
-      theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.x = element_text(face = "bold", color = "black"),
-        axis.title.y = element_text(face = "bold", color = "black"),
-        plot.title = element_text(face = "bold"),
-        legend.position = "none"
-      )
-    
-    # Caption
-    cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
-    #---------
-    
-    cat('\n#### Day range {.tabset .unnumbered}\n\n')
-    
-    overall_speed_data <- speed_activity_data %>%
-      filter(Metric == "overall_speed") %>%
-      group_by(scientificName) %>%
-      filter(Year == min(Year)) %>%
-      ungroup()
-    
-    # Define color mapping using scientific names
-    unique_species <- unique(overall_speed_data$scientificName)
-    species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
-    
-    # Plot
-    ggplot(overall_speed_data, 
-           aes(x = scientificName, y = estimate, fill = scientificName)) + 
-      geom_bar(stat = "identity") +
-      geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
-      labs(x = "Species", y = "Day Range (km)") +
-      scale_fill_manual(values = species_colors) +
-      theme_minimal(base_size = 13) +
-      theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.x = element_text(face = "bold", color = "black"),
-        axis.title.y = element_text(face = "bold", color = "black"),
-        plot.title = element_text(face = "bold"),
-        legend.position = "none"
-      )
-    
-    # Caption
-    cat("\n\n**Figure 9.** *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
   })
   
   cm$addReportObject(.rxx)
@@ -1052,54 +1062,58 @@
   
   
   .rxx <- .getRchunk(parent='population_densities',name = 'pop_densities',setting={c(echo=FALSE,results="asis",warning=FALSE,message=FALSE)},code={
-    density_data <- estimates_rem %>%
-      filter(Metric == "density")
-    
-    # Ensure data is not empty
-    if (nrow(density_data) > 0) {
-      # Get a list of unique species
-      species_list <- unique(density_data$scientificName)
+    if (nrow(estimates_rem) > 0) {
+      density_data <- estimates_rem %>%
+        dplyr::filter(Metric == "density")
       
-      # Assign Acadia colors to species (cycling if necessary)
-      species_colors <- setNames(rep(color_palette, length.out = length(species_list)), species_list)
-      
-      # Loop through each species
-      for (i in seq_along(species_list)) {
-        species <- species_list[i]  # Define species inside the loop
+      # Ensure data is not empty
+      if (nrow(density_data) > 0) {
+        # Get a list of unique species
+        species_list <- unique(density_data$scientificName)
         
-        # Header
-        cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
+        # Assign Acadia colors to species (cycling if necessary)
+        species_colors <- setNames(rep(color_palette, length.out = length(species_list)), species_list)
         
-        # Filter for current species
-        species_data <- density_data %>%
-          filter(scientificName == species)
-        
-        # Select the corresponding color
-        species_color <- species_colors[species]
-        
-        # Plot per species
-        p <- ggplot(species_data, aes(x = as.factor(Year), y = estimate)) +
-          geom_bar(stat = "identity", fill = species_color, width = 0.6) +  # Apply species-specific color
-          geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2, color = "black") +
-          labs(x = "Year", y = expression("Population density (km"^-2*")")) +
-          theme_minimal() +
-          theme(
-            axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.title = element_text(face = "bold", size = 14)
-          )
-        
-        # Print the plot
-        print(p)
-        
-        # Caption (COMPLETED)
-        cat(paste0(
-          "\n\n**Figure 10.** ", "*Estimated population density per sampling year for ", 
-          species, 
-          ". Whiskers represent the 95% confidence intervals.*\n"
-        ))
-        
+        # Loop through each species
+        for (i in seq_along(species_list)) {
+          species <- species_list[i]  # Define species inside the loop
+          
+          # Header
+          cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
+          
+          # Filter for current species
+          species_data <- density_data %>%
+            filter(scientificName == species)
+          
+          # Select the corresponding color
+          species_color <- species_colors[species]
+          
+          # Plot per species
+          p <- ggplot(species_data, aes(x = as.factor(Year), y = estimate)) +
+            geom_bar(stat = "identity", fill = species_color, width = 0.6) +  # Apply species-specific color
+            geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2, color = "black") +
+            labs(x = "Year", y = expression("Population density (km"^-2*")")) +
+            theme_minimal() +
+            theme(
+              axis.text.x = element_text(angle = 45, hjust = 1),
+              plot.title = element_text(face = "bold", size = 14)
+            )
+          
+          # Print the plot
+          print(p)
+          
+          # Caption (COMPLETED)
+          cat(paste0(
+            "\n\n**Figure 10.** ", "*Estimated population density per sampling year for ", 
+            species, 
+            ". Whiskers represent the 95% confidence intervals.*\n"
+          ))
+          
+        }
       }
     }
+    
+    
   })
   
   cm$addReportObject(.rxx)
@@ -1217,12 +1231,12 @@
     plot_richness <- function(data) {
       data <- data %>%
         mutate(
-          Habitat = gsub("_", " ", Habitat),
+          Habitat = gsub("_", " ", Habitat_Type),
           popup = paste0(
             "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
             "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
             "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>",
-            "<b>Habitat:</b> ", ifelse(!is.na(Habitat), Habitat, "N/A")
+            "<b>Habitat:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A")
           )
         )
       
@@ -1328,108 +1342,65 @@
     
     if (.require('corrplot')) {
       for (.year in object$years) {
-        cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
         
         .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
+        if (!all(is.na(.spo))) {
+          cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+          
+          
+          
+          par(mar = c(5, 5, 15, 5))
+          
+          .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title= paste0("Species Co-occurrence (Year: ",.year,")"),mar=c(0,0,1,0))',env = environment())
+          
+          cat("\n\n")
+        }
         
-        par(mar = c(5, 5, 15, 5))
+      }
+      #---------
+      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
+      
+      if (!all(is.na(.spo))) {
+        cat("\n### Total {.unnumbered}\n\n")
         
-        .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title= paste0("Species Co-occurrence (Year: ",.year,")"),mar=c(0,0,1,0))',env = environment())
+        .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title="Species Co-occurrence (Total)",mar=c(0,0,1,0))',env = environment())
+        
         
         cat("\n\n")
       }
-      #---------
-      cat("\n### Total {.unnumbered}\n\n")
-      
-      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
-      
-      .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title="Species Co-occurrence (Total)",mar=c(0,0,1,0))',env = environment())
-      
-      
-      cat("\n\n")
       
       
       
     } else {
       for (.year in object$years) {
-        cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+        
         
         .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
+        
+        if (!all(is.na(.spo))) {
+          cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+          par(mar = c(7, 8, 4, 4))
+          .basic_corrplot(.spo,main = paste0("Species Co-occurrence (Year: ",.year,")"))
+          
+          cat("\n\n")
+        }
+        
+      }
+      #---------
+      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
+      
+      if (!all(is.na(.spo))) {
+        cat("\n### Total {.unnumbered}\n\n")
         par(mar = c(7, 8, 4, 4))
-        .basic_corrplot(.spo,main = paste0("Species Co-occurrence (Year: ",.year,")"))
+        .basic_corrplot(.spo,main = "Species Co-occurrence (Total)")
         
         cat("\n\n")
       }
-      #---------
-      cat("\n### Total {.unnumbered}\n\n")
-      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
-      par(mar = c(7, 8, 4, 4))
-      .basic_corrplot(.spo,main = "Species Co-occurrence (Total)")
       
-      cat("\n\n")
     }
     #---------
     if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
       cat(paste0("## {.unnumbered}\n**Figure 13.** *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", afor each survey year, as well as the cumulative across all years.*\n"))
-    } else cat("**Figure 13.** *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
-    
-  })
-  cm$addReportObject(.rxx)
-  #----------
-  .txx <- .getTextObj(name='co_occurrence',title="Species Co-occurrence {.tabset}",parent='results',txt="Species co-occurrence analysis examines how different species share habitats and interact within the same locations. By using correlation matrices and clustering techniques, we identify species that tend to be found together and those that exhibit avoidance patterns. Understanding co-occurrence patterns helps assess interspecific relationships and habitat preferences (*Figure 13*).")
-  cm$addReportObject(.txx) 
-  
-  
-  .rxx <- .getRchunk(parent='co_occurrence',name = 'co_occurrence_code',setting={c(echo=FALSE,results="asis",warning=FALSE,cache=FALSE)},code={
-    .spn <- object$get_speciesNames(object$setting$focus_groups)
-    .pa <- FALSE
-    if (!is.null(object$setting$PA) && is.logical(object$setting$PA)) .pa <- TRUE
-    
-    if (.require('corrplot')) {
-      for (.year in object$years) {
-        cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
-        
-        .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
-        
-        par(mar = c(5, 5, 15, 5))
-        
-        .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title= paste0("Species Co-occurrence (Year: ",.year,")"),mar=c(0,0,1,0))',env = environment())
-        
-        cat("\n\n")
-      }
-      #---------
-      cat("\n### Total {.unnumbered}\n\n")
-      
-      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
-      
-      .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title="Species Co-occurrence (Total)",mar=c(0,0,1,0))',env = environment())
-      
-      
-      cat("\n\n")
-      
-      
-      
-    } else {
-      for (.year in object$years) {
-        cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
-        
-        .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
-        par(mar = c(7, 8, 4, 4))
-        .basic_corrplot(.spo,main = paste0("Species Co-occurrence (Year: ",.year,")"))
-        
-        cat("\n\n")
-      }
-      #---------
-      cat("\n### Total {.unnumbered}\n\n")
-      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
-      par(mar = c(7, 8, 4, 4))
-      .basic_corrplot(.spo,main = "Species Co-occurrence (Total)")
-      
-      cat("\n\n")
-    }
-    #---------
-    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n**Figure 13.** *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative across all years.*\n"))
     } else cat("**Figure 13.** *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
     
   })
@@ -1469,24 +1440,40 @@
         if (is.null(r)) next
         
         cat("\n####", sp, "{.unnumbered}\n\n")
-        
         m <- leaflet(df_sp) %>%
           addTiles(group = "OSM") %>%
           addRasterImage(
             r, opacity = 0.7,
             colors = colorRampPalette(c("gray","orange","red","darkred"))(200),
             group = "Density"
-          ) %>%
-          addCircleMarkers(
-            ~longitude, ~latitude,
-            popup = ~sprintf(
-              "<b>%s</b><br/>%s<br/>Obs: %d<br/>Habitat: %s",
-              scientificName, locationName, total_observations, Habitat
-            ),
-            radius = ~sqrt(total_observations)*1.2,
-            color  = "blue", fillOpacity = 0.4,
-            group  = "Points"
-          ) %>%
+          )
+        if ("Habitat_type" %in% colnames(df_sp)) {
+          m <- m %>%
+            addCircleMarkers(
+              ~longitude, ~latitude,
+              popup = ~sprintf(
+                "<b>%s</b><br/>%s<br/>Obs: %d<br/>Habitat: %s",
+                scientificName, locationName, total_observations, Habitat_type
+              ),
+              radius = ~sqrt(total_observations)*1.2,
+              color  = "blue", fillOpacity = 0.4,
+              group  = "Points"
+            )
+        } else {
+          m <- m %>%
+            addCircleMarkers(
+              ~longitude, ~latitude,
+              popup = ~sprintf(
+                "<b>%s</b><br/>%s<br/>Obs: %d",
+                scientificName, locationName, total_observations
+              ),
+              radius = ~sqrt(total_observations)*1.2,
+              color  = "blue", fillOpacity = 0.4,
+              group  = "Points"
+            )
+        }
+        #----
+         m <- m %>%
           addLayersControl(
             baseGroups    = "OSM",
             overlayGroups = c("Density","Points"),
@@ -1537,12 +1524,12 @@
                        "#A06177", "#8C785D", "#467378", "#7C7C7C")
     
     # 🎨 **Create a color mapping for habitat types**
-    habitat_types <- unique(capture_habitat_sel$Habitat)
+    habitat_types <- unique(capture_habitat_sel$Habitat_Type)
     habitat_colors <- setNames(rep(acadia_colors, length.out = length(habitat_types)), habitat_types)
     
     # 🎨 **Generate the plot with Acadia colors**
     print(
-      ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat)) +
+      ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat_Type)) +
         geom_bar(stat = "identity", position = "fill") +  
         labs(
           x = "Species",
@@ -1683,12 +1670,13 @@
         if (!file.exists(.pic_fn)) {
           .pic_link <- favoImgs$filePath[i]
           if (grepl("^https?://", .pic_link)) {
-            download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE)
-            
-            # Resize and save locally
-            image_read(.pic_fn) %>%
-              image_scale("600") %>%
-              image_write(path = .pic_fn)
+            e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
+            if (!inherits(e,'try-error')) {
+              # Resize and save locally
+              image_read(.pic_fn) %>%
+                image_scale("600") %>%
+                image_write(path = .pic_fn)
+            }
           }
         }
         #---
@@ -1726,7 +1714,7 @@ if (!isGeneric("camData")) {
 setMethod('camData', signature(data='character'), 
           function(data,habitat,study_area=NULL,...) {
             
-            if (missing(habitat) || !is.data.frame(habitat)) stop('The habitat data (as a data.frame) is not provided...!')
+            if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
             
             if (missing(study_area)) study_area <- NULL
             
@@ -1738,21 +1726,21 @@ setMethod('camData', signature(data='character'),
             cm$data <- .d$ctdp
             rm(.d); gc()
             #-------
-            cm$habitat <- habitat
+            if (!is.null(habitat)) cm$habitat <- habitat
             
             if (!is.null(study_area)) {
               if (is.character(study_area)) {
                 if (file.exists(study_area)) {
-                  cm$study_area <- wrap(vect(study_area))
+                  cm$study_area <- terra::wrap(vect(study_area))
                 } else {
                   warning("study_area filename is not available and ignored...!")
                 }
               } else if (inherits(study_area,'SpatVector')) {
-                cm$study_area <- wrap(study_area)
+                cm$study_area <- terra::wrap(study_area)
               } else if (inherits(study_area,'PackedSpatVector')) {
                 cm$study_area <- study_area
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area <- wrap(vect(study_area))
+                cm$study_area <- terra::wrap(vect(study_area))
               } else {
                 warning("study_area is ignored (should be a filename or a spatial dataset)...!")
               }
@@ -1796,7 +1784,7 @@ setMethod('camData', signature(data='character'),
 setMethod('camData', signature(data='datapackage'), 
           function(data,habitat,study_area=NULL,...) {
             
-            if (missing(habitat) || !is.data.frame(habitat)) stop('The habitat data (as a data.frame) is not provided...!')
+            if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
             
             if (missing(study_area)) study_area <- NULL
             #-------
@@ -1804,23 +1792,22 @@ setMethod('camData', signature(data='datapackage'),
             cm$setting$locationLegend <- TRUE
             cm$pkg <- data
             cm$data <- .eval("as_ctdp(pkg, verbose = FALSE,...)",env = environment()) 
-            rm(.d); gc()
             #-------
-            cm$habitat <- habitat
+            if (!is.null(habitat)) cm$habitat <- habitat
             
             if (!is.null(study_area)) {
               if (is.character(study_area)) {
                 if (file.exists(study_area)) {
-                  cm$study_area <- wrap(vect(study_area))
+                  cm$study_area <- terra::wrap(vect(study_area))
                 } else {
                   warning("study_area filename is not available and ignored...!")
                 }
               } else if (inherits(study_area,'SpatVector')) {
-                cm$study_area <- wrap(study_area)
+                cm$study_area <- terra::wrap(study_area)
               } else if (inherits(study_area,'PackedSpatVector')) {
                 cm$study_area <- study_area
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area <- wrap(vect(study_area))
+                cm$study_area <- terra::wrap(vect(study_area))
               } else {
                 warning("study_area is ignored (should be a filename or a spatial dataset)...!")
               }

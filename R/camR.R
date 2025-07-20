@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2025
-# Version 1.2
+# Last Update :  July 2025
+# Version 1.4
 # Licence GPL v3
 #--------
 
@@ -217,15 +217,15 @@ camR <- setRefClass(
       
       if (!is.null(.ext) && length(as.vector(.ext)) == 4) {
         .ext <- as.vector(.ext)
-        xr[1] <- max(c(.ext[1],xr[1]))
+        xr[1] <- min(c(.ext[1],xr[1]))
         xr[2] <- max(c(.ext[2],xr[2]))
-        yr[1] <- max(c(.ext[3],yr[1]))
+        yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       } else if (!is.null(.self$study_area)) {
         .ext <- as.vector(ext(.self$study_area))
-        xr[1] <- max(c(.ext[1],xr[1]))
+        xr[1] <- min(c(.ext[1],xr[1]))
         xr[2] <- max(c(.ext[2],xr[2]))
-        yr[1] <- max(c(.ext[3],yr[1]))
+        yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       }
       
@@ -312,7 +312,7 @@ camR <- setRefClass(
       
     },
     .get_REM_Param=function(sp) {
-      if (is.null(.self$.rem_params[[sp]])) {
+      if ((is.null(.self$.rem_params[[sp]]) || !is.list(.self$.rem_params[[sp]])) && .require('camtrapDensity')) {
         x <- try({
           radius_model <- fit_detmodel(radius ~ 1, .self$pkg, species = sp, truncation = "5%",quiet=TRUE)
           angle_model <- fit_detmodel(angle ~ 1, .self$pkg, species = sp, unit = "radian",quiet=TRUE)
@@ -457,7 +457,7 @@ camR <- setRefClass(
       # adding new column (Year) to deployments data.frame:
       .self$data$deployments$Year <- .getYear(.self$data$deployments$deployment_interval) 
       #----
-      .y <- .self$extractYears()
+      .y <- sort(.self$extractYears())
       .self$data_year <- lapply(.y,function(yr) {
         start_date <- paste0(yr, "-01-01")
         end_date <- paste0(yr, "-12-31")
@@ -471,7 +471,7 @@ camR <- setRefClass(
       
       
       .w <- .self$data$taxonomy$scientificName[is.na(.self$data$taxonomy$order) | is.na(.self$data$taxonomy$order)]
-      
+      .w <- .w[!is.na(.w)]
       if (length(.w) > 0) {
         if (.require('taxize')) {
           .w <- .getMissingTaxon_GBIF(.w)
@@ -533,17 +533,24 @@ camR <- setRefClass(
       }
       
       #####################
-      # Extract the Year from 'deployment_interval'
-      .self$data$deployments$Year  <- .getYear(.self$data$deployments$deployment_interval)
       
       #----------------- #Locations with Habitat --------------------------
-      .self$data$locations <- .self$data$locations %>%
-        left_join(.self$habitat, by = "locationName")
+      
+      if (nrow(.self$habitat) > 0) {
+        .self$data$locations <- .self$data$locations %>%
+          left_join(.self$habitat, by = "locationName")
+        if ('habitat' %in% colnames(.self$data$locations)) {
+          colnames(.self$data$locations)[colnames(.self$data$locations) == "habitat"] <- "Habitat_Type"
+        } else if ('Habitat' %in% colnames(.self$data$locations)) {
+          colnames(.self$data$locations)[colnames(.self$data$locations) == "Habitat"] <- "Habitat_Type"
+        }
+        
+      }
       
       #----------- # dep_loc = deployments + locations --------------------------
       dep_loc <- .self$data$deployments %>%
         left_join(.self$data$locations,by="locationID")
-      colnames(dep_loc)[colnames(dep_loc) == "Habitat"] <- "Habitat_Type"
+      if (!"Habitat_Type" %in%  colnames(dep_loc) && 'habitat' %in% colnames(dep_loc)) colnames(dep_loc)[colnames(dep_loc) == "habitat"] <- "Habitat_Type"
       
       dep_loc <- dep_loc %>%
         mutate(
@@ -733,15 +740,15 @@ camR <- setRefClass(
         deployments <- .data_year$deployments %>%
           mutate(start_date = start_dates, end_date = end_dates) %>%
           group_by(locationID) %>%
-          summarise(start_date = min(start_date), end_date = max(end_date), .groups = "drop")
+          summarise(start_date = min(start_date,na.rm=TRUE), end_date = max(end_date,na.rm=TRUE), .groups = "drop")
 
         # Find the earliest and latest deployment dates
-        earliest_start <- min(deployments$start_date)
-        latest_end <- max(deployments$end_date)
+        earliest_start <- min(deployments$start_date,na.rm=TRUE)
+        latest_end <- max(deployments$end_date,na.rm=TRUE)
 
         # Filter valid pickup dates (excluding cameras that stopped too early)
         valid_end_dates <- deployments %>% dplyr::filter(end_date >= (latest_end - days(.self$filterDuration)))
-        earliest_end <- min(valid_end_dates$end_date)
+        earliest_end <- min(valid_end_dates$end_date,na.rm=TRUE)
 
         # Return the processed data as a list
         list(
@@ -1148,12 +1155,15 @@ camR <- setRefClass(
         .e <- sapply(as.character(.self$data$deployments$deployment_interval),function(x) strsplit(x,'--')[[1]][2])
         names(.s) <- names(.e) <-NULL
         
+        if (any(.s == "NA")) .s[.s == "NA"] <- NA
+        if (any(.e == "NA")) .e[.e == "NA"] <- NA
+        
         deploy_dates <-data.frame(start=as.Date(.s),end=as.Date(.e))
         
         
         # Build sun_input and compute sunlight times
         sun_input <- data.frame(
-          date = seq(min(deploy_dates$start), max(deploy_dates$end), by = "day"),
+          date = seq(min(deploy_dates$start, na.rm = TRUE), max(deploy_dates$end, na.rm = TRUE), by = "day"),
           lat = mean(.self$data$locations$latitude, na.rm = TRUE),
           lon = mean(.self$data$locations$longitude, na.rm = TRUE)
         )
@@ -1193,52 +1203,56 @@ camR <- setRefClass(
       #   summarise(effort = sum(effort), .groups = "drop")
       
       # Captures per species × site, with scientificName
-      caps_by_site <- captures(.self$data, by = "locationName") %>%
-        left_join(
-          .self$data$taxonomy %>% 
-            dplyr::select(taxonID, scientificName),
-          by = "taxonID"
-        ) 
       
+      if (nrow(.self$habitat) > 0) {
+        caps_by_site <- captures(.self$data, by = "locationName") %>%
+          left_join(
+            .self$data$taxonomy %>% 
+              dplyr::select(taxonID, scientificName),
+            by = "taxonID"
+          ) 
+        
+        
+        
+        obs_with_habitat <- caps_by_site %>%
+          left_join(.self$data$locations, by = "locationName")
+        
+        summary_by_species_habitat <- obs_with_habitat %>%
+          group_by(
+            observationType,
+            class,
+            order,
+            Habitat_Type,
+            taxonID,
+            scientificName
+          ) %>%
+          summarise(
+            captures   = sum(captures, na.rm = TRUE),
+            effort     = sum(effort,   na.rm = TRUE),
+            .groups    = "drop"
+          ) %>%
+          mutate(
+            capture_rate = captures / effort
+          ) %>%
+          dplyr::select(
+            observationType,
+            class,
+            order,
+            Habitat_Type,
+            taxonID,
+            scientificName,
+            captures,
+            effort,
+            capture_rate
+          ) %>%
+          arrange(scientificName, Habitat_Type)
+        
+        .self$species_summary_by_habitat <- as.data.frame(summary_by_species_habitat)
+        
+        rm(caps_by_site,obs_with_habitat,summary_by_species_habitat)
+        gc()
+      }
       
-      
-      obs_with_habitat <- caps_by_site %>%
-        left_join(.self$data$locations, by = "locationName")
-      
-      summary_by_species_habitat <- obs_with_habitat %>%
-        group_by(
-          observationType,
-          class,
-          order,
-          Habitat,
-          taxonID,
-          scientificName
-        ) %>%
-        summarise(
-          captures   = sum(captures, na.rm = TRUE),
-          effort     = sum(effort,   na.rm = TRUE),
-          .groups    = "drop"
-        ) %>%
-        mutate(
-          capture_rate = captures / effort
-        ) %>%
-        dplyr::select(
-          observationType,
-          class,
-          order,
-          Habitat,
-          taxonID,
-          scientificName,
-          captures,
-          effort,
-          capture_rate
-        ) %>%
-        arrange(scientificName, Habitat)
-      
-      .self$species_summary_by_habitat <- as.data.frame(summary_by_species_habitat)
-      
-      rm(caps_by_site,obs_with_habitat,summary_by_species_habitat)
-      gc()
       
       
       ###########
@@ -1706,7 +1720,8 @@ camR <- setRefClass(
     },
     extractYears = function(update=FALSE) {
       if (update || length(.self$years) == 0) {
-        .self$years <- as.numeric(unique(substr(as.character(as.Date(.self$data$media$media_timestamp)),1,4)))
+        #.self$years <- as.numeric(unique(substr(as.character(as.Date(.self$data$media$media_timestamp)),1,4)))
+        .self$years <- sort(as.numeric(unique(.getYear(.self$data$deployments$deployment_interval))))
       }
       #-----
       .self$years
@@ -1757,9 +1772,17 @@ library(htmlwidgets)
 library(ggthemes)
 library(camtrapdp)
 library(devtools)
+library(htmltools)
+
+.paste_comma_and <- camtrapReport:::.paste_comma_and
+.require <- camtrapReport:::.require
+.get_projected_vect <- camtrapReport:::.get_projected_vect
+.plot_effort <- camtrapReport:::.plot_effort
+.getYear <- camtrapReport:::.getYear
+.eval <- camtrapReport:::.eval
 
 ```
-      ")
+      ",.envir = .self)
       
       for (.n in names(.self$reportObjects)) {
         .x <- .self$reportObjects[[.n]]

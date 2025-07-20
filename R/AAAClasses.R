@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2025
-# Version 1.1
+# Last Update :  July 2025
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -21,7 +21,7 @@ setClass('.Rchunk',
          representation(
            parent='characterORnull',
            name='characterORnull',
-           setting='character',
+           setting='characterORnull',
            code='character'
          )
 )
