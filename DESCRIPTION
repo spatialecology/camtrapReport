@@ -16,5 +16,5 @@ Suggests: camtrapdp, camtrapDensity, ctdp
 Description: An extensible framework for exploring and processing cameratrap
     data to automatically generate a report with maps, tables, description, etc.
 License: GPL (>= 3)
-URL: https://www.biogeoinformatics.org
+URL: https://www.wur.nl/en/persons/elham-ebrahimi.htm
 VignetteBuilder: rmarkdown

@@ -1,13 +1,14 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  July 2025
-# Version 1.0
+# Last Update :  August 2025
+# Version 1.1
 # Licence GPL v3
 #--------
 
 
 
-.testReportSection <- function(x,object) {
+.testReportSection <- function(x,object,view=TRUE) {
   if (missing(object)) object <- NULL
+  if (missing(view)) view <- TRUE # view=FALSE is used only to test if error is generated!
   rmd_file <- tempfile(fileext = ".Rmd")
   output_file <- tempfile(fileext = ".html")
   .env = new.env()
@@ -75,22 +76,25 @@ library(htmltools)
   render_env <- new.env(parent = globalenv())
   render_env$object <- object
   
-  message("Rendering R Markdown report ...")
+  if (view) message("Rendering R Markdown report ...")
   out <- rmarkdown::render(
     input       = rmd_file, 
     output_file = output_file,
     envir       = render_env
   )
   
-  message("Report generated at: ", normalizePath(out))
-  viewer <- getOption("viewer")
-  if (!is.null(viewer)) {
-    # Launch the rendered HTML in the Viewer pane
-    viewer(out)
-  } else {
-    # Fallback: open in default browser
-    utils::browseURL(out)
+  if (view) {
+    message("Report generated at: ", normalizePath(out))
+    viewer <- getOption("viewer")
+    if (!is.null(viewer)) {
+      # Launch the rendered HTML in the Viewer pane
+      viewer(out)
+    } else {
+      # Fallback: open in default browser
+      utils::browseURL(out)
+    }
   }
+  
 }
 #-------------
 
@@ -98,14 +102,15 @@ library(htmltools)
 
 
 if (!isGeneric("testSection")) {
-  setGeneric("testSection", function(x,object)
+  setGeneric("testSection", function(x,object,view)
     standardGeneric("testSection"))
 }
 
 
 setMethod('testSection', signature(x='.textSection'), 
-          function(x,object) {
-            .testReportSection(x,object)
+          function(x,object,view) {
+            if (missing(view)) view <- TRUE
+            .testReportSection(x,object,view)
           }
 )
 
