@@ -11,12 +11,13 @@ Test a sub-section object (\code{.textSection} class)
 If a sub-section object is created using the \code{reportSection} function, it can be tested to see how it looks like in a report.
 }
 \usage{
-testSection(x,object)
+testSection(x,object,view)
 }
 
 \arguments{
   \item{x}{The subsection object created using the \code{reportSection} function}
   \item{object}{The camReport object created using the \code{camData} function}
+  \item{view}{logical (default = TRUE); specifies whether the renderred html file would be displayed!}
   
 }
 \details{

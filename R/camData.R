@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  July 2025
-# Version 1.3
+# Last Update :  August 2025
+# Version 1.4
 # Licence GPL v3
 #--------
 
@@ -139,60 +139,60 @@
   # # Methods -> Locations:
   
   
-  # Define Function to Plot Camera Locations
-  plot_locations <- function(data, color_palette, add_legend = FALSE) {
-    if (is.null(data) || nrow(data) == 0) return(NULL)
-    
-    data <- data %>%
-      mutate(
-        popup_text = paste0(
-          "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
-          "<b>Habitat Type:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A"), "<br>",
-          "<b>Bait Use:</b> ", ifelse(!is.na(BaitUse_List) & BaitUse_List != "", BaitUse_List, "No Data"), "<br>",
-          "<b>Camera Height:</b> ", ifelse(!is.na(cameraHeight) & cameraHeight != "", cameraHeight, "No Data"), "<br>",
-          "<b>Species Observed:</b> ", ifelse(!is.na(Species_List) & Species_List != "", Species_List, "No Data"), "<br>",
-          "<b>Capture Method:</b> ", ifelse(!is.na(CaptureMethod_List) & CaptureMethod_List != "", CaptureMethod_List, "No Data"), "<br>",
-          "<b>Number of Photos:</b> ", ifelse(!is.na(Total_Photos), Total_Photos, "No Data"), "<br>",
-          "<b>Classified By:</b> ", ifelse(!is.na(Classify_By_List) & Classify_By_List != "", Classify_By_List, "No Data"), "<br>",
-          "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
-        )
-      )
-    
-    map <- leaflet(data) %>%
-      addTiles() %>%
-      addPolygons(
-        data = study_areaSHP,
-        fillColor = "transparent",
-        fillOpacity = 0.3,
-        color = "black",
-        weight = 2
-      ) %>%
-      addCircleMarkers(
-        lng = ~longitude, lat = ~latitude,
-        radius = 6,
-        color = ~color_palette(Habitat_Type),
-        fillOpacity = 0.85, stroke = TRUE, weight = 1,
-        popup = ~popup_text
-      ) %>%
-      fitBounds(
-        lng1 = min(data$longitude, na.rm = TRUE),
-        lat1 = min(data$latitude, na.rm = TRUE),
-        lng2 = max(data$longitude, na.rm = TRUE),
-        lat2 = max(data$latitude, na.rm = TRUE)
-      )
-    
-    if (add_legend) {
-      map <- map %>%
-        leaflet::addLegend(
-          position = "bottomright",
-          pal = color_palette,
-          values = data$Habitat_Type,
-          title = "Habitat Type",
-          opacity = 1)
-    }
-    
-    return(map)
-  }
+  # # Define Function to Plot Camera Locations
+  # plot_locations <- function(data, color_palette, add_legend = FALSE) {
+  #   if (is.null(data) || nrow(data) == 0) return(NULL)
+  #   
+  #   data <- data %>%
+  #     mutate(
+  #       popup_text = paste0(
+  #         "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
+  #         "<b>Habitat Type:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A"), "<br>",
+  #         "<b>Bait Use:</b> ", ifelse(!is.na(BaitUse_List) & BaitUse_List != "", BaitUse_List, "No Data"), "<br>",
+  #         "<b>Camera Height:</b> ", ifelse(!is.na(cameraHeight) & cameraHeight != "", cameraHeight, "No Data"), "<br>",
+  #         "<b>Species Observed:</b> ", ifelse(!is.na(Species_List) & Species_List != "", Species_List, "No Data"), "<br>",
+  #         "<b>Capture Method:</b> ", ifelse(!is.na(CaptureMethod_List) & CaptureMethod_List != "", CaptureMethod_List, "No Data"), "<br>",
+  #         "<b>Number of Photos:</b> ", ifelse(!is.na(Total_Photos), Total_Photos, "No Data"), "<br>",
+  #         "<b>Classified By:</b> ", ifelse(!is.na(Classify_By_List) & Classify_By_List != "", Classify_By_List, "No Data"), "<br>",
+  #         "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
+  #       )
+  #     )
+  #   
+  #   map <- leaflet(data) %>%
+  #     addTiles() %>%
+  #     addPolygons(
+  #       data = study_areaSHP,
+  #       fillColor = "transparent",
+  #       fillOpacity = 0.3,
+  #       color = "black",
+  #       weight = 2
+  #     ) %>%
+  #     addCircleMarkers(
+  #       lng = ~longitude, lat = ~latitude,
+  #       radius = 6,
+  #       color = ~color_palette(Habitat_Type),
+  #       fillOpacity = 0.85, stroke = TRUE, weight = 1,
+  #       popup = ~popup_text
+  #     ) %>%
+  #     fitBounds(
+  #       lng1 = min(data$longitude, na.rm = TRUE),
+  #       lat1 = min(data$latitude, na.rm = TRUE),
+  #       lng2 = max(data$longitude, na.rm = TRUE),
+  #       lat2 = max(data$latitude, na.rm = TRUE)
+  #     )
+  #   
+  #   if (add_legend) {
+  #     map <- map %>%
+  #       leaflet::addLegend(
+  #         position = "bottomright",
+  #         pal = color_palette,
+  #         values = data$Habitat_Type,
+  #         title = "Habitat Type",
+  #         opacity = 1)
+  #   }
+  #   
+  #   return(map)
+  # }
   
   
   .txx <- .getTextObj(name='location',title="Camera Locations {.tabset}",parent='methods',
@@ -252,7 +252,7 @@
       map <- leaflet(data) %>%
         addTiles()
       
-      if (!is.null(object$study_area)) {
+      if (nrow(object$study_area@attributes) > 0) {
         .tmpStudyArea <- project(unwrap(object$study_area),"epsg:4326")
         
         map <- map %>%
@@ -358,22 +358,26 @@
           "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
         )
       )
-    .tmpStudyArea <- project(unwrap(object$study_area),"epsg:4326") 
+    
+    
+    map <- leaflet(.dat_year, width = "100%", height = "400px") %>%
+      addTiles()
+    
+    if (nrow(object$study_area@attributes) > 0) {
+      .tmpStudyArea <- project(unwrap(object$study_area),"epsg:4326")
+      
+      map <- map %>%
+        addPolygons(
+          data = .tmpStudyArea,
+          fillColor = "transparent",
+          fillOpacity = 0.3,
+          color = "black",
+          weight = 2
+        )
+    }
     
     # ✅ **Step 5: Generate and Display Interactive Leaflet Map**
-    map <- leaflet(.dat_year, width = "100%", height = "400px") %>%
-      
-      # 🔹 **Add Base Map**
-      addTiles() %>%
-      
-      # 🔹 **Overlay Study Area Polygon (Ensuring it's Below the Points)**
-      addPolygons(
-        data = .tmpStudyArea,
-        fillColor = "transparent",
-        fillOpacity = 0.3,
-        color = "black",
-        weight = 2
-      ) %>%
+    map <- map %>%
       
       # 🔹 **Add Camera Locations with Color Mapping Based on Habitat**
       addCircleMarkers(
@@ -1219,7 +1223,7 @@
   
   .rxx <- .getRchunk(parent='richness',name = 'richness_code',setting={c(echo=FALSE,results="asis",warning=FALSE,fig.show='hold')},code={
     study_areaSHP <- NULL
-    if (!is.null(object$study_area)) {
+    if (nrow(object$study_area@attributes) > 0) {
       # study_areaSHP <- object$study_area %>%
       #   st_zm() %>% st_transform(crs = 4326)
       
@@ -1229,16 +1233,28 @@
     #------------
     
     plot_richness <- function(data) {
-      data <- data %>%
-        mutate(
-          Habitat = gsub("_", " ", Habitat_Type),
-          popup = paste0(
-            "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
-            "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
-            "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>",
-            "<b>Habitat:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A")
+      if ('Habitat_Type' %in% colnames(data)) {
+        data <- data %>%
+          mutate(
+            Habitat_Type = gsub("_", " ", Habitat_Type),
+            popup = paste0(
+              "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
+              "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
+              "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>",
+              "<b>Habitat:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A")
+            )
           )
-        )
+      } else {
+        data <- data %>%
+          mutate(
+            popup = paste0(
+              "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
+              "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
+              "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>"
+              
+            )
+          )
+      }
       
       #
       present_levels <- as.character(sort(unique(data$Richness)))
@@ -1423,7 +1439,7 @@
       .dfs <- as.data.frame(.dfs,geom="XY")
       species_list <- unique(.dfs$scientificName)
       #---
-      if (!is.null(object$study_area)) {
+      if (nrow(object$study_area@attributes) > 0) {
         .ext <- as.vector(ext(project(unwrap(object$study_area),.crs)))
       } else .ext <- NULL
       
@@ -1436,7 +1452,8 @@
         df_sp <- .dfs %>% dplyr::filter(scientificName == sp)
         if (nrow(df_sp) < 3) next
         
-        r <- object$spatial_density(df_sp,.crs=.crs,.ext=.ext)
+        r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext),silent = TRUE)
+        if (inherits(r,'try-error')) r <- NULL
         if (is.null(r)) next
         
         cat("\n####", sp, "{.unnumbered}\n\n")
@@ -1514,42 +1531,46 @@
   .rxx <- .getRchunk(parent='habitat_preferences',name = 'habitat_preferences_code',setting={c(echo=FALSE,results="asis",warning=FALSE,message=FALSE)},code={
     .spn <- object$get_speciesNames(object$setting$focus_groups)
     
-    capture_habitat_sel <- object$species_summary_by_habitat %>%
-      dplyr::filter(scientificName %in% .spn)
-    
-    
-    # 🎨 **Define Acadia color palette**
-    acadia_colors <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", 
-                       "#526A83", "#625377", "#68855C", "#9C9C5E", 
-                       "#A06177", "#8C785D", "#467378", "#7C7C7C")
-    
-    # 🎨 **Create a color mapping for habitat types**
-    habitat_types <- unique(capture_habitat_sel$Habitat_Type)
-    habitat_colors <- setNames(rep(acadia_colors, length.out = length(habitat_types)), habitat_types)
-    
-    # 🎨 **Generate the plot with Acadia colors**
-    print(
-      ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat_Type)) +
-        geom_bar(stat = "identity", position = "fill") +  
-        labs(
-          x = "Species",
-          y = "Capture Rate (Proportion)",
-          fill = "Habitat Type"
-        ) +
-        scale_fill_manual(values = habitat_colors) +  # Apply Acadia colors
-        scale_y_continuous(labels = scales::percent_format()) + 
-        theme_minimal() +
-        theme(
-          axis.text.x = element_text(angle = 45, hjust = 1),
-          plot.title = element_text(size = 14, face = "bold")
-        )
-    )
-    cat("\n\n")
-    
-    #---------
-    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("**Figure 15.**: _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
-    } else cat("**Figure 15.**: _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
+    capture_habitat_sel <- object$species_summary_by_habitat 
+    if (nrow(capture_habitat_sel) > 0) {
+      capture_habitat_sel <- capture_habitat_sel %>%
+        dplyr::filter(scientificName %in% .spn)
+      
+      
+      # 🎨 **Define Acadia color palette**
+      acadia_colors <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", 
+                         "#526A83", "#625377", "#68855C", "#9C9C5E", 
+                         "#A06177", "#8C785D", "#467378", "#7C7C7C")
+      
+      # 🎨 **Create a color mapping for habitat types**
+      habitat_types <- unique(capture_habitat_sel$Habitat_Type)
+      habitat_colors <- setNames(rep(acadia_colors, length.out = length(habitat_types)), habitat_types)
+      
+      # 🎨 **Generate the plot with Acadia colors**
+      print(
+        ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat_Type)) +
+          geom_bar(stat = "identity", position = "fill") +  
+          labs(
+            x = "Species",
+            y = "Capture Rate (Proportion)",
+            fill = "Habitat Type"
+          ) +
+          scale_fill_manual(values = habitat_colors) +  # Apply Acadia colors
+          scale_y_continuous(labels = scales::percent_format()) + 
+          theme_minimal() +
+          theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            plot.title = element_text(size = 14, face = "bold")
+          )
+      )
+      cat("\n\n")
+      
+      #---------
+      if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
+        cat(paste0("**Figure 15.**: _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
+      } else cat("**Figure 15.**: _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
+      
+    }
     
   })
   cm$addReportObject(.rxx)
@@ -1592,29 +1613,29 @@
       left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") %>%
       group_by(scientificName)
     
-    
-    if (!is.null(object$setting$focus_groups)) {
-      favoImgs <- favoImgs %>%
-        dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) %>%
-        sample_n(1) %>%
-        ungroup()
-    } else {
-      favoImgs <- favoImgs %>%
-        sample_n(1) %>%
-        ungroup()
-    }
-    
-    #--------
     if (nrow(favoImgs) > 0) {
-      cat(paste0(
-        "\nThe following images showcase a selection of ", nrow(favoImgs), " species: ",
-        paste(paste0("<i>", favoImgs$scientificName, "</i>"), collapse = ", "),
-        ", captured at different camera locations within this study site.\n"
-      ))
+      if (!is.null(object$setting$focus_groups)) {
+        favoImgs <- favoImgs %>%
+          dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) %>%
+          sample_n(1) %>%
+          ungroup()
+      } else {
+        favoImgs <- favoImgs %>%
+          sample_n(1) %>%
+          ungroup()
+      }
+      
       #--------
-      #------
-      # CSS for Lightbox Effect 
-      HTML('
+      if (nrow(favoImgs) > 0) {
+        cat(paste0(
+          "\nThe following images showcase a selection of ", nrow(favoImgs), " species: ",
+          paste(paste0("<i>", favoImgs$scientificName, "</i>"), collapse = ", "),
+          ", captured at different camera locations within this study site.\n"
+        ))
+        #--------
+        #------
+        # CSS for Lightbox Effect 
+        HTML('
         <style>
     /* Lightbox effect */
     .lightbox {
@@ -1658,46 +1679,48 @@
     }
     </style>
     ')
-      #-------
-      if (!dir.exists(paste0(object$pkg$directory,"/_camtrap_pictures"))) {
-        dir.create(paste0(object$pkg$directory,"/_camtrap_pictures"))
-      }
-      #-----
-      .fn <- favoImgs$fileName
-      html_output <- '<div class="image-container">'
-      for (i in seq_along(.fn)) {
-        .pic_fn <- paste0(object$pkg$directory,"/_camtrap_pictures/",.fn[i])
-        if (!file.exists(.pic_fn)) {
-          .pic_link <- favoImgs$filePath[i]
-          if (grepl("^https?://", .pic_link)) {
-            e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
-            if (!inherits(e,'try-error')) {
-              # Resize and save locally
-              image_read(.pic_fn) %>%
-                image_scale("600") %>%
-                image_write(path = .pic_fn)
+        #-------
+        if (!dir.exists(paste0(object$pkg$directory,"/_camtrap_pictures"))) {
+          dir.create(paste0(object$pkg$directory,"/_camtrap_pictures"))
+        }
+        #-----
+        .fn <- favoImgs$fileName
+        html_output <- '<div class="image-container">'
+        for (i in seq_along(.fn)) {
+          .pic_fn <- paste0(object$pkg$directory,"/_camtrap_pictures/",.fn[i])
+          if (!file.exists(.pic_fn)) {
+            .pic_link <- favoImgs$filePath[i]
+            if (grepl("^https?://", .pic_link)) {
+              e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
+              if (!inherits(e,'try-error')) {
+                # Resize and save locally
+                image_read(.pic_fn) %>%
+                  image_scale("600") %>%
+                  image_write(path = .pic_fn)
+              }
             }
           }
-        }
-        #---
-        if (file.exists(.pic_fn)) {
-          # Add image with lightbox effect
-          html_output <- paste0(html_output, '
+          #---
+          if (file.exists(.pic_fn)) {
+            # Add image with lightbox effect
+            html_output <- paste0(html_output, '
         <div class="image-box">
           <a href="#img', i, '"><img src="', .pic_fn, '" alt="Image ', i, '"></a>
         </div>')
-        } else {
-          html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
+          } else {
+            html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
+          }
         }
+        #------
+        html_output <- paste0(html_output, '</div>')
+        
+        # Render HTML correctly
+        HTML(html_output)
+        
+        
       }
-      #------
-      html_output <- paste0(html_output, '</div>')
-      
-      # Render HTML correctly
-      HTML(html_output)
-      
-      
     }
+    
   })
   
   #==========

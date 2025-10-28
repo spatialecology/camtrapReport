@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  July 2025
-# Version 1.4
+# Last Update :  October 2025
+# Version 1.6
 # Licence GPL v3
 #--------
 
@@ -70,7 +70,8 @@ camR <- setRefClass(
       .self$description <- "No discription has been provided for this site. The report object can be updated by overriding the 'description' field!"
       
       .self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
-      
+      .self$title <- 'Report generated using the camtrapReport package'
+      .self$authors <- 'Elham Ebrahimi, Patrick Jansen'
     },
     add_group = function(name,x) {
       # add the group to group_definition
@@ -221,7 +222,7 @@ camR <- setRefClass(
         xr[2] <- max(c(.ext[2],xr[2]))
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
-      } else if (!is.null(.self$study_area)) {
+      } else if (nrow(.self$study_area@attributes) > 0) {
         .ext <- as.vector(ext(.self$study_area))
         xr[1] <- min(c(.ext[1],xr[1]))
         xr[2] <- max(c(.ext[2],xr[2]))
@@ -270,45 +271,48 @@ camR <- setRefClass(
         } else stop('No records are available for the specified years...!')
       }
       #-------
-      .d <- .d %>%
-        group_by(locationID, scientificName) %>%
-        summarise(
-          total_observations = n_distinct(observationID),
-          total_count        = sum(count, na.rm = TRUE),
-          .groups = "drop"
-        ) %>%
-        left_join(.self$data$locations, by = "locationID")
-      #----
-      if (cor_matrix) {
-        if (PA) {
-          .d <- .d %>%
-            group_by(locationID, scientificName) %>%
-            summarise(count = n(), .groups = "drop") %>%
-            pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+      if (nrow(.d) > 0) {
+        .d <- .d %>%
+          group_by(locationID, scientificName) %>%
+          summarise(
+            total_observations = n_distinct(observationID),
+            total_count        = sum(count, na.rm = TRUE),
+            .groups = "drop"
+          ) %>%
+          left_join(.self$data$locations, by = "locationID")
+        #----
+        if (cor_matrix) {
+          if (PA) {
+            .d <- .d %>%
+              group_by(locationID, scientificName) %>%
+              summarise(count = n(), .groups = "drop") %>%
+              pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+            
+            sp_mat <- as.matrix(.d[, -1])  
+            rownames(sp_mat) <- .d$locationID
+            
+            sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
+            
+            
+            cor(sp_mat, use = "pairwise.complete.obs")
+          } else {
+            .d <- .d %>%
+              group_by(locationID, scientificName) %>%
+              summarise(count = total_count, .groups = "drop") %>%
+              pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+            
+            sp_mat <- as.matrix(.d[, -1])  
+            rownames(sp_mat) <- .d$locationID
+            
+            sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
+            
+            
+            cor(sp_mat, use = "pairwise.complete.obs",method = 'spearman')
+          }
           
-          sp_mat <- as.matrix(.d[, -1])  
-          rownames(sp_mat) <- .d$locationID
-          
-          sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
-          
-          
-          cor(sp_mat, use = "pairwise.complete.obs")
-        } else {
-          .d <- .d %>%
-            group_by(locationID, scientificName) %>%
-            summarise(count = total_count, .groups = "drop") %>%
-            pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
-          
-          sp_mat <- as.matrix(.d[, -1])  
-          rownames(sp_mat) <- .d$locationID
-          
-          sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
-          
-          
-          cor(sp_mat, use = "pairwise.complete.obs",method = 'spearman')
-        }
-        
-      } else .d
+        } else .d
+      }
+      
       
     },
     .get_REM_Param=function(sp) {
@@ -471,6 +475,7 @@ camR <- setRefClass(
       
       
       .w <- .self$data$taxonomy$scientificName[is.na(.self$data$taxonomy$order) | is.na(.self$data$taxonomy$order)]
+      .w <- .w[.w != " "]
       .w <- .w[!is.na(.w)]
       if (length(.w) > 0) {
         if (.require('taxize')) {

@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  July 2025
-# Version 1.4
+# Last Update :  Oct. 2025
+# Version 1.5
 # Licence GPL v3
 #--------
 
@@ -222,6 +222,11 @@
     #----
     .x <- "classification(.id$ids,db='gbif')"
     .x <- .eval(.x,env=environment())
+    w <- which(is.na(names(.x)))
+    if (length(w) > 0) {
+      .x <- .x[-w]
+      x <- x[-w]
+    }
     #----
     .class <- sapply(.x, function(x) x$name[3])
     .order <- sapply(.x, function(x) x$name[4])
