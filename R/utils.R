@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Oct. 2025
-# Version 1.5
+# Last Update :  Nov. 2025
+# Version 1.7
 # Licence GPL v3
 #--------
 
@@ -883,4 +883,51 @@
     polygon(xx, yy, border = NA, col = 8)
     lines(z$time, z$nrCams, type = "s")
   }
+}
+#--------
+.left_join <- function(d1,d2,by) {
+  if (length(by) == 1) {
+    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
+    merge(d1,d2,by=by,all.x=TRUE)
+  } else if (length(by) == 2) {
+    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
+    merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
+  }
+}
+#----------
+# get Data/Time Format:
+.getFormat <- function(x) {
+  .dtFormats <- c("%Y-%m-%dT%H:%M:%OS","%Y-%m-%d %H:%M:%OS","%Y/%m/%dT%H:%M:%OS",
+                  "%Y/%m/%d %H:%M:%OS","%Y-%m-%d %H:%M","%Y/%m/%d %H:%M","%Y-%m-%d","%Y/%m/%d")
+  o <- c()
+  
+  for (.f in .dtFormats) {
+    o <- c(o,all(!is.na(as.POSIXct(x,format=.f))))
+  }
+  if (any(o)) {
+    .dtFormats[which(o)[1]]
+  } else NA
+  
+}
+#----------
+
+.bind_rows <- function(x) {
+  o <- data.frame()
+  
+  .x <- sapply(x,ncol)
+  if (length(unique(.x)) > 1) {
+    .tmp <- a[[which.max(.x)]]
+    .tmp[1,] <- NA
+    for (i in seq_along(x)) {
+      .o <- .tmp
+      .o[1,colnames(x[[i]])] <- x[[i]]
+      o <- rbind(o,.o)
+    }
+  } else {
+    for (i in seq_along(x)) {
+      o <- rbind(o,x[[i]])
+    }
+  }
+  
+  o
 }

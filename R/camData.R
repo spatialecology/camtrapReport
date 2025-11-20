@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  August 2025
-# Version 1.4
+# Last Update :  Nov. 2025
+# Version 1.7
 # Licence GPL v3
 #--------
 
@@ -211,26 +211,12 @@
         return(NULL)  # Return NULL if data is missing or empty
       }
       
-      # # Create a popup text with Location Name & Habitat Type
-      # data$popup_text <- paste0(
-      #   "<b>Location:</b> ", ifelse(!is.na(data$locationName), data$locationName, "N/A"), "<br>",
-      #   "<b>Habitat Type:</b> ", ifelse(!is.na(data$Habitat_Type), data$Habitat_Type, "N/A"), "<br>",
-      #   "<b>Bait Use:</b> ", ifelse(!is.na(data$BaitUse_List) && data$BaitUse_List != "", data$BaitUse_List, "No Data"), "<br>",
-      #   "<b>Camera Height:</b> ", ifelse(!is.na(data$cameraHeight) && data$cameraHeight != "", data$cameraHeight, "No Data"), "<br>",
-      #   "<b>Species Observed:</b> ", ifelse(!is.na(data$Species_List) && data$Species_List != "", data$Species_List, "No Data"), "<br>",
-      #   "<b>Capture Method:</b> ", ifelse(!is.na(data$CaptureMethod_List) && data$CaptureMethod_List != "", data$CaptureMethod_List, "No Data"), "<br>",
-      #   "<b>Number of Photos:</b> ", ifelse(!is.na(data$Total_Photos), data$Total_Photos, "No Data"), "<br>",
-      #   "<b>Classified By:</b> ", ifelse(!is.na(data$Classify_By_List) && data$Classify_By_List != "", data$Classify_By_List, "No Data"), "<br>",
-      #   "<b>Setup By:</b> ", ifelse(!is.na(data$Setup_By_List) && data$Setup_By_List != "", data$Setup_By_List, "No Data")
-      # )
       
-      
-      #
       # Create color mapping
       habitat_colors <- colorFactor(
         palette = color_palette,
         domain = .all_habitat,
-        na.color = "#bdbdbd"
+        na.color = "#EDAC8C"
       )
       
       
@@ -340,7 +326,7 @@
     
     habitat_colors <- colorFactor(
       palette = object$setting$color,
-      domain = unique_habitats, na.color = "#bdbdbd"
+      domain = unique_habitats, na.color = "#EDAC8C"
     )
     
     .dat_year <- .dat_year %>%
@@ -973,7 +959,7 @@
       species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
       
       # Plot active speed with error bars
-      ggplot(speed_activity_data %>% dplyr::filter(Metric == "active_speed"),
+      p <- ggplot(speed_activity_data %>% dplyr::filter(Metric == "active_speed"),
              aes(x = scientificName, y = estimate, fill = scientificName)) +
         geom_bar(stat = "identity") +
         geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
@@ -988,6 +974,7 @@
           legend.position = "none"
         )
       
+      print(p)
       # Caption
       cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
       
@@ -1005,7 +992,7 @@
       species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
       
       # Plot
-      ggplot(activity_data, 
+      p <- ggplot(activity_data, 
              aes(x = scientificName, y = estimate, fill = scientificName)) + 
         geom_bar(stat = "identity") +
         geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
@@ -1019,6 +1006,8 @@
           plot.title = element_text(face = "bold"),
           legend.position = "none"
         )
+      
+      print(p)
       
       # Caption
       cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
@@ -1037,7 +1026,7 @@
       species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
       
       # Plot
-      ggplot(overall_speed_data, 
+      p <- ggplot(overall_speed_data, 
              aes(x = scientificName, y = estimate, fill = scientificName)) + 
         geom_bar(stat = "identity") +
         geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
@@ -1052,6 +1041,7 @@
           legend.position = "none"
         )
       
+      print(p)
       # Caption
       cat("\n\n**Figure 9.** *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
     }
@@ -1433,6 +1423,7 @@
       df <- object$species_summary_by_location(year = .year,spList = .spn,cor_matrix = FALSE)
       df$lon <- df$longitude
       df$lat <- df$latitude
+      if (is.null(df)) return(NULL)
       .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
       .dfs <- .get_projected_vect(.dfs)
       .crs <- crs(.dfs)
@@ -1580,10 +1571,7 @@
   
   
   .txx <- .getTextObj(name='acknowledgements',title='Acknowledgements',
-                      txt=list(p1="We thank Jan den Ouden, Anouk van der Schaaf, and other colleagues and students of Wageningen University for their help with fieldwork and image processing. We also appreciate Jan Griekspoor, Jan de Wilde, and Cees de Jong of Staatsbeheer Gelderland for their support and for providing the necessary permits. Additionally, we extend our gratitude to Douwe Joustra at the State Forest Service in the Netherlands for providing the shapefile of the study areas. Equipment was kindly provided by the Wildlife Ecology & Conservation group of Wageningen University.",
-                               p2 = "Financial support was provided by **[EFSA](https://www.efsa.europa.eu/en)**, through **[ENETWILD](https://enetwild.com/)** and the **[EOW](https://wildlifeobservatory.org/wildlife-in-europe/)**, as well as the **[BIG PICTURE project](https://www.biodiversa.eu/2024/04/15/big_picture/)**.",
-                               p3 = "This report was generated using the R package *camtrapReport*, developed by Elham Ebrahimi, Anna Stubbe, Laurens Dijkhuis, Henjo de Knegt, Yorick Liefting, and Patrick Jansen from the [Wildlife Ecology and Conservation Group at Wageningen University](https://www.wur.nl/en/Research-Results/Chair-groups/Environmental-Sciences/Wildlife-Ecology-and-Conservation-Group.htm) and the [Wildlife Ecology and Nature Restoration Group at Utrecht University](https://www.uu.nl/staff/organisationalchart/beta/84/377/BEBIEBWE). Users are kindly requested to cite the package using its DOI when using or publishing results based on *camtrapReport*."
-                      ))
+                      txt="This report was generated using the R package camtrapReport, developed by Elham Ebrahimi and Patrick Jansen from the Wildlife Ecology and Conservation Group, Wageningen University, and the Wildlife Ecology and Nature Restoration Group, Utrecht University. Users are kindly requested to cite the package using its DOI (https://doi.org/10.5281/zenodo.15721045) when using camtrapReport or publishing results based on it.")
   #---------------------
   cm$addReportObject(.txx)
   
@@ -1604,7 +1592,8 @@
   .txx <- .getTextObj(name='appendix',title='Appendix {.tabset .unnumbered}')
   cm$addReportObject(.txx)
   
-  .rxx <- .getRchunk(parent='appendix',name = 'appendix_code',setting={c(echo=FALSE,results="asis")},code={
+  
+  .rxx <- .getRchunk(parent='appendix',name = 'appendix_code',setting={c(echo=FALSE,results="asis",warning = FALSE)},code={
     
     # Filter media with favorites
     favoImgs <- object$data$media %>%
@@ -1612,6 +1601,8 @@
       left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') %>%
       left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") %>%
       group_by(scientificName)
+    
+    .downloadable <- FALSE
     
     if (nrow(favoImgs) > 0) {
       if (!is.null(object$setting$focus_groups)) {
@@ -1627,11 +1618,7 @@
       
       #--------
       if (nrow(favoImgs) > 0) {
-        cat(paste0(
-          "\nThe following images showcase a selection of ", nrow(favoImgs), " species: ",
-          paste(paste0("<i>", favoImgs$scientificName, "</i>"), collapse = ", "),
-          ", captured at different camera locations within this study site.\n"
-        ))
+        
         #--------
         #------
         # CSS for Lightbox Effect 
@@ -1697,31 +1684,48 @@
                 image_read(.pic_fn) %>%
                   image_scale("600") %>%
                   image_write(path = .pic_fn)
+                
+                .downloadable <- TRUE
               }
             }
           }
           #---
           if (file.exists(.pic_fn)) {
+            .downloadable <- TRUE
             # Add image with lightbox effect
             html_output <- paste0(html_output, '
         <div class="image-box">
           <a href="#img', i, '"><img src="', .pic_fn, '" alt="Image ', i, '"></a>
         </div>')
-          } else {
-            html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
-          }
+          } # else {
+          #html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
+          #}
         }
         #------
         html_output <- paste0(html_output, '</div>')
         
+        
+        if (.downloadable) {
+          cat(paste0(
+            "\nThe following images showcase a selection of ", nrow(favoImgs), " species: ",
+            paste(paste0("<i>", favoImgs$scientificName, "</i>"), collapse = ", "),
+            ", captured at different camera locations within this study site.\n"
+          ))
+          
+          HTML(html_output)
+        } else {
+          cat("As the user did not provide access to their favourite images, no images were selected for the appendix.")
+        }
+        
         # Render HTML correctly
-        HTML(html_output)
+        
         
         
       }
     }
     
   })
+  
   
   #==========
   cm$addReportObject(.rxx)

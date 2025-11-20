@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  October 2025
-# Version 1.6
+# Last Update :  Nov. 2025
+# Version 1.7
 # Licence GPL v3
 #--------
 
@@ -279,7 +279,9 @@ camR <- setRefClass(
             total_count        = sum(count, na.rm = TRUE),
             .groups = "drop"
           ) %>%
-          left_join(.self$data$locations, by = "locationID")
+          left_join(.self$data$locations, by = "locationID",multiple = "any")
+        
+        
         #----
         if (cor_matrix) {
           if (PA) {
@@ -1725,8 +1727,8 @@ camR <- setRefClass(
     },
     extractYears = function(update=FALSE) {
       if (update || length(.self$years) == 0) {
-        #.self$years <- as.numeric(unique(substr(as.character(as.Date(.self$data$media$media_timestamp)),1,4)))
-        .self$years <- sort(as.numeric(unique(.getYear(.self$data$deployments$deployment_interval))))
+        #.self$years <- sort(as.numeric(unique(.getYear(.self$data$observations$eventStart))))
+        .self$years <- sort(as.numeric(unique(.getYear(.self$data$observations$observation_timestamp))))
       }
       #-----
       .self$years
