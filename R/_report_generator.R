@@ -201,7 +201,7 @@ cm$addReportObject(.rxx) # adding R chunk!
   unique_habitats <- unique(.dat_year$Habitat_Type)
   
   habitat_colors <- colorFactor(
-    palette = c("#855C75FF", "#D9AF6BFF", "#AF6458FF", "#736F4CFF", "#526A83FF", "#625377FF"),
+    palette = c("#032CA6FF", "#855C75FF", "#D9AF6BFF", "#AF6458FF", "#736F4CFF", "#526A83FF", "#625377FF"),
     domain = unique_habitats, na.color = "#bdbdbd"
   )
   
@@ -514,7 +514,7 @@ cm$addReportObject(.txx)
       ) %>%
       gt() %>%
       tab_header(
-        title = md(paste0("**", emoji, " Table 3. Summary of Frequently Observed ", group_labels, "**")),
+        title = md(paste0("**", emoji, " Table 2. Summary of Frequently Observed ", group_labels, "**")),
         subtitle = md(paste0("Species with ≥ ", obs_threshold, " observations"))
       ) %>%
       tab_options(
