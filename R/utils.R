@@ -114,28 +114,6 @@
 }
 #----
 
-.ctdp_Filter_by_year <- function(x,y) {
-  .y <- .getYear(x$sequences$sequence_interval,.interval=TRUE)
-  if (length(.y) == length(unlist(.y))) {
-    .y <- unlist(.y)
-    .w <- which(.y %in% y)
-  } else {
-    .w <- which(sapply(.y, function(k) any(k %in% y)))
-  }
-  x$sequences <- x$sequences[.w,]
-  x$sequences <- x$sequences %>% filter(int_start(sequence_interval) > 
-                                          start, int_start(sequence_interval) < end)
-  x$deployments <- x$deployments[x$deployments$deploymentID %in% x$sequences$deploymentID,]
-  x$locations <- x$locations[x$locations$locationID %in% x$deployments$locationID,]
-  
-  x$observations <- x$observations[x$observations$sequenceID %in% x$sequences$sequenceID,] 
-  x$media <- x$media[x$media$sequenceID %in% x$sequences$sequenceID,]
-  
-  x
-  
-}
-#====
-
 .getTextObj <- function(name=NULL,title=NULL,parent=NULL,txt=NULL) {
   new('.textSection',name=name,title=title,parent=parent,txt=txt)
 }
@@ -265,107 +243,6 @@
 }
 
 #----------
-# copied (and adjusted) from the fit_detmodel function in the camtrapDensity package:
-.fit_rem <- function (formula, dat, species = NULL, newdata = NULL, unit = c("m", "km", "cm", "degree", "radian"), ...) {
-  unit <- match.arg(unit)
-  allvars <- all.vars(formula)
-  depvar <- allvars[1]
-  covars <- tail(allvars, -1)
-  #dat <- package$data$observations
-  if (!all(allvars %in% names(dat))) 
-    stop("Can't find all model variables in data")
-  if ("distance" %in% covars) 
-    stop("Cannot use \"distance\" as a covariate name - rename and try again")
-  #species <- select_species(package, species)
-  if ("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
-  
-  dat <- dat[dat$scientificName %in% species,allvars,drop=FALSE]
-  dat <- as.data.frame(na.omit(dat))
-  
-  if (nrow(dat) == 0) 
-    stop("There are no usable position data")
-  classes <- apply(dat,2,class)
-  if (classes[depvar] == "numeric") {
-    colnames(dat)[which(colnames(dat) == depvar)] <- 'distance'
-    dat$distance <- abs(dat$distance)
-  } else {
-    cats <- strsplit(as.character(dat[,depvar]),"-")
-    dat$distbegin <- unlist(lapply(cats, function(x) as.numeric(x[1])))
-    dat$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
-    dat$distance <- (dat$distbegin + dat$distend)/2
-  }
-  type <- if (unit %in% c("m", "km", "cm")) 
-    "point" else "line"
-  args <- c(data = list(dat), formula = formula[-2], transect = type, 
-            list(...))
-  mod <- suppressWarnings(suppressMessages(do.call(Distance::ds, 
-                                                   args)$ddf))
-  if (length(covars) == 0) 
-    newdata <- data.frame(x = 0)
-  else {
-    if (is.null(newdata)) {
-      newdata <- dat %>% dplyr::select(dplyr::all_of(covars)) %>% 
-        lapply(function(x) if (is.numeric(x)) 
-          mean(x, na.rm = T)
-          else sort(unique(x))) %>% expand.grid()
-    }
-    else {
-      if (!all(covars %in% names(newdata))) 
-        stop("Can't find all model covariates in newdata")
-    }
-  }
-  prdn <- predict(mod, newdata, esw = TRUE, se.fit = TRUE)
-  if (mod$meta.data$point) {
-    prdn$se.fit <- 0.5 * prdn$se.fit/(pi * prdn$fitted)^0.5
-    prdn$fitted <- sqrt(prdn$fitted/pi)
-  }
-  ed <- cbind(estimate = prdn$fitted, se = prdn$se.fit)
-  if (length(covars) >= 1) 
-    ed <- cbind(newdata, ed)
-  mod$edd <- ed
-  mod$unit <- unit
-  mod$proportion_used <- nrow(mod$data)/nrow(dat)
-  mod
-}
-#-----
-.fit_speedmodel <- function (dat, species = NULL, newdata = NULL, formula=speed~1,
-                             reps = 1000, distUnit = c("m", "km", "cm"), timeUnit = c("second", "minute", "hour", "day"), ...) {
-  distUnit <- match.arg(distUnit)
-  timeUnit <- match.arg(timeUnit)
-  varnms <- 'speed'
-  
-  dat <- dat[dat$scientificName %in% species & dat$speed > 0.01 & dat$speed < 10,varnms,drop=FALSE]
-  dat <- as.data.frame(na.omit(dat))
-  
-  if (nrow(dat) == 0) 
-    stop("There are no usable speed data")
-  res <- sbd::sbm(formula, dat, ...)
-  res$unit <- paste(distUnit, timeUnit, sep = "/")
-  res
-}
-#---
-
-
-
-.fit_actmodel <- function (dat, species = NULL, reps = 999, obsdef = c("individual","sequence"), ...) {
-  obsdef <- match.arg(obsdef)
-  
-  obs <- dat[dat$scientificName %in% species,c("deploymentID","sequenceID", "observation_timestamp",  "latitude", "longitude","count")]
-  
-  i <- switch(obsdef, individual = rep(1:nrow(obs), obs$count), sequence = !duplicated(obs$sequenceID))
-  obs <- obs[i, ]
-  
-  if (nrow(obs) > 1) {
-    suntimes <- activity::get_suntimes(obs$observation_timestamp, obs$latitude, obs$longitude, 0)
-    timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
-    obs$solartime <- obs %>% with(activity::solartime(observation_timestamp, 
-                                                      latitude, longitude, 0)) %>% .$solar %>% +timeshift %>% 
-      activity::wrap()
-    activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps, ...)
-  }
-  else NULL
-}
-#---------
 
 # convert hms to hours:
 .get_hour <- function(x) {
@@ -518,7 +395,7 @@
 ############
 
 # temporary function:
-.summarize_spatial_info <- function(cm) {
+.summarize_spatial_info <- function(cm,verbose=FALSE) {
   
   location_df <- cm$data$locations
   # 1. Record counts & initial cleaning
@@ -534,7 +411,7 @@
   
   # 2. Identify missing‐value rows
   location_cleaned <- location_df %>%
-    filter(complete.cases(locationID, locationName, longitude, latitude))
+    dplyr::filter(complete.cases(locationID, locationName, longitude, latitude))
   missing_rows <- setdiff(location_df$row, location_cleaned$row)
   
   message_missing <- if (length(missing_rows) == 0) {
@@ -629,7 +506,7 @@
   }
   
   note <- "🟢 Proceeding with spatial analysis"
-  cat(note, "\n")
+  if (verbose) cat(note, "\n")
   
   # 7. Outlier Detection (nearest‐neighbor based)
   .getOutlier <- function(df, minD = 2, prob = 0.99) {
@@ -676,15 +553,15 @@
   
   outlier_res <- .getOutlier(total_unique_locations_df, minD = 2, prob = 0.99)
   
-  mean_distance_cam       <- round(outlier_res$mean_distance, 2)
-  min_distance_cam        <- round(outlier_res$min_distance, 2)
-  max_distance_cam        <- round(outlier_res$max_distance, 2)
-  min_distance_camNames   <- outlier_res$min_distance_names
-  max_distance_camNames   <- outlier_res$max_distance_names
+  mean_distance_cam <- round(outlier_res$mean_distance, 2)
+  min_distance_cam <- round(outlier_res$min_distance, 2)
+  max_distance_cam <- round(outlier_res$max_distance, 2)
+  min_distance_camNames <- outlier_res$min_distance_names
+  max_distance_camNames <- outlier_res$max_distance_names
   
-  num_lowrisk_outliers    <- length(outlier_res$low_prob)
+  num_lowrisk_outliers <- length(outlier_res$low_prob)
   num_mediumrisk_outliers <- length(outlier_res$medium)
-  num_highrisk_outliers   <- length(outlier_res$high_prob)
+  num_highrisk_outliers <- length(outlier_res$high_prob)
   
   safe_get_names <- function(idxs) {
     if (length(idxs) > 0) {
@@ -694,8 +571,8 @@
     }
   }
   
-  low_names  <- safe_get_names(outlier_res$low_prob)
-  med_names  <- safe_get_names(outlier_res$medium)
+  low_names <- safe_get_names(outlier_res$low_prob)
+  med_names <- safe_get_names(outlier_res$medium)
   high_names <- safe_get_names(outlier_res$high_prob)
   
   # Build a summary string for outliers, ensuring it’s always a character
@@ -742,11 +619,7 @@
   
   center_lon <- mean(total_unique_locations_df$longitude, na.rm = TRUE)
   is_northern <- mean(total_unique_locations_df$latitude, na.rm = TRUE) >= 0
-  #zone_number <- floor((center_lon + 180) / 6) + 1
   
-  #epsg_code <- if (is_northern) 32600 + zone_number else 32700 + zone_number
-  #pts_proj <- project(loc, crs = epsg_code)
-  #mcp_poly <- st_convex_hull(st_union(pts_proj))
   mcp_poly <- hull(.get_projected_vect(loc))
   area_sqkm <- expanse(mcp_poly,unit='km')
   #as.numeric(size(mcp_poly)) / 1e6
@@ -762,10 +635,11 @@
   # 10. Country / Region / Timezone summary
   
   Country    <- .paste_comma_and(unique(extract(wrld, loc)$name))
+  time_zone  <- ""
+  if (!is.null(cm$data$settings$tz)) time_zone  <- cm$data$settings$tz
   
-  time_zone  <- cm$data$settings$tz
   
-  summary_country_timezone <- glue(
+  summary_country_timezone <- glue::glue(
     "Dataset spans <b>{Country}</b> with time zone <b>{time_zone}</b>."
   )
   
@@ -813,7 +687,7 @@
     spatial_pattern <- "⚠️ Too few locations to detect a spatial pattern"
   }
   
-  status_spatial <- cm$pkg$project$samplingDesign
+  status_spatial <- cm$info$project$samplingDesign
   
   status_spatial <- if (!is.null(status_spatial) && nzchar(trimws(status_spatial))) {
     status_spatial
@@ -824,34 +698,34 @@
   
   # FINAL RETURN — all collected summary pieces
   return(list(
-    total_locationsrow           = total_locationsrow,
-    total_unique_locations       = total_unique_locations,
-    number_missing_rows          = length(missing_rows),
-    message_missing              = message_missing,
-    num_duplicated_coordinate    = num_duplicated_coordinate,
+    total_locationsrow = total_locationsrow,
+    total_unique_locations = total_unique_locations,
+    number_missing_rows = length(missing_rows),
+    message_missing = message_missing,
+    num_duplicated_coordinate = num_duplicated_coordinate,
     status_duplicated_coordinate = status_duplicated_coordinate,
-    num_dup_locationID           = num_dup_locationID,
-    status_dup_locationID        = status_dup_locationID,
-    num_dup_locationName         = num_dup_locationName,
-    status_dup_locationName      = status_dup_locationName,
-    mean_distance_cam            = mean_distance_cam,
-    min_distance_cam             = min_distance_cam,
-    max_distance_cam             = max_distance_cam,
+    num_dup_locationID = num_dup_locationID,
+    status_dup_locationID = status_dup_locationID,
+    num_dup_locationName = num_dup_locationName,
+    status_dup_locationName = status_dup_locationName,
+    mean_distance_cam = mean_distance_cam,
+    min_distance_cam = min_distance_cam,
+    max_distance_cam = max_distance_cam,
     min_distance_camNames        = min_distance_camNames,
     max_distance_camNames        = max_distance_camNames,
     num_lowrisk_outliers         = num_lowrisk_outliers,
     num_mediumrisk_outliers      = num_mediumrisk_outliers,
-    num_highrisk_outliers        = num_highrisk_outliers,
-    num_sea_outliers             = num_sea_outliers,
-    outliers_status              = outliers_status,
-    spatial_pattern              = spatial_pattern,
-    status_spatial               = status_spatial,
-    MCArea                       = area_sqkm,
-    status_MCArea                = status_MCArea,
-    country                       = Country,
-    TimeZone                      = time_zone,
-    summary_country_timezone     = summary_country_timezone,
-    note                          = note
+    num_highrisk_outliers = num_highrisk_outliers,
+    num_sea_outliers = num_sea_outliers,
+    outliers_status = outliers_status,
+    spatial_pattern = spatial_pattern,
+    status_spatial  = status_spatial,
+    MCArea  = area_sqkm,
+    status_MCArea = status_MCArea,
+    country = Country,
+    TimeZone = time_zone,
+    summary_country_timezone = summary_country_timezone,
+    note  = note
   ))
 }
 
@@ -894,11 +768,16 @@
     merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
   }
 }
+
+
 #----------
 # get Data/Time Format:
 .getFormat <- function(x) {
   .dtFormats <- c("%Y-%m-%dT%H:%M:%OS","%Y-%m-%d %H:%M:%OS","%Y/%m/%dT%H:%M:%OS",
                   "%Y/%m/%d %H:%M:%OS","%Y-%m-%d %H:%M","%Y/%m/%d %H:%M","%Y-%m-%d","%Y/%m/%d")
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA)
+  
   o <- c()
   
   for (.f in .dtFormats) {
@@ -931,3 +810,29 @@
   
   o
 }
+#------
+.is.POSIXct <- function(x) {
+  inherits(x,"POSIXct")
+}
+#--------
+.get_match <- function(x, y, several=TRUE,case_sensitive=FALSE) {
+  if (!case_sensitive) {
+    .x <- tolower(x)
+    .y <- tolower(y)
+    .yy <- try(match.arg(.x,.y,several.ok = several),silent = TRUE)
+    if (!inherits(.yy,'try-error')) {
+      o <- c()
+      for (n in .yy) {
+        w <- which(.y == n) 
+        o <- c(o,y[w])
+      }
+      o
+    } else NA
+    
+  } else {
+    xx <- try(match.arg(x,y,several.ok = several),silent = TRUE)
+    if (!inherits(xx,'try-error')) xx
+    else NA
+  }
+}
+#--------

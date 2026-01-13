@@ -1,19 +1,21 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  July 2025
-# Version 1.2
+# Last Update :  December 2025
+# Version 1.3
 # Licence GPL v3
 #--------
 
 
 
 
-setOldClass("ctdp")
+#setOldClass("ctdp")
 setOldClass("datapackage")
+#setOldClass("difftime")
 
 setClassUnion("characterORnull", c("character", "NULL"))
 setClassUnion("characterORlist", c("character", "list"))
 setClassUnion("characterORlistORnull", c("character", "list","NULL"))
 setClassUnion("listORnull", c("list","NULL"))
+#setClassUnion("numericORdifftime", c("numeric","difftime"))
 setClassUnion("data.frameORnull", c("data.frame","NULL"))
 setClassUnion("PackedSpatVectorORnull", c("PackedSpatVector","NULL"))
 #-------
@@ -22,6 +24,7 @@ setClass('.Rchunk',
            parent='characterORnull',
            name='characterORnull',
            setting='characterORnull',
+           packages='characterORnull',
            code='character'
          )
 )
