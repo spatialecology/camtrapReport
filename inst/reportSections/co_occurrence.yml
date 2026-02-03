@@ -1,0 +1,79 @@
+---
+name: "co_occurrence"
+title: "## Species Co-occurrence {.tabset}"
+parent: "results"
+text: "Species co-occurrence analysis examines how different species share habitats and interact within the same locations. By using correlation matrices and clustering techniques, we identify species that tend to be found together and those that exhibit avoidance patterns. Understanding co-occurrence patterns helps assess interspecific relationships and habitat preferences."
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",warning=FALSE,cache=FALSE
+  #| packages: corrplot
+  
+  
+  .spn <- object$get_speciesNames(object$setting$focus_groups)
+    .pa <- FALSE
+    if (!is.null(object$setting$PA) && is.logical(object$setting$PA)) .pa <- TRUE
+    
+    if (.require('corrplot')) {
+      for (.year in object$years) {
+        
+        .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
+        if (!all(is.na(.spo))) {
+          cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+          
+          
+          
+          par(mar = c(5, 5, 15, 5))
+          
+          .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title= paste0("Species Co-occurrence (Year: ",.year,")"),mar=c(0,0,1,0))',env = environment())
+          
+          cat("\n\n")
+        }
+        
+      }
+      #---------
+      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
+      
+      if (!all(is.na(.spo))) {
+        cat("\n### Total {.unnumbered}\n\n")
+        
+        .eval('corrplot(.spo, method = "color", type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, tl.cex = 0.8, diag = FALSE,title="Species Co-occurrence (Total)",mar=c(0,0,1,0))',env = environment())
+        
+        
+        cat("\n\n")
+      }
+      
+      
+      
+    } else {
+      for (.year in object$years) {
+        
+        
+        .spo <- object$species_summary_by_location(year=.year,spList = .spn,cor_matrix = TRUE,PA=.pa)
+        
+        if (!all(is.na(.spo))) {
+          cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+          par(mar = c(7, 8, 4, 4))
+          .basic_corrplot(.spo,main = paste0("Species Co-occurrence (Year: ",.year,")"))
+          
+          cat("\n\n")
+        }
+        
+      }
+      #---------
+      .spo <- object$species_summary_by_location(spList = .spn,cor_matrix = TRUE,PA=.pa)
+      
+      if (!all(is.na(.spo))) {
+        cat("\n### Total {.unnumbered}\n\n")
+        par(mar = c(7, 8, 4, 4))
+        .basic_corrplot(.spo,main = "Species Co-occurrence (Total)")
+        
+        cat("\n\n")
+      }
+      
+    }
+    #---------
+    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
+      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", afor each survey year, as well as the cumulative across all years.*\n"))
+    } else cat(object$getFigureNumber()," *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
+    
+---

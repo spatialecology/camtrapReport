@@ -1,0 +1,75 @@
+---
+name: "population_densities"
+title: "### Population densities {.tabset}"
+parent: "population_density"
+text: "For each study species, population densities were estimated using the REM implemented via the *camtrapDensity* package. The resulting plots are organized into interactive tabs, allowing users to dynamically explore density estimates across survey years for each species.\n\n"
+code: |
+  #| name: pop_densities
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
+  #| packages: ggplot2, dplyr
+  
+  
+  if ("estiamtes_rem" %in% ls()) {
+    # to be tested alone!
+    spn <- object$get_speciesNames(object$setting$focus_groups)
+    
+    estimates_rem <- bind_rows(object$get_REM(spn[1]))
+    if (length(spn) > 1) {
+      for (i in 2:length(spn)) {
+        estimates_rem <- rbind(estimates_rem,bind_rows(object$get_REM(spn[i])))
+      }
+    }
+  }
+  if (nrow(estimates_rem) > 0) {
+      density_data <- estimates_rem %>%
+        dplyr::filter(Metric == "density")
+      
+      # Ensure data is not empty
+      if (nrow(density_data) > 0) {
+        # Get a list of unique species
+        species_list <- unique(density_data$scientificName)
+        
+        # Assign Acadia colors to species (cycling if necessary)
+        species_colors <- setNames(rep(object$reportObjectElements$color_palette, length.out = length(species_list)), species_list)
+        
+        # Loop through each species
+        for (i in seq_along(species_list)) {
+          species <- species_list[i]  # Define species inside the loop
+          
+          # Header
+          cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
+          
+          # Filter for current species
+          species_data <- density_data %>%
+            filter(scientificName == species)
+          
+          # Select the corresponding color
+          species_color <- species_colors[species]
+          
+          # Plot per species
+          p <- ggplot(species_data, aes(x = as.factor(Year), y = estimate)) +
+            geom_bar(stat = "identity", fill = species_color, width = 0.6) +  # Apply species-specific color
+            geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2, color = "black") +
+            labs(x = "Year", y = expression("Population density (km"^-2*")")) +
+            theme_minimal() +
+            theme(
+              axis.text.x = element_text(angle = 45, hjust = 1),
+              plot.title = element_text(face = "bold", size = 14)
+            )
+          
+          # Print the plot
+          print(p)
+          
+          # Caption (COMPLETED)
+          cat(paste0(
+            "\n\n",object$getFigureNumber()," *Estimated population density per sampling year for ", 
+            species, 
+            ". Whiskers represent the 95% confidence intervals.*\n"
+          ))
+          
+        }
+      }
+    }
+  
+
+---

@@ -1,0 +1,89 @@
+---
+name: "effort"
+title: "## Sampling Efforts"
+parent: "methods"
+text: "Sampling effort refers to the total number of camera trap operational days, accounting for both the number of active cameras and their duration of deployment. It provides critical context for interpreting species detection rates and comparing data across years."
+code: |
+  #| name: camera_locations_leaflet
+  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| packages: dygraphs, xts, dplyr, htmlwidgets
+  
+  
+  .camera_summary_text <- lapply(seq_len(nrow(object$camera_stats)), function(i) {
+    year <- object$camera_stats$year[i]
+    failed_cameras <- object$camera_stats$failed_cameras[i]
+    average_runtime <- object$camera_stats$average_runtime[i]
+    runtime_range <- object$camera_stats$runtime_range[i]
+    total_runtime_days <- object$camera_stats$total_runtime_days[i]
+    total_runtime_years <- object$camera_stats$total_runtime_years[i]
+    
+    if (failed_cameras > 0) {
+      if (failed_cameras > 1) {
+        paste0(
+          "In ", year, ", ", failed_cameras, " cameras broke down during the study period. ",
+          "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
+          "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
+        )
+      } else {
+        paste0(
+          "In ", year, ", ", failed_cameras, " camera broke down during the study period. ",
+          "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
+          "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
+        )
+      }
+    } else {
+      paste0(
+        "In ", year, ", NO cameras broke down during the study period. ",
+        "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
+        "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
+      )
+    }
+    
+  })
+  
+  #  Combine Text with Proper Formatting
+  .camera_summary_text <- paste(.camera_summary_text, collapse = " ")
+  
+  # Print Output in RMarkdown HTML
+  cat(.camera_summary_text, "See Figure 2 for detailed information on sampling effort over time.")
+  #---------------
+  
+  
+  # Generate Dygraph
+  plot_test <- .plot_effort(object) %>%
+    dyAxis("x", label = "Time") %>%
+    dyAxis("y", label = "Active Camera Count") %>%
+    dyOptions(fillGraph = TRUE, colors = "#033800FF") %>%
+    dyRangeSelector()
+  
+  # Check if the plot is valid
+  if (!is.null(plot_test)) {
+    
+    # Save the plot as an HTML widget
+    temp_file <- file.path(tempdir(), "effort_plot.html")
+    htmlwidgets::saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
+    
+    # Embed iframe inside a **plain gray box (no shadow)**
+    tags$div(
+      style = "border: 1px solid #ccc; 
+             background-color: #f0f0f0; 
+             padding: 15px; 
+             border-radius: 5px;",
+      tags$iframe(
+        srcdoc = paste(readLines(temp_file), collapse = "\n"),
+        width = "100%", height = "500px",
+        style = "border: none;"
+      )
+    )
+  } else {
+    cat("\n Warning: No data available for plotting!")
+  }
+  #---
+  cat('\n')
+  
+  cat('##  {.unnumbered}\n')
+  
+  cat(object$getFigureNumber()," *Number of active camera traps per survey year. Adjust the slider to focus on specific time periods.*\n")
+  
+
+---

@@ -17,7 +17,7 @@ setClassUnion("characterORlistORnull", c("character", "list","NULL"))
 setClassUnion("listORnull", c("list","NULL"))
 #setClassUnion("numericORdifftime", c("numeric","difftime"))
 setClassUnion("data.frameORnull", c("data.frame","NULL"))
-setClassUnion("PackedSpatVectorORnull", c("PackedSpatVector","NULL"))
+
 #-------
 setClass('.Rchunk',
          representation(

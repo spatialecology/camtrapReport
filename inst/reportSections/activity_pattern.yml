@@ -1,0 +1,84 @@
+---
+name: "activity_patterns"
+title: "## Activity Patterns {.tabset}"
+parent: "results"
+text: "Activity patterns describe how animals distribute their behavior throughout the 24-hour day and are typically derived from the timing of detections recorded by camera traps. These patterns help us understand when species are most active, offering valuable insight into their daily routines, ecological roles, and potential interactions with other species. By examining activity curves, we can detect whether a species is diurnal, nocturnal, or crepuscular, and identify shifts in behavior that may result from environmental factors or human disturbance. Below, activity curves illustrate the daily activity patterns for each study species, based on camera trap detections across the monitoring period."
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
+  #| packages: ggplot2, dplyr
+  
+  
+  if (!is.null(object$sun_times) && nrow(object$sun_times) > 0) {
+      frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
+      
+      # Color palette
+      species_colors <- setNames(a2$reportObjectElements$color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
+      
+      ############
+      
+      # Compute total average sunrise/sunset
+      overall_sunrise <- mean(object$sun_times$avg_sunrise, na.rm = TRUE)
+      overall_sunset  <- mean(object$sun_times$avg_sunset, na.rm = TRUE)
+      
+      # Loop through species
+      for (species in frequent_species_scientific) {
+        
+        cat("\n###", species, "{.unnumbered}\n\n")
+        
+        res <- object$.get_REM_Param(species)
+        
+        
+        if (is.null(res) || is.logical(res) || is.null(res$activity_model) ) {
+          cat("\n! Skipping", species, "- missing models!\n")
+          
+        } else {
+          activity_pred <- data.frame(
+            time = (res$activity_model@pdf[, "x"] / (2 * pi)) * 24,
+            estimate = res$activity_model@pdf[, "y"],
+            lcl = res$activity_model@pdf[, "lcl"],
+            ucl = res$activity_model@pdf[, "ucl"]
+          )
+          
+          p <- ggplot(activity_pred, aes(x = time, y = estimate)) +
+            geom_line(color = species_colors[[species]], size = 1.2) +
+            geom_ribbon(aes(ymin = lcl, ymax = ucl),
+                        fill = species_colors[[species]], alpha = 0.3) +
+            
+            # Sunrise and sunset lines
+            geom_vline(xintercept = overall_sunrise, color = "gold", linetype = "dashed", linewidth = 0.8) +
+            geom_vline(xintercept = overall_sunset, color = "gray", linetype = "dashed", linewidth = 0.8) +
+            
+            scale_x_continuous(
+              limits = c(0, 24),
+              breaks = seq(0, 24, by = 6),
+              labels = c("00:00", "06:00", "12:00", "18:00", "24:00")
+            ) +
+            labs(
+              x = "Time of Day",
+              y = "Estimated Activity Density"
+            ) +
+            theme_minimal(base_family = "", base_size = 13) +
+            theme(
+              axis.title.x = element_text(face = "bold", color = "black"),
+              axis.title.y = element_text(face = "bold", color = "black"),
+              axis.text.x = element_text(size = 12),
+              axis.text.y = element_text(size = 12),
+              legend.position = "none",
+              panel.grid.minor = element_blank(),
+              plot.margin = ggplot2::margin(20, 40, 20, 40)
+            )
+          
+          print(p)
+          
+          cat(paste0(
+            "\n\n",object$getFigureNumber()," *Estimated daily activity pattern for ", 
+            species, 
+            ", aggregated across all sampling rounds. Dashed lines indicate the average sunrise (yellow) and sunset (gray) times across survey years. The solid line shows the fitted activity model, and the shaded region shows the 95% CI.*\n\n"
+          ))
+        }
+      }
+    } else cat('\n\n The sun times have not been calculated; it requires the suncalc package (run setup first...)!\n')
+  
+
+---

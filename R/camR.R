@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  December 2025
-# Version 1.9
+# Last Update :  Jan 2026
+# Version 2.1
 # Licence GPL v3
 #--------
 
@@ -16,7 +16,7 @@ camR <- setRefClass(
     data = "list",
     habitat = "data.frame",
     data_merged = "data.frame",
-    study_area = "PackedSpatVector",
+    study_area = "listORnull",
     siteName = "character",
     title = "character",
     subtitle = "character",
@@ -44,13 +44,13 @@ camR <- setRefClass(
     capture = "data.frame",
     density_estimates= "data.frame",
     setting = "list",
-    .rem_params  = "list",
-    .any_data_for_rem  = 'logical', # a vector of species names for which REM could not be fitted!
-    rem = "list",
     sun_times = "data.frameORnull",
     packages = "character",
     info = "list",
-    .tempObjects     = "list",
+    rem = "list",
+    .rem_params  = "list",
+    .any_data_for_rem  = 'logical', # a vector of species names for which REM could not be fitted!
+    .tempObjects  = "list",
     reportTextElements = "list",
     reportObjectElements = "list",
     reportObjects    = "list" # a list of .txtSection and .Rchunk objects
@@ -72,6 +72,28 @@ camR <- setRefClass(
       .self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
       .self$title <- 'Report generated using the camtrapReport package'
       .self$authors <- 'Elham Ebrahimi, Patrick Jansen'
+      #-----
+      .self$reportObjectElements$color_palette <- c(
+        "#855C75", "#D9AF6B", "#AF6458", "#736F4C", "#526A83", "#625377",
+        "#68855C", "#9C9C5E", "#A06177", "#8C785D", "#467378", "#7C7C7C",
+        "#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0", "#24796C",
+        "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A", "#CC3A8E", "#A5AA99",
+        "#6D904F", "#F6C85F", "#B276B2", "#DECF3F", "#FAA43A", "#60BD68",
+        "#F15854", "#4D4D4D", "#B2912F", "#7B615C", "#1F77B4", "#FF7F0E",
+        "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#17BECF"
+      )
+      .self$reportObjectElements$richness_palette <- c(
+        "#2D8B3F", "#91FF00", "#FFDA00", "#FF9100", "#FF4800",
+        "#FF0000", "#D33682", "#7F00FF", "#00CED1", "#FFA07A",
+        "#1E90FF", "#8B4513", "#808000", "#FF69B4", "#00FA9A",
+        "#A52A2A", "#9370DB", "#4682B4", "#FF1493", "#20B2AA"
+      )
+      
+      .self$reportObjectElements$acadia_colors <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", 
+                                                    "#526A83", "#625377", "#68855C", "#9C9C5E", 
+                                                    "#A06177", "#8C785D", "#467378", "#7C7C7C")
+      .self$.tempObjects$fig.n <- 1
+      .self$.tempObjects$tab.n <- 1
     },
     add_group = function(name,x) {
       # add the group to group_definition
@@ -130,7 +152,10 @@ camR <- setRefClass(
       } else stop('No species summay information...run "setup" first...')
       
     },
-    get_speciesNames = function(group=NULL) {
+    get_speciesNames = function(group=NULL,all=FALSE) {
+      # if all = T -> all species (without accounting for filtering is returned)
+      if (all) return(unique(.self$data$observations$scientificName))
+      #-------------------------------
       if (length(.self$species_summary) == 0) stop('No species summay information...run "setup" first...')
       #----
       if (is.null(group)) {
@@ -162,13 +187,30 @@ camR <- setRefClass(
         } 
       } else stop('group is unknown!')
     },
+    getFigureNumber = function(text=TRUE) {
+      # if text if FALSE, only number is returned!
+      .n <- .self$.tempObjects$fig.n
+      .self$.tempObjects$fig.n <- .n + 1
+      if (text) paste0('**Fig.',.n,'**:')
+      else .n
+    },
+    getTableNumber = function(text=TRUE) {
+      .n <- .self$.tempObjects$tab.n
+      .self$.tempObjects$tab.n <- .n + 1
+      if (text) paste0('**Table ',.n,'**:')
+      else .n
+      
+    },
+    recetFigTabNumber = function() {
+      .self$.tempObjects$fig.n <- .self$.tempObjects$tab.n <- 1
+    },
     richness=function(year=NULL,spList = NULL) {
       # if year is NULL -> total
       # spList can be a vector of scientificNames (e.g., related to a focus_group); if NULL --> all species
       
-      .d <- .self$pkg$data$observations |> 
+      .d <- .self$data$observations |> 
         dplyr::filter(!is.na(scientificName)) |> 
-        left_join(.self$pkg$data$deployments,by='deploymentID') |> 
+        left_join(.self$data$deployments,by='deploymentID') |> 
         mutate(year=.getYear(timestamp)) |>
         dplyr::select(scientificName,locationID,year)
       
@@ -222,13 +264,15 @@ camR <- setRefClass(
         xr[2] <- max(c(.ext[2],xr[2]))
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
-      } else if (nrow(.self$study_area@attributes) > 0) {
-        .ext <- as.vector(ext(.self$study_area))
+      } else if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+        .self$study_area$object <- readRDS(.self$study_area$path)
+        .ext <- as.vector(ext(.self$study_area$object))
         xr[1] <- min(c(.ext[1],xr[1]))
         xr[2] <- max(c(.ext[2],xr[2]))
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       }
+      
       
       .win <- .eval("owin(xrange = xr, yrange = yr)",env = environment())
       .ppp_obj <- .eval("ppp(x = x$x, y=x$y,window= .win,marks=x$total_observations)",env = environment())
@@ -245,16 +289,16 @@ camR <- setRefClass(
       # PA = T -> co-occurrence matrix will be based on P/A, otherwise, based on count
       #-----------------------
       if (is.null(spList)) {
-        .d <- .self$pkg$data$observations |> 
+        .d <- .self$data$observations |> 
           dplyr::filter(!is.na(scientificName), 
                         scientificName != "",
                         grepl("\\s", scientificName)) |>
-          left_join(.self$pkg$data$deployments,by='deploymentID') |> 
+          left_join(.self$data$deployments,by='deploymentID') |> 
           mutate(Year=.getYear(timestamp))
       } else {
-        .d <- .self$pkg$data$observations |> 
+        .d <- .self$data$observations |> 
           dplyr::filter(scientificName %in% spList) |>
-          left_join(.self$pkg$data$deployments,by='deploymentID') |> 
+          left_join(.self$data$deployments,by='deploymentID') |> 
           mutate(Year=.getYear(timestamp))
       }
       #----
@@ -288,7 +332,7 @@ camR <- setRefClass(
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = n(), .groups = "drop") |>
-              pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -296,12 +340,12 @@ camR <- setRefClass(
             sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
             
             
-            cor(sp_mat, use = "pairwise.complete.obs")
+            if (ncol(sp_mat) > 1) cor(sp_mat, use = "pairwise.complete.obs")
           } else {
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = total_count, .groups = "drop") |>
-              pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -309,7 +353,7 @@ camR <- setRefClass(
             sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
             
             
-            cor(sp_mat, use = "pairwise.complete.obs",method = 'spearman')
+            if (ncol(sp_mat) > 1) cor(sp_mat, use = "pairwise.complete.obs",method = 'spearman')
           }
           
         } else .d
@@ -350,73 +394,91 @@ camR <- setRefClass(
     fit_REM=function(sp) {
       
       .g <- .self$get_focus_group(sp)
-      
       if (!.g %in% names(.self$rem)) {
         .self$rem[[.g]] <- list()
       }
-      
-      
       .density_estimate_list <- list()
       
       for (year in .self$years) {
-        # Filter observations for species and year
         dat <- .self$get_data_subset(year = year)
-        # Skip if no observations
         if (nrow(dat$observations) > 0) {
           species_params <- .self$.get_REM_Param(sp)
           if (!is.null(species_params)) {
             x <- try({
               trdat <- .get_traprate_data(dat, species = sp)
-              
-              .parameters <- .get_parameter_table(
-                trdat,
-                radius_model = species_params$radius_model,
-                angle_model = species_params$angle_model,
-                speed_model = species_params$speed_model,
-                activity_model = species_params$activity_model,
-                reps = 10
-              )
-              
+              .parameters <- .get_parameter_table(trdat, 
+                                                  radius_model = species_params$radius_model, 
+                                                  angle_model = species_params$angle_model, 
+                                                  speed_model = species_params$speed_model, 
+                                                  activity_model = species_params$activity_model, 
+                                                  reps = 10)
               .density_estimates <- .rem(.parameters)
-              .density_estimates <- .eval('camtrapDensity::convert_units(.density_estimates,radius_unit = "m",angle_unit = "degree",active_speed_unit = "km/hour",overall_speed_unit = "km/day")',environment())
-              
-              if (vernacularNames.eng %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == sp]
-              } else if (vernacularNames %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == sp]
-              } else english_name <- "Unknown"
-              
-              if (length(english_name) == 0) english_name <- "Unknown"
-              
-              # Store result
-              data.frame(
-                scientificName = sp,
-                EnglishName = english_name,
-                Year = year,
-                Metric = rownames(.density_estimates),
-                .density_estimates,
-                row.names = NULL
-              )
+              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", 
+                                          environment())
+              if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
+                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == 
+                                                                   sp]
+              }
+              else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
+                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == 
+                                                               sp]
+              }
+              else english_name <- "Unknown"
+              if (length(english_name) == 0) 
+                english_name <- "Unknown"
+              data.frame(scientificName = sp, EnglishName = english_name, 
+                         Year = year, Metric = rownames(.density_estimates), 
+                         .density_estimates, row.names = NULL)
             }, silent = TRUE)
-            
-            if (!inherits(x,'try-error')) {
-              .density_estimate_list[[paste0(sp,'_',year)]] <- x
+            if (!inherits(x, "try-error")) {
+              .density_estimate_list[[paste0(sp, "_", year)]] <- x
             }
           }
         }
       }
-      #----
       if (length(.density_estimate_list) > 0) {
         for (n in names(.density_estimate_list)) {
           .self$rem[[.g]][[n]] <- .density_estimate_list[[n]]
         }
+        #------------
+        # also for total (all-years):
+        dat <- .self$data
+        if (nrow(dat$observations) > 0) {
+          species_params <- .self$.get_REM_Param(sp)
+          if (!is.null(species_params)) {
+            x <- try({
+              trdat <- .get_traprate_data(dat, species = sp)
+              .parameters <- .get_parameter_table(trdat, 
+                                                  radius_model = species_params$radius_model, 
+                                                  angle_model = species_params$angle_model, 
+                                                  speed_model = species_params$speed_model, 
+                                                  activity_model = species_params$activity_model, 
+                                                  reps = 10)
+              .density_estimates <- .rem(.parameters)
+              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", 
+                                          environment())
+              if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
+                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == sp]
+              } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
+                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == 
+                                                               sp]
+              } else english_name <- "Unknown"
+              if (length(english_name) == 0) english_name <- "Unknown"
+              data.frame(scientificName = sp, EnglishName = english_name, 
+                         Year = year, Metric = rownames(.density_estimates), 
+                         .density_estimates, row.names = NULL)
+            }, silent = TRUE)
+            if (!inherits(x, "try-error")) {
+              .self$rem[[.g]][[sp]] <- x
+            }
+          }
+        }
       } else {
-        if (length(.self$.any_data_for_rem) > 0) {
-          .self$.any_data_for_rem[n] <- FALSE
-        } else {
+        if (length(.self$.any_data_for_rem) == 0) {
           .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-          .self$.any_data_for_rem[n] <- FALSE
-        } 
+        } else {
+          .self$.any_data_for_rem[sp] <- FALSE
+        }
       }
       
       
@@ -431,7 +493,7 @@ camR <- setRefClass(
         .g <- .self$get_focus_group(.sp)
         if (.g %in% names(.self$rem)) {
           .n <- names(.self$rem[[.g]])
-          .spn <- paste0(.sp,'_',.self$years)
+          .spn <- c(paste0(.sp,'_',.self$years),.sp)
           if (any(.spn %in% .n)) {
             .spn <- .spn[.spn %in% .n]
             .self$rem[[.g]][.spn]
@@ -450,7 +512,7 @@ camR <- setRefClass(
         } else if (!.sp %in% names(.self$.any_data_for_rem)) {
           if (.sp %in% .self$data$observations$scientificName) {
             .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-            .self$get_REM(.sp)
+            if (.sp %in% names(.self$.any_data_for_rem) && .self$.any_data_for_rem[.sp]) .self$get_REM(.sp)
           } #else {
             #message('the specified species is not available in the dataset...!')
           #}
@@ -469,36 +531,16 @@ camR <- setRefClass(
         .self$setting$tz <- tz
       }
       #------------------------
-      
-      
-      # joining Habitat types to locations:
-      #.self$data$locations <- .self$data$locations |>
-      #  left_join(.self$habitat, by = "locationName")
-      # 
-      
-      #.self$data$locations <- merge(.self$data$locations,.self$habitat, by = "locationName",all.x=TRUE)
-      
-      #----
       # adding new column (Year) to deployments data.frame:
       .self$data$deployments$Year <- .getYear(.self$data$deployments$deployment_interval) 
       #----
       .y <- sort(.self$extractYears())
-      # .self$data_year <- lapply(.y,function(yr) {
-      #   start_date <- paste0(yr, "-01-01")
-      #   end_date <- paste0(yr, "-12-31")
-      #   filter_timerange(.self$data, start = start_date, end = end_date)
-      # })
-      #---
-      #names(.self$data_year) <- as.character(.y)
       ################
       # identify missing taxonomic information and retrieve "class" and "order"
       # from GBIF (it needs the taxize package)
       
       .w <- table(.self$data$observations$taxonID)
-      .self$observed_counts <- .left_join(data.frame(taxonID=names(.w),count=as.numeric(.w)),.self$data$taxonomy,by='taxonID')
-      # if (length(.self$filterCount) > 0) {
-      #   .self$observed_counts <- .self$observed_counts[.self$observed_counts$count >= .self$filterCount[1],]
-      # }
+      .self$observed_counts <- left_join(data.frame(taxonID=names(.w),count=as.numeric(.w)),.self$data$taxonomy,by='taxonID')
       #-----
       .self$filter()
       ####################
@@ -555,230 +597,43 @@ camR <- setRefClass(
         }
         
       }
-      
-      #----------- # dep_loc = deployments + locations --------------------------
-      dep_loc <- .left_join(.self$data$deployments,.self$data$locations,by="locationID")
-      
-      if (!"Habitat_Type" %in%  colnames(dep_loc) && 'habitat' %in% colnames(dep_loc)) colnames(dep_loc)[colnames(dep_loc) == "habitat"] <- "Habitat_Type"
-      dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type)
-      dep_loc$Habitat_Type <- ifelse(dep_loc$Habitat_Type == "Other", "Unclassified Habitat", dep_loc$Habitat_Type)
-      
-      #----------------- #Count Deployments Per Location --------------------------
-      deployments_per_location <- dep_loc |>
-        group_by(locationID) |>
-        summarise(
-          deploymentID_List = toString(unique(deploymentID)), 
-          Num_Deployments = n()
-        ) |>
-        ungroup()
-      #----------------- #Capture Methods Per Location --------------------------
-      capture_methods_per_location <- .self$data$sequences |>
-        left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
-        group_by(locationID) |>
-        summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
-        ungroup()
-      
-      #----------------- #setup By Per Location --------------------------
-      # Group by locationID and list unique setupBy names
-      setup_per_location <- dep_loc |>
-        group_by(locationID) |>
-        summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
-        ungroup()
-      
-      #----------------- #Classify By Per Location --------------------------
-      
-      #Extract sequenceID to deploymentID mapping from sequences
-      sequence_to_deployment <- .self$data$sequences |>
-        dplyr::select(sequenceID, deploymentID) |>
-        distinct()  # Ensure unique mapping
-      
-      
-      # Merge deploymentID into observations using sequenceID
-      observations_with_deployment <- .self$data$observations |>
-        dplyr::select(-deploymentID) |>
-        left_join(sequence_to_deployment, by = "sequenceID") |>
-        left_join(dep_loc[,c("deploymentID","locationID")], by = "deploymentID")  # Merge locationID using deploymentID
-      
-      
-      # Group by locationID and list unique ClassifyBy names
-      Classify_per_location <- observations_with_deployment |>
-        group_by(locationID) |>
-        summarise(Classify_By_List = toString(sort(unique(classifiedBy)))) |>
-        ungroup()
-      
-      # ----------------- List of unique baitUse per location --------------------------
-      # Group by locationID and list unique baitUse values, properly separated by ", "
-      bait_use_per_location <- dep_loc |>
-        group_by(locationID) |>
-        summarise(BaitUse_List = paste(sort(unique(baitUse)), collapse = ", ")) |>  # Ensure ", " separation
-        ungroup()
-      
-      
-      # ----------------- List of deployment years for each location --------------------------
-      
-      # Aggregate Year List per locationID
-      years_per_location <- dep_loc |>
-        group_by(locationID) |>
-        summarise(Year_List = paste(sort(unique(Year)), collapse = ", ")) |>  # Keep years in one row
-        ungroup()
-      
-      
-      #----------------- How Many Cameras in Each Year? 
-      # expanded_years <- years_per_location |>
-      #   separate_rows(Year_List, sep = ", ")
-      
-      location_count_per_year <- table(unique(dep_loc[,c('locationID','Year')])$Year)
-      location_count_per_year <- data.frame(Year_List=as.numeric(names(location_count_per_year)),Unique_Locations=as.numeric(location_count_per_year))
-      location_count_per_year <- location_count_per_year[order(location_count_per_year$Unique_Locations,decreasing = TRUE),]
       #-------
       
-      photos_per_location <- .left_join(dep_loc[,c("deploymentID","locationID")],.self$data$sequences[,c("deploymentID","nrphotos")],by='deploymentID')
-      photos_per_location <- photos_per_location |>
-        group_by(locationID) |>
-        summarise(Total_Photos=sum(nrphotos,na.rm=TRUE)) |>
-        ungroup()
-      
-      
-      # # Merge with deployments to get locationID
-      # photos_per_location <- photos_per_deployment |>
-      #   left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
-      #   group_by(locationID) |>
-      #   summarise(Total_Photos = sum(Total_Photos, na.rm = TRUE)) |>  # Sum photos per location
-      #   ungroup()
-      
-      # ----------------- List of Species for Each Location (Final Filtering) --------------------------
-      
-      
-      
-      # Step 1-1: Merge observations with taxonomy
-      observations_with_taxonomy <- .self$data$observations |>
-        dplyr::select(-scientificName) |>
-        left_join(.self$data$taxonomy, by = "taxonID")
-      
-      
-      # Step 1-2: Group by sequenceID and create a cleaned list of species
-      scientific_names_per_observation <- observations_with_taxonomy |>
-        group_by(sequenceID) |>
-        summarise(ScientificName_List = paste(
-          sort(unique(scientificName[
-            !is.na(scientificName) & 
-              scientificName != "" & 
-              grepl("\\s", scientificName)  # Keep only species with at least two words
-          ])),
-          collapse = ", ")) |>
-        ungroup()
-      
-      
-      #---
-      # Step 2: Merge with scientific_names_per_observation to get deploymentID
-      scientific_names_with_deployment <- scientific_names_per_observation |>
-        left_join(sequence_to_deployment, by = "sequenceID")
-      
-      # Step 3: Select relevant columns from 'dataNew$deployments' to map 'deploymentID' to 'locationID'
-      deployment_to_location <- dep_loc |>
-        dplyr::select(deploymentID, locationID) |>
-        distinct()  # Ensure unique mapping
-      
-      # Step 4: Merge with scientific_names_with_deployment to get locationID
-      species_per_location <- scientific_names_with_deployment |>
-        left_join(deployment_to_location, by = "deploymentID") |>
-        group_by(locationID) |>
-        summarise(Species_List = paste(
-          sort(unique(ScientificName_List[!is.na(ScientificName_List) & ScientificName_List != ""])), 
-          collapse = ", ")) |>
-        ungroup()
-      
-      
-      
-      a <- .self$data$observations[,c("scientificName","deploymentID")] |>
-        dplyr::filter(grepl("\\s", scientificName))
-      
-      a <- left_join(a,dep_loc[,c("deploymentID","locationID")],by = 'deploymentID')
-      
-      # number of species per location
-      a <- a %>% group_by(locationID) %>% summarise(nr_species=n_distinct(scientificName))
-      # Step 5: Remove species that appear in only one location
-      species_counts <- species_per_location |>
-        separate_rows(Species_List, sep = ", ") |>  # Expand species into separate rows
-        group_by(Species_List) |>
-        summarise(Location_Count = n_distinct(locationID))
-      
-      # Step 6: Remove species appearing in only one location from `species_per_location`
-      species_per_location_filtered <- species_per_location |>
-        separate_rows(Species_List, sep = ", ") |>  # Expand species into separate rows
-        dplyr::filter(Species_List %in% species_counts$Species_List) |>  # Keep only frequent species
-        group_by(locationID) |>
-        summarise(Species_List = paste(sort(unique(Species_List)), collapse = ", ")) |>
-        ungroup()
-      
-      # Step 7: Remove any leading or trailing commas (in case of empty values)
-      species_per_location_filtered <- species_per_location_filtered |>
-        mutate(Species_List = trimws(gsub("^,|,$", "", Species_List)))  # Trim extra commas
-      
-      # Print first few rows to verify
-      # head(species_per_location_filtered)
-      
-      ################ **Join all data into a single dataframe required for the **Research Area Plot** ################ 
-      .d<-left_join(dep_loc, capture_methods_per_location, by= "locationID")
-      .d<-left_join(.d, setup_per_location, by= "locationID")
-      .d<-left_join(.d, Classify_per_location, by= "locationID")
-      .d<-left_join(.d, bait_use_per_location, by= "locationID")
-      .d<-left_join(.d, years_per_location, by= "locationID")
-      .d<-left_join(.d, photos_per_location, by= "locationID")
-      .self$data_merged<-left_join(.d, species_per_location, by= "locationID")
-      
+      .self$data_merged<- .camr_getMergedSummary(.self)
       #----
-      rm(dep_loc,deployments_per_location,capture_methods_per_location,setup_per_location,
-         observations_with_deployment,sequence_to_deployment,Classify_per_location,bait_use_per_location,
-         years_per_location,location_count_per_year,photos_per_deployment,photos_per_location,
-         observations_with_taxonomy,scientific_names_per_observation,scientific_names_with_deployment,
-         deployment_to_location,species_per_location,species_counts,species_per_location_filtered,.d)
-      gc()
-      #----
-      
-      # b <- cm$data$locations %>% left_join(dep_loc[,c('locationID','deploymentID')],by='locationID') %>%
-      #   left_join(cm$data$observations[,c('deploymentID','scientificName')],by='deploymentID') %>%
-      #   group_by(locationName) %>%
-      #   filter(grepl('\\s',scientificName)) %>%
-      #   summarise(Species_List=paste(sort(unique(scientificName)),collapse=', '))
       
       
       .tmp <- lapply(.self$years, function(x) {
         .data_year <- .self$get_data_subset(x)
-        # Number of unique camera trap locations
-        number_camtraps <- length(unique(.data_year$location$locationName))
-        
-        # Group deployments by location and find min/max dates
-        deployments <- .data_year$deployments |>
-          group_by(locationID) |>
-          summarise(start_date = min(deploymentStart,na.rm=TRUE), end_date = max(deploymentEnd,na.rm=TRUE), .groups = "drop")
-        
-        # Find the earliest and latest deployment dates
-        earliest_start <- min(deployments$start_date,na.rm=TRUE)
-        latest_end <- max(deployments$end_date,na.rm=TRUE)
-        if (!is.null(.self$filterDuration) && .self$filterDuration > 0) {
-          # if (!inherits(.self$filterDuration,"difftime")) {
-          #   .self$filterDuration <- as.difftime(.self$filterDuration,units='days')
-          # }
+        if (!is.null(.data_year)) {
+          # Number of unique camera trap locations
+          number_camtraps <- length(unique(.data_year$location$locationName))
           
-          .fdur <- .self$filterDuration * 86400 # (24* 60 * 60) seconds!
-          #units(.fdur) <- 'secs'
-          #.fdur <- as.numeric(.fdur)
+          # Group deployments by location and find min/max dates
+          deployments <- .data_year$deployments |>
+            group_by(locationID) |>
+            summarise(start_date = min(deploymentStart,na.rm=TRUE), end_date = max(deploymentEnd,na.rm=TRUE), .groups = "drop")
           
+          # Find the earliest and latest deployment dates
+          earliest_start <- min(deployments$start_date,na.rm=TRUE)
+          latest_end <- max(deployments$end_date,na.rm=TRUE)
+          if (!is.null(.self$filterDuration) && .self$filterDuration > 0) {
+            .fdur <- .self$filterDuration * 86400 # (24* 60 * 60) seconds!
+            
+            valid_end_dates <- deployments |> dplyr::filter(end_date >= (latest_end - .fdur))
+            earliest_end <- min(valid_end_dates$end_date,na.rm=TRUE)
+          } else earliest_end <- min(deployments$end_date,na.rm=TRUE)
           
-          valid_end_dates <- deployments |> dplyr::filter(end_date >= (latest_end - .fdur))
-          earliest_end <- min(valid_end_dates$end_date,na.rm=TRUE)
-        } else earliest_end <- min(deployments$end_date,na.rm=TRUE)
+          # Return the processed data as a list
+          list(
+            year = as.numeric(x),
+            number_camtraps = number_camtraps,
+            deployment_period = paste(format(earliest_start, "%Y-%m-%d"), "-", format(latest_end, "%Y-%m-%d")),
+            setup_period = paste(format(earliest_start, "%d %B"), "-", format(max(deployments$start_date), "%d %B")),
+            pickup_period = paste(format(earliest_end, "%B %d"), "-", format(latest_end, "%B %d"))
+          )
+        }
         
-        
-        # Return the processed data as a list
-        list(
-          year = as.numeric(x),
-          number_camtraps = number_camtraps,
-          deployment_period = paste(format(earliest_start, "%Y-%m-%d"), "-", format(latest_end, "%Y-%m-%d")),
-          setup_period = paste(format(earliest_start, "%d %B"), "-", format(max(deployments$start_date), "%d %B")),
-          pickup_period = paste(format(earliest_end, "%B %d"), "-", format(latest_end, "%B %d"))
-        )
       })
       
       # Convert Camera Setup Data into a DataFrame
@@ -793,136 +648,57 @@ camR <- setRefClass(
           observation_Year = .getYear(timestamp)
         )
       #-------
-      summarize_species <- function(df, class = NULL,order=NULL,domestic=FALSE,scientificName=NULL,.filterCount=TRUE,observationType=NULL) {
-        # To summarise, either scientificName, OR other criteria (one or combination of class, order, etc.) is provided!
-        # .filterCount = T -> the count threshold (if specified in .self$filterCount) is applied
-        
-        if (!is.null(observationType) && is.character(observationType)) df <- df[df$observationType %in% observationType,]
-        
-        if (is.null(scientificName) || length(scientificName) == 0) {
-          df <- df[grepl("\\s", df$scientificName),]
-          df <- df[!grepl(" sp.$", df$scientificName),]
-          
-          
-          # if domestic is FALSE, they are excluded, if TRUE, summary is for domestic (NULL: all are considered)
-          # both only if the scientificName vector is provided by user in .self$filterExclude$scientificName
-          # or when domestic group is defined in the group_definition!
-          if (!is.null(.self$filterExclude$scientificName) && is.character(.self$filterExclude$scientificName)) {
-            if (!is.null(domestic)) {
-              if (domestic) {
-                if ('domestic' %in% names(.self$group_definition)) df <- df[df$scientificName %in% .self$group_definition$domestic$scientificName,]
-                else if (scientificName %in% names(.self$filterExclude)) df <- df[df$scientificName %in% .self$filterExclude$scientificName,]
-                else warning('domestic group is not defined!')
-              } else {
-                if ('domestic' %in% names(.self$group_definition)) df <- df[!df$scientificName %in% .self$group_definition$domestic$scientificName,]
-                else if (scientificName %in% names(.self$filterExclude)) df <- df[!df$scientificName %in% .self$filterExclude$scientificName,]
-              }
-            }
-          }
-          #---
-          if (!is.null(class)) {
-            df <- df[df$class %in% class, ]
-          }
-          #----
-          if (!is.null(order)) {
-            df <- df[df$order %in% order, ]
-          }
-        } else {
-          df <- df[df$scientificName %in% scientificName,]
-        }
-        #--------------
-        if (.filterCount && length(.self$filterCount) > 0 && nrow(.self$observed_counts) > 0) {
-          df <- df[df$scientificName %in% .self$observed_counts$scientificName[.self$observed_counts$count > .self$filterCount[1]], ]
-        }
-        #---------
-        .years <- unique(df$observation_Year)
-        .years <- sort(.years[!is.na(.years)])
-        
-        .n <- .nn <- colnames(df)[grepl('^vernacularName',colnames(df))]
-        if (length(.n) > 0) {
-          .w <- which(sapply(.n,function(x) length(strsplit(x,'\\.')[[1]])) == 2)
-          if (length(.w) > 0) {
-            .nn[.w] <- paste0('species_list_',sapply(.n,function(x) strsplit(x,'\\.')[[1]][2]))
-          }
-        }
-        
-        if (length(.years) > 0) {
-          .df  <- df[1:length(.years),c('observation_Year','count','scientificName',.n)]
-          colnames(.df) <- c('observation_Year','total_species','species_list_scientificName',.nn)
-          .df$total_observations <- 0
-          .df$observation_Year <- as.numeric(.years)
-          
-          for (i in seq_along(.years)) {
-            .w <- which(df$observation_Year == .years[i])
-            .df$total_observations[i] <- length(.w)
-            .df$total_species[i] <- length(unique(df$scientificName[.w]))
-            .df$species_list_scientificName[i] <- paste(sort(unique(df$scientificName[.w])), collapse = ", ")
-            if (length(.nn) > 0) {
-              for (j in seq_along(.nn)) {
-                .df[[.nn[j]]] <- paste(sort(unique(df[[.n[j]]][.w])), collapse = ", ")
-              }
-            }
-          }
-          #----
-          
-          .dfs <- unique(df[,c("scientificName", .n)])
-          .dfs <- .dfs[order(.dfs$scientificName),]
-          
-          list(per_year=.df,site_list=.dfs)
-        }
-      }
-      #----
       
       .self$species_summary <- list()
       if (!is.null(names(.self$group_definition))) {
         for (n in names(.self$group_definition)) {
           if ('scientificName' %in%  names(.self$group_definition[[n]])) {
-            .self$species_summary[[n]] <- summarize_species(.tax_obs,scientificName = .self$group_definition[[n]]$scientificName)
+            .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,scientificName = .self$group_definition[[n]]$scientificName)
           } else if (any(c('class','order') %in% names(.self$group_definition[[n]]))) {
             if ('class' %in% names(.self$group_definition[[n]])) {
               if ('order' %in% names(.self$group_definition[[n]])) {
                 if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
                   if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
                   } else {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
                   }
                   
                 } else {
                   if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
                   } else {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order)
                   }
                 }
               } else {
                 if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
                   if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
                   } else {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic)
                   }
                   
                 } else {
                   if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class,observationType=.self$group_definition[[n]]$observationType)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,observationType=.self$group_definition[[n]]$observationType)
                   } else {
-                    .self$species_summary[[n]] <- summarize_species(.tax_obs,class = .self$group_definition[[n]]$class)
+                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class)
                   }
                 }
               }
             } else {
               if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
                 if ("observationType" %in% names(.self$group_definition[[n]])) {
-                  .self$species_summary[[n]] <- summarize_species(.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
                 } else {
-                  .self$species_summary[[n]] <- summarize_species(.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
+                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
                 }
               } else {
                 if ("observationType" %in% names(.self$group_definition[[n]])) {
-                  .self$species_summary[[n]] <- summarize_species(.tax_obs,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
+                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
                 } else {
-                  .self$species_summary[[n]] <- summarize_species(.tax_obs,order = .self$group_definition[[n]]$order)
+                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order)
                 }
                 
               }
@@ -949,10 +725,6 @@ camR <- setRefClass(
       ####################
       
       #---------------------------------------------------
-      
-      # Capture
-      
-      
       # Capture
       .w <- .self$years
       names(.w) <- .self$years
@@ -1235,8 +1007,8 @@ camR <- setRefClass(
         .e <- as.character(.self$data$deployments$deploymentEnd)
         #names(.s) <- names(.e) <-NULL
         
-        if (any(.s == "NA")) .s[.s == "NA"] <- NA
-        if (any(.e == "NA")) .e[.e == "NA"] <- NA
+        if (any(.s == "NA",na.rm=TRUE)) .s[.s == "NA"] <- NA
+        if (any(.e == "NA",na.rm=TRUE)) .e[.e == "NA"] <- NA
         
         deploy_dates <-data.frame(start=as.Date(.s),end=as.Date(.e))
         
@@ -1271,16 +1043,7 @@ camR <- setRefClass(
         warning('The "suncalc" package is not installed; it is required for the analysis of activity patterns...')
       }
       #------------
-      # effort_by_site <- .self$data$deployments |>
-      #   left_join(
-      #     .self$data$locations |> select(locationID, locationName),
-      #     by = "locationID"
-      #   ) |>
-      #   mutate(
-      #     effort = .get_Time_length(deployment_interval,unit='days')
-      #   ) |>
-      #   group_by(locationName) |>
-      #   summarise(effort = sum(effort), .groups = "drop")
+      
       
       # Captures per species × site, with scientificName
       
@@ -1332,57 +1095,6 @@ camR <- setRefClass(
         rm(caps_by_site,obs_with_habitat,summary_by_species_habitat)
         gc()
       }
-      
-      
-      
-      ###########
-      # get all specie
-      # all_species <- unique(.tax_obs$scientificName)
-      # all_species <- all_species[!is.na(all_species)]
-      # 
-      # # but keep only those with at least one distance measurement
-      # usable_species <- pkg$data$observations |>
-      #   filter(!is.na(dist)) |> 
-      #   pull(scientificName) |> 
-      #   unique()
-      # 
-      # usable_species <- .tax_obs |>
-      #   filter(!is.na(radius)) |> 
-      #   pull(scientificName) |> 
-      #   unique()
-      # 
-      # 
-      # # # optionally warn which you’re dropping
-      # # dropped <- setdiff(all_species, usable_species)
-      # # if (length(dropped) > 0) {
-      # #   warning("Dropping species with no distance data: ", paste(dropped, collapse = ", "))
-      # # }
-      # # 
-      # # for (sp in usable_species) {
-      # #   sp_data <- subset(pkg, species == sp)
-      # #   if (sum(!is.na(sp_data$radius)) >= 10) {
-      # #     fit_detmodel(radius ~ 1, pkg, species = sp, truncation = "5%")
-      # #   } else {
-      # #     cat("Skipping", sp, "- not enough valid position data.\n")
-      # #   }
-      # # }
-      # 
-      # # now use usable_species in your pre-fit loop
-      # params_by_species <- list()
-      # for (sp in usable_species) {
-      #   message("Pre-fitting models for ", sp)
-      #   params_by_species[[sp]] <- list(
-      #     radius_model   = fit_detmodel(radius ~ 1, .self$pkg, species = sp, truncation = "5%"),
-      #     angle_model    = fit_detmodel(angle  ~ 1, .self$pkg, species = sp, unit = "radian"),
-      #     speed_model    = fit_speedmodel(.self$pkg, species = sp),
-      #     activity_model = fit_actmodel(.self$pkg, species = sp, reps = 10)
-      #   )
-      # }
-      # 
-      # 
-      # # Combine & export 
-      # 
-      # estimates_rem_all <- do.call(rbind, density_list)
       
       
       message('Setup is done!')
@@ -1464,12 +1176,6 @@ camR <- setRefClass(
               .done <- TRUE
             }
           } else {
-            # for (n in names(.self$reportObjects)) {
-            #   if (is.list(.self$reportObjects[[n]]) && x@parent %in% names(.self$reportObjects[[n]])) {
-            #     .self$reportObjects[[n]]
-            #   }
-            # }
-            #.tmp <- .findParent(.self$reportObjects,x@parent)
             
             for (.n in names(.self$reportObjects)) {
               .tmp <- .self$reportObjects[[.n]]
@@ -1799,24 +1505,29 @@ camR <- setRefClass(
       
     },
     get_data_subset=function(year=2023) {
-      .d <- list()
-      .d$deployments <- .self$data$deployments[.self$data$deployments$Year == year,]
-      .d$media <- .self$data$media[.self$data$media$deploymentID %in% .d$deployments$deploymentID, ]
-      .d$observations <- .self$data$observations[.self$data$observations$deploymentID %in% .d$deployments$deploymentID,]
-      .d$locations <- .self$data$locations[.self$data$locations$locationID %in% .d$deployments$locationID,]
-      .d$taxonomy <- .self$data$taxonomy[.self$data$taxonomy$scientificName %in% .d$observations$scientificName,]
-      .d$sequences <- .self$data$sequences[.self$data$sequences$deploymentID %in% .d$deployments$deploymentID,]
-      .d
+      
+      .w <- which(.self$data$deployments$Year == year)
+      if (length(.w) > 0) {
+        .d <- list()
+        .d$deployments <- .self$data$deployments[.w,]
+        .d$media <- .self$data$media[.self$data$media$deploymentID %in% .d$deployments$deploymentID, ]
+        .d$observations <- .self$data$observations[.self$data$observations$deploymentID %in% .d$deployments$deploymentID,]
+        .d$locations <- .self$data$locations[.self$data$locations$locationID %in% .d$deployments$locationID,]
+        .d$taxonomy <- .self$data$taxonomy[.self$data$taxonomy$scientificName %in% .d$observations$scientificName,]
+        .d$sequences <- .self$data$sequences[.self$data$sequences$deploymentID %in% .d$deployments$deploymentID,]
+        .d
+      }
+      
     },
     extractYears = function(update=FALSE) {
       if (update || length(.self$years) == 0) {
-        .self$years <- sort(as.numeric(unique(.getYear(cm$data$deployments$deployment_interval))))
+        .self$years <- sort(as.numeric(unique(.getYear(.self$data$deployments$deployment_interval))))
       }
       #-----
       .self$years
     },
     generateReport = function(output_file = "cam_report.html") {
-      
+      .self$recetFigTabNumber()
       rmd_file <- file.path(getwd(), "test_1.Rmd")
       rmd_template <- glue::glue("
 ---

@@ -1,0 +1,127 @@
+---
+name: "model_parameters"
+title: "### Model Parameters {.tabset}"
+parent: "population_density"
+text: "The REM relies on three main parameters: movement speed, activity level, and day range. Movement speed represents the average distance traveled by an individual over time. Activity level reflects the proportion of time individuals are active and available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is used to refine density estimates. Plots for each model parameter are presented below.\n\n"
+code: |
+  #| name: movement
+  #| setting: echo=FALSE,results="asis"
+  #| packages: ggplot2, dplyr
+  
+  
+  if ("estiamtes_rem" %in% ls()) {
+    # to be tested alone!
+    spn <- object$get_speciesNames(object$setting$focus_groups)
+    
+    estimates_rem <- bind_rows(object$get_REM(spn[1]))
+    if (length(spn) > 1) {
+      for (i in 2:length(spn)) {
+        estimates_rem <- rbind(estimates_rem,bind_rows(object$get_REM(spn[i])))
+      }
+    }
+  }
+  if (nrow(estimates_rem) > 0) {
+      cat('\n#### Movement Speed {.tabset .unnumbered}\n\n')
+      
+      
+      # Filter for the desired metrics
+      speed_activity_data <- estimates_rem %>%
+        dplyr::filter(Metric %in% c("active_speed", "activity_level", "overall_speed")) %>%
+        group_by(scientificName, Metric) %>%
+        dplyr::filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Match colors to scientific names
+      unique_species <- unique(speed_activity_data$scientificName)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot active speed with error bars
+      p <- ggplot(speed_activity_data %>% dplyr::filter(Metric == "active_speed"),
+             aes(x = scientificName, y = estimate, fill = scientificName)) +
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Active speed (km/h)") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      print(p)
+      # Caption
+      cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
+      
+      
+      cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
+      
+      activity_data <- speed_activity_data %>%
+        dplyr::filter(Metric == "activity_level") %>%
+        group_by(scientificName) %>%
+        filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Generate color map by scientific name
+      unique_species <- unique(activity_data$scientificName)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot
+      p <- ggplot(activity_data, 
+             aes(x = scientificName, y = estimate, fill = scientificName)) + 
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Proportion of Time Active") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      print(p)
+      
+      # Caption
+      cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
+      #---------
+      
+      cat('\n#### Day range {.tabset .unnumbered}\n\n')
+      
+      overall_speed_data <- speed_activity_data %>%
+        dplyr::filter(Metric == "overall_speed") %>%
+        group_by(scientificName) %>%
+        filter(Year == min(Year)) %>%
+        ungroup()
+      
+      # Define color mapping using scientific names
+      unique_species <- unique(overall_speed_data$scientificName)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
+      
+      # Plot
+      p <- ggplot(overall_speed_data, 
+             aes(x = scientificName, y = estimate, fill = scientificName)) + 
+        geom_bar(stat = "identity") +
+        geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2) +
+        labs(x = "Species", y = "Day Range (km)") +
+        scale_fill_manual(values = species_colors) +
+        theme_minimal(base_size = 13) +
+        theme(
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(face = "bold", color = "black"),
+          axis.title.y = element_text(face = "bold", color = "black"),
+          plot.title = element_text(face = "bold"),
+          legend.position = "none"
+        )
+      
+      print(p)
+      # Caption
+      cat("\n\n",object$getFigureNumber()," *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
+    }
+  
+
+---

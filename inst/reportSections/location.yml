@@ -1,0 +1,207 @@
+---
+name: "location"
+title: "## Camera Locations {.tabset}"
+parent: "methods"
+text: "The maps below display the locations of camera traps deployed during different years. Use the tabs above to explore data for each sampling year. The last tab shows the study area with all camera locations in this site. Locations are color-coded by habitat type. Click on the points for additional deployment information."
+code1: |
+  #| name: camera_locations_leaflet
+  #| setting: echo = FALSE, results = 'asis', fig.show="hold"
+  #| packages: leaflet, dplyr, terra
+  
+  # Function to plot camera locations with popups
+  plot_locations <- function(data, color_palette,add_legend=object$setting$locationLegend,.all_habitat) {  
+    if (is.null(data) || nrow(data) == 0) {
+      return(NULL)  # Return NULL if data is missing or empty
+    }
+    
+    
+    # Create color mapping
+    habitat_colors <- colorFactor(
+      palette = color_palette,
+      domain = .all_habitat,
+      na.color = "#EDAC8C"
+    )
+    
+    
+    data <- data %>%
+      mutate(
+        popup_text = paste0(
+          "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
+          "<b>Habitat Type:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A"), "<br>",
+          "<b>Bait Use:</b> ", ifelse(!is.na(BaitUse_List) & BaitUse_List != "", BaitUse_List, "No Data"), "<br>",
+          "<b>Camera Height:</b> ", ifelse(!is.na(cameraHeight) & cameraHeight != "", cameraHeight, "No Data"), "<br>",
+          "<b>Species Observed:</b> ", ifelse(!is.na(Species_List) & Species_List != "", Species_List, "No Data"), "<br>",
+          "<b>Capture Method:</b> ", ifelse(!is.na(CaptureMethod_List) & CaptureMethod_List != "", CaptureMethod_List, "No Data"), "<br>",
+          "<b>Number of Photos:</b> ", ifelse(!is.na(Total_Photos), Total_Photos, "No Data"), "<br>",
+          "<b>Classified By:</b> ", ifelse(!is.na(Classify_By_List) & Classify_By_List != "", Classify_By_List, "No Data"), "<br>",
+          "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
+        )
+      )
+    
+    map <- leaflet(data) %>%
+      addTiles()
+    
+    
+    if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+      object$study_area$object <- readRDS(object$study_area$path)
+      .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
+      
+      map <- map %>%
+        addPolygons(
+          data = .tmpStudyArea,
+          fillColor = "transparent",
+          fillOpacity = 0.3,
+          color = "black",
+          weight = 2
+        )
+    }
+    #---
+    
+    map <- map %>%
+      addCircleMarkers(
+        lng = ~longitude, lat = ~latitude,
+        radius = 6,
+        color = ~habitat_colors(Habitat_Type),
+        fillOpacity = 0.85, stroke = TRUE, weight = 1,
+        popup = ~popup_text
+      ) %>%
+      fitBounds(
+        lng1 = min(data$longitude, na.rm = TRUE),
+        lat1 = min(data$latitude, na.rm = TRUE),
+        lng2 = max(data$longitude, na.rm = TRUE),
+        lat2 = max(data$latitude, na.rm = TRUE)
+      )
+    
+    if (add_legend) {
+      map <- map %>%
+        leaflet::addLegend(
+          position = "bottomright",
+          pal = habitat_colors,
+          values = data$Habitat_Type,
+          title = "Habitat Type",
+          opacity = 1)
+    }
+    map
+  }
+  
+  #----
+  # **Automatically Create Tabs for Each Year**
+  for (doyear in object$years) {
+    cat(paste0("### ", doyear, " {.unnumbered}\n\n"))
+    
+    .all_habitat <- unique(object$data_merged$Habitat_Type)
+    .all_habitat <- .all_habitat[!is.na(.all_habitat)]
+    
+    
+    
+    # Extract the correct dataset for the year
+    
+    .dat_year <- object$data_merged[object$data_merged$Year ==  doyear ,c('locationName','cameraHeight','BaitUse_List','Species_List','CaptureMethod_List','Total_Photos','Classify_By_List','Setup_By_List','longitude','latitude','Year','Habitat_Type')]
+    .dat_year <- .dat_year[!is.na(.dat_year$longitude) & !is.na(.dat_year$longitude),]
+    
+    # nsure the data is valid before proceeding
+    if (nrow(.dat_year) > 0) {
+      p <- plot_locations(.dat_year, color = colorRampPalette(object$setting$color)(length(.all_habitat)),.all_habitat=.all_habitat)
+      print(htmltools::tagList(p))
+    } else {
+      cat(paste0("⚠️ No location data available for ", doyear, ".\n"))
+    }
+    cat('\n\n')
+  }
+
+code2: |
+  #| name: camera_research_area
+  #| setting: echo = FALSE,results = "asis",message = FALSE, warning = FALSE
+  #| packages: leaflet, dplyr, terra
+  
+  cat("\n### Total {.unnumbered} \n")
+  
+  # 📌 **Define File Paths**
+  Data_ResearchArea <- object$data_merged
+  
+  .dat_year <- object$data_merged[,c('locationName','cameraHeight','longitude','latitude',
+                                     'Year','Year_List','Habitat_Type','BaitUse_List','Species_List',
+                                     'CaptureMethod_List','Total_Photos','Classify_By_List','Setup_By_List')]
+  
+  # step 3: Define Habitat-Based Color Palette
+  .dat_year$Habitat_Type <- factor(.dat_year$Habitat_Type)
+  unique_habitats <- unique(.dat_year$Habitat_Type)
+  
+  habitat_colors <- colorFactor(
+    palette = object$setting$color,
+    domain = unique_habitats, na.color = "#EDAC8C"
+  )
+  
+  .dat_year <- .dat_year %>%
+    mutate(
+      Habitat_Type = as.character(Habitat_Type),  # Convert Habitat Type to character
+      label = paste0(
+        "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
+        "<b>List of Years:</b> ", ifelse(!is.na(Year_List), Year_List, "N/A"), "<br>",
+        "<b>Habitat Type:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A"), "<br>",
+        "<b>Bait Use:</b> ", ifelse(!is.na(BaitUse_List) & BaitUse_List != "", BaitUse_List, "No Data"), "<br>",
+        "<b>Species Observed:</b> ", ifelse(!is.na(Species_List) & Species_List != "", Species_List, "No Data"), "<br>",
+        "<b>Capture Method:</b> ", ifelse(!is.na(CaptureMethod_List) & CaptureMethod_List != "", CaptureMethod_List, "No Data"), "<br>",
+        "<b>Number of Photos:</b> ", ifelse(!is.na(Total_Photos), Total_Photos, "No Data"), "<br>",
+        "<b>Classified By:</b> ", ifelse(!is.na(Classify_By_List) & Classify_By_List != "", Classify_By_List, "No Data"), "<br>",
+        "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
+      )
+    )
+  
+  
+  map <- leaflet(.dat_year, width = "100%", height = "400px") %>%
+    addTiles()
+  
+  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+    object$study_area$object <- readRDS(object$study_area$path)
+    .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
+    
+    map <- map %>%
+      addPolygons(
+        data = .tmpStudyArea,
+        fillColor = "transparent",
+        fillOpacity = 0.3,
+        color = "black",
+        weight = 2
+      )
+  }
+  
+  
+  
+  # ✅ **Step 5: Generate and Display Interactive Leaflet Map**
+  map <- map %>%
+    
+    # 🔹 **Add Camera Locations with Color Mapping Based on Habitat**
+    addCircleMarkers(
+      lng = ~longitude, lat = ~latitude,
+      radius = 6,
+      color = ~habitat_colors(Habitat_Type),  # ✅ Apply Color Mapping
+      fillOpacity = 0.85, stroke = TRUE, weight = 1,
+      popup = ~label
+    ) %>%
+    
+    # ✅ **Fix: Set Consistent Zoom Level**
+    fitBounds(
+      lng1 = min(.dat_year$longitude, na.rm = TRUE),
+      lat1 = min(.dat_year$latitude, na.rm = TRUE),
+      lng2 = max(.dat_year$longitude, na.rm = TRUE),
+      lat2 = max(.dat_year$latitude, na.rm = TRUE)
+    ) 
+  if (object$setting$locationLegend) {
+    map <- map %>%
+      leaflet::addLegend(
+        position = "bottomright",
+        pal = habitat_colors,
+        values = .dat_year$Habitat_Type,
+        title = "Habitat Type",
+        opacity = 1
+      )
+  }
+  map
+  
+  cat('\n\n')
+    
+  cat('##  {.unnumbered}\n')
+  
+  cat(object$getFigureNumber(),"*Interactive map of camera trap locations. Click on a marker to view the corresponding location details and additional metadata.*\n")
+---
