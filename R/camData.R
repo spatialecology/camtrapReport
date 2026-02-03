@@ -4,8 +4,6 @@
 # Licence GPL v3
 #--------
 
-#-----------
-
 
 # get the sequences data.frame from media (the code copied from the ctdp package):
 .getSequences <- function(media) {
@@ -117,6 +115,9 @@
   
   if (!.require('jsonlite')) stop('package jsonlite is not installed; please first install the package...!')
   
+  .d <- list()
+  
+  
   if (.isZip(file)) {
     if (!is.null(path) && is.character(path)) {
       .path <- paste0(path.expand(path),'/',gsub(basename(file), pattern = ".zip", replacement = "",ignore.case = TRUE))
@@ -127,10 +128,13 @@
     
     file <- unzip(file,exdir = .path)
     
-    #.dep = read.csv(unz(file,filename = 'deployments.csv')) # read specific file in zip
+    
     
   } else if (dir.exists(file)) {
     if (all(c("datapackage.json","deployments.csv","observations.csv") %in% tolower(dir(file)))) {
+      
+      .path <- file
+      
       file <- dir(file,full.names = TRUE)
       
     } else {
@@ -141,7 +145,7 @@
     }
   } else stop('The specified input is not a zip file or a directory...!')
   #-----------------------
-  .d <- list()
+  
   
   .w <- grepl('observations.csv',file,ignore.case = TRUE)
   if (any(.w)) .d$observations <- .eval("as.data.frame(data.table::fread(file[.w],tz=tz))",environment())
@@ -358,7 +362,7 @@
   
   .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
   
-  list(data=.d,json=.js)
+  list(data=.d,json=.js,directory=.path)
   
 }
 
@@ -459,7 +463,7 @@
       gt() %>%
       tab_header(
         title = md("**📷 Camera Deployment Summary**"),
-        subtitle = md("**Table 1.** Details of camera deployments per year")
+        subtitle = md(paste0(object$getTableNumber()," Details of camera deployments per year"))
       ) %>%
       cols_label(
         year = "Year",
@@ -493,63 +497,6 @@
   
   #-------
   # # Methods -> Locations:
-  
-  
-  # # Define Function to Plot Camera Locations
-  # plot_locations <- function(data, color_palette, add_legend = FALSE) {
-  #   if (is.null(data) || nrow(data) == 0) return(NULL)
-  #   
-  #   data <- data %>%
-  #     mutate(
-  #       popup_text = paste0(
-  #         "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
-  #         "<b>Habitat Type:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A"), "<br>",
-  #         "<b>Bait Use:</b> ", ifelse(!is.na(BaitUse_List) & BaitUse_List != "", BaitUse_List, "No Data"), "<br>",
-  #         "<b>Camera Height:</b> ", ifelse(!is.na(cameraHeight) & cameraHeight != "", cameraHeight, "No Data"), "<br>",
-  #         "<b>Species Observed:</b> ", ifelse(!is.na(Species_List) & Species_List != "", Species_List, "No Data"), "<br>",
-  #         "<b>Capture Method:</b> ", ifelse(!is.na(CaptureMethod_List) & CaptureMethod_List != "", CaptureMethod_List, "No Data"), "<br>",
-  #         "<b>Number of Photos:</b> ", ifelse(!is.na(Total_Photos), Total_Photos, "No Data"), "<br>",
-  #         "<b>Classified By:</b> ", ifelse(!is.na(Classify_By_List) & Classify_By_List != "", Classify_By_List, "No Data"), "<br>",
-  #         "<b>Setup By:</b> ", ifelse(!is.na(Setup_By_List) & Setup_By_List != "", Setup_By_List, "No Data")
-  #       )
-  #     )
-  #   
-  #   map <- leaflet(data) %>%
-  #     addTiles() %>%
-  #     addPolygons(
-  #       data = study_areaSHP,
-  #       fillColor = "transparent",
-  #       fillOpacity = 0.3,
-  #       color = "black",
-  #       weight = 2
-  #     ) %>%
-  #     addCircleMarkers(
-  #       lng = ~longitude, lat = ~latitude,
-  #       radius = 6,
-  #       color = ~color_palette(Habitat_Type),
-  #       fillOpacity = 0.85, stroke = TRUE, weight = 1,
-  #       popup = ~popup_text
-  #     ) %>%
-  #     fitBounds(
-  #       lng1 = min(data$longitude, na.rm = TRUE),
-  #       lat1 = min(data$latitude, na.rm = TRUE),
-  #       lng2 = max(data$longitude, na.rm = TRUE),
-  #       lat2 = max(data$latitude, na.rm = TRUE)
-  #     )
-  #   
-  #   if (add_legend) {
-  #     map <- map %>%
-  #       leaflet::addLegend(
-  #         position = "bottomright",
-  #         pal = color_palette,
-  #         values = data$Habitat_Type,
-  #         title = "Habitat Type",
-  #         opacity = 1)
-  #   }
-  #   
-  #   return(map)
-  # }
-  
   
   .txx <- .getTextObj(name='location',title="Camera Locations {.tabset}",parent='methods',
                       txt='The maps below display the locations of camera traps deployed during different years. Use the tabs above to explore data for each sampling year. The last tab shows the study area with all camera locations in this site. Locations are color-coded by habitat type. Click on the points for additional deployment information.')
@@ -594,8 +541,10 @@
       map <- leaflet(data) %>%
         addTiles()
       
-      if (nrow(object$study_area@attributes) > 0) {
-        .tmpStudyArea <- project(unwrap(object$study_area),"epsg:4326")
+      
+      if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+        object$study_area$object <- readRDS(object$study_area$path)
+        .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
         
         map <- map %>%
           addPolygons(
@@ -705,8 +654,9 @@
     map <- leaflet(.dat_year, width = "100%", height = "400px") %>%
       addTiles()
     
-    if (nrow(object$study_area@attributes) > 0) {
-      .tmpStudyArea <- project(unwrap(object$study_area),"epsg:4326")
+    if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+      object$study_area$object <- readRDS(object$study_area$path)
+      .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
       
       map <- map %>%
         addPolygons(
@@ -717,6 +667,8 @@
           weight = 2
         )
     }
+    
+    
     
     # ✅ **Step 5: Generate and Display Interactive Leaflet Map**
     map <- map %>%
@@ -809,7 +761,7 @@
     
     
     # Generate Dygraph
-    plot_test <- .plot_effort(object$data) %>%
+    plot_test <- .plot_effort(object) %>%
       dyAxis("x", label = "Time") %>%
       dyAxis("y", label = "Active Camera Count") %>%
       dyOptions(fillGraph = TRUE, colors = "#033800FF") %>%
@@ -842,7 +794,7 @@
     
     cat('##  {.unnumbered}\n')
     
-    cat("**Fig. 2**: *Number of active camera traps per survey year. Adjust the slider to focus on specific time periods.*\n")
+    cat(object$getFigureNumber()," *Number of active camera traps per survey year. Adjust the slider to focus on specific time periods.*\n")
     
   })
   
@@ -943,15 +895,15 @@
       select(-scientificName) %>%
       left_join(object$data$taxonomy, by = "taxonID") %>%
       mutate(
-        observation_date = as.Date(observation_timestamp),
-        observation_Year = .getYear(observation_timestamp)
+        observation_date = as.Date(timestamp),
+        observation_Year = .getYear(timestamp)
       )
     
     
     # Join with sequence & location data
     enriched_obs <- .tax_obs %>%
       filter(scientificName %in% .w) %>%
-      left_join(object$data$sequences %>% select(sequenceID, deploymentID, nrphotos), by = "sequenceID") %>%
+      left_join(object$data$sequences %>% select(sequenceID, nrphotos), by = "sequenceID") %>%
       left_join(object$data$deployments %>% select(deploymentID, locationID), by = "deploymentID") %>%
       left_join(object$data$locations %>% select(locationID, locationName), by = "locationID")
     # Summarize
@@ -985,7 +937,7 @@
         ) %>%
         gt() %>%
         tab_header(
-          title = md(paste0("**", emoji, " Table 3. Summary of Frequently Observed ", group_labels, "**")),
+          title = md(paste0("**", emoji," Table ", object$getTableNumber(text=FALSE),". Summary of Frequently Observed ", group_labels, "**")),
           subtitle = md(paste0("Species with ≥ ", object$filterCount, " observations"))
         ) %>%
         tab_options(
@@ -1014,7 +966,7 @@
     cat(paste0(
       "The graphs below illustrate temporal trends in the number of captures, the number of active camera locations, ",
       "and the resulting capture rates for ", group_label, " species observed more than ", object$filterCount,
-      " times in ", object$siteName, " across the sampling period (*Figure 3, 4, 5 and 6*) .\n\n"
+      " times in ", object$siteName, " across the sampling period (*following Figures*) .\n\n"
     ))
     #----
     
@@ -1037,17 +989,7 @@
         object$capture$Year != "total"
     ])
     
-    color_palette <- c(
-      "#855C75", "#D9AF6B", "#AF6458", "#736F4C", "#526A83", "#625377",
-      "#68855C", "#9C9C5E", "#A06177", "#8C785D", "#467378", "#7C7C7C",
-      "#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0", "#24796C",
-      "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A", "#CC3A8E", "#A5AA99",
-      "#6D904F", "#F6C85F", "#B276B2", "#DECF3F", "#FAA43A", "#60BD68",
-      "#F15854", "#4D4D4D", "#B2912F", "#7B615C", "#1F77B4", "#FF7F0E",
-      "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#17BECF"
-    )
-    
-    species_colors <- setNames(color_palette[1:length(species_list)], species_list)
+    species_colors <- setNames(object$reportObjectElements$color_palette[1:length(species_list)], species_list)
     
     
     # Filter and prep data
@@ -1103,7 +1045,7 @@
     
     cat(paste0(
       '<p style="font-size:16px; color:black; font-weight:normal; margin-top:10px;">',
-      '<b>Figure 3.</b> <i>Trends in camera-trap detections over the survey years ',
+      '<b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Trends in camera-trap detections over the survey years ',
       'for frequently observed ', group_label, ', based on the number of captures.</i>',
       '</p>'
     ))
@@ -1160,7 +1102,7 @@
     
     
     HTML('<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">
-<b>Figure 4.</b> <i>Log-transformed capture rates per 100 trap-days for frequently observed ', 
+  <b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Log-transformed capture rates per 100 trap-days for frequently observed ', 
          group_label, ' across survey years.</i></p>')
     
     #----------
@@ -1207,7 +1149,7 @@
     # Build caption text dynamically using paste0()
     caption_text <- paste0(
       '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
-      '<b>Figure 5.</b> <i>Trends in the number of camera-trap locations where each species was recorded, showing spatial dynamics', 
+      '<b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Trends in the number of camera-trap locations where each species was recorded, showing spatial dynamics', 
       group_label, 
       ' across survey years.</i></p>'
     )
@@ -1275,7 +1217,7 @@
       # Styled caption
       HTML(paste0(
         '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
-        '<b>Figure 6.</b> <i>Trends in estimated REM-based population density for ', 
+        '<b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Trends in estimated REM-based population density for ', 
         group_label, ' across survey years.</i></p>'
       ))
       
@@ -1294,7 +1236,7 @@
   cm$addReportObject(.txx) 
   
   
-  .txx <- .getTextObj(name='model_parameters',title="Model Parameters {.tabset}",parent='population_density',txt="The REM relies on three main parameters: movement speed, activity level, and day range. Movement speed represents the average distance traveled by an individual over time. Activity level reflects the proportion of time individuals are active and available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is used to refine density estimates. Plots for each model parameter are presented below (*Figures 7, 8, and 9*).\n\n")
+  .txx <- .getTextObj(name='model_parameters',title="Model Parameters {.tabset}",parent='population_density',txt="The REM relies on three main parameters: movement speed, activity level, and day range. Movement speed represents the average distance traveled by an individual over time. Activity level reflects the proportion of time individuals are active and available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is used to refine density estimates. Plots for each model parameter are presented below.\n\n")
   cm$addReportObject(.txx) 
   
   .rxx <- .getRchunk(parent='model_parameters',name = 'movement',setting={c(echo=FALSE,results="asis")},code={
@@ -1313,7 +1255,7 @@
       
       # Match colors to scientific names
       unique_species <- unique(speed_activity_data$scientificName)
-      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
       
       # Plot active speed with error bars
       p <- ggplot(speed_activity_data %>% dplyr::filter(Metric == "active_speed"),
@@ -1333,7 +1275,7 @@
       
       print(p)
       # Caption
-      cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
+      cat("\n\n",object$getFigureNumber()," *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
       
       
       cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
@@ -1346,7 +1288,7 @@
       
       # Generate color map by scientific name
       unique_species <- unique(activity_data$scientificName)
-      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
       
       # Plot
       p <- ggplot(activity_data, 
@@ -1367,7 +1309,7 @@
       print(p)
       
       # Caption
-      cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
+      cat("\n\n",object$getFigureNumber()," *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
       #---------
       
       cat('\n#### Day range {.tabset .unnumbered}\n\n')
@@ -1380,7 +1322,7 @@
       
       # Define color mapping using scientific names
       unique_species <- unique(overall_speed_data$scientificName)
-      species_colors <- setNames(color_palette[1:length(unique_species)], unique_species)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(unique_species)], unique_species)
       
       # Plot
       p <- ggplot(overall_speed_data, 
@@ -1400,7 +1342,7 @@
       
       print(p)
       # Caption
-      cat("\n\n**Figure 9.** *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
+      cat("\n\n",object$getFigureNumber()," *Estimated day ranges for each study species, calculated as the product of movement speed and activity level, scaled to a 24-hour period. Whiskers indicate 95% confidence intervals.*\n")
     }
     
     
@@ -1423,7 +1365,7 @@
         species_list <- unique(density_data$scientificName)
         
         # Assign Acadia colors to species (cycling if necessary)
-        species_colors <- setNames(rep(color_palette, length.out = length(species_list)), species_list)
+        species_colors <- setNames(rep(object$reportObjectElements$color_palette, length.out = length(species_list)), species_list)
         
         # Loop through each species
         for (i in seq_along(species_list)) {
@@ -1455,7 +1397,7 @@
           
           # Caption (COMPLETED)
           cat(paste0(
-            "\n\n**Figure 10.** ", "*Estimated population density per sampling year for ", 
+            "\n\n",object$getFigureNumber()," *Estimated population density per sampling year for ", 
             species, 
             ". Whiskers represent the 95% confidence intervals.*\n"
           ))
@@ -1481,7 +1423,7 @@
       frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
       
       # Color palette
-      species_colors <- setNames(color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
       
       ############
       
@@ -1494,67 +1436,57 @@
         
         cat("\n###", species, "{.unnumbered}\n\n")
         
-        .rem_param <- object$.get_REM_Param(species)
-        if (!is.null(.rem_param)) {
-          res <- tryCatch({
-            rem_estimate(object$pkg, check_deployments = FALSE, species = species, reps = 10,
-                         radius_model = .rem_param$radius_model,angle_model = .rem_param$angle_model,
-                         speed_model = .rem_param$speed_model,activity_model = .rem_param$activity_model)
-          }, error = function(e) {
-            cat("\n! Warning: REM estimation failed for", species, "\n")
-            return(NULL)
-          })
-        } else cat("\n! Warning: REM estimation failed for", species, "\n")
+        res <- object$.get_REM_Param(species)
         
         
-        if (is.null(res) || is.null(res$activity_model)) {
+        if (is.null(res) || is.logical(res) || is.null(res$activity_model)) {
           cat("\n! Skipping", species, "- missing models!\n")
-          next
-        }
-        
-        activity_pred <- data.frame(
-          time = (res$activity_model@pdf[, "x"] / (2 * pi)) * 24,
-          estimate = res$activity_model@pdf[, "y"],
-          lcl = res$activity_model@pdf[, "lcl"],
-          ucl = res$activity_model@pdf[, "ucl"]
-        )
-        
-        p <- ggplot(activity_pred, aes(x = time, y = estimate)) +
-          geom_line(color = species_colors[[species]], size = 1.2) +
-          geom_ribbon(aes(ymin = lcl, ymax = ucl),
-                      fill = species_colors[[species]], alpha = 0.3) +
           
-          # Sunrise and sunset lines
-          geom_vline(xintercept = overall_sunrise, color = "gold", linetype = "dashed", linewidth = 0.8) +
-          geom_vline(xintercept = overall_sunset, color = "gray", linetype = "dashed", linewidth = 0.8) +
-          
-          scale_x_continuous(
-            limits = c(0, 24),
-            breaks = seq(0, 24, by = 6),
-            labels = c("00:00", "06:00", "12:00", "18:00", "24:00")
-          ) +
-          labs(
-            x = "Time of Day",
-            y = "Estimated Activity Density"
-          ) +
-          theme_minimal(base_family = "", base_size = 13) +
-          theme(
-            axis.title.x = element_text(face = "bold", color = "black"),
-            axis.title.y = element_text(face = "bold", color = "black"),
-            axis.text.x = element_text(size = 12),
-            axis.text.y = element_text(size = 12),
-            legend.position = "none",
-            panel.grid.minor = element_blank(),
-            plot.margin = ggplot2::margin(20, 40, 20, 40)
+        } else {
+          activity_pred <- data.frame(
+            time = (res$activity_model@pdf[, "x"] / (2 * pi)) * 24,
+            estimate = res$activity_model@pdf[, "y"],
+            lcl = res$activity_model@pdf[, "lcl"],
+            ucl = res$activity_model@pdf[, "ucl"]
           )
-        
-        print(p)
-        
-        cat(paste0(
-          "\n\n**Figure 11.** *Estimated daily activity pattern for ", 
-          species, 
-          ", aggregated across all sampling rounds. Dashed lines indicate the average sunrise (yellow) and sunset (gray) times across survey years. The solid line shows the fitted activity model, and the shaded region shows the 95% CI.*\n\n"
-        ))
+          
+          p <- ggplot(activity_pred, aes(x = time, y = estimate)) +
+            geom_line(color = species_colors[[species]], size = 1.2) +
+            geom_ribbon(aes(ymin = lcl, ymax = ucl),
+                        fill = species_colors[[species]], alpha = 0.3) +
+            
+            # Sunrise and sunset lines
+            geom_vline(xintercept = overall_sunrise, color = "gold", linetype = "dashed", linewidth = 0.8) +
+            geom_vline(xintercept = overall_sunset, color = "gray", linetype = "dashed", linewidth = 0.8) +
+            
+            scale_x_continuous(
+              limits = c(0, 24),
+              breaks = seq(0, 24, by = 6),
+              labels = c("00:00", "06:00", "12:00", "18:00", "24:00")
+            ) +
+            labs(
+              x = "Time of Day",
+              y = "Estimated Activity Density"
+            ) +
+            theme_minimal(base_family = "", base_size = 13) +
+            theme(
+              axis.title.x = element_text(face = "bold", color = "black"),
+              axis.title.y = element_text(face = "bold", color = "black"),
+              axis.text.x = element_text(size = 12),
+              axis.text.y = element_text(size = 12),
+              legend.position = "none",
+              panel.grid.minor = element_blank(),
+              plot.margin = ggplot2::margin(20, 40, 20, 40)
+            )
+          
+          print(p)
+          
+          cat(paste0(
+            "\n\n",object$getFigureNumber()," *Estimated daily activity pattern for ", 
+            species, 
+            ", aggregated across all sampling rounds. Dashed lines indicate the average sunrise (yellow) and sunset (gray) times across survey years. The solid line shows the fitted activity model, and the shaded region shows the 95% CI.*\n\n"
+          ))
+        }
       }
     } else cat('\n\n The sun times have not been calculated; it requires the suncalc package (run setup first...)!\n')
     
@@ -1570,11 +1502,9 @@
   
   .rxx <- .getRchunk(parent='richness',name = 'richness_code',setting={c(echo=FALSE,results="asis",warning=FALSE,fig.show='hold')},code={
     study_areaSHP <- NULL
-    if (nrow(object$study_area@attributes) > 0) {
-      # study_areaSHP <- object$study_area %>%
-      #   st_zm() %>% st_transform(crs = 4326)
-      
-      study_areaSHP <- project(unwrap(object$study_area),"epsg:4326")
+    if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+      object$study_area$object <- readRDS(object$study_area$path)
+      study_areaSHP <- project(object$study_area$object,"epsg:4326")
     }
     
     #------------
@@ -1606,12 +1536,7 @@
       #
       present_levels <- as.character(sort(unique(data$Richness)))
       
-      full_palette <- c(
-        "#2D8B3F", "#91FF00", "#FFDA00", "#FF9100", "#FF4800",
-        "#FF0000", "#D33682", "#7F00FF", "#00CED1", "#FFA07A",
-        "#1E90FF", "#8B4513", "#808000", "#FF69B4", "#00FA9A",
-        "#A52A2A", "#9370DB", "#4682B4", "#FF1493", "#20B2AA"
-      )
+      full_palette <- object$reportObjectElements$richness_palette
       
       richness_palette <- colorFactor(
         palette = full_palette[seq_along(present_levels)],
@@ -1686,7 +1611,7 @@
     
     cat("\n\n")
     if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n**Figure 12.** *Species richness based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n"))
+      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species richness based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n"))
     } else cat("**Figure 12.** *Species richness across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n")
     
   })
@@ -1694,7 +1619,7 @@
   #-----------
   ##############################################
   # 3.6 Species Co-occurrence:
-  .txx <- .getTextObj(name='co_occurrence',title="Species Co-occurrence {.tabset}",parent='results',txt="Species co-occurrence analysis examines how different species share habitats and interact within the same locations. By using correlation matrices and clustering techniques, we identify species that tend to be found together and those that exhibit avoidance patterns. Understanding co-occurrence patterns helps assess interspecific relationships and habitat preferences (*Figure 13*).")
+  .txx <- .getTextObj(name='co_occurrence',title="Species Co-occurrence {.tabset}",parent='results',txt="Species co-occurrence analysis examines how different species share habitats and interact within the same locations. By using correlation matrices and clustering techniques, we identify species that tend to be found together and those that exhibit avoidance patterns. Understanding co-occurrence patterns helps assess interspecific relationships and habitat preferences.")
   cm$addReportObject(.txx) 
   
   
@@ -1763,13 +1688,13 @@
     }
     #---------
     if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n**Figure 13.** *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", afor each survey year, as well as the cumulative across all years.*\n"))
-    } else cat("**Figure 13.** *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
+      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", afor each survey year, as well as the cumulative across all years.*\n"))
+    } else cat(object$getFigureNumber()," *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
     
   })
   cm$addReportObject(.rxx)
   #----------
-  .txx <- .getTextObj(name='spatial_density',title="Spatial Density {.tabset}",parent='results',txt="Spatial density maps generated from point pattern analysis illustrate where species were most frequently detected across the study area. These visualizations highlight spatial variation in observation intensity, helping to identify hotspots of activity as well as areas with low detection probability. Each map shows the density distribution for a selected species, either by year or across the full monitoring period. Warmer colors represent areas of higher detection density, while cooler tones indicate less frequent observations. The interactive layout allows users to explore spatial patterns by toggling between species and years, enabling direct comparisons and revealing temporal shifts in distribution (*Figure 14*).")
+  .txx <- .getTextObj(name='spatial_density',title="Spatial Density",parent='results',txt="Spatial density maps generated from point pattern analysis illustrate where species were most frequently detected across the study area. These visualizations highlight spatial variation in observation intensity, helping to identify hotspots of activity as well as areas with low detection probability. Each map shows the density distribution for a selected species, either by year or across the full monitoring period. Warmer colors represent areas of higher detection density, while cooler tones indicate less frequent observations. The interactive layout allows users to explore spatial patterns by toggling between species and years, enabling direct comparisons and revealing temporal shifts in distribution.")
   cm$addReportObject(.txx) 
   
   
@@ -1787,14 +1712,15 @@
       .dfs <- as.data.frame(.dfs,geom="XY")
       species_list <- unique(.dfs$scientificName)
       #---
-      if (nrow(object$study_area@attributes) > 0) {
-        .ext <- as.vector(ext(project(unwrap(object$study_area),.crs)))
+      if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+        object$study_area$object <- readRDS(object$study_area$path)
+        .ext <- as.vector(ext(project(object$study_area$object,.crs)))
       } else .ext <- NULL
       
       .label <- 'Total'
       if (!is.null(.year)) .label <- as.character(.year)
       
-      cat("\n###", .label, "{.tabset .unnumbered}\n\n")
+      cat("\n\n###", .label, "{.tabset .unnumbered}\n\n")
       
       for (sp in species_list) {
         df_sp <- .dfs %>% dplyr::filter(scientificName == sp)
@@ -1865,8 +1791,8 @@
     
     #---------
     if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n**Figure 14.** *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
-    } else cat("**Figure 14.** *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
+      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
+    } else cat(object$getFigureNumber()," *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
     
   })
   cm$addReportObject(.rxx)
@@ -1886,9 +1812,7 @@
       
       
       # 🎨 **Define Acadia color palette**
-      acadia_colors <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", 
-                         "#526A83", "#625377", "#68855C", "#9C9C5E", 
-                         "#A06177", "#8C785D", "#467378", "#7C7C7C")
+      acadia_colors <- object$reportObjectElements$acadia_colors
       
       # 🎨 **Create a color mapping for habitat types**
       habitat_types <- unique(capture_habitat_sel$Habitat_Type)
@@ -1915,8 +1839,8 @@
       
       #---------
       if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-        cat(paste0("**Figure 15.**: _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
-      } else cat("**Figure 15.**: _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
+        cat(paste0(object$getFigureNumber()," _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
+      } else cat(object$getFigureNumber()," _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
       
     }
     
@@ -2024,14 +1948,14 @@
     </style>
     ')
         #-------
-        if (!dir.exists(paste0(object$pkg$directory,"/_camtrap_pictures"))) {
-          dir.create(paste0(object$pkg$directory,"/_camtrap_pictures"))
+        if (!dir.exists(paste0(object$info$directory,"/_camtrap_pictures"))) {
+          dir.create(paste0(object$info$directory,"/_camtrap_pictures"))
         }
         #-----
         .fn <- favoImgs$fileName
         html_output <- '<div class="image-container">'
         for (i in seq_along(.fn)) {
-          .pic_fn <- paste0(object$pkg$directory,"/_camtrap_pictures/",.fn[i])
+          .pic_fn <- paste0(object$info$directory,"/_camtrap_pictures/",.fn[i])
           if (!file.exists(.pic_fn)) {
             .pic_link <- favoImgs$filePath[i]
             if (grepl("^https?://", .pic_link)) {
@@ -2115,16 +2039,26 @@ setMethod('camData', signature(data='character'),
             if (!is.null(study_area)) {
               if (is.character(study_area)) {
                 if (file.exists(study_area)) {
-                  cm$study_area <- terra::wrap(vect(study_area))
+                  .v <- try(terra::vect(study_area),silent = TRUE)
+                  if (!inherits(.v,'try-error')) {
+                    saveRDS(.v,paste0(cm$info$directory,'/study_area.map'))
+                    cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
+                    cm$study_area$object <- .v
+                    rm(.v)
+                  } else warning('the specified study_area file could not be read (is it a spatial dataset?)')
+                  
                 } else {
                   warning("study_area filename is not available and ignored...!")
                 }
               } else if (inherits(study_area,'SpatVector')) {
-                cm$study_area <- terra::wrap(study_area)
-              } else if (inherits(study_area,'PackedSpatVector')) {
-                cm$study_area <- study_area
+                cm$study_area$object <- study_area
+                saveRDS(study_area,paste0(cm$info$directory,'/study_area.map'))
+                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
+                
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area <- terra::wrap(vect(study_area))
+                cm$study_area$object <- vect(study_area)
+                saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
+                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
               } else {
                 warning("study_area is ignored (should be a filename or a spatial dataset)...!")
               }
@@ -2160,7 +2094,8 @@ setMethod('camData', signature(data='character'),
             site_Name <- cm$siteName
             cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
             cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
-            cm$info <- .d$json
+            cm$info$json <- .d$json
+            cm$info$directory <- .d$directory
             rm(.d); gc()
             
             cm$setup()
@@ -2169,75 +2104,5 @@ setMethod('camData', signature(data='character'),
           }
 )
 #--------
-
-setMethod('camData', signature(data='datapackage'), 
-          function(data,habitat,study_area=NULL,...) {
-            
-            if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
-            
-            if (missing(study_area)) study_area <- NULL
-            #-------
-            cm <- camR$new()
-            cm$setting$locationLegend <- TRUE
-            cm$pkg <- data
-            cm$data <- .eval("as_ctdp(pkg, verbose = FALSE,...)",env = environment()) 
-            #-------
-            if (!is.null(habitat)) cm$habitat <- habitat
-            
-            if (!is.null(study_area)) {
-              if (is.character(study_area)) {
-                if (file.exists(study_area)) {
-                  cm$study_area <- terra::wrap(vect(study_area))
-                } else {
-                  warning("study_area filename is not available and ignored...!")
-                }
-              } else if (inherits(study_area,'SpatVector')) {
-                cm$study_area <- terra::wrap(study_area)
-              } else if (inherits(study_area,'PackedSpatVector')) {
-                cm$study_area <- study_area
-              } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area <- terra::wrap(vect(study_area))
-              } else {
-                warning("study_area is ignored (should be a filename or a spatial dataset)...!")
-              }
-            }
-            #----------
-            cm$filterExclude <- list(
-              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
-            cm$filterKeep <- list(observationType=c("animal"),class=NULL)
-            
-            cm$add_group('large_mammals',list(order=c("Artiodactyla", "Carnivora")))
-            #---------
-            cm$filterCount <- 25
-            #-------
-            cm$add_group('domestic',list(
-              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
-            
-            cm$setting$focus_groups <- 'large_mammals'
-            #-------
-            cm$siteName <- cm$pkg$project$title   %||% "Unnamed Site"
-            
-            sp_summary <- .summarize_spatial_info(cm)
-            country <- sp_summary$country
-            fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
-            site_Name <- cm$siteName
-            cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
-            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
-            
-            cm$setup()
-            
-            .addReportSections(cm)
-            
-            cm
-            
-          }
-)
-
 
 

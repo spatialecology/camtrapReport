@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Cameratrap Report Generator
-Version: 0.2-11
-Date: 2025-12-25
+Version: 0.2-14
+Date: 2026-01-26
 Authors@R: c(person(given = "Elham",
                       family = "Ebrahimi",
                       role = c("aut", "cre"),
@@ -16,5 +16,5 @@ Suggests: data.table
 Description: An extensible framework for exploring and processing cameratrap
     data to automatically generate a report with maps, tables, description, etc.
 License: GPL (>= 3)
-URL: https://www.biogeoinformatics.org, https://spatialecology.github.io/camtrapReport/
+URL: https://www.biogeoai.com
 VignetteBuilder: rmarkdown

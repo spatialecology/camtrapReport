@@ -1,0 +1,107 @@
+---
+name: "spatial_density"
+title: "## Spatial Density"
+parent: "results"
+text: "Spatial density maps generated from point pattern analysis illustrate where species were most frequently detected across the study area. These visualizations highlight spatial variation in observation intensity, helping to identify hotspots of activity as well as areas with low detection probability. Each map shows the density distribution for a selected species, either by year or across the full monitoring period. Warmer colors represent areas of higher detection density, while cooler tones indicate less frequent observations. The interactive layout allows users to explore spatial patterns by toggling between species and years, enabling direct comparisons and revealing temporal shifts in distribution."
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
+  #| packages: leaflet, terra
+  
+  
+  .spn <- object$get_speciesNames(object$setting$focus_groups)
+    
+    .generate_density_maps <- function(.year=NULL) {
+      df <- object$species_summary_by_location(year = .year,spList = .spn,cor_matrix = FALSE)
+      df$lon <- df$longitude
+      df$lat <- df$latitude
+      if (is.null(df)) return(NULL)
+      .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
+      .dfs <- .get_projected_vect(.dfs)
+      .crs <- crs(.dfs)
+      .dfs <- as.data.frame(.dfs,geom="XY")
+      species_list <- unique(.dfs$scientificName)
+      #---
+      if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+        object$study_area$object <- readRDS(object$study_area$path)
+        .ext <- as.vector(ext(project(object$study_area$object,.crs)))
+      } else .ext <- NULL
+      
+      .label <- 'Total'
+      if (!is.null(.year)) .label <- as.character(.year)
+      
+      cat("\n###", .label, "{.tabset .unnumbered}\n\n")
+      
+      for (sp in species_list) {
+        df_sp <- .dfs %>% dplyr::filter(scientificName == sp)
+        if (nrow(df_sp) < 3) next
+        
+        r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext),silent = TRUE)
+        if (inherits(r,'try-error')) r <- NULL
+        if (is.null(r)) next
+        
+        cat("\n####", sp, "{.unnumbered}\n\n")
+        m <- leaflet(df_sp) %>%
+          addTiles(group = "OSM") %>%
+          addRasterImage(
+            r, opacity = 0.7,
+            colors = colorRampPalette(c("gray","orange","red","darkred"))(200),
+            group = "Density"
+          )
+        if ("Habitat_type" %in% colnames(df_sp)) {
+          m <- m %>%
+            addCircleMarkers(
+              ~longitude, ~latitude,
+              popup = ~sprintf(
+                "<b>%s</b><br/>%s<br/>Obs: %d<br/>Habitat: %s",
+                scientificName, locationName, total_observations, Habitat_type
+              ),
+              radius = ~sqrt(total_observations)*1.2,
+              color  = "blue", fillOpacity = 0.4,
+              group  = "Points"
+            )
+        } else {
+          m <- m %>%
+            addCircleMarkers(
+              ~longitude, ~latitude,
+              popup = ~sprintf(
+                "<b>%s</b><br/>%s<br/>Obs: %d",
+                scientificName, locationName, total_observations
+              ),
+              radius = ~sqrt(total_observations)*1.2,
+              color  = "blue", fillOpacity = 0.4,
+              group  = "Points"
+            )
+        }
+        #----
+         m <- m %>%
+          addLayersControl(
+            baseGroups    = "OSM",
+            overlayGroups = c("Density","Points"),
+            options = layersControlOptions(collapsed = FALSE)
+          ) %>%
+          setView(
+            lng = mean(df_sp$longitude, na.rm = TRUE),
+            lat = mean(df_sp$latitude,  na.rm = TRUE),
+            zoom = 11
+          )
+        print(tagList(m))
+      }
+    }
+    
+    cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
+    
+    for (.year in object$years) {
+      .generate_density_maps(.year)
+    }
+    #---
+    .generate_density_maps(.year=NULL) # for Total
+    #----
+    cat("\n\n")
+    
+    #---------
+    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
+      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
+    } else cat(object$getFigureNumber()," *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
+    
+---

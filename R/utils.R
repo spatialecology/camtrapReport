@@ -58,30 +58,30 @@
   
 }
 #--------
-.getRchunk <- function(name=NULL,setting=NULL,code) {
-  
-  if (as.character(substitute(setting))[1] == '{' ) {
-    setting <- substitute(setting)
-    setting <- as.character(setting)[-1]
-    setting <- .trim(setting)
-    setting <- .rmChar(setting,rm=c(1,2),rmLast = TRUE)
-  }
-  
-  
-  #----
-  code <- substitute(code)
-  if (as.character(code)[1] != '{' ) stop('code should be placed within { } ')
-  if (is.null(setting)) {
-    p1 <- paste('```{r',name,'}')
-  } else {
-    p1 <- paste('```{r',name,',',paste(setting,collapse = ','),'}')
-  }
-  #--
-  p2 <- paste(as.character(code)[-1],collapse = '\n')
-  #---
-  paste0(p1,'\n',p2,'\n','```')
-  
-}
+# .getRchunk <- function(name=NULL,setting=NULL,code) {
+#   
+#   if (as.character(substitute(setting))[1] == '{' ) {
+#     setting <- substitute(setting)
+#     setting <- as.character(setting)[-1]
+#     setting <- .trim(setting)
+#     setting <- .rmChar(setting,rm=c(1,2),rmLast = TRUE)
+#   }
+#   
+#   
+#   #----
+#   code <- substitute(code)
+#   if (as.character(code)[1] != '{' ) stop('code should be placed within { } ')
+#   if (is.null(setting)) {
+#     p1 <- paste('```{r',name,'}')
+#   } else {
+#     p1 <- paste('```{r',name,',',paste(setting,collapse = ','),'}')
+#   }
+#   #--
+#   p2 <- paste(as.character(code)[-1],collapse = '\n')
+#   #---
+#   paste0(p1,'\n',p2,'\n','```')
+#   
+# }
 #-------
 .findParent <- function(x,n) {
   if (length(x) == 0) return(NA)
@@ -114,8 +114,8 @@
 }
 #----
 
-.getTextObj <- function(name=NULL,title=NULL,parent=NULL,txt=NULL) {
-  new('.textSection',name=name,title=title,parent=parent,txt=txt)
+.getTextObj <- function(name=NULL,title=NULL,parent=NULL,headLevel=1,txt=NULL) {
+  new('.textSection',name=name,title=title,parent=parent,headLevel=headLevel,txt=txt)
 }
 #---
 
@@ -738,39 +738,6 @@
 #---------
 
 
-.plot_effort <- function (x, dynamic = TRUE, main = "Effort", xlab = "time", 
-                          ylab = "nr of active cams", ...) {
-  z <- effort_table(x, startend = TRUE)
-  
-  z <- na.omit(z)
-  if (dynamic) {
-    series <- xts(z$nrCams, order.by = z$time, tz = "GMT")
-    dygraph(series, main = main, xlab = xlab, ylab = ylab, 
-            ...) %>% dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
-      dyRangeSelector()
-  }
-  else {
-    plot(z$time, z$nrCams, type = "n", main = main, xlab = xlab, 
-         ylab = ylab, ...)
-    xx <- c(z$time, rev(z$time))
-    yy <- c(z$nrCams, rep(0, length(z$nrCams)))
-    polygon(xx, yy, border = NA, col = 8)
-    lines(z$time, z$nrCams, type = "s")
-  }
-}
-#--------
-.left_join <- function(d1,d2,by) {
-  if (length(by) == 1) {
-    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
-    merge(d1,d2,by=by,all.x=TRUE)
-  } else if (length(by) == 2) {
-    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
-    merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
-  }
-}
-
-
-#----------
 # get Data/Time Format:
 .getFormat <- function(x) {
   .dtFormats <- c("%Y-%m-%dT%H:%M:%OS","%Y-%m-%d %H:%M:%OS","%Y/%m/%dT%H:%M:%OS",

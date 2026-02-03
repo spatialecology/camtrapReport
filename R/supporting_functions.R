@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Dec. 2025
-# Version 1.0
+# Last Update :  Jan 2025
+# Version 1.1
 # Licence GPL v3
 #--------
 
@@ -371,3 +371,204 @@
 ############
 
 
+#########################################
+#    functions to read report modules:  #
+#########################################
+
+
+.read_section_module <- function(path) {
+  m <- rmarkdown::yaml_front_matter(path)  # returns a list
+  # yaml_front_matter() reads YAML from Rmd/MD files.
+  
+  # basic validation
+  if (is.null(m$name)) {
+    stop("Module must define at least `name:` in YAML: ", path)
+  }
+  
+  if (is.null(m$title)) {
+    m$title <- m$name
+  }
+  
+  if (!is.null(m$parent) && identical(tolower(as.character(m$parent)), "null")) m$parent <- NULL
+  
+  m
+}
+#------
+
+
+# the following, reads the setting lines (setting, name, packages, etc.) in the code
+# the setting lines in the template can be started with #|
+#   #| setting: echo=FALSE, results='asis'
+#   #| packages: echo=FALSE, results='asis'
+
+
+.parse_setting_lines <- function(code_text,key=NULL) {
+  
+  if (is.null(key)) stop('key is not provided...!')
+  if (!is.character(key)) stop('key should be character...!')
+  #-----------------
+  out <- list()
+  for (k in key) {
+    lines <- strsplit(code_text %||% "", "\n", fixed = TRUE)[[1]]
+    opt <- grep(paste0("^\\s*#\\|\\s*",k,"\\s*:"), lines, value = TRUE)
+    
+    if (length(opt)) {
+      rhs <- sub(paste0("^\\s*#\\|\\s*",k,"\\s*:\\s*"), "", opt[1])
+      parts <- trimws(strsplit(rhs, ",", fixed = TRUE)[[1]])
+      parts <- parts[nzchar(parts)]
+      if (length(parts)) out[[k]] <- parts
+      # remove that option line from code
+      lines <- lines[!grepl(paste0("^\\s*#\\|\\s*",k,"\\s*:"), lines)]
+    }
+    code_text <- paste(lines, collapse = "\n")
+  }
+  
+  list(setting = out, code = code_text)
+}
+
+#-------
+
+.read_yml <- function(x) {
+  f <- .read_section_module(x)
+  code <- NULL
+  
+  f$title <- .trim(f$title)
+  
+  if (substr(f$title,1,1) == "#") {
+    .h <- 0
+    .w <- strsplit(f$title ,"")[[1]]
+    for (i in 1:4) {
+      if (.w[i] == '#') {
+        .h <- .h + 1
+      } else {
+        .w <- .w[-c(1:.h)]
+        .w <- .trim(paste(.w,collapse = ''))
+        break
+      }
+    }
+    #------
+    if (length(.w) > 1) {
+      .w <- .w[-c(1:.h)]
+      .w <- .trim(paste(.w,collapse = ''))
+      .h <- 3
+    }
+    #---
+    f$title <- .w
+  } else .h <- 1
+  #-----
+  .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
+  
+  if (length(which(grepl('code', names(f)))) == 1 && is.null(f[[which(grepl('code', names(f)))]])) {
+    return(.txt)
+  } else if (length(which(grepl('code', names(f)))) > 0) {
+    codeList <- list()
+    .w <- which(grepl('code', names(f)))
+    for (i in .w) {
+      
+      code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
+      #---
+      if (!is.null(code)) {
+        if (is.null(code$setting$name)) code$setting$name <- paste0(f$name,'__code')
+        else code$setting$name <- paste0(f$name,'__',code$setting$name)
+        #---
+        if (!is.null(code$setting$setting)) code$setting$setting <- paste(code$setting$setting,collapse = ', ')
+        else code$setting$setting <- NULL
+        
+        codeList[[code$setting$name]] <- new('.Rchunk',parent = f$name,name = code$setting$name,setting = code$setting$setting,packages=code$setting$packages,code=code$code)
+      }
+    }
+    #---
+    if (length(codeList) > 0) {
+      if (length(codeList) > 1) .txt@Rchunk <- codeList
+      else .txt@Rchunk <- codeList[[1]]
+    }
+  }
+  
+  .txt
+  
+}
+#----------
+.effort_table <- function (x, startend = FALSE) {
+  x_start <- x$data$deployments$deploymentStart
+  x_end <- x$data$deployments$deploymentEnd
+  
+  dt <- as.numeric(max(x_end)) - as.numeric(min(x_start))
+  effort <- bind_rows(dplyr::tibble(time = min(x_start) - 0.025 * dt, add = 0L), 
+                      dplyr::tibble(time = x_start, add = +1L), 
+                      dplyr::tibble(time = x_end, add = -1L), 
+                      dplyr::tibble(time = max(x_end) + 0.025 * dt, add = 0L))
+  effort <- effort %>% group_by(time) %>% 
+    summarize(add = sum(add)) %>% 
+    ungroup()
+  effort <- effort %>% arrange(time) %>% mutate(nrCams = cumsum(add))
+  effort <- effort %>% select(-add)
+  if (startend) {
+    n <- nrow(effort)
+    effort <- dplyr::tibble(time = c(effort$time[1], rep(effort$time[-1],each = 2), 
+                                     effort$time[n]), nrCams = rep(effort$nrCams, each = 2))
+  }
+  return(effort)
+}
+
+.plot_effort <- function (x, dynamic = TRUE, main = "Effort", xlab = "time", 
+                          ylab = "nr of active cams", ...) {
+  z <- .effort_table(x, startend = TRUE)
+  
+  z <- na.omit(z)
+  if (dynamic) {
+    series <- .eval('xts(z$nrCams, order.by = z$time, tz = "GMT")',env=environment())
+    .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) %>% 
+      dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+      dyRangeSelector()",env=environment())
+  } else {
+    plot(z$time, z$nrCams, type = "n", main = main, xlab = xlab, 
+         ylab = ylab, ...)
+    xx <- c(z$time, rev(z$time))
+    yy <- c(z$nrCams, rep(0, length(z$nrCams)))
+    polygon(xx, yy, border = NA, col = 8)
+    lines(z$time, z$nrCams, type = "s")
+  }
+}
+#--------
+.left_join <- function(d1,d2,by) {
+  if (length(by) == 1) {
+    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
+    merge(d1,d2,by=by,all.x=TRUE)
+  } else if (length(by) == 2) {
+    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
+    merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
+  }
+}
+
+
+#----------
+.pivot_wider <- function(data,
+                         id_cols,
+                         names_from,
+                         values_from,
+                         fill = 0,
+                         agg_fun = sum) {
+  stopifnot(is.data.frame(data))
+  stopifnot(length(id_cols) == 1L) 
+  id <- id_cols
+  
+  # Keep only needed columns
+  x <- data[, c(id, names_from, values_from)]
+  names(x) <- c("..id", "..name", "..value")
+  
+  # Aggregate duplicates (if any) to ensure one cell per (id, name)
+  x <- aggregate(..value ~ ..id + ..name, data = x, FUN = agg_fun)
+  
+  # Pivot: LHS is the value column (already tabulated), RHS are dimensions
+  tab <- xtabs(..value ~ ..id + ..name, data = x) 
+  
+  # Convert to data.frame with explicit id column; keep original column names
+  out <- data.frame(
+    setNames(list(rownames(tab)), id),
+    as.data.frame.matrix(tab, stringsAsFactors = FALSE, optional = TRUE),
+    row.names = NULL,
+    check.names = FALSE
+  )
+  
+  out
+}

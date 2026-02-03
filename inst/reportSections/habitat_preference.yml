@@ -1,0 +1,53 @@
+---
+name: "habitat_preferences"
+title: "## Habitat preferences {.tabset}"
+parent: "results"
+text: "Differences in capture rate - the number of observations per unit effort - reflect the degree to which animals prefer or avoid certain points or habitat types."
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
+  #| packages: leaflet, terra
+  
+  
+  .spn <- object$get_speciesNames(object$setting$focus_groups)
+    
+    capture_habitat_sel <- object$species_summary_by_habitat 
+    if (nrow(capture_habitat_sel) > 0) {
+      capture_habitat_sel <- capture_habitat_sel %>%
+        dplyr::filter(scientificName %in% .spn)
+      
+      
+      # 🎨 **Define Acadia color palette**
+      acadia_colors <- object$reportObjectElements$acadia_colors
+      
+      # 🎨 **Create a color mapping for habitat types**
+      habitat_types <- unique(capture_habitat_sel$Habitat_Type)
+      habitat_colors <- setNames(rep(acadia_colors, length.out = length(habitat_types)), habitat_types)
+      
+      # 🎨 **Generate the plot with Acadia colors**
+      print(
+        ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat_Type)) +
+          geom_bar(stat = "identity", position = "fill") +  
+          labs(
+            x = "Species",
+            y = "Capture Rate (Proportion)",
+            fill = "Habitat Type"
+          ) +
+          scale_fill_manual(values = habitat_colors) +  # Apply Acadia colors
+          scale_y_continuous(labels = scales::percent_format()) + 
+          theme_minimal() +
+          theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            plot.title = element_text(size = 14, face = "bold")
+          )
+      )
+      cat("\n\n")
+      
+      #---------
+      if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
+        cat(paste0(object$getFigureNumber()," _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
+      } else cat(object$getFigureNumber()," _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
+      
+    }
+    
+---

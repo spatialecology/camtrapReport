@@ -1,0 +1,7 @@
+---
+name: "population_density"
+title: "## Population Density Estimation"
+parent: "results"
+text: "Population densities were estimated using the [REM](https://doi.org/10.1002/rse2.269), applied to study species with sufficient data to support reliable parameter estimation. Detection probability varies across species, habitat types, and camera models. The estimated model parameters and resulting population density estimates are presented below. For consistency, densities were calculated using parameter values averaged across all sampling rounds. \n\n"
+code: null
+---

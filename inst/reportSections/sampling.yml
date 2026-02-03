@@ -1,0 +1,43 @@
+---
+name: "sampling"
+title: "Sampling"
+parent: "methods"
+text: "{sampling}"
+code: |
+  #| name: sampling_table
+  #| setting: echo=FALSE, results='asis', message=FALSE, warning=FALSE
+  #| packages: gt, dplyr
+  
+  object$camera_setup %>%
+      gt() %>%
+      tab_header(
+        title = md("**📷 Camera Deployment Summary**"),
+        subtitle = md(paste0(object$getTableNumber()," Details of camera deployments per year"))
+      ) %>%
+      cols_label(
+        year = "Year",
+        number_camtraps = "Camera Traps",
+        deployment_period = "Deployment Period",
+        setup_period = "Setup Period",
+        pickup_period = "Pickup Period"
+      ) %>%
+      tab_options(
+        table.font.size = px(14),
+        heading.title.font.size = px(16),
+        heading.subtitle.font.size = px(12),
+        row.striping.include_table_body = TRUE
+      ) %>%
+      opt_row_striping() %>%
+      tab_style(
+        style = list(
+          cell_borders(sides = "bottom", color = "gray", weight = px(1))
+        ),
+        locations = cells_body()
+      ) %>%
+      tab_style(
+        style = list(
+          cell_text(weight = "bold")
+        ),
+        locations = cells_column_labels()
+      )
+---

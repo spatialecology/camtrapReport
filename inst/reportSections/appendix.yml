@@ -1,0 +1,140 @@
+---
+name: "appendix"
+title: "Appendix {.tabset .unnumbered}"
+parent: null
+text: "This report was generated using the R package camtrapReport, developed by Elham Ebrahimi and Patrick Jansen from the Wildlife Ecology and Conservation Group, Wageningen University, and the Wildlife Ecology and Nature Restoration Group, Utrecht University. Users are kindly requested to cite the package using its DOI (https://doi.org/10.5281/zenodo.15721045) when using camtrapReport or publishing results based on it."
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",warning=FALSE
+  #| packages: dplyr, htmltools
+  
+  # Filter media with favorites
+    favoImgs <- object$data$media %>%
+      dplyr::filter(favourite == TRUE) %>%
+      left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') %>%
+      left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") %>%
+      group_by(scientificName)
+    
+    .downloadable <- FALSE
+    
+    if (nrow(favoImgs) > 0) {
+      if (!is.null(object$setting$focus_groups)) {
+        favoImgs <- favoImgs %>%
+          dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) %>%
+          sample_n(1) %>%
+          ungroup()
+      } else {
+        favoImgs <- favoImgs %>%
+          sample_n(1) %>%
+          ungroup()
+      }
+      
+      #--------
+      if (nrow(favoImgs) > 0) {
+        
+        #--------
+        #------
+        # CSS for Lightbox Effect 
+        HTML('
+        <style>
+    /* Lightbox effect */
+    .lightbox {
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .lightbox img {
+      max-width: 40%;
+      max-height: 40%;
+    }
+    .lightbox:target {
+      display: flex;
+    }
+    
+    /* Grid layout for images */
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .image-box {
+      width: 45%;
+      text-align: center;
+      margin: 10px;
+    }
+    .image-box img {
+      width: 90%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .image-box img:hover {
+      transform: scale(1.05);
+    }
+    </style>
+    ')
+        #-------
+        if (!dir.exists(paste0(object$info$directory,"/_camtrap_pictures"))) {
+          dir.create(paste0(object$info$directory,"/_camtrap_pictures"))
+        }
+        #-----
+        .fn <- favoImgs$fileName
+        html_output <- '<div class="image-container">'
+        for (i in seq_along(.fn)) {
+          .pic_fn <- paste0(object$info$directory,"/_camtrap_pictures/",.fn[i])
+          if (!file.exists(.pic_fn)) {
+            .pic_link <- favoImgs$filePath[i]
+            if (grepl("^https?://", .pic_link)) {
+              e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
+              if (!inherits(e,'try-error')) {
+                # Resize and save locally
+                image_read(.pic_fn) %>%
+                  image_scale("600") %>%
+                  image_write(path = .pic_fn)
+                
+                .downloadable <- TRUE
+              }
+            }
+          }
+          #---
+          if (file.exists(.pic_fn)) {
+            .downloadable <- TRUE
+            # Add image with lightbox effect
+            html_output <- paste0(html_output, '
+        <div class="image-box">
+          <a href="#img', i, '"><img src="', .pic_fn, '" alt="Image ', i, '"></a>
+        </div>')
+          } # else {
+          #html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
+          #}
+        }
+        #------
+        html_output <- paste0(html_output, '</div>')
+        
+        
+        if (.downloadable) {
+          cat(paste0(
+            "\nThe following images showcase a selection of ", nrow(favoImgs), " species: ",
+            paste(paste0("<i>", favoImgs$scientificName, "</i>"), collapse = ", "),
+            ", captured at different camera locations within this study site.\n"
+          ))
+          
+          HTML(html_output)
+        } else {
+          cat("As the user did not provide access to their favourite images, no images were selected for the appendix.")
+        }
+        
+        # Render HTML correctly
+        
+        
+        
+      }
+    }
+  
+---

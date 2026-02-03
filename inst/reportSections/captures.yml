@@ -1,0 +1,131 @@
+---
+name: "captures"
+title: "## Captures"
+parent: "results"
+text: "A yearly summary of the observation data, including the total number of photos, observations, image sequences, and animal detections is presented in the following *Table*."
+code: |
+  #| name: focus_text
+  #| setting: echo=FALSE,results="asis",warning=FALSE
+  #| packages: dplyr, gt
+  
+  
+  .total_human <- sum(object$species_summary$human_observation$per_year$total_observations)
+    
+    # Summary Metrics
+    total_species <- nrow(object$species_summary$wild_species$site_list)
+    total_domestic <- nrow(object$species_summary$domestic$site_list)
+    
+    years_vector <- sort(object$species_summary$wild_animals$per_year$observation_Year)
+    
+    # Format years as range if consecutive
+    if (length(years_vector) > 1 && all(diff(years_vector) == 1)) {
+      year_text <- paste0(min(years_vector), " to ", max(years_vector))
+    } else {
+      year_text <- .paste_comma_and(years_vector)
+    }
+    
+    # Main summary sentence
+    cat(paste0(
+      "Across the period from ", year_text, ", the observations recorded a total of ",
+      nrow(object$species_summary$wild_animals$site_list), " different wild species and ", nrow(object$species_summary$domestic$site_list), " domestic species."
+    ))
+    
+    #----
+    
+    .w <- which(object$species_summary$count$Group %in% c('wild_mammals','birds','amphibians','reptiles'))
+    if (length(.w) > 0) {
+      cat(paste0("Among the wild species, ", .paste_comma_and(paste(object$species_summary$count$Count[.w],'were',object$species_summary$count$Name[.w],'species')), ".\n"))
+    }
+    
+    # Human observation
+    
+    if (.total_human > 0) {
+      cat("Over the same period, camera traps recorded human presence", .total_human , 
+          "occasions, which likely reflecting detections of the site monitoring group during fieldwork activities such as camera installation and maintenance.\n\n"
+      )
+    }
+    #---
+    
+    if (!is.null(object$setting$focus_groups)) {
+      .w <- .paste_comma_and(object$species_summary$count$Name[object$species_summary$count$Group %in% object$setting$focus_groups])
+      #---
+      cat(paste0(
+        "This report focuses on ", .w,
+        " that observed at least ", object$filterCount, " times during the study period.\n\n"
+      ))
+    }
+    
+    cat("A detailed list of these species, including their number of observations, locations, and total photos, is presented in *Table 2*.\n")
+    
+    #########
+    if (!is.null(object$setting$focus_groups)) {
+      .w <- which(names(object$species_summary) %in% object$setting$focus_groups)
+      .w <- unlist(lapply(.w,function (i) object$species_summary[[i]]$site_list$scientificName))
+    } else {
+      if (any(c('wild_mammals','large_mammals','birds','amphibians','reptiles') %in% object$species_summary$count$Group)) {
+        .w <- which(names(object$species_summary) %in% c('wild_mammals','large_mammals','birds','amphibians','reptiles'))
+        .w <- unlist(lapply(.w,function (i) object$species_summary[[i]]$site_list$scientificName))
+      }
+    }
+    
+    
+    
+    .tax_obs <-object$data$observations %>%
+      select(-scientificName) %>%
+      left_join(object$data$taxonomy, by = "taxonID") %>%
+      mutate(
+        observation_date = as.Date(timestamp),
+        observation_Year = .getYear(timestamp)
+      )
+    
+    
+    # Join with sequence & location data
+    enriched_obs <- .tax_obs %>%
+      filter(scientificName %in% .w) %>%
+      left_join(object$data$sequences %>% select(sequenceID, nrphotos), by = "sequenceID") %>%
+      left_join(object$data$deployments %>% select(deploymentID, locationID), by = "deploymentID") %>%
+      left_join(object$data$locations %>% select(locationID, locationName), by = "locationID")
+    # Summarize
+    group_summary <- enriched_obs %>%
+      group_by(scientificName, vernacularNames.eng, family) %>%
+      summarise(
+        TotalCaptures = n(),
+        UniqueLocations = n_distinct(locationName),
+        TotalPhotos = sum(nrphotos, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      filter(TotalCaptures >= object$filterCount) %>%
+      arrange(desc(TotalCaptures))
+    
+    # Emoji for group
+    emoji <- if ("large_mammals" %in% object$setting$focus_groups) "🦌" else if ("birds" %in% object$setting$focus_groups) "🕊️" else "🐾"
+    group_labels <- .paste_comma_and(object$species_summary$count$Name[object$species_summary$count$Group %in% object$setting$focus_groups])
+    
+    # Output Table
+    if (nrow(group_summary) == 0) {
+      cat("\n! No species met the threshold of ", object$filterCount, " observations.\n")
+    } else {
+      group_summary %>%
+        rename(
+          `Scientific Name` = scientificName,
+          `Common Name` = vernacularNames.eng,
+          `Family` = family,
+          `Observations` = TotalCaptures,
+          `Capture Locations` = UniqueLocations,
+          `Total Photos` = TotalPhotos
+        ) %>%
+        gt() %>%
+        tab_header(
+          title = md(paste0("**", emoji," Table ", object$getTableNumber(text=FALSE),". Summary of Frequently Observed ", group_labels, "**")),
+          subtitle = md(paste0("Species with ≥ ", object$filterCount, " observations"))
+        ) %>%
+        tab_options(
+          table.font.size = px(14),
+          heading.title.font.size = px(16),
+          heading.subtitle.font.size = px(12)
+        ) %>%
+        opt_row_striping()
+    }
+  
+
+---
