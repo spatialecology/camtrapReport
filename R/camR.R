@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  Jan 2026
-# Version 2.1
+# Version 2.2
 # Licence GPL v3
 #--------
 
@@ -332,7 +332,7 @@ camR <- setRefClass(
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = n(), .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = "scientificName", values_from = "count", values_fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -345,7 +345,7 @@ camR <- setRefClass(
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = total_count, .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = "scientificName", values_from = "count", values_fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
