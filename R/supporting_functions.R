@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  Jan 2025
-# Version 1.2
+# Version 1.3
 # Licence GPL v3
 #--------
 
@@ -543,13 +543,14 @@
 
 #----------
 .pivot_wider <- function(data,
-                         id_cols,
+                         id_cols=NULL,
                          names_from,
                          values_from,
                          values_fill = 0,
                          agg_fun = sum) {
-  stopifnot(is.data.frame(data))
-  stopifnot(length(id_cols) == 1L) 
+  if (is.null(id_cols)) {
+    id_cols <- setdiff(names(data), c(names_from, values_from))
+  }
   id <- id_cols
   
   # Keep only needed columns
