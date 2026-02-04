@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  Jan 2025
-# Version 1.1
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -546,7 +546,7 @@
                          id_cols,
                          names_from,
                          values_from,
-                         fill = 0,
+                         values_fill = 0,
                          agg_fun = sum) {
   stopifnot(is.data.frame(data))
   stopifnot(length(id_cols) == 1L) 
