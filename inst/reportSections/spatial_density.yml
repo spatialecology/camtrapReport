@@ -90,7 +90,7 @@ code: |
     }
     
     cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
-    
+    .w <- leaflet()
     for (.year in object$years) {
       .generate_density_maps(.year)
     }

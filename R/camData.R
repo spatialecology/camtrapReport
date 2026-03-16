@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Dec. 2025
-# Version 2.0
+# Last Update :  March 2026
+# Version 2.2
 # Licence GPL v3
 #--------
 
@@ -1780,7 +1780,7 @@
     }
     
     cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
-    
+    .w <- leaflet()
     for (.year in object$years) {
       .generate_density_maps(.year)
     }
@@ -2032,7 +2032,8 @@ setMethod('camData', signature(data='character'),
             cm$setting$locationLegend <- TRUE
             
             cm$data <- .d$data
-            
+            cm$info$json <- .d$json
+            cm$info$directory <- .d$directory
             #-------
             if (!is.null(habitat)) cm$habitat <- habitat
             
@@ -2094,8 +2095,6 @@ setMethod('camData', signature(data='character'),
             site_Name <- cm$siteName
             cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
             cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
-            cm$info$json <- .d$json
-            cm$info$directory <- .d$directory
             rm(.d); gc()
             
             cm$setup()
