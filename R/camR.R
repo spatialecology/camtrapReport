@@ -43,6 +43,7 @@ camR <- setRefClass(
     species_summary_by_habitat = "data.frame",
     capture = "data.frame",
     density_estimates= "data.frame",
+    text = "list",   # <- add this
     setting = "list",
     sun_times = "data.frameORnull",
     packages = "character",
@@ -60,10 +61,11 @@ camR <- setRefClass(
     initialize = function() {
       #.loadlib()
       
-      .self$setting = list(locationLegend = FALSE,color=c("#CA6A28","#6C9100","#00A383","#008ADF","#D44CBF"))
+      .self$setting = list(locationLegend = FALSE,color=c("#D44CBF","#EF4756", "#CA6A28", "#6C9100", "#00A383", "#008ADF",
+                                                          "#F2C14E", "#7A5195", "#3CAEA3", "#374C80"))
       
       
-      .self$filterDuration <- 5
+      .self$filterDuration <-10
       
       .self$siteName <-  "**an unspecified location**"
       
