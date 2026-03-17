@@ -3,18 +3,47 @@ Type: Package
 Title: Cameratrap Report Generator
 Version: 0.2-16
 Date: 2026-03-16
-Authors@R: c(person(given = "Elham",
-                      family = "Ebrahimi",
-                      role = c("aut", "cre"),
-                      email = "eebrahimi.bio@gmail.com"),
-               person(given = "Patrick",
-                      family = "Jansen",
-                      role = "aut"))
-Depends: methods, R (>= 3.5.0), dplyr, terra, rmarkdown
-Imports: sp,glue
-Suggests: data.table
-Description: An extensible framework for exploring and processing cameratrap
-    data to automatically generate a report with maps, tables, description, etc.
-License: GPL (>= 3)
+Authors@R: c(
+    person(given = "Elham",
+           family = "Ebrahimi",
+           role = c("aut", "cre"),
+           email = "eebrahimi.bio@gmail.com"),
+    person(given = "Patrick",
+           family = "Jansen",
+           role = "aut")
+    )
+Depends:
+    R (>= 4.1.0)
+Imports:
+    dplyr,
+    dygraphs,
+    ggplot2,
+    ggrepel,
+    glue,
+    gt,
+    htmltools,
+    htmlwidgets,
+    leaflet,
+    magick,
+    magrittr,
+    methods,
+    rlang,
+    rmarkdown,
+    scales,
+    sf,
+    sp,
+    terra,
+    tidyr
+Suggests:
+    data.table
+Description: A modular and extensible framework for processing camera-trap
+    data and automatically generating reproducible ecological reports. The
+    package supports data-quality diagnostics, data manipulation and
+    summarisation, ecological analyses, visualisation, and report assembly
+    for datasets formatted in, or converted to, the Camtrap-DP standard,
+    producing maps, tables, figures, and narrative text to support both
+    academic research and wildlife management.
+License: MIT + file LICENSE
 URL: https://www.biogeoai.com
-VignetteBuilder: rmarkdown
+Encoding: UTF-8
+RoxygenNote: 7.3.3
