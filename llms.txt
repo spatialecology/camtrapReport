@@ -1,0 +1,20 @@
+# camtrapReport
+
+An R package to explore and process camera trap data and automate
+generating reports for Wildlife Monitoring.
+
+# Package index
+
+## All functions
+
+- [`camData()`](https://spatialecology.github.io/camtrapReport/reference/camDataRd.md)
+  : Create camera trap data object
+
+- [`reportSection()`](https://spatialecology.github.io/camtrapReport/reference/reportSection.md)
+  : Creates a reproducible subsection of the report.
+
+- [`testSection()`](https://spatialecology.github.io/camtrapReport/reference/testSection.md)
+  :
+
+  Test a sub-section object (`.textSection` class)
+
