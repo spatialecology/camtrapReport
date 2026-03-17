@@ -519,7 +519,7 @@
       habitat_colors <- colorFactor(
         palette = color_palette,
         domain = .all_habitat,
-        na.color = "#EDAC8C"
+        na.color = "#003FFF"
       )
       
       
