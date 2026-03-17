@@ -43,7 +43,7 @@ camR <- setRefClass(
     species_summary_by_habitat = "data.frame",
     capture = "data.frame",
     density_estimates= "data.frame",
-    text = "list",   # <- add this
+    text = "list",  
     setting = "list",
     sun_times = "data.frameORnull",
     packages = "character",

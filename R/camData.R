@@ -631,9 +631,9 @@
     
     habitat_colors <- colorFactor(
       palette = object$setting$color,
-      domain = unique_habitats, na.color = "#EDAC8C"
+      domain = unique_habitats, na.color = "#003FFF"
     )
-    
+   
     .dat_year <- .dat_year %>%
       mutate(
         Habitat_Type = as.character(Habitat_Type),  # Convert Habitat Type to character
