@@ -46,14 +46,50 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><p align="center">
-<img src="reference/figures/logo.png" width="220" alt="camtrapReport logo"></p>
+<img src="reference/figures/logo.png" width="260" alt="camtrapReport logo"></p>
 <div class="section level1">
 <div class="page-header">
 <img src="logo.png" class="logo" alt=""><h1 id="camtrapreport">camtrapReport<a class="anchor" aria-label="anchor" href="#camtrapreport"></a>
 </h1>
 </div>
-<p><code>camtrapReport</code> is an R package for processing camera-trap data and automatically generating reproducible wildlife monitoring reports.</p>
-<p><strong>License:</strong> MIT. This repository follows the standard R package structure, with <code>DESCRIPTION</code> specifying <code>MIT + file LICENSE</code>.</p>
+<p><code>camtrapReport</code> is an extensible R package for processing camera-trap data and automatically generating reproducible ecological reports. Designed for datasets formatted in, or converted to, the Camtrap-DP standard, it integrates data-quality diagnostics, summarisation, ecological analyses, visualisation, and report assembly within a single workflow.</p>
+<!-- badges: start -->
+
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>Camera traps have become a key tool in wildlife monitoring and biodiversity research, providing continuous, non-invasive data on species occurrence, activity, and distribution. However, converting camera-trap data into clear, standardised, and reproducible outputs often requires multiple disconnected steps, from data checking and processing to analysis, visualisation, and reporting.</p>
+<p><code>camtrapReport</code> was developed to streamline this process by providing a modular framework for:</p>
+<ul>
+<li>importing and processing camera-trap datasets</li>
+<li>diagnosing and summarising data quality and sampling effort</li>
+<li>generating maps, tables, figures, and narrative report content</li>
+<li>supporting ecological analyses and visualisation</li>
+<li>assembling reproducible wildlife monitoring reports</li>
+</ul>
+<p>By bringing these components together in a single package, <code>camtrapReport</code> helps researchers and practitioners transform raw camera-trap data into consistent ecological outputs for reporting, interpretation, and decision-making.</p>
+</div>
+<div class="section level2">
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+</h2>
+<ul>
+<li>Read and process camera-trap datasets</li>
+<li>Support Camtrap-DP-based workflows</li>
+<li>Summarise deployments, captures, effort, and taxa</li>
+<li>Create maps, figures, and tables for reporting</li>
+<li>Support ecological analyses and visualisation</li>
+<li>Generate reproducible wildlife monitoring reports in R</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="section level3">
+<h3 id="install-from-github">Install from GitHub<a class="anchor" aria-label="anchor" href="#install-from-github"></a>
+</h3>
+<p>```r install.packages(“remotes”) remotes::install_github(“spatialecology/camtrapReport”)</p>
+</div>
+</div>
 </div>
 
   </main><aside class="col-md-3"><div class="license">
@@ -80,7 +116,13 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.18405441" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.18405441.svg" alt="DOI"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
