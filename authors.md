@@ -8,13 +8,16 @@
 
 ## Citation
 
-Ebrahimi E, Jansen P (2026). *camtrapReport: Cameratrap Report
-Generator*. R package version 0.2-16, <https://www.biogeoai.com>.
+Ebrahimi, Elham and Jansen, Patrick (2025). camtrapReport: An R Package
+for Automated Camera-Trap Reporting.
+https://doi.org/10.5281/zenodo.18405441. camtrapReport R package
+(https://github.com/spatialecology/camtrapReport).
 
     @Manual{,
-      title = {camtrapReport: Cameratrap Report Generator},
+      title = {camtrapReport: An R Package for Automated Camera-Trap Reporting},
       author = {Elham Ebrahimi and Patrick Jansen},
-      year = {2026},
-      note = {R package version 0.2-16},
-      url = {https://www.biogeoai.com},
+      year = {2025},
+      note = {R package},
+      doi = {10.5281/zenodo.18405441},
+      url = {https://github.com/spatialecology/camtrapReport},
     }

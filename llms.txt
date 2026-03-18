@@ -1,7 +1,10 @@
 # camtrapReport
 
-An R package to explore and process camera trap data and automate
-generating reports for Wildlife Monitoring.
+`camtrapReport` is an R package for exploring and processing camera-trap
+data and for automatically generating wildlife monitoring reports.
+
+**License:** MIT. This repository follows the standard R package
+structure, with `DESCRIPTION` specifying `MIT + file LICENSE`.
 
 # Package index
 
