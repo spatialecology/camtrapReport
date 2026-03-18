@@ -61,8 +61,7 @@ camR <- setRefClass(
     initialize = function() {
       #.loadlib()
       
-      .self$setting = list(locationLegend = FALSE,color=c("#D44CBF","#EF4756", "#CA6A28", "#6C9100", "#00A383", "#008ADF",
-                                                          "#F2C14E", "#7A5195", "#3CAEA3", "#374C80"))
+      .self$setting = list(locationLegend = FALSE,color=c("#D44CBF","#EF4756", "#CA6A28", "#6C9100", "#00A383", "#008ADF"))
       
       
       .self$filterDuration <-10
@@ -516,7 +515,7 @@ camR <- setRefClass(
             .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
             if (.sp %in% names(.self$.any_data_for_rem) && .self$.any_data_for_rem[.sp]) .self$get_REM(.sp)
           } #else {
-            #message('the specified species is not available in the dataset...!')
+          #message('the specified species is not available in the dataset...!')
           #}
         }
       }
@@ -557,7 +556,7 @@ camR <- setRefClass(
                                                                       "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
                                                                       "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
                                                                       "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
-
+        
       }
       #------
       if (!'wild_animals' %in% names(.self$group_definition) && 'domestic' %in% names(.self$group_definition)) {
@@ -1100,7 +1099,7 @@ camR <- setRefClass(
       
       
       message('Setup is done!')
-    
+      
     },
     show = function() {
       cat('Camera trap Object for the site :' , .self$siteName, '\n')
@@ -1124,14 +1123,14 @@ camR <- setRefClass(
         } 
         
         if (length(.self$filterExclude) > 0) {
-            .n <- names(.self$filterExclude)
-            .n <- .n[.n %in% colnames(.self$data$taxonomy)]
-            if (length(.n) > 0) {
-              for (nn in .n) {
-                w2 <- w2 & !(.self$data$taxonomy[[nn]] %in% .self$filterExclude[[nn]])
-              }
+          .n <- names(.self$filterExclude)
+          .n <- .n[.n %in% colnames(.self$data$taxonomy)]
+          if (length(.n) > 0) {
+            for (nn in .n) {
+              w2 <- w2 & !(.self$data$taxonomy[[nn]] %in% .self$filterExclude[[nn]])
             }
           }
+        }
         #----
         # if (length(.self$filterKeep) > 0 && 'observationType' %in% names(.self$filterKeep)) {
         #   w3 <- .self$data$observations[['observationType']] %in% .self$filterKeep$observationType
