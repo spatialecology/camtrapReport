@@ -33,8 +33,7 @@ Imports:
     sf,
     sp,
     terra,
-    tidyr
-Suggests:
+    tidyr,
     data.table
 Description: A modular and extensible framework for processing camera-trap
     data and automatically generating reproducible ecological reports. The
