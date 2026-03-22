@@ -39,7 +39,7 @@ interpretation, and decision-making.
 - Summarise deployments, captures, effort, and taxa
 - Create maps, figures, and tables for reporting
 - Support ecological analyses and visualisation
-- Generate reproducible wildlife monitoring reports
+- Generate reproducible wildlife monitoring reports in R
 
 ## Installation
 
