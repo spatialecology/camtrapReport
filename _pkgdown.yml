@@ -1,4 +1,48 @@
 url: https://spatialecology.github.io/camtrapReport/
+
 template:
   bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0B5D3B"
+    secondary: "#1F7A4C"
+    success: "#79B43A"
+    info: "#2C7FB8"
+    light: "#F7FAF7"
+    dark: "#123524"
 
+home:
+  title: camtrapReport
+  description: >
+    An R package for processing camera-trap data and generating
+    reproducible wildlife monitoring reports.
+
+navbar:
+  structure:
+    left:  [home, reference, articles, news]
+    right: [search, github]
+  components:
+    home:
+      icon: fa-home
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+        - text: Get started
+          href: articles/get-started.html
+    news:
+      text: News
+      href: news/index.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/spatialecology/camtrapReport
+
+reference:
+  - title: Main functions
+    contents:
+      - camData
+      - reportSection
+      - install_All
