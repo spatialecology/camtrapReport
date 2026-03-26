@@ -1,10 +1,8 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  December 2025
 # Version 1.1
-# Licence GPL v3
+# Licence MIT
 #--------
-
-
 
 if (!isGeneric("reportSection")) {
   setGeneric("reportSection", function(name,title,parent,txt,code_setting,code,object,packages)
