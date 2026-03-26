@@ -1,5 +1,3 @@
 docs/** linguist-generated
+
 *.html linguist-generated
-docs/**/*.css linguist-generated
-docs/**/*.js linguist-generated
-docs/**/*.json linguist-generated
