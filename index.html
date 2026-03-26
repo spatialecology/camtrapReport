@@ -5,21 +5,29 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Cameratrap Report Generator • camtrapReport</title>
+<title>camtrapReport • camtrapReport</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Cameratrap Report Generator">
-<meta name="description" content="A modular and extensible framework for processing camera-trap data and automatically generating reproducible ecological reports. The package supports data-quality diagnostics, data manipulation and summarisation, ecological analyses, visualisation, and report assembly for datasets formatted in, or converted to, the Camtrap-DP standard, producing maps, tables, figures, and narrative text to support both academic research and wildlife management.">
-<meta property="og:description" content="A modular and extensible framework for processing camera-trap data and automatically generating reproducible ecological reports. The package supports data-quality diagnostics, data manipulation and summarisation, ecological analyses, visualisation, and report assembly for datasets formatted in, or converted to, the Camtrap-DP standard, producing maps, tables, figures, and narrative text to support both academic research and wildlife management.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="camtrapReport">
+<meta name="description" content="An R package for processing camera-trap data and generating reproducible wildlife monitoring reports.
+">
+<meta property="og:description" content="An R package for processing camera-trap data and generating reproducible wildlife monitoring reports.
+">
 <meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">camtrapReport</a>
 
@@ -32,12 +40,17 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="active nav-item"><a class="nav-link" href="index.html">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="example.html">Example</a></li>
+<li class="nav-item"><a class="nav-link" href="Outputs.html">Article</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report bug</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Discussion</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span> GitHub</a></li>
       </ul>
 </div>
 
@@ -45,82 +58,68 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p align="center">
-<img src="reference/figures/logo.png" width="260" alt="camtrapReport logo"></p>
-<div class="section level1">
+  <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
 <img src="logo.png" class="logo" alt=""><h1 id="camtrapreport">camtrapReport<a class="anchor" aria-label="anchor" href="#camtrapreport"></a>
 </h1>
 </div>
-<p><code>camtrapReport</code> is an extensible R package for processing camera-trap data and automatically generating reproducible ecological reports. Designed for datasets formatted in, or converted to, the Camtrap-DP standard, it integrates data-quality diagnostics, summarisation, ecological analyses, visualisation, and report assembly within a single workflow.</p>
-<!-- badges: start -->
-
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="context">Context<a class="anchor" aria-label="anchor" href="#context"></a>
 </h2>
-<p>Camera traps have become a key tool in wildlife monitoring and biodiversity research, providing continuous, non-invasive data on species occurrence, activity, and distribution. However, converting camera-trap data into clear, standardised, and reproducible outputs often requires multiple disconnected steps, from data checking and processing to analysis, visualisation, and reporting.</p>
-<p><code>camtrapReport</code> was developed to streamline this process by providing a modular framework for:</p>
+<p><a href="https://github.com/spatialecology/camtrapReport" class="external-link"><strong>camtrapReport</strong></a> is a modular and extensible R package that provides an end-to-end workflow for processing camera-trap data and automatically generating reproducible reports that deliver ecological insights. The main functions of the package include:</p>
 <ul>
-<li>importing and processing camera-trap datasets</li>
-<li>diagnosing and summarising data quality and sampling effort</li>
-<li>generating maps, tables, figures, and narrative report content</li>
-<li>supporting ecological analyses and visualisation</li>
-<li>assembling reproducible wildlife monitoring reports</li>
+<li>
+<strong><span class="module-accent">Data Status Check</span></strong>, which performs automated diagnostics of data quality and completeness.</li>
+<li>
+<strong><span class="module-accent">Ecological Report Generation</span></strong>, which produces standardised outputs and a broad range of ecological analyses and visualisations through modular components.</li>
 </ul>
-<p>By bringing these components together in a single package, <code>camtrapReport</code> helps researchers and practitioners transform raw camera-trap data into consistent ecological outputs for reporting, interpretation, and decision-making.</p>
+<p><em><code>camtrapReport</code></em> transforms raw camera-trap data into structured ecological insights through an automated and reproducible workflow. It improves comparability across sites and over time, reduces technical barriers for users with different levels of programming experience, and supports timely, transparent, and shareable ecological reporting for evidence-based conservation.</p>
 </div>
 <div class="section level2">
-<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+<h2 id="data-standard-format">Data Standard Format<a class="anchor" aria-label="anchor" href="#data-standard-format"></a>
 </h2>
+<p><em><code>camtrapReport</code></em> is designed for datasets provided in, or converted to, the <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap-DP standard</a> format, which is a community-developed data exchange format for camera-trap data.</p>
+<p>Several camera-trap data management systems support Camtrap-DP as an export format, including <a href="https://agouti.eu/" class="external-link">Agouti</a> and <a href="https://os-conservation.org/trapper/" class="external-link">TRAPPER</a>. It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap-DP format for use in <em><code>camtrapReport</code></em>.</p>
+</div>
+<div class="section level2">
+<h2 id="example-input-datasets">Example Input Datasets<a class="anchor" aria-label="anchor" href="#example-input-datasets"></a>
+</h2>
+<p>Several open-source camera-trap datasets based on the Camtrap-DP standard are available through <a href="https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data" class="external-link">GBIF</a> and can be useful for testing the <em><code>camtrapReport</code></em> package:</p>
 <ul>
-<li>Read and process camera-trap datasets</li>
-<li>Support Camtrap-DP-based workflows</li>
-<li>Summarise deployments, captures, effort, and taxa</li>
-<li>Create maps, figures, and tables for reporting</li>
-<li>Support ecological analyses and visualisation</li>
-<li>Generate reproducible wildlife monitoring reports in R</li>
+<li><a href="https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download" class="external-link">Leuven dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download" class="external-link">Antwerp dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download" class="external-link">MICA dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/3856c01f-5031-4cc1-a5b2-2daa9537411b/download" class="external-link">Colombia dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/13101e81-bc62-4553-9fd9-c5c8eb3fb9ab/download" class="external-link">Alpine-Tundra dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/f0a42d7d-1eda-4ec8-ac66-c1343acea3bc/download" class="external-link">Snapshot-Japan dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/f0963153-077b-4676-a337-891a06fab52a/download" class="external-link">Forest-Colombia dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/74196cd9-7ebc-4b20-bc27-3c2d22e31ed7/download" class="external-link">Amsterdam dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/77972fac-09bc-460b-a0d6-34b87b1b4b72/download" class="external-link">Cali dataset</a></li>
+<li><a href="https://album.wildlabs.net/dataset/fc3f505a-05d8-4b3e-908c-8880fc9899f7/download" class="external-link">Luxembourg dataset</a></li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="contribute">Contribute<a class="anchor" aria-label="anchor" href="#contribute"></a>
 </h2>
-<div class="section level3">
-<h3 id="install-from-github">Install from GitHub<a class="anchor" aria-label="anchor" href="#install-from-github"></a>
-</h3>
-<p>```r install.packages(“remotes”) remotes::install_github(“spatialecology/camtrapReport”)</p>
+<p>Questions, suggestions, and ideas for improvement are always welcome. You can contribute to the development of the <a href="https://github.com/spatialecology/camtrapReport" class="external-link">camtrapReport R package</a> by <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">opening an issue</a> or joining the conversation in <a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link">GitHub Discussions</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>As the official scientific publication for <em><code>camtrapReport</code></em> is still in preparation, please cite the package as:</p>
+<p><span class="citation-text">Ebrahimi, E., &amp; Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. <a href="https://doi.org/10.5281/zenodo.18405440" class="external-link uri">https://doi.org/10.5281/zenodo.18405440</a></span></p>
+<p>For package citation details, please refer to the citation information available in the <a href="https://github.com/spatialecology/camtrapReport" class="external-link">GitHub repository</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="acknowledgment">Acknowledgment<a class="anchor" aria-label="anchor" href="#acknowledgment"></a>
+</h2>
+<p>The development of <em><code>camtrapReport</code></em> was supported by <a href="https://www.biodiversa.eu/2022/10/07/2022-2023-joint-call/" class="external-link">Biodiversa+</a> through the <a href="https://wildlifecamera.eu/" class="external-link">Big Picture project</a>.</p>
 </div>
 </div>
-</div>
-
-  </main><aside class="col-md-3"><div class="license">
-<h2 data-toc-skip>License</h2>
+  </main><aside class="col-md-3"><div class="table-of-contents">
+<h2 data-toc-skip>Table of contents</h2>
 <ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
-</ul>
-</div>
-
-
-<div class="citation">
-<h2 data-toc-skip>Citation</h2>
-<ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing camtrapReport</a></li>
-</ul>
-</div>
-
-<div class="developers">
-<h2 data-toc-skip>Developers</h2>
-<ul class="list-unstyled">
-<li>Elham Ebrahimi <br><small class="roles"> Author, maintainer </small>   </li>
-<li>Patrick Jansen <br><small class="roles"> Author </small>   </li>
-</ul>
-</div>
-
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a></li>
-<li><a href="https://doi.org/10.5281/zenodo.18405441" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.18405441.svg" alt="DOI"></a></li>
+<li><nav id="toc"></nav></li>
 </ul>
 </div>
 

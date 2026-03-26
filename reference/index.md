@@ -1,6 +1,6 @@
 # Package index
 
-## All functions
+## Main functions
 
 - [`camData()`](https://spatialecology.github.io/camtrapReport/reference/camDataRd.md)
   : Create camera trap data object
