@@ -9,8 +9,6 @@
 <!-- badges: start -->
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18405441.svg)](https://doi.org/10.5281/zenodo.18405441)
-[![R-CMD-check](https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/spatialecology/camtrapReport/graph/badge.svg)](https://app.codecov.io/gh/spatialecology/camtrapReport)
 <!-- badges: end -->
 
 ## Overview
