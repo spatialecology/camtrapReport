@@ -1,5 +1,4 @@
 # License
 
-    MIT
     YEAR: 2025
     COPYRIGHT HOLDER: Wageningen University and Research
