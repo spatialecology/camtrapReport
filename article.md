@@ -12,3 +12,4 @@ camera-trap data and generate reproducible ecological reports.
 ```r
 # install.packages("remotes")
 remotes::install_github("spatialecology/camtrapReport")
+```
