@@ -5,12 +5,9 @@ Version: 0.2-16
 Date: 2026-03-16
 Authors@R: c(
     person(given = "Elham",
-           family = "Ebrahimi",
-           role = c("aut", "cre"),
-           email = "eebrahimi.bio@gmail.com"),
-    person(given = "Patrick",
-           family = "Jansen",
-           role = "aut")
+           family =:contentReference[oaicite:0]{index=0}re"),
+           email = "eebrahimi.bio@gmail.com",
+           comment = c(ORCID = "0000-0001-5191-9832"))
     )
 Depends:
     R (>= 4.1.0)
@@ -48,6 +45,7 @@ BugReports: https://github.com/spatialecology/camtrapReport/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 Suggests: 
+    knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-
+VignetteBuilder: knitr
