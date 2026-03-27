@@ -19,7 +19,7 @@ home:
 
 navbar:
   structure:
-    left: [home, example, article]
+    left: [home, example, article, output]
     right: [search, report-bug, discussion, github]
 
   components:
@@ -32,8 +32,13 @@ navbar:
       href: example.html
 
     article:
-      text: Article
-      href: Outputs.html
+      text: article
+      href: article.html
+    
+    output:
+      text: output
+      href: output.html
+      
 
     report-bug:
       icon: fa-bug
@@ -57,3 +62,4 @@ reference:
       - camData
       - reportSection
       - testSection
+      
