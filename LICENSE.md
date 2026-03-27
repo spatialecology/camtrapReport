@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2025 Wageningen University and Research
+Copyright (c) 2025 Elham Ebrahimi
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
