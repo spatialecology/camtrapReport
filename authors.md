@@ -10,16 +10,16 @@
 Source:
 [`inst/CITATION`](https://github.com/spatialecology/camtrapReport/blob/main/inst/CITATION)
 
-Ebrahimi, Elham and Jansen, Patrick (2025). camtrapReport: An R Package
-for Automated Camera-Trap Reporting.
-https://doi.org/10.5281/zenodo.18405441. camtrapReport R package
-(https://github.com/spatialecology/camtrapReport).
+Ebrahimi, Elham (2026). camtrapReport: An R Package for Automated
+Camera-Trap Reporting. R package version 0.2-16.
+https://doi.org/10.5281/zenodo.18405441.
+https://github.com/spatialecology/camtrapReport.
 
     @Manual{,
       title = {camtrapReport: An R Package for Automated Camera-Trap Reporting},
-      author = {Elham Ebrahimi and Patrick Jansen},
-      year = {2025},
-      note = {R package},
+      author = {Elham Ebrahimi},
+      year = {2026},
+      note = {R package version 0.2-16},
       doi = {10.5281/zenodo.18405441},
       url = {https://github.com/spatialecology/camtrapReport},
     }
