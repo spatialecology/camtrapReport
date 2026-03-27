@@ -7,9 +7,6 @@ authors:
     given-names: "Elham"
     orcid: "https://orcid.org/0000-0001-5191-9832"
     email: "eebrahimi.bio@gmail.com"
-  - family-names: "Jansen"
-    given-names: "Patrick"
-    orcid: "https://orcid.org/0000-0002-4660-0314"
 repository-code: "https://github.com/spatialecology/camtrapReport"
 url: "https://github.com/spatialecology/camtrapReport"
 license: MIT
