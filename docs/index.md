@@ -79,7 +79,7 @@ preparation, please cite the package as:
 Ebrahimi, E., & Jansen, P. A. (2026). *CamtrapReport: An R Package for
 Automating Camera-Trap Data Reporting for Wildlife Monitoring*. p. 65.
 Abstract from *The International Biogeography Society – 12th Biennial
-Conference*, Aarhus, Denmark. <https://doi.org/10.5281/zenodo.18405440>
+Conference*, Aarhus, Denmark. <https://zenodo.org/records/18405441>
 
 For package citation details, please refer to the citation information
 available in the [GitHub
