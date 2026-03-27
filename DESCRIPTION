@@ -4,11 +4,14 @@ Title: Cameratrap Report Generator
 Version: 0.2-16
 Date: 2026-03-16
 Authors@R: c(
-    person(given = "Elham",
-           family =:contentReference[oaicite:0]{index=0}re"),
-           email = "eebrahimi.bio@gmail.com",
-           comment = c(ORCID = "0000-0001-5191-9832"))
+    person(
+      given = "Elham",
+      family = "Ebrahimi",
+      email = "eebrahimi.bio@gmail.com",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0001-5191-9832")
     )
+)
 Depends:
     R (>= 4.1.0)
 Imports:
