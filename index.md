@@ -41,7 +41,7 @@ Questions, suggestions, and ideas for improvement are always welcome. You can co
 
 As the official scientific publication for *`camtrapReport`* is still in preparation, please cite the package as:
 
-<span class="citation-text">Ebrahimi, E., &amp; Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. https://doi.org/10.5281/zenodo.18405440</span>
+<span class="citation-text">Ebrahimi, E., &amp; Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. https://zenodo.org/records/18405441</span>
 
 For package citation details, please refer to the citation information available in the [GitHub repository](https://github.com/spatialecology/camtrapReport).
 
