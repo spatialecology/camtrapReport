@@ -1,4 +1,4 @@
 # License
 
-    YEAR: 2025
-    COPYRIGHT HOLDER: Wageningen University and Research
+    YEAR: 2026
+    COPYRIGHT HOLDER: Elham Ebrahimi
