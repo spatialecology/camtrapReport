@@ -1,20 +1,22 @@
 Package: camtrapReport
 Type: Package
-Title: Cameratrap Report Generator
+Title: Camera-Trap Report Generator
 Version: 0.2-16
 Date: 2026-03-16
-Authors@R: c(
-    person(
-      given = "Elham",
-      family = "Ebrahimi",
-      email = "eebrahimi.bio@gmail.com",
-      role = c("aut", "cre"),
-      comment = c(ORCID = "0000-0001-5191-9832")
+Authors@R:
+    c(
+      person(
+        given = "Elham",
+        family = "Ebrahimi",
+        email = "eebrahimi.bio@gmail.com",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0001-5191-9832")
+      )
     )
-)
 Depends:
     R (>= 4.1.0)
 Imports:
+    data.table,
     dplyr,
     dygraphs,
     ggplot2,
@@ -33,21 +35,21 @@ Imports:
     sf,
     sp,
     terra,
-    tidyr,
-    data.table
-Description: A modular and extensible framework for processing camera-trap
-    data and automatically generating reproducible ecological reports. The
+    tidyr
+Description:
+    A modular and extensible framework for processing camera-trap data
+    and automatically generating reproducible ecological reports. The
     package supports data-quality diagnostics, data manipulation and
     summarisation, ecological analyses, visualisation, and report assembly
-    for datasets formatted in, or converted to, the Camtrap-DP standard,
-    producing maps, tables, figures, and narrative text to support both
+    for datasets formatted in, or converted to, the Camtrap-DP standard.
+    It produces maps, tables, figures, and narrative text to support both
     academic research and wildlife management.
 License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/, https://www.biogeoai.com
 BugReports: https://github.com/spatialecology/camtrapReport/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.3
-Suggests: 
+Suggests:
     knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
