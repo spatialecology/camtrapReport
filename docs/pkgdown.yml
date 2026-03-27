@@ -1,8 +1,9 @@
 pandoc: '3.4'
 pkgdown: 2.2.0
 pkgdown_sha: ~
-articles: {}
-last_built: 2026-03-26T15:07Z
+articles:
+  vignette-title: vignette-title.html
+last_built: 2026-03-27T11:06Z
 urls:
   reference: https://spatialecology.github.io/camtrapReport/reference
   article: https://spatialecology.github.io/camtrapReport/articles

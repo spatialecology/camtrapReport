@@ -32,11 +32,11 @@ navbar:
       href: example.html
 
     article:
-      text: article
+      text: Article
       href: article.html
     
     output:
-      text: output
+      text: Output
       href: output.html
       
 
