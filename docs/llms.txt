@@ -106,3 +106,8 @@ through the [Big Picture project](https://wildlifecamera.eu/).
 
   Test a sub-section object (`.textSection` class)
 
+# Articles
+
+### All vignettes
+
+- [vignette-title](https://spatialecology.github.io/camtrapReport/articles/vignette-title.md):
