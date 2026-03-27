@@ -1,4 +1,4 @@
-# Dissemination
+# Output
 
 This page lists dissemination and outreach outputs related to
 *`camtrapReport`*.
