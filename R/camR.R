@@ -1,9 +1,122 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Jan 2026
-# Version 2.1
-# Licence MIT
+# Last Update :  March 2026
+# Version 2.6
+# Licence GPL v3
 #--------
 
+.normalize_packages <- function(x) {
+  if (is.null(x) || length(x) == 0) return(character())
+  
+  x <- as.character(x)
+  x <- x[!is.na(x)]
+  
+  # split comma-separated entries as well as plain vectors
+  x <- unlist(strsplit(x, ",", fixed = TRUE), use.names = FALSE)
+  x <- trimws(x)
+  x <- x[nzchar(x)]
+  
+  unique(x)
+}
+
+# 
+# .collect_module_packages_map <- function(x) {
+#   out <- list()
+#   
+#   walk <- function(node, section = NULL) {
+#     if (inherits(node, ".Rchunk")) {
+#       out[[node@name]] <<- .normalize_packages(node@packages)
+#       return(invisible(NULL))
+#     }
+#     
+#     if (inherits(node, ".textSection")) {
+#       section <- node@name
+#       if (inherits(node@Rchunk, ".Rchunk")) {
+#         out[[paste0(section, "::", node@Rchunk@name)]] <<- .normalize_packages(node@Rchunk@packages)
+#       } else if (is.list(node@Rchunk)) {
+#         for (ch in node@Rchunk) walk(ch, section = section)
+#       }
+#       return(invisible(NULL))
+#     }
+#     
+#     if (is.list(node)) {
+#       for (el in node) walk(el, section = section)
+#     }
+#     
+#     invisible(NULL)
+#   }
+#   
+#   walk(x)
+#   out
+# }
+.collect_module_packages <- function(x) {
+  pkgs <- character()
+  
+  add_pkgs <- function(p) {
+    if (is.null(p) || length(p) == 0) return()
+    if (length(p) == 1 && grepl(",", p, fixed = TRUE)) {
+      p <- strsplit(p, ",", fixed = TRUE)[[1]]
+    }
+    p <- trimws(as.character(p))
+    p <- p[nzchar(p)]
+    pkgs <<- c(pkgs, p)
+  }
+  
+  walk <- function(obj) {
+    if (inherits(obj, ".textSection")) {
+      if (inherits(obj@Rchunk, ".Rchunk")) {
+        add_pkgs(obj@Rchunk@packages)
+      } else if (is.list(obj@Rchunk)) {
+        for (ch in obj@Rchunk) {
+          if (inherits(ch, ".Rchunk")) add_pkgs(ch@packages)
+        }
+      }
+    } else if (is.list(obj)) {
+      for (el in obj) walk(el)
+    }
+  }
+  
+  walk(x)
+  unique(pkgs)
+}
+#-------
+#-------
+.make_package_loader_chunk <- function(pkgs,
+                                       core = c("knitr"),
+                                       attach = TRUE) {
+  pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
+  
+  if (length(pkgs) == 0) {
+    return("```{r setup, include=FALSE}\n# no extra packages\n```\n")
+  }
+  
+  pkg_txt <- paste(sprintf('"%s"', pkgs), collapse = ", ")
+  
+  if (attach) {
+    paste0(
+      "```{r setup, include=FALSE}\n",
+      "pkgs <- c(", pkg_txt, ")\n",
+      "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
+      "if (length(missing_pkgs) > 0) {\n",
+      "  stop('Missing package(s): ', paste(missing_pkgs, collapse = ', '))\n",
+      "}\n",
+      "invisible(lapply(pkgs, function(p) {\n",
+      "  suppressPackageStartupMessages(library(p, character.only = TRUE))\n",
+      "} ))\n",
+      "```\n"
+    )
+  } else {
+    paste0(
+      "```{r setup, include=FALSE}\n",
+      "pkgs <- c(", pkg_txt, ")\n",
+      "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
+      "if (length(missing_pkgs) > 0) {\n",
+      "  stop('Missing package(s): ', paste(missing_pkgs, collapse = ', '))\n",
+      "}\n",
+      "```\n"
+    )
+  }
+}
+#---------
 
 
 # in group_definition, the groups like large_mammals, wild_mammals can be defined
@@ -43,11 +156,11 @@ camR <- setRefClass(
     species_summary_by_habitat = "data.frame",
     capture = "data.frame",
     density_estimates= "data.frame",
-    text = "list",  
     setting = "list",
     sun_times = "data.frameORnull",
     packages = "character",
     info = "list",
+    data_status = "list",
     rem = "list",
     .rem_params  = "list",
     .any_data_for_rem  = 'logical', # a vector of species names for which REM could not be fitted!
@@ -61,10 +174,10 @@ camR <- setRefClass(
     initialize = function() {
       #.loadlib()
       
-      .self$setting = list(locationLegend = FALSE,color=c("#D44CBF","#EF4756", "#CA6A28", "#6C9100", "#00A383", "#008ADF"))
+      .self$setting = list(locationLegend = FALSE,color=c("#CA6A28","#6C9100","#00A383","#008ADF","#D44CBF"))
       
       
-      .self$filterDuration <-10
+      .self$filterDuration <- 5
       
       .self$siteName <-  "**an unspecified location**"
       
@@ -134,7 +247,7 @@ camR <- setRefClass(
           .o <- c()
           for (.s in sp) {
             for (.g in .n) {
-              if (sp %in% get_speciesNames(.g)) {
+              if (.s %in% get_speciesNames(.g)) {
                 .o <- c(.o,.g)
                 break
               }
@@ -265,7 +378,7 @@ camR <- setRefClass(
         xr[2] <- max(c(.ext[2],xr[2]))
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
-      } else if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+      } else if (!is.null(.self$study_area) && !is.null(.self$study_area$path)) {
         .self$study_area$object <- readRDS(.self$study_area$path)
         .ext <- as.vector(ext(.self$study_area$object))
         xr[1] <- min(c(.ext[1],xr[1]))
@@ -333,7 +446,7 @@ camR <- setRefClass(
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = n(), .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = scientificName, values_from = count, fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -346,7 +459,7 @@ camR <- setRefClass(
             .d <- .d |>
               group_by(locationID, scientificName) |>
               summarise(count = total_count, .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, values_fill = 0)
+              .pivot_wider(names_from = scientificName, values_from = count, fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -456,13 +569,11 @@ camR <- setRefClass(
                                                   activity_model = species_params$activity_model, 
                                                   reps = 10)
               .density_estimates <- .rem(.parameters)
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", 
-                                          environment())
+              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", environment())
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
                 english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == sp]
               } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == 
-                                                               sp]
+                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == sp]
               } else english_name <- "Unknown"
               if (length(english_name) == 0) english_name <- "Unknown"
               data.frame(scientificName = sp, EnglishName = english_name, 
@@ -515,7 +626,7 @@ camR <- setRefClass(
             .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
             if (.sp %in% names(.self$.any_data_for_rem) && .self$.any_data_for_rem[.sp]) .self$get_REM(.sp)
           } #else {
-          #message('the specified species is not available in the dataset...!')
+            #message('the specified species is not available in the dataset...!')
           #}
         }
       }
@@ -556,7 +667,7 @@ camR <- setRefClass(
                                                                       "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
                                                                       "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
                                                                       "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
-        
+
       }
       #------
       if (!'wild_animals' %in% names(.self$group_definition) && 'domestic' %in% names(.self$group_definition)) {
@@ -608,7 +719,7 @@ camR <- setRefClass(
         .data_year <- .self$get_data_subset(x)
         if (!is.null(.data_year)) {
           # Number of unique camera trap locations
-          number_camtraps <- length(unique(.data_year$location$locationName))
+          number_camtraps <- length(unique(.data_year$locations$locationName))
           
           # Group deployments by location and find min/max dates
           deployments <- .data_year$deployments |>
@@ -1099,7 +1210,7 @@ camR <- setRefClass(
       
       
       message('Setup is done!')
-      
+    
     },
     show = function() {
       cat('Camera trap Object for the site :' , .self$siteName, '\n')
@@ -1123,14 +1234,14 @@ camR <- setRefClass(
         } 
         
         if (length(.self$filterExclude) > 0) {
-          .n <- names(.self$filterExclude)
-          .n <- .n[.n %in% colnames(.self$data$taxonomy)]
-          if (length(.n) > 0) {
-            for (nn in .n) {
-              w2 <- w2 & !(.self$data$taxonomy[[nn]] %in% .self$filterExclude[[nn]])
+            .n <- names(.self$filterExclude)
+            .n <- .n[.n %in% colnames(.self$data$taxonomy)]
+            if (length(.n) > 0) {
+              for (nn in .n) {
+                w2 <- w2 & !(.self$data$taxonomy[[nn]] %in% .self$filterExclude[[nn]])
+              }
             }
           }
-        }
         #----
         # if (length(.self$filterKeep) > 0 && 'observationType' %in% names(.self$filterKeep)) {
         #   w3 <- .self$data$observations[['observationType']] %in% .self$filterKeep$observationType
@@ -1527,64 +1638,31 @@ camR <- setRefClass(
       #-----
       .self$years
     },
-    generateReport = function(output_file = "cam_report.html") {
+    generateReport = function(output_file = "cam_report.html",rmd_file="cam_report.Rmd") {
       .self$recetFigTabNumber()
-      rmd_file <- file.path(getwd(), "test_1.Rmd")
+      render_env <- .make_render_env(.self)
+      
+      module_pkgs <- .collect_module_packages(.self$reportObjects)
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      
       rmd_template <- glue::glue("
 ---
 title: \"{title}\"
 author: \"{authors}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
-output: 
+output:
   html_document:
     toc: true
     toc_float: true
-    theme: flatly       
-    highlight: tango    
+    theme: flatly
+    highlight: tango
     df_print: paged
     number_sections: true
     self_contained: true
 ---
 
-```{{r load library, echo=FALSE, results='hide', message=FALSE, warning=FALSE}}
-library(knitr)
-library(ggplot2)
-library(ggrepel)
-library(dplyr)
-library(RColorBrewer)
-library(rmarkdown)
-library(ctdp)
-library(camtraptor)
-library(htmltools)
-library(stringr)
-library(xts) 
-library(camtrapDensity)
-library(lubridate)
-library(gridExtra)
-library(leaflet)
-library(magick)
-library(spatstat)
-library(terra)
-library(tidyverse)
-library(DT)
-library(data.table)
-library(gt)
-library(htmlwidgets)
-library(ggthemes)
-library(camtrapdp)
-library(devtools)
-library(htmltools)
-
-.paste_comma_and <- camtrapReport:::.paste_comma_and
-.require <- camtrapReport:::.require
-.get_projected_vect <- camtrapReport:::.get_projected_vect
-.plot_effort <- camtrapReport:::.plot_effort
-.getYear <- camtrapReport:::.getYear
-.eval <- camtrapReport:::.eval
-
-```
-      ",.envir = .self)
-      
+{pkg_chunk}
+", .envir = .self)
       for (.n in names(.self$reportObjects)) {
         .x <- .self$reportObjects[[.n]]
         if (is.list(.x)) {
@@ -1610,8 +1688,7 @@ library(htmltools)
       # Render the R Markdown file
       # We can pass an environment so that the Rmd sees the object fields directly
       # One approach: pass the entire object as 'object' in the environment
-      render_env <- new.env(parent = globalenv())
-      render_env$object <- .self
+      
       
       message("Rendering R Markdown report ...")
       out <- rmarkdown::render(
