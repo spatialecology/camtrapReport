@@ -50,11 +50,11 @@ code: |
   
   
   # Generate Dygraph
-  plot_test <- .plot_effort(object) %>%
-    dyAxis("x", label = "Time") %>%
-    dyAxis("y", label = "Active Camera Count") %>%
-    dyOptions(fillGraph = TRUE, colors = "#033800FF") %>%
-    dyRangeSelector()
+  plot_test <- .plot_effort(object) |>
+    dyAxis("x", label = "Time") |>
+    dyAxis("y", label = "Active Camera Count") |>
+    dyOptions(fillGraph = TRUE, colors = "#033800FF") |>
+    dygraphs::dyRangeSelector()
   
   # Check if the plot is valid
   if (!is.null(plot_test)) {
