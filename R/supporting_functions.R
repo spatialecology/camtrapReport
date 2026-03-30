@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Jan 2025
-# Version 1.1
+# Last Update :  March 2026
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -542,33 +542,155 @@
 
 
 #----------
+# .pivot_wider <- function(data,
+#                          id_cols,
+#                          names_from,
+#                          values_from,
+#                          fill = 0,
+#                          agg_fun = sum) {
+#   stopifnot(is.data.frame(data))
+#   stopifnot(length(id_cols) == 1L) 
+#   id <- id_cols
+#   
+#   # Keep only needed columns
+#   x <- data[, c(id, names_from, values_from)]
+#   names(x) <- c("..id", "..name", "..value")
+#   
+#   # Aggregate duplicates (if any) to ensure one cell per (id, name)
+#   x <- aggregate(..value ~ ..id + ..name, data = x, FUN = agg_fun)
+#   
+#   # Pivot: LHS is the value column (already tabulated), RHS are dimensions
+#   tab <- xtabs(..value ~ ..id + ..name, data = x) 
+#   
+#   # Convert to data.frame with explicit id column; keep original column names
+#   out <- data.frame(
+#     setNames(list(rownames(tab)), id),
+#     as.data.frame.matrix(tab, stringsAsFactors = FALSE, optional = TRUE),
+#     row.names = NULL,
+#     check.names = FALSE
+#   )
+#   
+#   out
+# }
 .pivot_wider <- function(data,
-                         id_cols,
+                         id_cols = NULL,
                          names_from,
                          values_from,
                          fill = 0,
                          agg_fun = sum) {
   stopifnot(is.data.frame(data))
-  stopifnot(length(id_cols) == 1L) 
-  id <- id_cols
   
-  # Keep only needed columns
-  x <- data[, c(id, names_from, values_from)]
-  names(x) <- c("..id", "..name", "..value")
+  caller_env <- parent.frame()
   
-  # Aggregate duplicates (if any) to ensure one cell per (id, name)
-  x <- aggregate(..value ~ ..id + ..name, data = x, FUN = agg_fun)
+  .parse_colspec <- function(expr, data, caller_env, allow_null = FALSE) {
+    if (is.null(expr)) {
+      if (allow_null) return(NULL)
+      stop("NULL is not allowed here.")
+    }
+    
+    # bare symbol, e.g. scientificName
+    if (is.symbol(expr)) {
+      nm <- as.character(expr)
+      
+      # if it matches a data column, use it directly
+      if (nm %in% names(data)) {
+        return(nm)
+      }
+      
+      # otherwise allow things like ids <- "locationID"
+      val <- try(eval(expr, envir = caller_env), silent = TRUE)
+      if (!inherits(val, "try-error")) {
+        if (is.null(val) && allow_null) return(NULL)
+        if (is.character(val)) return(val)
+      }
+      
+      stop("Unknown column specification: ", nm)
+    }
+    
+    # c(a, b) or c("a", "b")
+    if (is.call(expr) && identical(expr[[1]], as.name("c"))) {
+      out <- vapply(as.list(expr)[-1], function(e) {
+        if (is.symbol(e)) {
+          as.character(e)
+        } else {
+          val <- eval(e, envir = caller_env)
+          if (!is.character(val) || length(val) != 1L) {
+            stop("Could not interpret one element of column specification.")
+          }
+          val
+        }
+      }, character(1))
+      return(out)
+    }
+    
+    # quoted strings, e.g. "scientificName"
+    val <- eval(expr, envir = caller_env)
+    if (is.null(val) && allow_null) return(NULL)
+    if (is.character(val)) return(val)
+    
+    stop("Could not interpret column specification.")
+  }
   
-  # Pivot: LHS is the value column (already tabulated), RHS are dimensions
-  tab <- xtabs(..value ~ ..id + ..name, data = x) 
+  # IMPORTANT: capture here, not inside .parse_colspec()
+  names_from_expr  <- substitute(names_from)
+  values_from_expr <- substitute(values_from)
+  id_cols_expr     <- if (missing(id_cols)) NULL else substitute(id_cols)
   
-  # Convert to data.frame with explicit id column; keep original column names
-  out <- data.frame(
-    setNames(list(rownames(tab)), id),
-    as.data.frame.matrix(tab, stringsAsFactors = FALSE, optional = TRUE),
-    row.names = NULL,
-    check.names = FALSE
+  names_from  <- .parse_colspec(names_from_expr,  data, caller_env)
+  values_from <- .parse_colspec(values_from_expr, data, caller_env)
+  id_cols     <- .parse_colspec(id_cols_expr,     data, caller_env, allow_null = TRUE)
+  
+  if (length(names_from) != 1L) {
+    stop("'names_from' should specify exactly one column.")
+  }
+  if (length(values_from) != 1L) {
+    stop("'values_from' should specify exactly one column.")
+  }
+  
+  if (!all(c(names_from, values_from) %in% names(data))) {
+    stop("'names_from' and/or 'values_from' are not in 'data'.")
+  }
+  
+  # pivot_wider-like default
+  if (is.null(id_cols)) {
+    id_cols <- setdiff(names(data), c(names_from, values_from))
+  }
+  
+  if (length(id_cols) == 0L) {
+    stop("No 'id_cols' remain after removing 'names_from' and 'values_from'.")
+  }
+  
+  if (!all(id_cols %in% names(data))) {
+    stop("Some 'id_cols' are not in 'data'.")
+  }
+  
+  x <- data[, c(id_cols, names_from, values_from), drop = FALSE]
+  names(x)[names(x) == names_from]  <- "..name"
+  names(x)[names(x) == values_from] <- "..value"
+  
+  agg <- stats::aggregate(
+    x = list(..value = x$..value),
+    by = c(x[id_cols], list(..name = x$..name)),
+    FUN = agg_fun
   )
+  
+  out <- stats::reshape(
+    agg,
+    idvar = id_cols,
+    timevar = "..name",
+    direction = "wide"
+  )
+  
+  rownames(out) <- NULL
+  
+  prefix <- "..value."
+  w <- startsWith(names(out), prefix)
+  names(out)[w] <- substring(names(out)[w], nchar(prefix) + 1L)
+  
+  wide_cols <- setdiff(names(out), id_cols)
+  for (nm in wide_cols) {
+    out[[nm]][is.na(out[[nm]])] <- fill
+  }
   
   out
 }
