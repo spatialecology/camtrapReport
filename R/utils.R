@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  Nov. 2025
-# Version 1.7
+# Last Update :  March 2026
+# Version 1.8
 # Licence GPL v3
 #--------
 
@@ -394,340 +394,6 @@
 
 ############
 
-# temporary function:
-.summarize_spatial_info <- function(cm,verbose=FALSE) {
-  
-  location_df <- cm$data$locations
-  # 1. Record counts & initial cleaning
-  total_locationsrow <- nrow(location_df)
-  
-  # Add a 'row' index and coerce empty strings to NA
-  location_df <- location_df %>%
-    mutate(row = row_number(),
-           locationID   = na_if(trimws(locationID), ""),
-           locationName = na_if(trimws(locationName), ""),
-           longitude    = as.numeric(na_if(trimws(longitude), "")),
-           latitude     = as.numeric(na_if(trimws(latitude), "")))
-  
-  # 2. Identify missing‐value rows
-  location_cleaned <- location_df %>%
-    dplyr::filter(complete.cases(locationID, locationName, longitude, latitude))
-  missing_rows <- setdiff(location_df$row, location_cleaned$row)
-  
-  message_missing <- if (length(missing_rows) == 0) {
-    "🟢 No missing data found"
-  } else {
-    paste0("🔴 ", length(missing_rows), " rows with missing data: [",
-           paste(missing_rows, collapse = ", "), "]")
-  }
-  
-  # 3. Detect & remove duplicate coordinates (rounded to 6 decimals)
-  location_cleaned <- location_cleaned %>%
-    mutate(lon_round = round(longitude, 6),
-           lat_round = round(latitude, 6))
-  
-  coord_dups <- location_cleaned %>%
-    group_by(lon_round, lat_round) %>%
-    mutate(dup_coord = n() > 1) %>%
-    ungroup()
-  
-  num_duplicated_coordinate <- sum(coord_dups$dup_coord)
-  status_duplicated_coordinate <- if (num_duplicated_coordinate > 0) {
-    "🔴 Duplicate coordinates found"
-  } else {
-    "🟢 No duplicated coordinates"
-  }
-  if (num_duplicated_coordinate > 0) {
-    # Keep only the first row in each duplicate‐coordinate group
-    location_cleaned <- coord_dups %>%
-      group_by(lon_round, lat_round) %>%
-      slice(1) %>%
-      ungroup()
-    #----------
-    
-  }
-  
-  
-  # 4. Detect & remove duplicate locationID
-  num_dup_locationID <- length(which(table(location_cleaned$locationID) > 1))
-  
-  if (num_dup_locationID > 0) {
-    status_dup_locationID <- "🔴 Duplicate IDs found"
-    
-    # Keep only the first row for each duplicated ID
-    location_cleaned <- location_cleaned %>%
-      group_by(locationID) %>%
-      slice(1) %>%
-      ungroup()
-    
-  } else {
-    status_dup_locationID <- "🟢 No duplicated locationIDs"
-  }
-  # 
-  
-  
-  # 5. Detect & remove duplicate locationName
-  
-  num_dup_locationName <- length(which(table(location_cleaned$locationName) > 1))
-  
-  if (num_dup_locationName > 0) {
-    status_dup_locationName <- "🔴 Duplicate IDs found"
-    
-    # Keep only the first row for each duplicated name
-    location_cleaned <- location_cleaned %>%
-      group_by(locationName) %>%
-      slice(1) %>%
-      ungroup()
-    
-  } else {
-    status_dup_locationName <- "🟢 No duplicated locationIDs"
-  }
-  
-  # 
-  
-  # 6. Final set of unique, cleaned locations
-  total_unique_locations_df <- location_cleaned %>%
-    distinct(longitude, latitude, .keep_all = TRUE)
-  total_unique_locations <- nrow(total_unique_locations_df)
-  
-  
-  # Early exit if only one unique location remains
-  if (total_unique_locations == 1) {
-    note <- "🟡 Only one unique location — spatial analysis skipped."
-    return(list(
-      total_locationsrow     = total_locationsrow,
-      total_unique_locations = total_unique_locations,
-      message_missing        = message_missing,
-      status_duplicated_coordinate = status_duplicated_coordinate,
-      status_dup_locationID  = status_dup_locationID,
-      status_dup_locationName= status_dup_locationName,
-      note                   = note
-    ))
-  }
-  
-  note <- "🟢 Proceeding with spatial analysis"
-  if (verbose) cat(note, "\n")
-  
-  # 7. Outlier Detection (nearest‐neighbor based)
-  .getOutlier <- function(df, minD = 2, prob = 0.99) {
-    stopifnot(is.data.frame(df),
-              all(c("longitude", "latitude", "locationName") %in% names(df)))
-    coords_mat <- as.matrix(df[, c("longitude", "latitude")])
-    names_vec <- df$locationName
-    
-    # Pairwise distance matrix (in meters)
-    
-    dist_matrix <- as.matrix(distance(coords_mat,lonlat=TRUE))
-    diag(dist_matrix) <- NA
-    
-    
-    # For each point, the distance to its nearest neighbor
-    nn_dist <- apply(dist_matrix, 1, min, na.rm = TRUE)
-    
-    # Compute threshold based on the (prob) quantile
-    q_threshold <- quantile(nn_dist, prob = prob, na.rm = TRUE)
-    mean_within <- mean(nn_dist[nn_dist < q_threshold], na.rm = TRUE)
-    
-    # Identify outlier tiers
-    w3 <- which(nn_dist > q_threshold + ((minD + 2) * mean_within))  # high‐risk
-    w2 <- setdiff(which(nn_dist > q_threshold + ((minD + 1) * mean_within)), w3)  # med‐risk
-    w1 <- setdiff(which(nn_dist > q_threshold + (minD * mean_within)), c(w2, w3))  # low‐risk
-    
-    # Closest and farthest overall pairs
-    min_idx <- which(dist_matrix == min(dist_matrix, na.rm = TRUE), arr.ind = TRUE)[1, ]
-    max_idx <- which(dist_matrix == max(dist_matrix, na.rm = TRUE), arr.ind = TRUE)[1, ]
-    min_pair <- paste(names_vec[min_idx], collapse = " and ")
-    max_pair <- paste(names_vec[max_idx], collapse = " and ")
-    
-    list(
-      low_prob           = w1,
-      medium             = w2,
-      high_prob          = w3,
-      mean_distance      = mean(nn_dist, na.rm = TRUE),
-      min_distance       = min(nn_dist, na.rm = TRUE),
-      max_distance       = max(nn_dist, na.rm = TRUE),
-      min_distance_names = min_pair,
-      max_distance_names = max_pair
-    )
-  }
-  
-  outlier_res <- .getOutlier(total_unique_locations_df, minD = 2, prob = 0.99)
-  
-  mean_distance_cam <- round(outlier_res$mean_distance, 2)
-  min_distance_cam <- round(outlier_res$min_distance, 2)
-  max_distance_cam <- round(outlier_res$max_distance, 2)
-  min_distance_camNames <- outlier_res$min_distance_names
-  max_distance_camNames <- outlier_res$max_distance_names
-  
-  num_lowrisk_outliers <- length(outlier_res$low_prob)
-  num_mediumrisk_outliers <- length(outlier_res$medium)
-  num_highrisk_outliers <- length(outlier_res$high_prob)
-  
-  safe_get_names <- function(idxs) {
-    if (length(idxs) > 0) {
-      sort(unique(na.omit(total_unique_locations_df$locationName[idxs])))
-    } else {
-      character(0)
-    }
-  }
-  
-  low_names <- safe_get_names(outlier_res$low_prob)
-  med_names <- safe_get_names(outlier_res$medium)
-  high_names <- safe_get_names(outlier_res$high_prob)
-  
-  # Build a summary string for outliers, ensuring it’s always a character
-  distance_outlier_summary <- ""
-  if (num_highrisk_outliers > 0) {
-    distance_outlier_summary <- paste0(distance_outlier_summary,
-                                       "🔴 High‐risk (", num_highrisk_outliers, "): ",
-                                       paste(high_names, collapse = ", ")
-    )
-  }
-  if (num_mediumrisk_outliers > 0) {
-    distance_outlier_summary <- paste0(distance_outlier_summary, 
-                                       if (distance_outlier_summary != "") " | ",
-                                       "🟠 Medium‐risk (", num_mediumrisk_outliers, "): ",
-                                       paste(med_names, collapse = ", ")
-    )
-  }
-  if (num_lowrisk_outliers > 0) {
-    distance_outlier_summary <- paste0(distance_outlier_summary, 
-                                       if (distance_outlier_summary != "") " | ",
-                                       "🟡 Low‐risk (", num_lowrisk_outliers, "): ",
-                                       paste(low_names, collapse = ", ")
-    )
-  }
-  if (distance_outlier_summary == "") {
-    distance_outlier_summary <- "🟢 No spatial outliers detected"
-  }
-  
-  # 8. Sea‐vs‐land check
-  loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
-  wrld  <- readRDS(system.file("external/world.map", package="camtrapReport"))
-  loc$on_land <- !is.na(extract( wrld[,'name'],loc)$name)
-  num_sea_outliers <- sum(!loc$on_land)
-  
-  sea_outlier_status <- if (num_sea_outliers > 0) {
-    paste0("🌊 ", num_sea_outliers, " location(s) fall in the sea.")
-  } else {
-    "🟢 All locations are on land."
-  }
-  
-  outliers_status <- paste(distance_outlier_summary, sea_outlier_status, sep = " | ")
-  
-  # 9. Minimum Convex Polygon (MCP) & area
-  
-  center_lon <- mean(total_unique_locations_df$longitude, na.rm = TRUE)
-  is_northern <- mean(total_unique_locations_df$latitude, na.rm = TRUE) >= 0
-  
-  mcp_poly <- hull(.get_projected_vect(loc))
-  area_sqkm <- expanse(mcp_poly,unit='km')
-  #as.numeric(size(mcp_poly)) / 1e6
-  #.get_projected_vect(loc)
-  
-  # cat("Auto‐selected EPSG:", epsg_code, "\n")
-  # cat("Convex hull area:", round(area_sqkm, 2), "km²\n")
-  # 
-  status_MCArea <- paste0(
-    "MCP covers ", round(area_sqkm, 2), " km² over ", total_unique_locations, " points."
-  )
-  
-  # 10. Country / Region / Timezone summary
-  
-  Country    <- .paste_comma_and(unique(extract(wrld, loc)$name))
-  time_zone  <- ""
-  if (!is.null(cm$data$settings$tz)) time_zone  <- cm$data$settings$tz
-  
-  
-  summary_country_timezone <- glue::glue(
-    "Dataset spans <b>{Country}</b> with time zone <b>{time_zone}</b>."
-  )
-  
-  # 11. Spatial Pattern Detection (Clark‐Evans/K‐function)
-  coords_xy <- total_unique_locations_df %>% distinct(longitude, latitude)
-  
-  if (nrow(coords_xy) >= 9) {
-    buffer_ratio <- 0.01
-    xrange <- range(coords_xy$longitude) + diff(range(coords_xy$longitude)) * c(-buffer_ratio, buffer_ratio)
-    yrange <- range(coords_xy$latitude) + diff(range(coords_xy$latitude)) * c(-buffer_ratio, buffer_ratio)
-    if (.require('spatstat')) {
-      win <- .eval("owin(xrange = xrange, yrange = yrange)",env=environment())
-      ppp_obj <- .eval("ppp(x = coords_xy$longitude, y = coords_xy$latitude, window = win)",env=environment())
-      
-      qtest <- .eval("quadrat.test(ppp_obj, nx = 3, ny = 3)",env=environment())
-      kres  <- .eval("Kest(ppp_obj, correction = 'iso')",env=environment())
-      is_clustered <- qtest$p.value < 0.05
-      is_regular   <- any(kres$iso < kres$theo)
-      is_random    <- !is_clustered && !is_regular
-    } else {
-      is_clustered <- NULL
-      is_regular   <- NULL
-      is_random    <- NULL
-    }
-    
-    
-    spatial_pattern <- if (is_clustered && is_regular && is_random) {
-      "Mixed: Clustered + Regular + Random"
-    } else if (is_clustered && is_regular) {
-      "Mixed: Clustered + Regular"
-    } else if (is_clustered && is_random) {
-      "Mixed: Clustered + Random"
-    } else if (is_regular && is_random) {
-      "Mixed: Regular + Random"
-    } else if (is_clustered) {
-      "Clustered"
-    } else if (is_regular) {
-      "Regular / Possibly Linear"
-    } else if (is_random) {
-      "Random (matches CSR)"
-    } else {
-      "Ambiguous / Inconclusive"
-    }
-  } else {
-    spatial_pattern <- "⚠️ Too few locations to detect a spatial pattern"
-  }
-  
-  status_spatial <- cm$info$project$samplingDesign
-  
-  status_spatial <- if (!is.null(status_spatial) && nzchar(trimws(status_spatial))) {
-    status_spatial
-  } else {
-    "Not specified"
-  }
-  
-  
-  # FINAL RETURN — all collected summary pieces
-  return(list(
-    total_locationsrow = total_locationsrow,
-    total_unique_locations = total_unique_locations,
-    number_missing_rows = length(missing_rows),
-    message_missing = message_missing,
-    num_duplicated_coordinate = num_duplicated_coordinate,
-    status_duplicated_coordinate = status_duplicated_coordinate,
-    num_dup_locationID = num_dup_locationID,
-    status_dup_locationID = status_dup_locationID,
-    num_dup_locationName = num_dup_locationName,
-    status_dup_locationName = status_dup_locationName,
-    mean_distance_cam = mean_distance_cam,
-    min_distance_cam = min_distance_cam,
-    max_distance_cam = max_distance_cam,
-    min_distance_camNames        = min_distance_camNames,
-    max_distance_camNames        = max_distance_camNames,
-    num_lowrisk_outliers         = num_lowrisk_outliers,
-    num_mediumrisk_outliers      = num_mediumrisk_outliers,
-    num_highrisk_outliers = num_highrisk_outliers,
-    num_sea_outliers = num_sea_outliers,
-    outliers_status = outliers_status,
-    spatial_pattern = spatial_pattern,
-    status_spatial  = status_spatial,
-    MCArea  = area_sqkm,
-    status_MCArea = status_MCArea,
-    country = Country,
-    TimeZone = time_zone,
-    summary_country_timezone = summary_country_timezone,
-    note  = note
-  ))
-}
 
 #-----------
 .loadPKG <- function(pkgs) {
@@ -803,3 +469,35 @@
   }
 }
 #--------
+
+.file_info <- function(x) {
+  
+  if (basename(x) == x || dirname(x) == '.') {
+    .dir <- '.'
+  } else {
+    .dir <- dirname(x)
+    if (.dir == getwd()) .dir <- '.'
+  }
+  #-------
+  w <- strsplit(basename(x),'\\.')[[1]]
+  if (length(w) > 1) {
+    .filename <- paste(w[-length(w)],collapse = '_')
+    .extension <- w[length(w)]
+  } else {
+    .filename <- basename(x)
+    .extension <- NA
+  }
+  #-----
+  
+  list(path=.dir,filename=.filename,extension=.extension)
+  
+}
+#--------
+.trim_chr <- function(x) trimws(as.character(x))
+#------
+.pick_col <- function(df, candidates) {
+  if (is.null(df) || !is.data.frame(df)) return(NA_character_)
+  hit <- candidates[candidates %in% names(df)]
+  if (length(hit)) hit[1] else NA_character_
+}
+#----
