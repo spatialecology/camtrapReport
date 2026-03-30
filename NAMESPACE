@@ -9,6 +9,3 @@ importFrom("glue","glue")
 importFrom("dplyr", "bind_rows","distinct","filter","group_by","mutate","select","slice")
 importFrom("terra", "hull","crs","expanse","extract","project","rast","readRDS","unwrap","vect","wrap","writeRaster")importFrom("magrittr", "%>%")
 exportPattern("^[[:alpha:]]+")
-
-
-
