@@ -1,0 +1,93 @@
+---
+name: "spatial"
+title: "## Spatial Data {.unnumbered}"
+parent: null
+text: |
+  This section summarizes the spatial quality of the camera-trap data extracted from the dataset files. It focuses specifically on location data, assessing issues such as missing values, duplicate entries, spatial outliers, and overall spatial structure. The complete results are presented in Table 1. If any issues are identified, we strongly recommend correcting the data before proceeding with report generation for your study site.
+  
+  Duplicate entries (by coordinates, LocationName, or LocationID) are collapsed to the first occurrence, and any rows with missing values in any column are excluded from the report-generation analysis unless you edit them. If any issues are identified in the table below, we strongly recommend correcting the data before proceeding with report generation for your study site.
+  
+  Note: If your dataset contains rows where the coordinates (longitude and latitude) are complete but either the LocationID or LocationName is missing, these records are still treated as missing. This is because, for spatial quality checks and analysis, both the geographic coordinates and their associated metadata (LocationID and LocationName) are equally important.
+  
+code: |
+  #| name: camera_locations_leaflet
+  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| packages: base
+  
+  ss <- object$data_status$Spatial
+  
+  outlier_summary <- paste(
+  paste("High risk outlier =", ss$num_highrisk_outliers),
+  paste("Medium risk outlier =", ss$num_mediumrisk_outliers),
+  paste("Low risk outlier =", ss$num_lowrisk_outliers),
+  paste("Non-Terrestrial =", ss$num_sea_outliers),
+  sep = "<br>"
+  )
+  
+  # 2) Build table (use ss$spatial_pattern and ss$status_spatial)
+  spatial_table <- data.frame(
+    Metric = c(
+      "Number of locations",
+      "Number of Duplication in Coordinate",
+      "Number of Duplication in LocationID",
+      "Number of Duplication in LocationName",
+      "Missing data",
+      "Total Distinct coordinates",
+      "Mean distance between locations (m)",
+      "Max distance between locations (m)",
+      "Min distance between locations (m)",
+      "Spatial pattern",
+      "Outliers"
+    ),
+    Result = c(
+      ss$total_locationsrow,
+      ss$num_duplicated_coordinate,
+      ss$num_dup_locationID,
+      ss$num_dup_locationName,
+      ss$number_missing_rows,
+      ss$total_unique_locations,
+      ss$mean_distance_cam,
+      ss$max_distance_cam,
+      ss$min_distance_cam,
+      ss$spatial_pattern,      # <- dp_json value or computed, as you intended
+      outlier_summary
+    ),
+    Status = c(
+      "Before any filtering",
+      ss$status_duplicated_coordinate,
+      ss$status_dup_locationID,
+      ss$status_dup_locationName,
+      ss$message_missing,
+      "After removing duplicates/missing values",
+      "Mean inter-location distance",
+      ss$max_distance_camNames,
+      ss$min_distance_camNames,
+      ss$status_spatial,       # <- show the actual status value, not a static label
+      ss$outliers_status
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  # render (same as before) ...
+  spatial_table$Status <- gsub("\n", "<br>", spatial_table$Status)
+  blue_pastel <- c("#e6f0fa", "#f0f7fd", "#dceeff")
+  cat("<h3 style='font-size:9pt; text-align:center; color:black; margin-top:4px; margin-bottom:4px;'>
+  <b><em>Table 1</em></b>. Spatial summary of camera-trap locations</h3>")
+  cat("<div style='text-align: center; margin: 0 auto;'>")
+  cat("<table style='margin: auto; border-collapse: collapse; max-width: 800px; font-family: Arial, sans-serif; font-size: 12px;'>")
+  cat("<thead><tr style='background-color: #f2f2f2; font-weight: bold;'>")
+  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Metric</th>")
+  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Result</th>")
+  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Status</th>")
+  cat("</tr></thead><tbody>")
+  for (i in seq_len(nrow(spatial_table))) {
+    bg <- blue_pastel[(i - 1) %% length(blue_pastel) + 1]
+    cat(sprintf("<tr style='background-color:%s;'>", bg))
+    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Metric[i]))
+    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Result[i]))
+    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Status[i]))
+    cat("</tr>")
+  }
+  cat("</tbody></table></div>")
+
+---
