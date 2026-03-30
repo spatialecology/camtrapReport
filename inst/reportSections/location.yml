@@ -132,7 +132,7 @@ code2: |
     domain = unique_habitats, na.color = "#EDAC8C"
   )
   
-  .dat_year <- .dat_year %>%
+  .dat_year <- .dat_year |>
     mutate(
       Habitat_Type = as.character(Habitat_Type),  # Convert Habitat Type to character
       label = paste0(
