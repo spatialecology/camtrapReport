@@ -13,7 +13,7 @@ code: |
       frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
       
       # Color palette
-      species_colors <- setNames(a2$reportObjectElements$color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
+      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
       
       ############
       
