@@ -1698,18 +1698,14 @@
 #####################*************############################
 .Visuals_capture_method <- function(cm) {
   
-  # ensure Visuals exists
   if (is.null(cm$data_status$Visuals) || !is.list(cm$data_status$Visuals)) {
     cm$data_status$Visuals <- list()
   }
   
-  # reset this section
   cm$data_status$Visuals$capt_method <- list()
   
-  
-  # columns
   col_seq_obs <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
-  col_ot  <- .pick_col(cm$data$observations, c("observationType", "obsType"))
+  col_ot <- .pick_col(cm$data$observations, c("observationType", "obsType"))
   col_cap_obs <- .pick_col(cm$data$observations, c("captureMethod"))
   
   if (is.na(col_ot)) {
@@ -1717,17 +1713,14 @@
     return(NULL)
   }
   
-  # working table: observationType + captureMethod (from observations if available)
   joined_data <- cm$data$observations |>
-    mutate(
+    dplyr::mutate(
       observationType = .trim_chr(.data[[col_ot]]),
-      captureMethod   = if (!is.na(col_cap_obs)) .trim_chr(.data[[col_cap_obs]]) else NA_character_
+      captureMethod = if (!is.na(col_cap_obs)) .trim_chr(.data[[col_cap_obs]]) else NA_character_
     )
   
-  # If captureMethod not in observations, try sequences then media (requires sequenceID)
   if (all(is.na(joined_data$captureMethod) | joined_data$captureMethod == "")) {
     
-    # --- sequences join ---
     if (!is.na(col_seq_obs) &&
         "sequences" %in% names(cm$data) && is.data.frame(cm$data$sequences)) {
       
@@ -1739,17 +1732,18 @@
         seq_map <- cm$data$sequences |>
           dplyr::distinct(.data[[col_seq_seq]], .keep_all = TRUE) |>
           dplyr::transmute(
-            sequenceID_join   = .trim_chr(.data[[col_seq_seq]]),
+            sequenceID_join = .trim_chr(.data[[col_seq_seq]]),
             captureMethod_seq = .trim_chr(.data[[col_cap_seq]])
           )
         
         joined_data <- joined_data |>
-          mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
+          dplyr::mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
           dplyr::left_join(seq_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_seq)) |>
+          dplyr::mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_seq)) |>
           dplyr::select(-captureMethod_seq, -seq_join_key)
+      }
+    }
     
-    # --- media fallback ---
     if (all(is.na(joined_data$captureMethod) | joined_data$captureMethod == "") &&
         !is.na(col_seq_obs) &&
         "media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
@@ -1760,7 +1754,7 @@
       if (!is.na(col_seq_med) && !is.na(col_cap_med)) {
         
         med_map <- cm$data$media |>
-          mutate(sequenceID_join = .trim_chr(.data[[col_seq_med]])) |>
+          dplyr::mutate(sequenceID_join = .trim_chr(.data[[col_seq_med]])) |>
           dplyr::filter(!is.na(sequenceID_join) & sequenceID_join != "") |>
           dplyr::distinct(sequenceID_join, .keep_all = TRUE) |>
           dplyr::transmute(
@@ -1769,9 +1763,9 @@
           )
         
         joined_data <- joined_data |>
-          mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
+          dplyr::mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
           dplyr::left_join(med_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_med)) |>
+          dplyr::mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_med)) |>
           dplyr::select(-captureMethod_med, -seq_join_key)
       }
     }
@@ -1779,7 +1773,6 @@
   
   joined_data$captureMethod[is.na(joined_data$captureMethod) | joined_data$captureMethod == ""] <- "UNKNOWN"
   
-  # Summary per captureMethod + TOTAL
   capture_methods <- sort(unique(as.character(joined_data$captureMethod)))
   capture_methods_all <- c(capture_methods, "TOTAL")
   
@@ -1792,6 +1785,7 @@
       stringsAsFactors = FALSE
     )
   })
+  
   names(observation_type_summary) <- capture_methods_all
   
   observation_type_df <- do.call(rbind, lapply(names(observation_type_summary), function(method) {
@@ -1799,13 +1793,11 @@
     df$CaptureMethod <- method
     df
   }))
+  
   rownames(observation_type_df) <- NULL
   
   cm$data_status$Visuals$capt_method <- list(
-    Tables   = observation_type_summary,
+    Tables = observation_type_summary,
     Combined = observation_type_df
   )
 }
-
-
-
