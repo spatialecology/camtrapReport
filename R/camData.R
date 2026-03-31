@@ -37,59 +37,60 @@
 
 
 .get_Taxonomic_DF <- function(x) {
-  w <- sapply(x,function(x) {
+  w <- sapply(x, function(x) {
     length(names(x$vernacularNames))
   })
-  #-----
+  
   if (all(w == 0)) {
-    .bind_rows(lapply(x,function(x) {
-      .x <- strsplit(x$taxonID,'/')[[1]]
-      .x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
+    dplyr::bind_rows(lapply(x, function(x) {
+      .x <- strsplit(x$taxonID, '/')[[1]]
+      .x <- data.frame(
+        taxonID = .x[length(.x)],
+        scientificName = x$scientificName,
+        family = x$family,
+        order = x$order,
+        class = NA,
+        taxonRank = x$taxonRank
+      )
       if (length(x$vernacularNames) > 0) .x[["vernacularNames"]] <- x$vernacularNames
       else .x[["vernacularNames"]] <- NA
       .x
     }))
   } else if (any(w > 0)) {
-    .w <- max(w,na.rm=TRUE)
-    .tmp <- unlist(lapply(x,function(x) {
+    .w <- max(w, na.rm = TRUE)
+    .tmp <- unlist(lapply(x, function(x) {
       names(x$vernacularNames)
     }))
+    
     if (length(unique(.tmp[!is.na(.tmp)])) > .w) {
-      # sign of inconsistency in the names!
-      # if inconsistent, then the most frequent name is used:
-      n <- rep(NA,.w)
+      n <- rep(NA, .w)
       for (i in 1:.w) {
-        n[i] <- names(sort(table(sapply(x,function(x) {
+        n[i] <- names(sort(table(sapply(x, function(x) {
           names(x$vernacularNames)[i]
-        })),decreasing = TRUE))[1]
+        })), decreasing = TRUE))[1]
       }
     } else {
       w <- which.max(w)
       n <- names(x[[w]]$vernacularNames)
     }
-    #----------
     
-    .xx <- data.frame(taxonID="",scientificName="",family="",order="",class=NA,taxonRank="")
+    .xx <- data.frame(taxonID="", scientificName="", family="", order="", class=NA, taxonRank="")
     if (length(n) > 0) {
-      .n <- paste0("vernacularNames.",n)
+      .n <- paste0("vernacularNames.", n)
       for (i in seq_along(.n)) {
         .xx[[.n[i]]] <- ""
       }
     }
     
-    
-    bind_rows(lapply(x,function(x) {
+    dplyr::bind_rows(lapply(x, function(x) {
       .x <- .xx
       
-      .tmp <- strsplit(x$taxonID,'/')[[1]]
+      .tmp <- strsplit(x$taxonID, '/')[[1]]
       .x$taxonID <- .tmp[length(.tmp)]
       .x$scientificName <- x$scientificName
       .x$family <- x$family
       .x$order <- x$order
       .x$taxonRank <- x$taxonRank
-      
-      #.x <- strsplit(x$taxonID,'/')[[1]]
-      #.x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       
       if (length(x$vernacularNames) > 0) {
         if (!is.null(names(x$vernacularNames))) {
@@ -102,8 +103,7 @@
             .x[[6+i]] <- x$vernacularNames[[i]]
           }
         }
-      } 
-      #---
+      }
       .x
     }))
   }
@@ -345,22 +345,24 @@
   #--------
   
   if (.require('taxize')) {
-    .w <- .getMissingTaxon_GBIF(.d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)])
-    
-    #-----
-    # assign the retrieved info to the main CameraTrap database:
-    for (i in 1:nrow(.w)) {
-      w <- which(.d$taxonomy$scientificName == .w$scientificName[i])
-      .d$taxonomy[w,'class'] <- .w$class[i]
-      if (is.na(.d$taxonomy[w,'order'])) .d$taxonomy[w,'order'] <- .w$order[i]
+    .w <- try(.getMissingTaxon_GBIF(.d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)]), silent = TRUE)
+    if (!inherits(.w, "try-error")) {
+      for (i in 1:nrow(.w)) {
+        w <- which(.d$taxonomy$scientificName == .w$scientificName[i])
+        .d$taxonomy[w, "class"] <- .w$class[i]
+        if (is.na(.d$taxonomy[w, "order"])) .d$taxonomy[w, "order"] <- .w$order[i]
+      }
+      rm(.w, w)
     }
-    
-    rm(.w,w)
   }
   #------
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
   
-  .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
+  .d$observations$taxonID <- dplyr::left_join(
+    .d$observations,
+    .d$taxonomy,
+    by = "scientificName"
+  )$taxonID
   
   list(data=.d,json=.js,directory=.path)
   
