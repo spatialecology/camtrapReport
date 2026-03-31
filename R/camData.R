@@ -40,7 +40,7 @@
   })
   
   if (all(w == 0)) {
-    .dplyr::bind_rows(lapply(x, function(x) {
+    dplyr::bind_rows(lapply(x, function(x) {
       .x <- strsplit(x$taxonID, '/')[[1]]
       .x <- data.frame(
         taxonID = .x[length(.x)],
@@ -80,7 +80,7 @@
       }
     }
     
-    .dplyr::bind_rows(lapply(x, function(x) {
+    dplyr::bind_rows(lapply(x, function(x) {
       .x <- .xx
       
       .tmp <- strsplit(x$taxonID, '/')[[1]]
