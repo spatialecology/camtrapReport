@@ -1745,11 +1745,9 @@
         
         joined_data <- joined_data |>
           mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
-          left_join(seq_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          mutate(captureMethod = coalesce(captureMethod, captureMethod_seq)) |>
+          dplyr::left_join(seq_map, by = c("seq_join_key" = "sequenceID_join")) |>
+          mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_seq)) |>
           dplyr::select(-captureMethod_seq, -seq_join_key)
-      }
-    }
     
     # --- media fallback ---
     if (all(is.na(joined_data$captureMethod) | joined_data$captureMethod == "") &&
@@ -1772,8 +1770,8 @@
         
         joined_data <- joined_data |>
           mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
-          left_join(med_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          mutate(captureMethod = coalesce(captureMethod, captureMethod_med)) |>
+          dplyr::left_join(med_map, by = c("seq_join_key" = "sequenceID_join")) |>
+          mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_med)) |>
           dplyr::select(-captureMethod_med, -seq_join_key)
       }
     }
