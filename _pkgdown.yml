@@ -34,11 +34,10 @@ navbar:
     article:
       text: Article
       href: article.html
-    
+
     output:
       text: Output
       href: output.html
-      
 
     report-bug:
       icon: fa-bug
@@ -64,7 +63,3 @@ reference:
       - reportSection
       - testSection
       - add_Module
-      
-      
-      
-      
