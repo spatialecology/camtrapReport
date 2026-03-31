@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+title: "camtrapReport"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Ebrahimi"
+    given-names: "Elham"
+    orcid: "https://orcid.org/0000-0001-5191-9832"
+    email: "eebrahimi.bio@gmail.com"
+repository-code: "https://github.com/spatialecology/camtrapReport"
+url: "https://github.com/spatialecology/camtrapReport"
+license: MIT
+version: "0.2.20"
