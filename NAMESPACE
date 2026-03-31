@@ -7,7 +7,7 @@ importFrom("stats", "cor", "cov", "density", "quantile")
 importFrom("utils", "read.csv", "install.packages", "unzip")
 importFrom("tidyr", "pivot_wider")
 importFrom("glue", "glue")
-importFrom("dplyr", "bind_rows", "coalesce", "count", "distinct", "filter", "full_join", "group_by", "if_else", "left_join", "mutate", "na_if", "rename_with", "row_number", "select", "slice", "starts_with", "summarise", "transmute")
+importFrom("dplyr", "bind_rows", "coalesce", "count", "distinct", "filter", "full_join", "group_by", "if_else", "left_join", "mutate", "na_if", "rename_with", "row_number", "select", "slice", "starts_with", "summarise", "transmute", "ungroup")
 importFrom("terra", "crds", "ext", "hull", "crs", "distance", "expanse", "extract", "project", "rast", "readRDS", "unwrap", "vect", "wrap", "writeRaster")
 importFrom("magrittr", "%>%")
 
