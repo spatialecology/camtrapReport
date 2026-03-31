@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 2.3
-# Licence GPL v3
+# Last Update : 31 March 2026
+# Version 0.2.20
+# Licence MIT
 #--------
 
 
@@ -375,7 +375,7 @@ if (!isGeneric("camData")) {
 }
 
 
-setMethod('camData', signature(data='character'), 
+methods::setMethod('camData', signature(data='character'),
           function(data,habitat,study_area=NULL,...) {
             
             if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
