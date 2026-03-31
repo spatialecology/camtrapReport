@@ -16,7 +16,7 @@ body:
     attributes:
       label: camtrapReport version
       description: What package version are you using?
-      placeholder: "e.g. 0.2-16"
+      placeholder: "e.g. 0.2.20"
     validations:
       required: true
 
