@@ -3,8 +3,6 @@
 # Version 0.2.20
 # Licence MIT
 #--------
-
-
 # get the sequences data.frame from media (the code copied from the ctdp package):
 .getSequences <- function(media) {
   if (!.require('data.table')) stop('The data.table package is not installed...!')
@@ -42,7 +40,7 @@
   })
   
   if (all(w == 0)) {
-    dplyr::bind_rows(lapply(x, function(x) {
+    .dplyr::bind_rows(lapply(x, function(x) {
       .x <- strsplit(x$taxonID, '/')[[1]]
       .x <- data.frame(
         taxonID = .x[length(.x)],
@@ -82,7 +80,7 @@
       }
     }
     
-    dplyr::bind_rows(lapply(x, function(x) {
+    .dplyr::bind_rows(lapply(x, function(x) {
       .x <- .xx
       
       .tmp <- strsplit(x$taxonID, '/')[[1]]
