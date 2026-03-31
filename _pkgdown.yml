@@ -60,7 +60,11 @@ reference:
   - title: Main functions
     contents:
       - camData
+      - report
       - reportSection
       - testSection
+      - add_Module
+      
+      
       
       
