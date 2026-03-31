@@ -11,6 +11,48 @@ code: |
   #| packages: base
   
   temporal_data <- object$data_status$Temporal
+  #.coverage_span
+  out <- list()
+  
+  # temporary function to generate Year coverage span
+  .ftemp <- function(x) {
+    x <- round(as.numeric(x),0)
+    .mn <- min(x,na.rm=TRUE)
+    .mx <- max(x,na.rm=TRUE)
+    .r <- c(.mn:.mx) # range
+    .r <- .r[!.r %in% x] # missing
+    
+    out <- paste(.mn,'–',.mx)
+    if (length(.r) > 0) {
+      out <- paste0(out," (🔴 missing: ",paste(.r,collapse = ', '),")")
+    }
+    out
+  }
+  #-----
+  out[["Coverage span (Years)"]] <-  .ftemp(temporal_data$dep_years)
+  out[["First/Last Record"]] <-  temporal_data$obs_first_last
+  
+  # temporary function to generate Month coverage span
+  .ftemp <- function(x) {
+    x <- x[order(x$Year),]
+    out <- c()
+    for (i in 1:nrow(x)) {
+      .w <- paste0(x[i,1],': ')
+      if (any(strsplit(x[i,2],'')[[1]] %in% c('–','-'))) {
+        .w <- paste0(.w,x[i,2]) 
+      } else .w <- paste0(.w,x[i,2],'–',x[i,2]) 
+      out <- c(out,.w)
+    }
+    paste(out,collapse = '<br>')
+  }
+  
+  out[["Month coverage span"]] <-  .ftemp(temporal_data$dep_month_coverage)
+  out[["Calendar coverage"]] <-  temporal_data$dep_calendar_coverage
+  out[["Max gap between deployments"]] <-  temporal_data$dep_max_gap
+  out[["Min gap between deployments"]] <-  temporal_data$dep_min_gap
+  out[["Missing deployment intervals"]] <-  temporal_data$dep_missing_intervals
+  out[["Temporal outliers"]] <-  temporal_data$temporal_outliers
+  temporal_data <- data.frame(Metric=names(out),Details=sapply(out,function(x) x))
   
   mint_pastel <- c("#eafaf1", "#f3fcf7", "#e1f7ec")
 

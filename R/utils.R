@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  31 March 2026
-# Version 0.2.20
-# Licence MIT
+# Last Update :  March 2026
+# Version 1.8
+# Licence GPL v3
 #--------
 
 .paste_comma_and <- function(x) {
@@ -324,32 +324,38 @@
 }
 
 .is.projected <- function(x) {
-  e <- as.vector(terra::ext(x))
+  e <- as.vector(ext(x))
   !all(e >= -180 & e <= 180)
 }
 #----
 
 .get_projected_vect <- function(x) {
+  # automatically project a spatial data with a geographic CRS
+  # identify the best metric CRS given the size and location of data
+  # x is an SpatVector (terra)
+  
   if (!.is.projected(x)) {
-    cen <- colMeans(terra::crds(x))
-    lon <- cen[1]
-    lat <- cen[2]
-    
+    cen <- colMeans(crds(x))
+    lon <- cen[1]; lat <- cen[2]
     if (abs(lat) <= 84) {
+      # UTM zone calculation
       .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
       .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-      return(terra::project(x, paste0("EPSG:", .epsg)))
+      return(project(x, paste0("EPSG:",.epsg)))
     } else {
       proj4 <- sprintf(
         "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
         lat, lon
       )
-      return(terra::project(x, proj4))
+      return(project(x, proj4))
     }
   } else {
-    warning("The input dataset seems projected, so no projection is applied...!")
+    warning('The input dataset seems projected, so no projection is applied...!')
     x
   }
+  
+  
+  
 }
 #----------
 

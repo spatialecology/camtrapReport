@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  March 2026
-# Version 0.2.20
-# Licence MIT
+# Version 2.7
+# Licence GPL v3
 #--------
 
 .normalize_packages <- function(x) {
@@ -167,6 +167,7 @@ camR <- setRefClass(
     .tempObjects  = "list",
     reportTextElements = "list",
     reportObjectElements = "list",
+    statusReportObjects = "list", # a list of .txtSection and .Rchunk objects (for data_status report!)
     reportObjects    = "list" # a list of .txtSection and .Rchunk objects
   ),
   
@@ -1616,6 +1617,357 @@ camR <- setRefClass(
       }
       
     },
+    addStatusReportObject = function(x) {
+      # add either text or Rchunk object to reportObjects list
+      .done <- FALSE
+      if (inherits(x,'.textSection')) {
+        if (is.null(x@parent) || x@parent == "" || x@parent == ".root") {
+          x@headLevel <- 1
+          if (is.list(.self$statusReportObjects[[x@name]])) .self$statusReportObjects[[x@name]][[x@name]] <- x
+          else .self$statusReportObjects[[x@name]] <- x
+          .done <- TRUE
+        } else {
+          if (x@parent %in% names(.self$statusReportObjects)) {
+            x@headLevel <- 2
+            if (is.list(.self$statusReportObjects[[x@parent]])) {
+              .self$statusReportObjects[[x@parent]][[x@name]] <- x
+              .done <- TRUE
+            } else {
+              .tmp <- list()
+              .tmp[[.self$statusReportObjects[[x@parent]]@name]] <- .self$statusReportObjects[[x@parent]]
+              .self$statusReportObjects[[x@parent]] <- .tmp
+              .self$statusReportObjects[[x@parent]][[x@name]] <- x
+              .done <- TRUE
+            }
+          } else {
+            
+            for (.n in names(.self$statusReportObjects)) {
+              .tmp <- .self$statusReportObjects[[.n]]
+              if (is.list(.tmp)) {
+                if (x@parent %in% names(.tmp)) {
+                  x@headLevel <- 3
+                  if (is.list(.tmp[[x@parent]])) {
+                    .self$statusReportObjects[[.n]][[x@parent]][[x@name]] <- x
+                    .done <- TRUE
+                  } else {
+                    .tmp <- list()
+                    .tmp[[.self$statusReportObjects[[.n]][[x@parent]]@name]] <- .self$statusReportObjects[[.n]][[x@parent]]
+                    .self$statusReportObjects[[.n]][[x@parent]] <- .tmp
+                    .self$statusReportObjects[[.n]][[x@parent]][[x@name]] <- x
+                    .done <- TRUE
+                  }
+                }
+              } else if (inherits(.tmp,'.textSection')) {
+                if (x@parent == .tmp@name) {
+                  x@headLevel <- 2
+                  .tmp <- list()
+                  .tmp[[.self$statusReportObjects[[.n]]@name]] <- .self$statusReportObjects[[.n]]
+                  .self$statusReportObjects[[.n]] <- .tmp
+                  .self$statusReportObjects[[.n]][[x@parent]][[x@name]] <- x
+                  .done <- TRUE
+                }
+              }
+            }
+          } 
+        }
+        
+        if (!.done) stop('The text section is not added (the "parent" is unknown...)!')
+        
+      } else if (inherits(x,'.Rchunk')) {
+        .added <- FALSE
+        if (x@parent %in% names(.self$statusReportObjects)) {
+          if (is.list(.self$statusReportObjects[[x@parent]])) {
+            .tmp <- sapply(.self$statusReportObjects[[x@parent]],function(.x) .x@name)
+            .w <- which(.tmp == x@parent)
+            if (length(.w) > 1) {
+              if (is.null(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
+                .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
+                .added <- TRUE
+              } else {
+                if (is.list(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
+                  if (length(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                    .n <- sapply(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                    if (x@name %in% .n) {
+                      .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[.n == x@name]] <- x
+                      .added <- TRUE
+                    } else {
+                      .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                      .added <- TRUE
+                    }
+                  } else {
+                    .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    .added <- TRUE
+                  }
+                } else {
+                  if (.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                    .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
+                    .added <- TRUE
+                  } else {
+                    .tmp <- list()
+                    .tmp[[.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                    .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                    .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    .added <- TRUE
+                  }
+                }
+              }
+            } #else message('Error: the parent does not available; code is NOT added!')
+          } else {
+            if (is.null(.self$statusReportObjects[[x@parent]]@Rchunk)) {
+              .self$statusReportObjects[[x@parent]]@Rchunk <- x
+              .added <- TRUE
+            } else {
+              if (is.list(.self$statusReportObjects[[x@parent]]@Rchunk)) {
+                if (length(.self$statusReportObjects[[x@parent]]@Rchunk) > 0) {
+                  .n <- sapply(.self$statusReportObjects[[x@parent]]@Rchunk,function(x) x@name)
+                  if (x@name %in% .n) {
+                    .self$statusReportObjects[[x@parent]]@Rchunk[[.n == x@name]] <- x
+                    .added <- TRUE
+                  } else {
+                    .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
+                    .added <- TRUE
+                  }
+                } else {
+                  .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
+                  .added <- TRUE
+                }
+              } else {
+                if (.self$statusReportObjects[[x@parent]]@Rchunk@name == x@name) {
+                  .self$statusReportObjects[[x@parent]]@Rchunk <- x
+                  .added <- TRUE
+                } else {
+                  .tmp <- list()
+                  .tmp[[.self$statusReportObjects[[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]]@Rchunk
+                  .self$statusReportObjects[[x@parent]]@Rchunk <- .tmp
+                  .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
+                  .added <- TRUE
+                }
+              }
+            }
+          }
+        } else {
+          for (.n in names(.self$statusReportObjects)) {
+            if (is.list(.self$statusReportObjects[[.n]])) {
+              if (x@parent %in% names(.self$statusReportObjects[[.n]])) {
+                if (is.list(.self$statusReportObjects[[.n]][[x@parent]])) {
+                  .tmp <- sapply(.self$statusReportObjects[[.n]][[x@parent]],function(.x) .x@name)
+                  .w <- which(.tmp == x@parent)
+                  if (length(.w) > 1) {
+                    if (is.null(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
+                      .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
+                      .added <- TRUE
+                      break
+                    } else {
+                      if (is.list(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
+                        if (length(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                          .nn <- sapply(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                          if (x@name %in% .nn) {
+                            .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[.nn == x@name]] <- x
+                            .added <- TRUE
+                            break
+                          } else {
+                            .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                            .added <- TRUE
+                            break
+                          }
+                        } else {
+                          .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                          .added <- TRUE
+                          break
+                        }
+                      } else {
+                        if (.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                          .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
+                          .added <- TRUE
+                          break
+                        } else {
+                          .tmp <- list()
+                          .tmp[[.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                          .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                          .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                          .added <- TRUE
+                          break
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  if (is.null(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
+                    .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- x
+                    .added <- TRUE
+                    break
+                  } else {
+                    if (is.list(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
+                      if (length(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk) > 0) {
+                        .nn <- sapply(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk,function(x) x@name)
+                        if (x@name %in% .nn) {
+                          .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[.nn[.nn == x@name]]] <- x
+                          .added <- TRUE
+                          break
+                        } else {
+                          .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                          .added <- TRUE
+                          break
+                        }
+                      } else {
+                        .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                        .added <- TRUE
+                        break
+                      }
+                    } else {
+                      if (.self$statusReportObjects[[.n]][[x@parent]]@Rchunk@name == x@name) {
+                        .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- x
+                        .added <- TRUE
+                        break
+                      } else {
+                        .tmp <- list()
+                        .tmp[[.self$statusReportObjects[[.n]][[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[.n]][[x@parent]]@Rchunk
+                        .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- .tmp
+                        .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                        .added <- TRUE
+                        break
+                      }
+                    }
+                  }
+                }
+              } else {
+                for (.nn in names(.self$statusReportObjects[[.n]])) {
+                  if (is.list(.self$statusReportObjects[[.n]][[.nn]])) {
+                    if (x@parent %in% names(.self$statusReportObjects[[.n]][[.nn]])) {
+                      if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]])) {
+                        .tmp <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]],function(.x) .x@name)
+                        .w <- which(.tmp == x@parent)
+                        if (length(.w) > 1) {
+                          if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
+                            .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
+                            .added <- TRUE
+                            break
+                          } else {
+                            if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
+                              if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                                .nnn <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                                if (x@name %in% .nnn) {
+                                  .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[.nnn == x@name]] <- x
+                                  .added <- TRUE
+                                  break
+                                } else {
+                                  .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                  .added <- TRUE
+                                  break
+                                }
+                              } else {
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                .added <- TRUE
+                                break
+                              }
+                            } else {
+                              if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
+                                .added <- TRUE
+                                break
+                              } else {
+                                .tmp <- list()
+                                .tmp[[.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                .added <- TRUE
+                                break
+                              }
+                            }
+                          }
+                        }
+                      } else {
+                        if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
+                          .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
+                          .added <- TRUE
+                          break
+                        } else {
+                          if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
+                            if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
+                              .nnn <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk,function(x) x@name)
+                              if (x@name %in% .nnn) {
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[.nnn[.nnn == x@name]]] <- x
+                                .added <- TRUE
+                                break
+                              } else {
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                                .added <- TRUE
+                                break
+                              }
+                            } else {
+                              .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                              .added <- TRUE
+                              break
+                            }
+                          } else {
+                            if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name == x@name) {
+                              .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
+                              .added <- TRUE
+                              break
+                            } else {
+                              .tmp <- list()
+                              .tmp[[.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk
+                              .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- .tmp
+                              .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                              .added <- TRUE
+                              break
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              if (.self$statusReportObjects[[.n]]@name == x@parent) {
+                if (is.null(.self$statusReportObjects[[.n]]@Rchunk)) {
+                  .self$statusReportObjects[[.n]]@Rchunk <- x
+                  .added <- TRUE
+                  break
+                } else {
+                  if (is.list(.self$statusReportObjects[[.n]]@Rchunk)) {
+                    if (length(.self$statusReportObjects[[.n]]@Rchunk) > 0) {
+                      .nn <- sapply(.self$statusReportObjects[[.n]]@Rchunk,function(x) x@name)
+                      if (x@name %in% .nn) {
+                        .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn == x@name]]] <- x
+                        .added <- TRUE
+                        break
+                      } else {
+                        .self$statusReportObjects[[.n]]@Rchunk[[x@name]] <- x
+                        .added <- TRUE
+                        break
+                      }
+                    } else {
+                      .self$statusReportObjects[[.n]]@Rchunk[[x@name]] <- x
+                      .added <- TRUE
+                      break
+                    }
+                  } else {
+                    if (.self$statusReportObjects[[.n]]@Rchunk@name == x@name) {
+                      .self$statusReportObjects[[.n]]@Rchunk <- x
+                      .added <- TRUE
+                      break
+                    } else {
+                      .tmp <- list()
+                      .tmp[[.self$statusReportObjects[[.n]]@Rchunk@name]] <- .self$statusReportObjects[[.n]]@Rchunk
+                      .self$statusReportObjects[[.n]]@Rchunk <- .tmp
+                      .self$statusReportObjects[[.n]]@Rchunk[[x@name]] <- x
+                      .added <- TRUE
+                      break
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        #----
+        # if (!.added) message('\nthe parent .textSection is not found... The R chunk is NOT added!!')
+        # else message('\n...Done!')
+      }
+      
+    },
     get_data_subset=function(year=2023) {
       
       .w <- which(.self$data$deployments$Year == year)
@@ -1647,8 +1999,8 @@ camR <- setRefClass(
       
       rmd_template <- glue::glue("
 ---
-title: \"{title}\"
-author: \"{authors}\"
+title: \"{.self$title}\"
+author: \"{.self$authors}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
   html_document:
@@ -1662,7 +2014,7 @@ output:
 ---
 
 {pkg_chunk}
-", .envir = .self)
+", .envir = environment())
       for (.n in names(.self$reportObjects)) {
         .x <- .self$reportObjects[[.n]]
         if (is.list(.x)) {
@@ -1698,6 +2050,65 @@ output:
       )
       
       message("Report generated at: ", normalizePath(out))
+      return(invisible(out))
+    },
+    generateStatusReport = function(output_file = "data_status_report.html",rmd_file="data_status_report.Rmd") {
+      render_env <- .make_render_env(.self)
+      
+      module_pkgs <- .collect_module_packages(.self$statusReportObjects)
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      status_title <- paste0("Data Status Report for ",.self$siteName)
+      if (length(.self$institute) > 0) status_title <- paste0(status_title," - ",.self$institute)
+      
+      rmd_template <- glue::glue("
+---
+title: \"{status_title}\"
+author: \"{.self$authors}\"
+date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+    df_print: paged
+    number_sections: false
+    self_contained: true
+---
+
+{pkg_chunk}
+", .envir = environment())
+      for (.n in names(.self$statusReportObjects)) {
+        .x <- .self$statusReportObjects[[.n]]
+        if (is.list(.x)) {
+          for (.nn in names(.self$statusReportObjects[[.n]])) {
+            .xx <- .self$statusReportObjects[[.n]][[.nn]]
+            if (is.list(.xx)) {
+              for (.nnn in names(.self$statusReportObjects[[.n]][[.nn]])) {
+                .xxx <- .self$statusReportObjects[[.n]][[.nn]][[.nnn]]
+                rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xxx,.envir = .self))
+              }
+            } else {
+              rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xx,.envir = .self))
+            }
+          }
+        } else {
+          rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.x,.envir = .self))
+        }
+      }
+      
+      # Write out the R Markdown file
+      cat(rmd_template, file = rmd_file, sep = "\n")
+      
+      message("Rendering R Markdown data_status report ...")
+      out <- rmarkdown::render(
+        input       = rmd_file, 
+        output_file = output_file,
+        envir       = render_env
+      )
+      
+      message("Data_Status Report generated at: ", normalizePath(out))
       return(invisible(out))
     },
     

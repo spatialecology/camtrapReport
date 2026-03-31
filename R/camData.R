@@ -1,8 +1,10 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : 31 March 2026
-# Version 0.2.20
-# Licence MIT
+# Last Update :  March 2026
+# Version 2.4
+# Licence GPL v3
 #--------
+
+
 # get the sequences data.frame from media (the code copied from the ctdp package):
 .getSequences <- function(media) {
   if (!.require('data.table')) stop('The data.table package is not installed...!')
@@ -35,60 +37,59 @@
 
 
 .get_Taxonomic_DF <- function(x) {
-  w <- sapply(x, function(x) {
+  w <- sapply(x,function(x) {
     length(names(x$vernacularNames))
   })
-  
+  #-----
   if (all(w == 0)) {
-    dplyr::bind_rows(lapply(x, function(x) {
-      .x <- strsplit(x$taxonID, '/')[[1]]
-      .x <- data.frame(
-        taxonID = .x[length(.x)],
-        scientificName = x$scientificName,
-        family = x$family,
-        order = x$order,
-        class = NA,
-        taxonRank = x$taxonRank
-      )
+    .bind_rows(lapply(x,function(x) {
+      .x <- strsplit(x$taxonID,'/')[[1]]
+      .x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       if (length(x$vernacularNames) > 0) .x[["vernacularNames"]] <- x$vernacularNames
       else .x[["vernacularNames"]] <- NA
       .x
     }))
   } else if (any(w > 0)) {
-    .w <- max(w, na.rm = TRUE)
-    .tmp <- unlist(lapply(x, function(x) {
+    .w <- max(w,na.rm=TRUE)
+    .tmp <- unlist(lapply(x,function(x) {
       names(x$vernacularNames)
     }))
-    
     if (length(unique(.tmp[!is.na(.tmp)])) > .w) {
-      n <- rep(NA, .w)
+      # sign of inconsistency in the names!
+      # if inconsistent, then the most frequent name is used:
+      n <- rep(NA,.w)
       for (i in 1:.w) {
-        n[i] <- names(sort(table(sapply(x, function(x) {
+        n[i] <- names(sort(table(sapply(x,function(x) {
           names(x$vernacularNames)[i]
-        })), decreasing = TRUE))[1]
+        })),decreasing = TRUE))[1]
       }
     } else {
       w <- which.max(w)
       n <- names(x[[w]]$vernacularNames)
     }
+    #----------
     
-    .xx <- data.frame(taxonID="", scientificName="", family="", order="", class=NA, taxonRank="")
+    .xx <- data.frame(taxonID="",scientificName="",family="",order="",class=NA,taxonRank="")
     if (length(n) > 0) {
-      .n <- paste0("vernacularNames.", n)
+      .n <- paste0("vernacularNames.",n)
       for (i in seq_along(.n)) {
         .xx[[.n[i]]] <- ""
       }
     }
     
-    dplyr::bind_rows(lapply(x, function(x) {
+    
+    bind_rows(lapply(x,function(x) {
       .x <- .xx
       
-      .tmp <- strsplit(x$taxonID, '/')[[1]]
+      .tmp <- strsplit(x$taxonID,'/')[[1]]
       .x$taxonID <- .tmp[length(.tmp)]
       .x$scientificName <- x$scientificName
       .x$family <- x$family
       .x$order <- x$order
       .x$taxonRank <- x$taxonRank
+      
+      #.x <- strsplit(x$taxonID,'/')[[1]]
+      #.x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       
       if (length(x$vernacularNames) > 0) {
         if (!is.null(names(x$vernacularNames))) {
@@ -101,7 +102,8 @@
             .x[[6+i]] <- x$vernacularNames[[i]]
           }
         }
-      }
+      } 
+      #---
       .x
     }))
   }
@@ -214,7 +216,7 @@
   
   rm(.obs,obs_first_radius_angle)
   
-  if (!.is.POSIXct(.d$observations$classificationTimestamp)) {
+  if (!.is.POSIXct(.d$observations$classificationTimestam)) {
     .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
     #.d$observations <- .left_join(.d$observations,.d$media[,c("mediaID","timestamp")],by = "mediaID")
     .w <- which(!is.na(.d$observations$classificationTimestamp))
@@ -343,137 +345,153 @@
   #--------
   
   if (.require('taxize')) {
-    .w <- try(.getMissingTaxon_GBIF(.d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)]), silent = TRUE)
-    if (!inherits(.w, "try-error")) {
-      for (i in 1:nrow(.w)) {
-        w <- which(.d$taxonomy$scientificName == .w$scientificName[i])
-        .d$taxonomy[w, "class"] <- .w$class[i]
-        if (is.na(.d$taxonomy[w, "order"])) .d$taxonomy[w, "order"] <- .w$order[i]
-      }
-      rm(.w, w)
+    .w <- .getMissingTaxon_GBIF(.d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)])
+    
+    #-----
+    # assign the retrieved info to the main CameraTrap database:
+    for (i in 1:nrow(.w)) {
+      w <- which(.d$taxonomy$scientificName == .w$scientificName[i])
+      .d$taxonomy[w,'class'] <- .w$class[i]
+      if (is.na(.d$taxonomy[w,'order'])) .d$taxonomy[w,'order'] <- .w$order[i]
     }
+    
+    rm(.w,w)
   }
   #------
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
   
-  .d$observations$taxonID <- dplyr::left_join(
-    .d$observations,
-    .d$taxonomy,
-    by = "scientificName"
-  )$taxonID
+  .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
   
   list(data=.d,json=.js,directory=.path)
   
 }
 
 #---------
-methods::setGeneric(
-  "camData",
-  function(data, habitat, study_area = NULL, ...) {
-    methods::standardGeneric("camData")
-  }
-)
 
-methods::setMethod(
-  "camData",
-  signature(data = "character"),
-  function(data, habitat, study_area = NULL, ...) {
-    
-    if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
-    
-    if (missing(study_area)) study_area <- NULL
-    
-    #.d <- .read_camtrapDATA(data,ctdp = TRUE)
-    .d <- .read_camdp(data)
-    cm <- camR$new()
-    cm$setting$locationLegend <- TRUE
-    
-    cm$data <- .d$data
-    cm$info$json <- .d$json
-    cm$info$directory <- .d$directory
-    #-------
-    if (!is.null(habitat)) cm$habitat <- habitat
-    
-    if (!is.null(study_area)) {
-      if (is.character(study_area)) {
-        if (file.exists(study_area)) {
-          .v <- try(terra::vect(study_area), silent = TRUE)
-          if (!inherits(.v, 'try-error')) {
-            saveRDS(.v, paste0(cm$info$directory, '/study_area.map'))
-            cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
-            cm$study_area$object <- .v
-            rm(.v)
-          } else warning('the specified study_area file could not be read (is it a spatial dataset?)')
+
+if (!isGeneric("camData")) {
+  setGeneric("camData", function(data,habitat,study_area,...)
+    standardGeneric("camData"))
+}
+
+
+setMethod('camData', signature(data='character'), 
+          function(data,habitat,study_area=NULL,...) {
+            
+            if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
+            
+            if (missing(study_area)) study_area <- NULL
+            
+            #.d <- .read_camtrapDATA(data,ctdp = TRUE)
+            .d <- .read_camdp(data)
+            cm <- camR$new()
+            cm$setting$locationLegend <- TRUE
+            
+            cm$data <- .d$data
+            cm$info$json <- .d$json
+            cm$info$directory <- .d$directory
+            #-------
+            if (!is.null(habitat)) cm$habitat <- habitat
+            
+            if (!is.null(study_area)) {
+              if (is.character(study_area)) {
+                if (file.exists(study_area)) {
+                  .v <- try(terra::vect(study_area),silent = TRUE)
+                  if (!inherits(.v,'try-error')) {
+                    saveRDS(.v,paste0(cm$info$directory,'/study_area.map'))
+                    cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
+                    cm$study_area$object <- .v
+                    rm(.v)
+                  } else warning('the specified study_area file could not be read (is it a spatial dataset?)')
+                  
+                } else {
+                  warning("study_area filename is not available and ignored...!")
+                }
+              } else if (inherits(study_area,'SpatVector')) {
+                cm$study_area$object <- study_area
+                saveRDS(study_area,paste0(cm$info$directory,'/study_area.map'))
+                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
+                
+              } else if (.eval("inherits(study_area,'sf')",env = environment())) {
+                cm$study_area$object <- vect(study_area)
+                saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
+                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
+              } else {
+                warning("study_area is ignored (should be a filename or a spatial dataset)...!")
+              }
+            }
+            #----------
+            cm$filterExclude <- list(
+              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
+                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
+                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
+                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
+            cm$filterKeep <- list(observationType=c("animal"),class=NULL)
           
-        } else {
-          warning("study_area filename is not available and ignored...!")
-        }
-      } else if (inherits(study_area, 'SpatVector')) {
-        cm$study_area$object <- study_area
-        saveRDS(study_area, paste0(cm$info$directory, '/study_area.map'))
-        cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
-        
-      } else if (.eval("inherits(study_area,'sf')", env = environment())) {
-        cm$study_area$object <- terra::vect(study_area)
-        saveRDS(cm$study_area$object, paste0(cm$info$directory, '/study_area.map'))
-        cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
-      } else {
-        warning("study_area is ignored (should be a filename or a spatial dataset)...!")
-      }
-    }
-    #----------
-    cm$filterExclude <- list(
-      scientificName = c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                         "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                         "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                         "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
-    cm$filterKeep <- list(observationType = c("animal"), class = NULL)
-    
-    cm$add_group('large_mammals', list(order = c("Artiodactyla", "Carnivora")))
-    #---------
-    cm$filterCount <- 25
-    #-------
-    cm$add_group('domestic', list(
-      scientificName = c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                         "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                         "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                         "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
-    
-    cm$setting$focus_groups <- 'large_mammals'
-    #-------
-    if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
-      cm$siteName <- .d$json$project$title
-    } else cm$siteName <- "Unnamed Site"
-    
-    .summarize_spatial(cm)
-    .Temporal(cm)
-    .Essentials(cm)
-    .Annotation(cm)
-    .Validation(cm)
-    .Species(cm)
-    .Visuals_capture_method(cm)
-    
-    country <- cm$data_status$country
-    fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
-    site_Name <- cm$siteName
-    cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
-    cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
-    rm(.d); gc()
-    
-    cm$setup()
-    .module_dir <- .section_dir("camtrapReport")
-    
-    mods <- .read_modules(
-      level0 = c("introduction", "methods", "results",
-                 "acknowledgements", "appendix"),
-      package = "camtrapReport",
-      dir = .module_dir,
-      write_info = TRUE
-    )
-    for (i in seq_along(mods)) {
-      cm$addReportObject(mods[[i]])
-    }
-    cm
-  }
+            cm$add_group('large_mammals',list(order=c("Artiodactyla", "Carnivora")))
+            #---------
+            cm$filterCount <- 25
+            #-------
+            cm$add_group('domestic',list(
+              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
+                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
+                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
+                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
+            
+            cm$setting$focus_groups <- 'large_mammals'
+            #-------
+            if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
+              cm$siteName <- .d$json$project$title
+            } else cm$siteName <- "Unnamed Site"
+            
+            .summarize_spatial(cm)
+            .Temporal(cm)
+            .Essentials(cm)
+            .Annotation(cm)
+            .Validation(cm)
+            .Species(cm)
+            .Visuals_capture_method(cm)
+            
+            #sp_summary <- .summarize_spatial_info(cm)
+            country <- cm$data_status$Spatial$country
+            fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
+            site_Name <- cm$siteName
+            cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
+            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
+            rm(.d); gc()
+            
+            cm$setup()
+            .module_dir <- .section_dir("camtrapReport")
+            
+            mods <- .read_modules(
+              level0 = c("introduction", "methods", "results",
+                         "acknowledgements", "appendix"),
+              package = "camtrapReport",
+              dir = .module_dir,
+              write_info = TRUE
+            )
+            for (i in seq_along(mods)) {
+              cm$addReportObject(mods[[i]])
+            }
+            #------
+            # adding data_status modules:
+            .module_dir <- system.file("statusSections", package = "camtrapReport")
+            
+            mods <- .read_modules(
+              level0 = c("abstract", "spatial", "temporal",
+                         "availability", "validation","annotation",
+                         "observation_type","conclusion","acknowledge"),
+              package = "camtrapReport",
+              dir = .module_dir,
+              write_info = TRUE
+            )
+            for (i in seq_along(mods)) {
+              cm$addStatusReportObject(mods[[i]])
+            }
+            #----
+            cm
+          }
 )
 #--------
+
+
