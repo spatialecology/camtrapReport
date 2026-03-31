@@ -367,8 +367,7 @@
 }
 
 #---------
-
-camData <- methods::setGeneric(
+methods::setGeneric(
   "camData",
   function(data, habitat, study_area = NULL, ...) {
     methods::standardGeneric("camData")
