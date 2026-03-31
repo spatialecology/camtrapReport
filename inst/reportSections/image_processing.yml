@@ -1,0 +1,7 @@
+---
+name: "image_processing"
+title: "## Image Processing"
+parent: "methods"
+text: "The images were processed and archived in [Agouti](https://www.agouti.eu), an online platform managed by [Wageningen University (WUR)](https://www.wur.nl/en/) and the [Flemish Research Institute for Nature and Forest (INBO)](https://www.vlaanderen.be/inbo/en-gb/homepage/). Images captured within 120 seconds of each other were automatically grouped into sequences, typically representing a single event. These sequences were partially annotated using Artificial Intelligence (AI), with additional manual annotations by {annonator}. A subset of these annotations was validated by experienced observers to ensure accuracy. For each sampling location, calibration images were manually annotated in [Agouti](https://www.agouti.eu) by marking points along a barred stick, enabling photogrammetry-based position estimation (see Appendix). Additionally, for each species of interest, movement paths were digitized in [Agouti](https://www.agouti.eu) from at least 25 randomly selected sequences by tracking the front foot of the first-appearing individual across images. These annotations were analyzed using the photogrammetry tools in the R package [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity) (*Rowcliffe, 2024*), which links pixel coordinates to ground positions in a local coordinate system, providing a depth perspective to the images."
+code: null
+---

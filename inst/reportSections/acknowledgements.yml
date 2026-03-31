@@ -1,0 +1,7 @@
+---
+name: "acknowledgements"
+title: "Acknowledgements"
+parent: null
+text: "This report was generated using the R package camtrapReport, developed by Elham Ebrahimi and Patrick Jansen from the Wildlife Ecology and Conservation Group, Wageningen University, and the Wildlife Ecology and Nature Restoration Group, Utrecht University. Users are kindly requested to cite the package using its DOI (https://doi.org/10.5281/zenodo.15721045) when using camtrapReport or publishing results based on it."
+code: null
+---

@@ -1,0 +1,7 @@
+---
+name: "data_processing"
+title: "## Data Processing"
+parent: "methods"
+text: "The data were exported from Agouti in [camtrapDP](https://camtrap-dp.tdwg.org/) format and processed in R using the packages [camtraptor](https://github.com/inbo/camtraptor) and [ctdp](https://wec.wur.nl/r/ctdp/), among others. Descriptive information was calculated, and densities were estimated using the Random Encounter Model with the R package [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity). The parameters for effective detection area, detection angle, and movement speeds per species were calculated from the tagged pixels, while the daily activity level parameter was derived from the timestamps of observations."
+code: null
+---
