@@ -8,7 +8,7 @@ importFrom("utils", "read.csv", "install.packages", "unzip")
 importFrom("tidyr", "pivot_wider")
 importFrom("glue", "glue")
 importFrom("dplyr", "bind_rows", "distinct", "filter", "group_by", "mutate", "select", "slice")
-importFrom("terra", "hull", "crs", "distance", "expanse", "extract", "project", "rast", "readRDS", "unwrap", "vect", "wrap", "writeRaster")
+importFrom("terra", "crds", "ext", "hull", "crs", "distance", "expanse", "extract", "project", "rast", "readRDS", "unwrap", "vect", "wrap", "writeRaster")
 importFrom("magrittr", "%>%")
 
 export(camData)
