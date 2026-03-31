@@ -12,7 +12,9 @@ Please include:
 - your R version
 - your operating system
 - a minimal reproducible example
-- `sessionInfo()`
+- [`sessionInfo()`](https://rdrr.io/r/utils/sessionInfo.html)
 - the full error message
 
-For usage questions, workflow advice, or interpretation questions, please use Discussions or the package documentation instead of opening a bug report.
+For usage questions, workflow advice, or interpretation questions,
+please use Discussions or the package documentation instead of opening a
+bug report.

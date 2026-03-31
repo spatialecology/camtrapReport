@@ -1,15 +1,14 @@
----
-title: Article
----
-
 # Article
+
 ## Getting started with camtrapReport
-This article introduces the basic workflow for using *`camtrapReport`* to process
-camera-trap data and generate reproducible ecological reports.
+
+This article introduces the basic workflow for using *`camtrapReport`*
+to process camera-trap data and generate reproducible ecological
+reports.
 
 ## Installation
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("spatialecology/camtrapReport")
 ```
