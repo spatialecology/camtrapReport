@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 1.1
+# Last Update :  31 March 2026
+# Version 0.2.20
 # Licence MIT
 #--------
 
@@ -20,7 +20,7 @@
 .camr_getMergedSummary <- function(cm) {
   
   #----------- # dep_loc = deployments + locations --------------------------
-  dep_loc <- left_join(cm$data$deployments,cm$data$locations,by="locationID")
+  dep_loc <- dplyr::left_join(cm$data$deployments,cm$data$locations,by="locationID")
   
   if (!"Habitat_Type" %in%  colnames(dep_loc) && 'habitat' %in% colnames(dep_loc)) colnames(dep_loc)[colnames(dep_loc) == "habitat"] <- "Habitat_Type"
   dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type)
@@ -28,62 +28,62 @@
   
   #----------------- #Count Deployments Per Location --------------------------
   deployments_per_location <- dep_loc |>
-    group_by(locationID) |>
-    summarise(
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(
       deploymentID_List = toString(unique(deploymentID)), 
-      Num_Deployments = n()
+      Num_Deployments = dplyr::n()
     ) |>
-    ungroup()
+    dplyr::ungroup()
   #----------------- #Capture Methods Per Location --------------------------
   capture_methods_per_location <- cm$data$sequences |>
-    left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
-    group_by(locationID) |>
-    summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
-    ungroup()
+    dplyr::left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
+    dplyr::ungroup()
   
   #----------------- #setup By Per Location --------------------------
   # Group by locationID and list unique setupBy names
   setup_per_location <- dep_loc |>
-    group_by(locationID) |>
-    summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
-    ungroup()
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
+    dplyr::ungroup()
   
   #----------------- #Classify By Per Location --------------------------
   
   #Extract sequenceID to deploymentID mapping from sequences
   sequence_to_deployment <- cm$data$sequences |>
     dplyr::select(sequenceID, deploymentID) |>
-    distinct()  # Ensure unique mapping
+    dplyr::distinct() # Ensure unique mapping
   
   
   # Merge deploymentID into observations using sequenceID
   observations_with_deployment <- cm$data$observations |>
     dplyr::select(-deploymentID) |>
-    left_join(sequence_to_deployment, by = "sequenceID") |>
-    left_join(dep_loc[,c("deploymentID","locationID")], by = "deploymentID")  # Merge locationID using deploymentID
+    dplyr::left_join(sequence_to_deployment, by = "sequenceID") |>
+    dplyr::left_join(dep_loc[,c("deploymentID","locationID")], by = "deploymentID")  # Merge locationID using deploymentID
   
   
   # Group by locationID and list unique ClassifyBy names
   Classify_per_location <- observations_with_deployment |>
-    group_by(locationID) |>
-    summarise(Classify_By_List = toString(sort(unique(classifiedBy)))) |>
-    ungroup()
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(Classify_By_List = toString(sort(unique(classifiedBy)))) |>
+    dplyr::ungroup()
   
   # ----------------- List of unique baitUse per location --------------------------
   # Group by locationID and list unique baitUse values, properly separated by ", "
   bait_use_per_location <- dep_loc |>
-    group_by(locationID) |>
-    summarise(BaitUse_List = paste(sort(unique(baitUse)), collapse = ", ")) |>  # Ensure ", " separation
-    ungroup()
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(BaitUse_List = paste(sort(unique(baitUse)), collapse = ", ")) |>  # Ensure ", " separation
+    dplyr::ungroup()
   
   
   # ----------------- List of deployment years for each location --------------------------
   
   # Aggregate Year List per locationID
   years_per_location <- dep_loc |>
-    group_by(locationID) |>
-    summarise(Year_List = paste(sort(unique(Year)), collapse = ", ")) |>  # Keep years in one row
-    ungroup()
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(Year_List = paste(sort(unique(Year)), collapse = ", ")) |>  # Keep years in one row
+    dplyr::ungroup()
   
   
   #----------------- How Many Cameras in Each Year? 
@@ -95,64 +95,68 @@
   location_count_per_year <- location_count_per_year[order(location_count_per_year$Unique_Locations,decreasing = TRUE),]
   #-------
   
-  photos_per_location <- .left_join(dep_loc[,c("deploymentID","locationID")],cm$data$sequences[,c("deploymentID","nrphotos")],by='deploymentID')
+  photos_per_location <- dplyr::left_join(
+    dep_loc[, c("deploymentID", "locationID")],
+    cm$data$sequences[, c("deploymentID", "nrphotos")],
+    by = "deploymentID"
+  )
   photos_per_location <- photos_per_location |>
-    group_by(locationID) |>
-    summarise(Total_Photos=sum(nrphotos,na.rm=TRUE)) |>
-    ungroup()
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(Total_Photos=sum(nrphotos,na.rm=TRUE)) |>
+    dplyr::ungroup()
   
   # ----------------- List of Species for Each Location (Final Filtering) --------------------------
   # Step 1-1: Merge observations with taxonomy
   observations_with_taxonomy <- cm$data$observations |>
     dplyr::select(-scientificName) |>
-    left_join(cm$data$taxonomy, by = "taxonID")
+    dplyr::left_join(cm$data$taxonomy, by = "taxonID")
   
   
   # Step 1-2: Group by sequenceID and create a cleaned list of species
   scientific_names_per_observation <- observations_with_taxonomy |>
-    group_by(sequenceID) |>
-    summarise(ScientificName_List = paste(
+    dplyr::group_by(sequenceID) |>
+    dplyr::summarise(ScientificName_List = paste(
       sort(unique(scientificName[
         !is.na(scientificName) & 
           scientificName != "" & 
           grepl("\\s", scientificName)  # Keep only species with at least two words
       ])),
       collapse = ", ")) |>
-    ungroup()
+    dplyr::ungroup()
   
   
   #---
   # Step 2: Merge with scientific_names_per_observation to get deploymentID
   scientific_names_with_deployment <- scientific_names_per_observation |>
-    left_join(sequence_to_deployment, by = "sequenceID")
+    dplyr::left_join(sequence_to_deployment, by = "sequenceID")
   
   # Step 3: Select relevant columns from 'dataNew$deployments' to map 'deploymentID' to 'locationID'
   deployment_to_location <- dep_loc |>
     dplyr::select(deploymentID, locationID) |>
-    distinct()  # Ensure unique mapping
+    dplyr::distinct()  # Ensure unique mapping
   
   # Step 4: Merge with scientific_names_with_deployment to get locationID
   species_per_location <- scientific_names_with_deployment |>
-    left_join(deployment_to_location, by = "deploymentID") |>
-    group_by(locationID) |>
-    summarise(Species_List = paste(
+    dplyr::left_join(deployment_to_location, by = "deploymentID") |>
+    dplyr::group_by(locationID) |>
+    dplyr::summarise(Species_List = paste(
       sort(unique(ScientificName_List[!is.na(ScientificName_List) & ScientificName_List != ""])), 
       collapse = ", ")) |>
-    ungroup()
+    dplyr::ungroup()
   
   
   
   
   
   ################ **Join all data into a single dataframe required for the **Research Area Plot** ################ 
-  .d<-left_join(dep_loc, capture_methods_per_location, by= "locationID")
-  .d<-left_join(.d, setup_per_location, by= "locationID")
-  .d<-left_join(.d, Classify_per_location, by= "locationID")
-  .d<-left_join(.d, bait_use_per_location, by= "locationID")
-  .d<-left_join(.d, years_per_location, by= "locationID")
-  .d<-left_join(.d, photos_per_location, by= "locationID")
+  .d<-dplyr::left_join(dep_loc, capture_methods_per_location, by= "locationID")
+  .d<-dplyr::left_join(.d, setup_per_location, by= "locationID")
+  .d<-dplyr::left_join(.d, Classify_per_location, by= "locationID")
+  .d<-dplyr::left_join(.d, bait_use_per_location, by= "locationID")
+  .d<-dplyr::left_join(.d, years_per_location, by= "locationID")
+  .d<-dplyr::left_join(.d, photos_per_location, by= "locationID")
   
-  .d <- left_join(.d, species_per_location, by= "locationID")
+  .d <- dplyr::left_join(.d, species_per_location, by= "locationID")
   rm(species_per_location,photos_per_location,years_per_location,bait_use_per_location,Classify_per_location,
      setup_per_location,capture_methods_per_location,dep_loc,observations_with_taxonomy,sequence_to_deployment,deployments_per_location)
   .d
@@ -380,7 +384,7 @@
     
     # Pairwise distance matrix (in meters)
     
-    dist_matrix <- as.matrix(distance(coords_mat,lonlat=TRUE))
+    dist_matrix <- as.matrix(terra::distance(coords_mat, lonlat = TRUE))
     diag(dist_matrix) <- NA
     
     
@@ -452,7 +456,7 @@
     distance_outlier_summary <- paste0(g, " No spatial outliers detected")
   
   # 6) sea vs land
-  loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
+  loc   <- terra::vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
   wrld  <- readRDS(system.file("external/world.map", package="camtrapReport"))
   loc$on_land <- !is.na(terra::extract( wrld[,'name'],loc)$name)
   num_sea_outliers <- sum(!loc$on_land)
@@ -470,8 +474,8 @@
   center_lon <- mean(total_unique_locations_df$longitude, na.rm = TRUE)
   is_northern <- mean(total_unique_locations_df$latitude, na.rm = TRUE) >= 0
   
-  mcp_poly <- hull(.get_projected_vect(loc))
-  out$MCArea <- expanse(mcp_poly,unit='km')
+  mcp_poly <- terra::hull(.get_projected_vect(loc))
+  out$MCArea <- terra::expanse(mcp_poly,unit='km')
   
   
   out$status_MCArea <- paste0(
