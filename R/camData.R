@@ -216,7 +216,7 @@
   
   rm(.obs,obs_first_radius_angle)
   
-  if (!.is.POSIXct(.d$observations$classificationTimestam)) {
+  if (!.is.POSIXct(.d$observations$classificationTimestamp)) {
     .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
     #.d$observations <- .left_join(.d$observations,.d$media[,c("mediaID","timestamp")],by = "mediaID")
     .w <- which(!is.na(.d$observations$classificationTimestamp))
@@ -368,114 +368,113 @@
 
 #---------
 
+camData <- methods::setGeneric(
+  "camData",
+  function(data, habitat, study_area = NULL, ...) {
+    methods::standardGeneric("camData")
+  }
+)
 
-if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,...)
-    standardGeneric("camData"))
-}
-
-
-methods::setMethod('camData', signature(data='character'),
-          function(data,habitat,study_area=NULL,...) {
-            
-            if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
-            
-            if (missing(study_area)) study_area <- NULL
-            
-            #.d <- .read_camtrapDATA(data,ctdp = TRUE)
-            .d <- .read_camdp(data)
-            cm <- camR$new()
-            cm$setting$locationLegend <- TRUE
-            
-            cm$data <- .d$data
-            cm$info$json <- .d$json
-            cm$info$directory <- .d$directory
-            #-------
-            if (!is.null(habitat)) cm$habitat <- habitat
-            
-            if (!is.null(study_area)) {
-              if (is.character(study_area)) {
-                if (file.exists(study_area)) {
-                  .v <- try(terra::vect(study_area),silent = TRUE)
-                  if (!inherits(.v,'try-error')) {
-                    saveRDS(.v,paste0(cm$info$directory,'/study_area.map'))
-                    cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
-                    cm$study_area$object <- .v
-                    rm(.v)
-                  } else warning('the specified study_area file could not be read (is it a spatial dataset?)')
-                  
-                } else {
-                  warning("study_area filename is not available and ignored...!")
-                }
-              } else if (inherits(study_area,'SpatVector')) {
-                cm$study_area$object <- study_area
-                saveRDS(study_area,paste0(cm$info$directory,'/study_area.map'))
-                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
-                
-              } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area$object <- vect(study_area)
-                saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
-                cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
-              } else {
-                warning("study_area is ignored (should be a filename or a spatial dataset)...!")
-              }
-            }
-            #----------
-            cm$filterExclude <- list(
-              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
-            cm$filterKeep <- list(observationType=c("animal"),class=NULL)
+methods::setMethod(
+  "camData",
+  signature(data = "character"),
+  function(data, habitat, study_area = NULL, ...) {
+    
+    if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
+    
+    if (missing(study_area)) study_area <- NULL
+    
+    #.d <- .read_camtrapDATA(data,ctdp = TRUE)
+    .d <- .read_camdp(data)
+    cm <- camR$new()
+    cm$setting$locationLegend <- TRUE
+    
+    cm$data <- .d$data
+    cm$info$json <- .d$json
+    cm$info$directory <- .d$directory
+    #-------
+    if (!is.null(habitat)) cm$habitat <- habitat
+    
+    if (!is.null(study_area)) {
+      if (is.character(study_area)) {
+        if (file.exists(study_area)) {
+          .v <- try(terra::vect(study_area), silent = TRUE)
+          if (!inherits(.v, 'try-error')) {
+            saveRDS(.v, paste0(cm$info$directory, '/study_area.map'))
+            cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
+            cm$study_area$object <- .v
+            rm(.v)
+          } else warning('the specified study_area file could not be read (is it a spatial dataset?)')
           
-            cm$add_group('large_mammals',list(order=c("Artiodactyla", "Carnivora")))
-            #---------
-            cm$filterCount <- 25
-            #-------
-            cm$add_group('domestic',list(
-              scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                               "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                               "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                               "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
-            
-            cm$setting$focus_groups <- 'large_mammals'
-            #-------
-            if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
-              cm$siteName <- .d$json$project$title
-            } else cm$siteName <- "Unnamed Site"
-            
-            .summarize_spatial(cm)
-            .Temporal(cm)
-            .Essentials(cm)
-            .Annotation(cm)
-            .Validation(cm)
-            .Species(cm)
-            .Visuals_capture_method(cm)
-            
-            #sp_summary <- .summarize_spatial_info(cm)
-            country <- cm$data_status$country
-            fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
-            site_Name <- cm$siteName
-            cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
-            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
-            rm(.d); gc()
-            
-            cm$setup()
-            .module_dir <- .section_dir("camtrapReport")
-            
-            mods <- .read_modules(
-              level0 = c("introduction", "methods", "results",
-                         "acknowledgements", "appendix"),
-              package = "camtrapReport",
-              dir = .module_dir,
-              write_info = TRUE
-            )
-            for (i in seq_along(mods)) {
-              cm$addReportObject(mods[[i]])
-            }
-            cm
-          }
+        } else {
+          warning("study_area filename is not available and ignored...!")
+        }
+      } else if (inherits(study_area, 'SpatVector')) {
+        cm$study_area$object <- study_area
+        saveRDS(study_area, paste0(cm$info$directory, '/study_area.map'))
+        cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
+        
+      } else if (.eval("inherits(study_area,'sf')", env = environment())) {
+        cm$study_area$object <- terra::vect(study_area)
+        saveRDS(cm$study_area$object, paste0(cm$info$directory, '/study_area.map'))
+        cm$study_area$path <- paste0(cm$info$directory, '/study_area.map')
+      } else {
+        warning("study_area is ignored (should be a filename or a spatial dataset)...!")
+      }
+    }
+    #----------
+    cm$filterExclude <- list(
+      scientificName = c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
+                         "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
+                         "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
+                         "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
+    cm$filterKeep <- list(observationType = c("animal"), class = NULL)
+    
+    cm$add_group('large_mammals', list(order = c("Artiodactyla", "Carnivora")))
+    #---------
+    cm$filterCount <- 25
+    #-------
+    cm$add_group('domestic', list(
+      scientificName = c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
+                         "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
+                         "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
+                         "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
+    
+    cm$setting$focus_groups <- 'large_mammals'
+    #-------
+    if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
+      cm$siteName <- .d$json$project$title
+    } else cm$siteName <- "Unnamed Site"
+    
+    .summarize_spatial(cm)
+    .Temporal(cm)
+    .Essentials(cm)
+    .Annotation(cm)
+    .Validation(cm)
+    .Species(cm)
+    .Visuals_capture_method(cm)
+    
+    country <- cm$data_status$country
+    fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
+    site_Name <- cm$siteName
+    cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
+    cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
+    rm(.d); gc()
+    
+    cm$setup()
+    .module_dir <- .section_dir("camtrapReport")
+    
+    mods <- .read_modules(
+      level0 = c("introduction", "methods", "results",
+                 "acknowledgements", "appendix"),
+      package = "camtrapReport",
+      dir = .module_dir,
+      write_info = TRUE
+    )
+    for (i in seq_along(mods)) {
+      cm$addReportObject(mods[[i]])
+    }
+    cm
+  }
 )
 #--------
-
-
