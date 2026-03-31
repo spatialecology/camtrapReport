@@ -1330,6 +1330,10 @@
 #####################*************############################
 .Annotation <- function(cm, machine_q = 0.10, human_q = 0.10) {
   
+  ic <- .ct_icons()
+  icon_green <- ic$green
+  icon_red   <- ic$red
+  
   # reset
   cm$data_status$Annotation <- list(
     Machine_q         = machine_q,
@@ -1351,14 +1355,12 @@
     return(NULL)
   }
   
-  # helper: safe quantile
   .safe_quantile <- function(x, q) {
     x <- x[!is.na(x)]
     if (!length(x)) return(NA_real_)
     as.numeric(stats::quantile(x, probs = q, na.rm = TRUE, names = FALSE, type = 7))
   }
   
-  # helper: summary table
   .make_summary <- function(confs, thr) {
     confs <- confs[!is.na(confs)]
     if (!length(confs)) {
@@ -1370,9 +1372,11 @@
     }
     
     data.frame(
-      Statistic = c("Minimum", "Maximum", "Mean",
-                    paste0("BelowThreshold(<", round(thr, 2), ")"),
-                    "Total"),
+      Statistic = c(
+        "Minimum", "Maximum", "Mean",
+        paste0("BelowThreshold(<", round(thr, 2), ")"),
+        "Total"
+      ),
       Value = c(
         round(min(confs), 2),
         round(max(confs), 2),
@@ -1384,11 +1388,11 @@
     )
   }
   
-  # split by method (only rows with non-missing confidence)
   conf_m <- cm$data$observations$classificationConfidence[
     cm$data$observations$classificationMethod == "machine" &
       !is.na(cm$data$observations$classificationConfidence)
   ]
+  
   conf_h <- cm$data$observations$classificationConfidence[
     cm$data$observations$classificationMethod == "human" &
       !is.na(cm$data$observations$classificationConfidence)
@@ -1403,7 +1407,6 @@
   cm$data_status$Annotation$Human_Threshold <- thr_h
   cm$data_status$Annotation$Human_Summary   <- .make_summary(conf_h, thr_h)
 }
-
 #####################*************############################
 #       *********Data_status : Validation *********
 #####################*************############################
