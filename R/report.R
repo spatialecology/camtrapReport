@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  March 2026
-# Version 1.1
-# Licence MIT
+# Version 1.2
+# Licence GPL v3
 #--------
 
 
@@ -11,8 +11,8 @@ if (!isGeneric("report")) {
 }
 
 setMethod("report", signature(x = "camReport"),
-          function(x, filename = "report", view = FALSE) {
-            
+          function(x, filename = "report", view) {
+            if (missing(view)) view <- FALSE
             # Resolve base output directory
             base_dir <- x$info$directory
             

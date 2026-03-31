@@ -1,0 +1,48 @@
+---
+name: "validation"
+title: "## Chapter 3: Validation {.unnumbered}"
+parent: null
+text: |
+  
+  In this chapter, we summarize the classification and validation results of the observation data. The ‘CaptureMethod’ column indicates the method used to capture each image, which may include motion detection, time-lapse, or other mechanisms depending on the camera trap setup. The columns ‘Human’, ‘Machine’, and ‘NA_Classification’ represent the number and percentage of observations classified manually by a human, by an automated machine model, or left unclassified (NA), respectively. NA values often result from blank images, errors, or missing data. The ‘Machine_Animal’ column reports how many machine-classified observations were identified as animals, along with their percentage out of all machine classifications for that method. Finally, ‘Validated_Animal’ shows how many of those machine-identified animals were subsequently validated by a human, indicating human-confirmed correctness of the machine prediction. Collectively, this summary helps evaluate both the extent and reliability of the classification process across capture methods. In cases where validation rates are low or discrepancies are noted, users are encouraged to revisit the raw data for quality control, potential retraining of models, or targeted human review of specific subsets.
+  
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| packages: base
+  
+  Validation_data <- object$data_status$Validation$FinalTableFormatted
+  # Custom pastel row colors
+  mint_pastel <- c("#eafaf1", "#f3fcf7", "#e1f7ec")
+  
+  # Begin centered table container
+  cat("<div style='text-align: center; margin: 0 auto;'>")
+  
+  # Begin table setup
+  cat("<table style='margin: auto; border-collapse: collapse; max-width: 850px; font-family: Arial, sans-serif; font-size: 12px;'>")
+  cat("<thead><tr style='background-color: #c6ebe1; font-weight: bold;'>")
+  
+  # Add column headers
+  headers <- colnames(Validation_data)
+  for (h in headers) {
+    cat(sprintf("<th style='border: 1px solid #ccc; padding: 6px;'>%s</th>", h))
+  }
+  cat("</tr></thead><tbody>")
+  
+  # Add each row
+  for (i in seq_len(nrow(Validation_data))) {
+    bg_color <- mint_pastel[(i - 1) %% length(mint_pastel) + 1]
+    cat(sprintf("<tr style='background-color: %s;'>", bg_color))
+    
+    for (j in seq_along(headers)) {
+      value <- Validation_data[[i, j]]
+      cat(sprintf("<td style='border: 1px solid #ddd; padding: 5px;'>%s</td>", value))
+    }
+    cat("</tr>")
+  }
+  
+  # Close the table and container
+  cat("</tbody></table>")
+  cat("</div>")
+
+---

@@ -1,0 +1,102 @@
+---
+name: "annotation"
+title: "## Chapter 4: Annotation {.unnumbered}"
+parent: null
+text: |
+  
+  In this chapter, we provide an overview of the classification confidence and observation types captured by camera traps. We distinguish between machine and human annotation results and highlight the variation in confidence scores across methods. The pie charts summarize the distribution of observation categories—such as animal, blank, human, and unclassified—across different capture methods (motion, timelapse, and total). This section helps assess annotation reliability and the representativeness of each observation type in the dataset.
+  
+code: |
+  #| name: code
+  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| packages: base
+  
+  machine_confidence <- object$data_status$Annotation$Machine_Summary
+
+  human_confidence <- object$data_status$Annotation$Human_Summary
+  
+  machine_confidence$Statistic <- c("Minimum Confidence Score","Maximum Confidence Score","Mean Confidence Score",
+                               "Below Threshold (<0.8)","Total Annotations")
+
+  human_confidence$Statistic <- c("Minimum Confidence Score","Maximum Confidence Score","Mean Confidence Score",
+                               "Below Threshold (<1)","Total Annotations")
+
+  
+  # Escape HTML special characters
+  escape_html <- function(x) {
+    x <- gsub("&", "&amp;", x, fixed = TRUE)
+    x <- gsub("<", "&lt;",  x, fixed = TRUE)
+    x <- gsub(">", "&gt;",  x, fixed = TRUE)
+    x <- gsub("\"", "&quot;", x, fixed = TRUE)
+    x
+  }
+  
+  # Format values so confidence scores keep 2 decimals, counts stay integer-like
+  format_value <- function(stat, value) {
+    value_num <- suppressWarnings(as.numeric(value))
+  
+    if (!is.na(value_num) && grepl("confidence score", stat, ignore.case = TRUE)) {
+      return(formatC(value_num, format = "f", digits = 2))
+    }
+  
+    if (!is.na(value_num) && abs(value_num - round(value_num)) < 1e-9) {
+      return(format(round(value_num), trim = TRUE, scientific = FALSE))
+    }
+  
+    if (!is.na(value_num)) {
+      return(format(value_num, trim = TRUE, scientific = FALSE))
+    }
+  
+    as.character(value)
+  }
+  
+  make_table_html <- function(df, title, header_bg) {
+    rows <- vapply(seq_len(nrow(df)), function(i) {
+      row_bg <- if (i %% 2 == 1) "#f9f9f9" else "#ffffff"
+  
+      stat  <- escape_html(as.character(df$Statistic[i]))
+      value <- escape_html(format_value(df$Statistic[i], df$Value[i]))
+  
+      paste0(
+        '<tr style="background:', row_bg, ';">',
+        '<td style="padding:6px 10px; border:1px solid #ddd; text-align:left;">', stat, '</td>',
+        '<td style="padding:6px 10px; border:1px solid #ddd; text-align:right;">', value, '</td>',
+        '</tr>'
+      )
+    }, character(1))
+  
+    paste0(
+      '<div style="width:48%;">',
+        '<h4 style="text-align:center; margin-top:0;">', escape_html(title), '</h4>',
+        '<table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:14px;">',
+          '<thead>',
+            '<tr style="background:', header_bg, '; font-weight:bold;">',
+              '<th style="padding:6px 10px; border:1px solid #ddd; text-align:left;">Statistic</th>',
+              '<th style="padding:6px 10px; border:1px solid #ddd; text-align:right;">Value</th>',
+            '</tr>',
+          '</thead>',
+          '<tbody>',
+            paste(rows, collapse = ""),
+          '</tbody>',
+        '</table>',
+      '</div>'
+    )
+  }
+  
+  html_out <- paste0(
+    '<div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start;">',
+      make_table_html(
+        machine_confidence,
+        "Machine Classification Confidence",
+        "#d9edf7"
+      ),
+      make_table_html(
+        human_confidence,
+        "Human Classification Confidence",
+        "#f7e1d9"
+      ),
+    '</div>'
+  )
+  cat(html_out)
+
+---

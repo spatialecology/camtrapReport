@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  March 2026
 # Version 1.0
-# Licence MIT
+# Licence GPL v3
 #--------
 
 #----------------------------

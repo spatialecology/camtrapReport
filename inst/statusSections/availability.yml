@@ -1,9 +1,10 @@
 ---
 name: "availability"
-title: "# Chapter 2: Data Availability {.unnumbered}"
+title: "## Chapter 2: Data Availability {.unnumbered}"
 parent: null
 text: |
-  ## Review Essential Data Availability
+  
+  ### Review Essential Data Availability {{.unnumbered}}
   
   In this chapter, we review all essential data components required for generating the report. These include both mandatory fields and necessary supporting fields or files that contribute to the completeness and overall quality of the final output. Table 3 provides a structured overview of the availability and completeness of these elements. While all fields listed in the table are important for generating a high-quality report, the **bolded** fields are mandatory. Their status must be marked as **Complete**; otherwise, any associated records with missing or partial values will be automatically excluded from the final output.
   
@@ -12,7 +13,49 @@ code: |
   #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
   #| packages: base
   
-  data_summary <- object$data_status$Essentials
+  x <- object$data_status$Essentials
+  c1 <- rep("Locations",length(x$loc))
+  c2 <- c("locationID","locationName","longitude","latitude")
+  c3 <- unlist(x$loc)
+  #======
+  .w <- x$dep[c("dep_interval","habitat","setupBy_status","baitUse","cameraHeight")]
+  names(.w) <- c("deployment_interval","habitat","setupBy","baitUse","cameraHeight")
+  c1 <- c(c1,rep("Deployment",length(.w)))
+  c2 <- c(c2,names(.w))
+  c3 <- c(c3,unlist(.w))
+  #----
+  .w <- x$obs[c("timestamp","classifiedBy_status")]
+  names(.w) <- c("timestamps","classifiedBy")
+  c1 <- c(c1,rep("Observations",length(.w)))
+  c2 <- c(c2,names(.w))
+  c3 <- c(c3,unlist(.w))
+  #--------
+  .w <- x$seq[c("nrphotos","captureMethod")]
+  #names(.w) <- c("timestamps","classifiedBy")
+  c1 <- c(c1,rep("Sequences",length(.w)))
+  c2 <- c(c2,names(.w))
+  c3 <- c(c3,unlist(.w))
+  #------
+  .w <- x$tax[c("scientificName","nld","eng")]
+  names(.w) <- c("scientificName","vernacularNames.nld","vernacularNames.eng")
+  c1 <- c(c1,rep("Taxonomy",length(.w)))
+  c2 <- c(c2,names(.w))
+  c3 <- c(c3,unlist(.w))
+  #------
+  c1 <- c(c1,c("Additional Files","Additional Files"))
+  c2 <- c(c2,c("habitat.csv","spatial boundary (e.g., shapefile)"))
+  if (nrow(object$habitat) == 0) {
+    .w <- c("🔴 Missing")
+  } else .w <- "🟢 Complete"
+  
+  if (is.null(object$study_area)) {
+    .w <- c(.w,"🔴 Missing")
+  } else .w <- c(.w,"🟢 Complete")
+  
+  c3 <- c(c3,.w)
+  data_summary <- data.frame(Category=c1,Field=c2,Status=c3)
+
+
   
   # Fields to highlight in bold
   bold_fields <- c("deployment_interval", "locationID", "locationName", 
