@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 1.1
+# Last Update :  April 2026
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -1338,7 +1338,7 @@
     Human_q           = human_q,
     Human_Threshold   = NA_real_,
     Human_Summary     = NULL,
-    Status            = paste0(icon_green, " OK")
+    Status            = paste0(.ct_icons()$green, " OK")
   )
   
   # required columns

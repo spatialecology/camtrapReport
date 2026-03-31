@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Cameratrap Report Generator
-Version: 0.2-21
-Date: 2026-03-31
+Version: 0.2-22
+Date: 2026-04-01
 Authors@R: c(person(given = "Elham",
                       family = "Ebrahimi",
                       role = c("aut", "cre"),
