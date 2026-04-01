@@ -34,7 +34,7 @@
     dplyr::group_by(locationID) |>
     dplyr::summarise(
       deploymentID_List = toString(unique(deploymentID)), 
-      Num_Deployments = n()
+      Num_Deployments = dplyr::n()
     ) |>
     dplyr::ungroup()
   #----------------- #Capture Methods Per Location --------------------------
