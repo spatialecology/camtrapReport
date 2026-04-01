@@ -304,7 +304,7 @@
   # Centroid longitude & latitude
   cen <- sf::st_coordinates(sf::st_centroid(sf::st_union(.xxs)))
   
-  cen <- colMeans(crds(.xs))
+  cen <- colMeans(terra::crds(.xs))
   
   lon <- cen[1]; lat <- cen[2]
   if (abs(lat) <= 84) {
@@ -335,7 +335,7 @@
   # x is an SpatVector (terra)
   
   if (!.is.projected(x)) {
-    cen <- colMeans(crds(x))
+    cen <- colMeans(terra::crds(x))
     lon <- cen[1]; lat <- cen[2]
     if (abs(lat) <= 84) {
       # UTM zone calculation
