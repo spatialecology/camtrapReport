@@ -41,14 +41,14 @@
   capture_methods_per_location <- cm$data$sequences |>
     dplyr::left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
     dplyr::group_by(locationID) |>
-    summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
+    dplyr::summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
     dplyr::ungroup()
   
   #----------------- #setup By Per Location --------------------------
   # Group by locationID and list unique setupBy names
   setup_per_location <- dep_loc |>
     dplyr::group_by(locationID) |>
-    summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
+    dplyr::summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
     dplyr::ungroup()
   
   #----------------- #Classify By Per Location --------------------------

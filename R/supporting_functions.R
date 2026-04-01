@@ -16,16 +16,16 @@
   
   #------
   
-  xdep <- x$deployments %>% left_join(x$locations, by = "locationID") %>% 
-    mutate(dep_length = (deploymentEnd - deploymentStart)) 
+  xdep <- x$deployments %>% dplyr::left_join(x$locations, by = "locationID") %>% 
+    dplyr::mutate(dep_length = (deploymentEnd - deploymentStart)) 
   
   units(xdep$dep_length) <- unit
   
   if (!is.null(by)) {
-    xdep <- xdep %>% group_by(pick(all_of(by)))
+    xdep <- xdep |> dplyr::group_by(dplyr::pick(dplyr::all_of(by)))
   }
   xdepEffort <- xdep %>% 
-    summarise(effort = sum(dep_length,na.rm=TRUE), .groups = "drop")
+    dplyr::summarise(effort = sum(dep_length,na.rm=TRUE), .groups = "drop")
   return(xdepEffort)
 }
 #-------
@@ -47,42 +47,39 @@
                         observations = c("sequences", "observations", "taxonomy"), 
                         media = c("sequences", "media"), taxonomy = c("taxonomy"))
   {
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$media)] %>% 
-      unlist() %>% as.character()
-    y1 <- x$media %>% select(-any_of(omitKeys))
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$sequences)] %>% 
-      unlist() %>% as.character()
-    y2 <- x$sequences %>% select(-any_of(omitKeys))
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$observations)] %>% 
-      unlist() %>% as.character()
-    y3 <- x$observations %>% select(-any_of(omitKeys))
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$deployment)] %>% 
-      unlist() %>% as.character()
-    y4 <- x$deployment %>% select(-any_of(omitKeys))
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$locations)] %>% 
-      unlist() %>% as.character()
-    y5 <- x$locations %>% select(-any_of(omitKeys))
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$taxonomy)] %>% 
-      unlist() %>% as.character()
-    y6 <- x$taxonomy %>% select(-any_of(omitKeys))
+    drop_keys <- function(target) {
+      keys[-which(names(keys) %in% linkStructure[[target]])] |>
+        unlist() |>
+        as.character()
+    }
+    
+    y1 <- x$media       |> dplyr::select(-dplyr::any_of(drop_keys("media")))
+    y2 <- x$sequences   |> dplyr::select(-dplyr::any_of(drop_keys("sequences")))
+    y3 <- x$observations|> dplyr::select(-dplyr::any_of(drop_keys("observations")))
+    y4 <- x$deployment  |> dplyr::select(-dplyr::any_of(drop_keys("deployment")))
+    y5 <- x$locations   |> dplyr::select(-dplyr::any_of(drop_keys("locations")))
+    y6 <- x$taxonomy    |> dplyr::select(-dplyr::any_of(drop_keys("taxonomy")))
   }
   if (!dropMedia) {
     omitKeys <- keys[-which(names(keys) %in% linkStructure$media)] %>% 
       unlist() %>% as.character()
-    lc_media <- x$media %>% select(-any_of(omitKeys)) %>% 
-      select("sequenceID", everything()) %>% data.table(key = "sequenceID")
+    lc_media <- x$media |> dplyr::select(-dplyr::any_of(omitKeys)) |>
+      dplyr::select("sequenceID", dplyr::everything()) %>% data.table(key = "sequenceID")
     lc_media <- lc_media %>% dt_nest(sequenceID, .key = "media")
   }
   {
-    y <- y2 %>% left_join(y3, by = keys$sequences, multiple = "all") %>% 
-      left_join(y4, by = keys$deployments) %>% 
-      left_join(y5, by = keys$locations) %>% 
-      left_join(y6, by = keys$taxonomy)
-    y <- y %>% select(all_of(c(as.character(unlist(keys[which(names(keys) != "media")])))), everything())
+    y <- y2 %>% dplyr::left_join(y3, by = keys$sequences, multiple = "all") %>% 
+      dplyr::left_join(y4, by = keys$deployments) %>% 
+      dplyr::left_join(y5, by = keys$locations) %>% 
+      dplyr::left_join(y6, by = keys$taxonomy)
+    y <- y |> dplyr::select(
+      dplyr::all_of(c(as.character(unlist(keys[which(names(keys) != "media")])))),
+      dplyr::everything()
+    )
   }
   if (!dropMedia) {
-    y <- y %>% left_join(lc_media, by = keys$sequences) %>% 
-      relocate(media, .after = nrphotos)
+    y <- y %>% dplyr::left_join(lc_media, by = keys$sequences) %>% 
+      dplyr::relocate(media, .after = nrphotos)
   }
   return(y)
 }
@@ -151,23 +148,25 @@
   keepCols <- c("taxonID", "captureMethod", "observationType", 
                 "count", "classificationMethod", "scientificName", "vernacularNames" ,"vernacularNames.eng", 
                 "class", "order", by) %>% unique()
-  y <- y %>% select(any_of(keepCols))
-  y <- y %>% group_by(pick(all_of(unique(c("observationType", "class", "order", by)))))
+  y <- y |> dplyr::select(dplyr::any_of(keepCols))
+  y <- y |> dplyr::group_by(
+    dplyr::pick(dplyr::all_of(unique(c("observationType", "class", "order", by))))
+  )
   if ("vernacularNames.eng" %in% colnames(y)) {
-    z <- y %>% count(taxonID, vernacularNames.eng) %>% ungroup() %>% 
-      rename(captures = n)
+    z <- y %>% dplyr::count(taxonID, vernacularNames.eng) %>% dplyr::ungroup() %>% 
+      dplyr::rename(captures = n)
   } else if ("vernacularNames" %in% colnames(y)) {
-    z <- y %>% count(taxonID, vernacularNames) %>% ungroup() %>% 
-      rename(captures = n)
+    z <- y %>% dplyr::count(taxonID, vernacularNames) %>% dplyr::ungroup() %>% 
+      dplyr::rename(captures = n)
   }
   
   
   if (!is.null(by)) {
-    z <- z %>% left_join(effortTable, by = by)
+    z <- z %>% dplyr::left_join(effortTable, by = by)
   } else {
-    z <- z %>% mutate(effort = as.numeric(effortTable$effort[1]))
+    z <- z %>% dplyr::mutate(effort = as.numeric(effortTable$effort[1]))
   }
-  z <- z %>% mutate(capture_rate = captures/as.numeric(effort))
+  z <- z %>% dplyr::mutate(capture_rate = captures/as.numeric(effort))
   return(z)
 }
 
@@ -275,12 +274,12 @@
 .get_traprate_data <- function (dat, species = NULL, unit = c("day", "hour", "minute","second")) {
   unit <- match.arg(unit)
   #species <- select_species(package, species)
-  dep <- dat$deployments %>% left_join(dat$locations,by='locationID')
+  dep <- dat$deployments %>% dplyr::left_join(dat$locations,by='locationID')
   .eff <- .calc_effort(dat,by='deploymentID',unit=unit)
   .eff$effort <- as.numeric(.eff$effort)
   
-  a <- dat$observations %>% group_by(deploymentID,scientificName) %>% count(scientificName)
-  if (!is.null(species)) a <- a %>% filter(scientificName == species)
+  a <- dat$observations %>% dplyr::group_by(deploymentID,scientificName) %>% dplyr::count(scientificName)
+  if (!is.null(species)) a <- a |> dplyr::filter(scientificName == species)
   else a <- a %>% dplyr::filter(scientificName != species & grepl('\\s',scientificName)) 
   res <- a %>% dplyr::left_join(dep, by = "deploymentID") %>% 
     dplyr::left_join(.eff, by = "deploymentID") %>% dplyr::group_by(locationName) %>% 
@@ -493,15 +492,16 @@
   x_end <- x$data$deployments$deploymentEnd
   
   dt <- as.numeric(max(x_end)) - as.numeric(min(x_start))
-  effort <- bind_rows(dplyr::tibble(time = min(x_start) - 0.025 * dt, add = 0L), 
+  effort <- dplyr::bind_rows(
+    dplyr::tibble(time = min(x_start) - 0.025 * dt, add = 0L),
                       dplyr::tibble(time = x_start, add = +1L), 
                       dplyr::tibble(time = x_end, add = -1L), 
                       dplyr::tibble(time = max(x_end) + 0.025 * dt, add = 0L))
-  effort <- effort %>% group_by(time) %>% 
-    summarize(add = sum(add)) %>% 
-    ungroup()
-  effort <- effort %>% arrange(time) %>% mutate(nrCams = cumsum(add))
-  effort <- effort %>% select(-add)
+  effort <- effort %>% dplyr::group_by(time) %>% 
+    dplyr::summarize(add = sum(add)) %>% 
+    dplyr::ungroup()
+  effort <- effort %>% dplyr::arrange(time) %>% dplyr::mutate(nrCams = cumsum(add))
+  effort <- effort %>% dplyr::select(-add)
   if (startend) {
     n <- nrow(effort)
     effort <- dplyr::tibble(time = c(effort$time[1], rep(effort$time[-1],each = 2), 
