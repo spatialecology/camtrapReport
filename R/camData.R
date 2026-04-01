@@ -413,7 +413,7 @@ setMethod('camData', signature(data='character'),
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
                 
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area$object <- vect(study_area)
+                cm$study_area$object <- terra::vect(study_area)
                 saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
               } else {

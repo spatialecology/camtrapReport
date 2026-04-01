@@ -455,7 +455,7 @@
     distance_outlier_summary <- paste0(g, " No spatial outliers detected")
   
   # 6) sea vs land
-  loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
+  loc   <- terra::vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
   wrld  <- readRDS(system.file("external/world.map", package="camtrapReport"))
   loc$on_land <- !is.na(terra::extract( wrld[,'name'],loc)$name)
   num_sea_outliers <- sum(!loc$on_land)
@@ -473,8 +473,8 @@
   center_lon <- mean(total_unique_locations_df$longitude, na.rm = TRUE)
   is_northern <- mean(total_unique_locations_df$latitude, na.rm = TRUE) >= 0
   
-  mcp_poly <- hull(.get_projected_vect(loc))
-  out$MCArea <- expanse(mcp_poly,unit='km')
+  mcp_poly <- terra::hull(.get_projected_vect(loc))
+  out$MCArea <- terra::expanse(mcp_poly,unit='km')
   
   
   out$status_MCArea <- paste0(
