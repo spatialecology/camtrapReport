@@ -42,7 +42,7 @@
   })
   #-----
   if (all(w == 0)) {
-    .bind_rows(lapply(x,function(x) {
+    dplyr::.bind_rows(lapply(x,function(x) {
       .x <- strsplit(x$taxonID,'/')[[1]]
       .x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       if (length(x$vernacularNames) > 0) .x[["vernacularNames"]] <- x$vernacularNames
@@ -78,7 +78,7 @@
     }
     
     
-    bind_rows(lapply(x,function(x) {
+    dplyr::bind_rows(lapply(x,function(x) {
       .x <- .xx
       
       .tmp <- strsplit(x$taxonID,'/')[[1]]
@@ -360,7 +360,7 @@
   #------
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
   
-  .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
+  .d$observations$taxonID <- dplyr::left_join(.d$observations, .d$taxonomy, by = "scientificName")$taxonID
   
   list(data=.d,json=.js,directory=.path)
   
