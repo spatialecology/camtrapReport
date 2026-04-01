@@ -1214,16 +1214,19 @@ camR <- setRefClass(
     
     },
     show = function() {
-      cat('Camera trap Object for the site :' , .self$siteName, '\n')
-      cat('=====================================================', '\n')
-      cat('Total number of sequences       : ' , sum(.self$observation_stats$number_of_sequences, na.rm = TRUE), '\n')
-      cat('Total number of observations    : ' , sum(.self$observation_stats$number_of_observations, na.rm = TRUE), '\n')
-      cat('Total animal observations         : ' , sum(.self$observation_stats$number_of_animals, na.rm = TRUE), '\n')
-      cat('Total number of detected species: ' , max(.self$species_stats$total_species, na.rm = TRUE), '\n')
-      cat('Date/time (years) with data     : ',
-          paste(sort(unique(.self$observation_stats$year)), collapse = ', '),
-          '\n')
-      cat('-----------------------------------------------------\n')
+      cat(sprintf("Camera trap object for the site: %s\n", .self$siteName))
+      cat("=====================================================\n")
+      cat(sprintf("%-35s: %s\n", "Total number of sequences",
+                  sum(.self$observation_stats$number_of_sequences, na.rm = TRUE)))
+      cat(sprintf("%-35s: %s\n", "Total number of observations",
+                  sum(.self$observation_stats$number_of_observations, na.rm = TRUE)))
+      cat(sprintf("%-35s: %s\n", "Total animal observations",
+                  sum(.self$observation_stats$number_of_animals, na.rm = TRUE)))
+      cat(sprintf("%-35s: %s\n", "Total number of detected species",
+                  max(.self$species_stats$total_species, na.rm = TRUE)))
+      cat(sprintf("%-35s: %s\n", "Years with data",
+                  paste(sort(unique(.self$observation_stats$year)), collapse = ", ")))
+      cat("-----------------------------------------------------\n")
     },
     filter = function() {
       # filter uses the conditions to keep or exclude (also filterCount) to extract
