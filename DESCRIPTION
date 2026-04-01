@@ -1,6 +1,6 @@
 Package: camtrapReport
 Type: Package
-Title: Camera-Trap Report Generator
+Title: Camera Trap Report Generator
 Version: 0.2.22
 Date: 2026-04-01
 Authors@R:
