@@ -361,41 +361,40 @@ camR <- setRefClass(
       # if x is null -> species_summary_by_location will be called with other arguments
       #---------
       if (is.null(x)) {
-        x <- .self$species_summary_by_location(year=year,spList=species,cor_matrix=FALSE)
+        x <- .self$species_summary_by_location(year = year, spList = species, cor_matrix = FALSE)
         x$lon <- x$longitude
         x$lat <- x$latitude
-        x <- vect(x,geom=c('lon','lat'),crs=crs(rast()))
+        x <- terra::vect(x, geom = c("lon", "lat"), crs = terra::crs(terra::rast()))
         x <- .get_projected_vect(x)
-        .crs <- crs(x)
-        x <- as.data.frame(x,geom="XY")
+        .crs <- terra::crs(x)
+        x <- as.data.frame(x, geom = "XY")
       }
       
       xr <- range(x$x, na.rm = TRUE)
-      yr <- range(x$y,  na.rm = TRUE)
+      yr <- range(x$y, na.rm = TRUE)
       
       if (!is.null(.ext) && length(as.vector(.ext)) == 4) {
         .ext <- as.vector(.ext)
-        xr[1] <- min(c(.ext[1],xr[1]))
-        xr[2] <- max(c(.ext[2],xr[2]))
-        yr[1] <- min(c(.ext[3],yr[1]))
-        yr[2] <- max(c(.ext[4],yr[2]))
+        xr[1] <- min(c(.ext[1], xr[1]))
+        xr[2] <- max(c(.ext[2], xr[2]))
+        yr[1] <- min(c(.ext[3], yr[1]))
+        yr[2] <- max(c(.ext[4], yr[2]))
       } else if (!is.null(.self$study_area) && !is.null(.self$study_area$path)) {
         .self$study_area$object <- readRDS(.self$study_area$path)
-        .ext <- as.vector(ext(.self$study_area$object))
-        xr[1] <- min(c(.ext[1],xr[1]))
-        xr[2] <- max(c(.ext[2],xr[2]))
-        yr[1] <- min(c(.ext[3],yr[1]))
-        yr[2] <- max(c(.ext[4],yr[2]))
+        .ext <- as.vector(terra::ext(.self$study_area$object))
+        xr[1] <- min(c(.ext[1], xr[1]))
+        xr[2] <- max(c(.ext[2], xr[2]))
+        yr[1] <- min(c(.ext[3], yr[1]))
+        yr[2] <- max(c(.ext[4], yr[2]))
       }
       
-      
-      .win <- .eval("owin(xrange = xr, yrange = yr)",env = environment())
-      .ppp_obj <- .eval("ppp(x = x$x, y=x$y,window= .win,marks=x$total_observations)",env = environment())
+      .win <- .eval("owin(xrange = xr, yrange = yr)", env = environment())
+      .ppp_obj <- .eval("ppp(x = x$x, y = x$y, window = .win, marks = x$total_observations)", env = environment())
       den <- density(.ppp_obj, weights = x$total_observations)
       den$v <- den$v / max(den$v, na.rm = TRUE)
-      r <- rast(den)
-      crs(r) <- .crs
-      names(r) <- 'spatial_density'
+      r <- terra::rast(den)
+      terra::crs(r) <- .crs
+      names(r) <- "spatial_density"
       r
     },
     species_summary_by_location=function(year=NULL,spList=NULL,cor_matrix=TRUE,PA=TRUE) {

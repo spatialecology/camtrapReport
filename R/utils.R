@@ -324,7 +324,7 @@
 }
 
 .is.projected <- function(x) {
-  e <- as.vector(ext(x))
+  e <- as.vector(terra::ext(x))
   !all(e >= -180 & e <= 180)
 }
 #----
@@ -341,13 +341,13 @@
       # UTM zone calculation
       .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
       .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-      return(project(x, paste0("EPSG:",.epsg)))
+      return(terra::project(x, paste0("EPSG:",.epsg)))
     } else {
       proj4 <- sprintf(
         "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
         lat, lon
       )
-      return(project(x, proj4))
+      return(terra::project(x, proj4))
     }
   } else {
     warning('The input dataset seems projected, so no projection is applied...!')
