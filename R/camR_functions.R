@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
 # Version 1.2
-# Licence GPL v3
+# Licence MIT
 #--------
 
 .ct_icons <- function() {

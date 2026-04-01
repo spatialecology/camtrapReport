@@ -1,0 +1,40 @@
+body {
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+main, .main-container {
+  max-width: 950px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+h1, h2, h3, h4 {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+}
+
+a {
+  color: #1f5e7a !important;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+  color: #163f52 !important;
+    text-decoration: underline;
+}
+
+p, li {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+code {
+  color: #7a1f1f;
+    background-color: #f7f7f7;
+    padding: 0.1em 0.25em;
+  border-radius: 4px;
+}
