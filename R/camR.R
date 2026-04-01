@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  March 2026
-# Version 2.7
-# Licence GPL v3
+# Version 0.2.20
+# Licence MIT
 #--------
 
 .normalize_packages <- function(x) {
@@ -1997,6 +1997,12 @@ camR <- setRefClass(
       module_pkgs <- .collect_module_packages(.self$reportObjects)
       pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
       
+      css_path <- normalizePath(
+        system.file("report.css", package = "camtrapReport"),
+        winslash = "/",
+        mustWork = TRUE
+      )
+      
       rmd_template <- glue::glue("
 ---
 title: \"{.self$title}\"
@@ -2011,6 +2017,7 @@ output:
     df_print: paged
     number_sections: true
     self_contained: true
+    css: \"{css_path}\"
 ---
 
 {pkg_chunk}
