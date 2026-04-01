@@ -751,7 +751,6 @@ camR <- setRefClass(
       # Convert Camera Setup Data into a DataFrame
       .self$camera_setup <- dplyr::bind_rows(.tmp)
       #--------------
-      #################
       .tax_obs <- .self$data$observations |>
         dplyr::select(-scientificName) |>
         dplyr::left_join(.self$data$taxonomy, by = "taxonID") |>
