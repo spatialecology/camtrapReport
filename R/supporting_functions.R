@@ -16,7 +16,7 @@
   
   #------
   
-  xdep <- x$deployments %>% dplyr::left_join(x$locations, by = "locationID") %>% 
+  xdep <- x$deployments |> dplyr::left_join(x$locations, by = "locationID") |> 
     dplyr::mutate(dep_length = (deploymentEnd - deploymentStart)) 
   
   units(xdep$dep_length) <- unit
@@ -24,7 +24,7 @@
   if (!is.null(by)) {
     xdep <- xdep |> dplyr::group_by(dplyr::pick(dplyr::all_of(by)))
   }
-  xdepEffort <- xdep %>% 
+  xdepEffort <- xdep |> 
     dplyr::summarise(effort = sum(dep_length,na.rm=TRUE), .groups = "drop")
   return(xdepEffort)
 }
@@ -37,7 +37,7 @@
                sequences = "sequenceID", observations = "observationID", 
                taxonomy = "taxonID", media = "mediaID")
   if ('scientificName' %in% colnames(x$observations)) {
-    x$observations <- x$observations %>% 
+    x$observations <- x$observations |> 
       dplyr::select(-scientificName)
   }
   
@@ -61,16 +61,16 @@
     y6 <- x$taxonomy    |> dplyr::select(-dplyr::any_of(drop_keys("taxonomy")))
   }
   if (!dropMedia) {
-    omitKeys <- keys[-which(names(keys) %in% linkStructure$media)] %>% 
-      unlist() %>% as.character()
+    omitKeys <- keys[-which(names(keys) %in% linkStructure$media)] |> 
+      unlist() |> as.character()
     lc_media <- x$media |> dplyr::select(-dplyr::any_of(omitKeys)) |>
-      dplyr::select("sequenceID", dplyr::everything()) %>% data.table(key = "sequenceID")
-    lc_media <- lc_media %>% dt_nest(sequenceID, .key = "media")
+      dplyr::select("sequenceID", dplyr::everything()) |> data.table(key = "sequenceID")
+    lc_media <- lc_media |> dt_nest(sequenceID, .key = "media")
   }
   {
-    y <- y2 %>% dplyr::left_join(y3, by = keys$sequences, multiple = "all") %>% 
-      dplyr::left_join(y4, by = keys$deployments) %>% 
-      dplyr::left_join(y5, by = keys$locations) %>% 
+    y <- y2 |> dplyr::left_join(y3, by = keys$sequences, multiple = "all") |> 
+      dplyr::left_join(y4, by = keys$deployments) |> 
+      dplyr::left_join(y5, by = keys$locations) |> 
       dplyr::left_join(y6, by = keys$taxonomy)
     y <- y |> dplyr::select(
       dplyr::all_of(c(as.character(unlist(keys[which(names(keys) != "media")])))),
@@ -78,7 +78,7 @@
     )
   }
   if (!dropMedia) {
-    y <- y %>% dplyr::left_join(lc_media, by = keys$sequences) %>% 
+    y <- y |> dplyr::left_join(lc_media, by = keys$sequences) |> 
       dplyr::relocate(media, .after = nrphotos)
   }
   return(y)
@@ -126,12 +126,12 @@
   y <- .merge_data(x, dropMedia = TRUE)
   
   if (onlyAnimal) {
-    y <- y %>% dplyr::filter(observationType == "animal")
+    y <- y |> dplyr::filter(observationType == "animal")
   }
   if (!is.null(class)) {
     .cls <- .get_classes(x,count = FALSE)
     .cls <- .get_match(class,.cls)
-    if (!is.na(.cls)) y <- y %>% dplyr::filter(class %in% .cls)
+    if (!is.na(.cls)) y <- y |> dplyr::filter(class %in% .cls)
     else message('The specified class(es) is/are not recognised (or not available) in the dataset, so ignored!')
   }
   #-----
@@ -140,33 +140,33 @@
     species <- .get_match(species,.sp)
     species <- species[!is.na(species)]
     if (length(species) > 0) {
-      y <- y %>% dplyr::filter(scientificName %in% species)
+      y <- y |> dplyr::filter(scientificName %in% species)
     } else messge('The specified species are not recognised (or not available) in the dataset, so ignored!')
     
   }
   #-------
   keepCols <- c("taxonID", "captureMethod", "observationType", 
                 "count", "classificationMethod", "scientificName", "vernacularNames" ,"vernacularNames.eng", 
-                "class", "order", by) %>% unique()
+                "class", "order", by) |> unique()
   y <- y |> dplyr::select(dplyr::any_of(keepCols))
   y <- y |> dplyr::group_by(
     dplyr::pick(dplyr::all_of(unique(c("observationType", "class", "order", by))))
   )
   if ("vernacularNames.eng" %in% colnames(y)) {
-    z <- y %>% dplyr::count(taxonID, vernacularNames.eng) %>% dplyr::ungroup() %>% 
+    z <- y |> dplyr::count(taxonID, vernacularNames.eng) |> dplyr::ungroup() |> 
       dplyr::rename(captures = n)
   } else if ("vernacularNames" %in% colnames(y)) {
-    z <- y %>% dplyr::count(taxonID, vernacularNames) %>% dplyr::ungroup() %>% 
+    z <- y |> dplyr::count(taxonID, vernacularNames) |> dplyr::ungroup() |> 
       dplyr::rename(captures = n)
   }
   
   
   if (!is.null(by)) {
-    z <- z %>% dplyr::left_join(effortTable, by = by)
+    z <- z |> dplyr::left_join(effortTable, by = by)
   } else {
-    z <- z %>% dplyr::mutate(effort = as.numeric(effortTable$effort[1]))
+    z <- z |> dplyr::mutate(effort = as.numeric(effortTable$effort[1]))
   }
-  z <- z %>% dplyr::mutate(capture_rate = captures/as.numeric(effort))
+  z <- z |> dplyr::mutate(capture_rate = captures/as.numeric(effort))
   return(z)
 }
 
@@ -210,10 +210,10 @@
   if (length(covars) == 0) newdata <- data.frame(x = 0)
   else {
     if (is.null(newdata)) {
-      newdata <- dat %>% dplyr::select(dplyr::all_of(covars)) %>% 
+      newdata <- dat |> dplyr::select(dplyr::all_of(covars)) |> 
         lapply(function(x) if (is.numeric(x)) 
           mean(x, na.rm = T)
-          else sort(unique(x))) %>% expand.grid()
+          else sort(unique(x))) |> expand.grid()
     } else {
       if (!all(covars %in% names(newdata))) 
         stop("Can't find all model covariates in newdata")
@@ -264,7 +264,7 @@
     suntimes <- .eval('activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',environment())
     timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
     
-    obs$solartime <- .eval('obs %>% with(activity::solartime(timestamp,latitude, longitude, 0)) %>% .$solar %>% + timeshift %>% activity::wrap()',environment())
+    obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment())
     .eval('activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',environment())
   }
   else NULL
@@ -274,17 +274,17 @@
 .get_traprate_data <- function (dat, species = NULL, unit = c("day", "hour", "minute","second")) {
   unit <- match.arg(unit)
   #species <- select_species(package, species)
-  dep <- dat$deployments %>% dplyr::left_join(dat$locations,by='locationID')
+  dep <- dat$deployments |> dplyr::left_join(dat$locations,by='locationID')
   .eff <- .calc_effort(dat,by='deploymentID',unit=unit)
   .eff$effort <- as.numeric(.eff$effort)
   
-  a <- dat$observations %>% dplyr::group_by(deploymentID,scientificName) %>% dplyr::count(scientificName)
+  a <- dat$observations |> dplyr::group_by(deploymentID,scientificName) |> dplyr::count(scientificName)
   if (!is.null(species)) a <- a |> dplyr::filter(scientificName == species)
-  else a <- a %>% dplyr::filter(scientificName != species & grepl('\\s',scientificName)) 
-  res <- a %>% dplyr::left_join(dep, by = "deploymentID") %>% 
-    dplyr::left_join(.eff, by = "deploymentID") %>% dplyr::group_by(locationName) %>% 
+  else a <- a |> dplyr::filter(scientificName != species & grepl('\\s',scientificName)) 
+  res <- a |> dplyr::left_join(dep, by = "deploymentID") |> 
+    dplyr::left_join(.eff, by = "deploymentID") |> dplyr::group_by(locationName) |> 
     dplyr::summarise(latitude = mean(latitude), longitude = mean(longitude), 
-                     n = sum(n), effort = sum(effort)) %>% dplyr::mutate(effort_unit = unit, scientificName = paste(species, collapse = "|"))
+                     n = sum(n), effort = sum(effort)) |> dplyr::mutate(effort_unit = unit, scientificName = paste(species, collapse = "|"))
   
   res
 }
@@ -321,16 +321,16 @@
   tab <- dat$observations
   
   if (!is.null(sp)) {
-    tab <- dat$observations %>% 
+    tab <- dat$observations |> 
       dplyr::filter(scientificName %in% sp)
   }
   #--------
-  tab <- tab %>% 
-    dplyr::group_by(scientificName) %>% 
+  tab <- tab |> 
+    dplyr::group_by(scientificName) |> 
     dplyr::summarise(n_sequences = sum(!duplicated(sequenceID)),
                      n_individuals = sum(count), 
                      n_speeds = sum(speed > 0.01 & speed < 10 & !is.na(speed)), n_radii = sum(!is.na(radius)), 
-                     n_angles = sum(!is.na(angle))) %>% 
+                     n_angles = sum(!is.na(angle))) |> 
     dplyr::filter(!is.na(scientificName) & scientificName != "" & grepl('\\s',scientificName))
   
   if (nrow(tab) > 0) {
@@ -497,11 +497,11 @@
                       dplyr::tibble(time = x_start, add = +1L), 
                       dplyr::tibble(time = x_end, add = -1L), 
                       dplyr::tibble(time = max(x_end) + 0.025 * dt, add = 0L))
-  effort <- effort %>% dplyr::group_by(time) %>% 
-    dplyr::summarize(add = sum(add)) %>% 
+  effort <- effort |> dplyr::group_by(time) |> 
+    dplyr::summarize(add = sum(add)) |> 
     dplyr::ungroup()
-  effort <- effort %>% dplyr::arrange(time) %>% dplyr::mutate(nrCams = cumsum(add))
-  effort <- effort %>% dplyr::select(-add)
+  effort <- effort |> dplyr::arrange(time) |> dplyr::mutate(nrCams = cumsum(add))
+  effort <- effort |> dplyr::select(-add)
   if (startend) {
     n <- nrow(effort)
     effort <- dplyr::tibble(time = c(effort$time[1], rep(effort$time[-1],each = 2), 
@@ -517,8 +517,8 @@
   z <- na.omit(z)
   if (dynamic) {
     series <- .eval('xts(z$nrCams, order.by = z$time, tz = "GMT")',env=environment())
-    .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) %>% 
-      dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+    .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |> 
+      dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
       dyRangeSelector()",env=environment())
   } else {
     plot(z$time, z$nrCams, type = "n", main = main, xlab = xlab, 

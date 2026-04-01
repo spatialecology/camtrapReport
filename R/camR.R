@@ -483,7 +483,7 @@ camR <- setRefClass(
           angle_model <- .fit_detmodel(angle ~ 1, .self$data$observations, species = sp, unit = "radian",quiet=TRUE)
           speed_model <- .fit_speedmodel(.self$data$observations, species = sp)
           
-          dat <- .self$data$observations %>% dplyr::left_join(.self$data$deployments %>% dplyr::left_join(.self$data$locations,by='locationID'),'deploymentID')
+          dat <- .self$data$observations |> dplyr::left_join(.self$data$deployments |> dplyr::left_join(.self$data$locations,by='locationID'),'deploymentID')
           activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
           
           rm(dat)
@@ -753,7 +753,7 @@ camR <- setRefClass(
       #--------------
       #################
       .tax_obs <- .self$data$observations |>
-        dplyr::select(-scientificName) %>%
+        dplyr::select(-scientificName) |>
         dplyr::left_join(.self$data$taxonomy, by = "taxonID") |>
         dplyr::mutate(
           observation_date = as.Date(timestamp),
@@ -848,7 +848,7 @@ camR <- setRefClass(
         capture_data <- .captures(.x)
         
         # Process and clean
-        capture_data <- capture_data %>%
+        capture_data <- capture_data |>
           dplyr::mutate(
             class = ifelse(order == "Rodentia", "Mammalia", class),
             capture_rate = dplyr::case_when(
@@ -862,25 +862,25 @@ camR <- setRefClass(
         # Capture by location (for counting number of unique camera sites)
         capture_data_locations <- .captures(.x, by = "locationName")
         if ('vernacularNames.eng' %in% colnames(capture_data_locations)) {
-          capture_data_locations <- capture_data_locations %>%
-            dplyr::group_by(vernacularNames.eng) %>%
-            dplyr::summarise(location_count = dplyr::n_distinct(locationName), .groups = "drop") %>%
+          capture_data_locations <- capture_data_locations |>
+            dplyr::group_by(vernacularNames.eng) |>
+            dplyr::summarise(location_count = dplyr::n_distinct(locationName), .groups = "drop") |>
             dplyr::arrange(vernacularNames.eng)
           #-------
-          capture_data <- capture_data %>%
-            dplyr::left_join(capture_data_locations,by='vernacularNames.eng') %>%
+          capture_data <- capture_data |>
+            dplyr::left_join(capture_data_locations,by='vernacularNames.eng') |>
             dplyr::arrange(vernacularNames.eng)
           capture_data <- data.frame(capture_data[,c('vernacularNames.eng','captures','capture_rate','location_count')])
           colnames(capture_data) <- c('Species_Name','Captures','Capture_Rate','Locations')
           
         } else if ('vernacularNames' %in% colnames(capture_data_locations)) {
-          capture_data_locations <- capture_data_locations %>%
-            dplyr::group_by(vernacularNames) %>%
-            dplyr::summarise(location_count = dplyr::n_distinct(locationName), .groups = "drop") %>%
+          capture_data_locations <- capture_data_locations |>
+            dplyr::group_by(vernacularNames) |>
+            dplyr::summarise(location_count = dplyr::n_distinct(locationName), .groups = "drop") |>
             dplyr::arrange(vernacularNames)
           #---
-          capture_data <- capture_data %>%
-            dplyr::left_join(capture_data_locations,by='vernacularNames') %>%
+          capture_data <- capture_data |>
+            dplyr::left_join(capture_data_locations,by='vernacularNames') |>
             dplyr::arrange(vernacularNames)
           capture_data <- data.frame(capture_data[,c('vernacularNames','captures','capture_rate','location_count')])
           colnames(capture_data) <- c('Species_Name','Captures','Capture_Rate','Locations')
