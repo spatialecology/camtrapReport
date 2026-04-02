@@ -1,0 +1,33 @@
+body {
+  line-height: 1.65;
+}
+
+.main-container,
+.container-fluid,
+main {
+  max-width: 1200px;
+}
+
+/* 1) Justified paragraphs */
+  p, li {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+
+/* 2) Links look like normal text, underline only on hover */
+  a,
+a:visited {
+  color: inherit !important;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/* 3) Wider report layout like the second screenshot */
+  .toc-content,
+.main-container {
+  width: 100%;
+}
