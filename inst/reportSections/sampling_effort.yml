@@ -64,13 +64,11 @@ code: |
     htmlwidgets::saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
     
     # Embed iframe inside a **plain gray box (no shadow)**
-    tags$div(
-      style = "border: 1px solid #ccc; 
-             background-color: #f0f0f0; 
-             padding: 15px; 
-             border-radius: 5px;",
-      tags$iframe(
-        srcdoc = paste(readLines(temp_file), collapse = "\n"),
+  htmltools::tags$div(
+  style = "border: 1px solid #ccc;
+           border-radius: 5px;",
+  htmltools::tags$iframe(
+    srcdoc = paste(readLines(temp_file), collapse = "\n"),
         width = "100%", height = "500px",
         style = "border: none;"
       )
