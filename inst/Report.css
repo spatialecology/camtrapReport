@@ -1,33 +1,47 @@
-body {
-  line-height: 1.65;
+body,
+.toc-content,
+.main-container,
+.container-fluid {
+  font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.42857143;
+  color: #2c3e50;
 }
 
 .main-container,
-.container-fluid,
-main {
-  max-width: 1200px;
+.container-fluid {
+  width: 96%;
+  max-width: 1600px;
 }
 
-/* 1) Justified paragraphs */
-  p, li {
-    text-align: justify;
-    text-justify: inter-word;
-  }
-
-/* 2) Links look like normal text, underline only on hover */
-  a,
-a:visited {
-  color: inherit !important;
-  text-decoration: none;
+.toc-content {
+  max-width: none;
 }
 
-a:hover,
-a:focus {
-  text-decoration: underline;
+p,
+li {
+  text-align: justify;
+  text-justify: inter-word;
+  margin: 0 0 10.5px;
 }
 
-/* 3) Wider report layout like the second screenshot */
-  .toc-content,
-.main-container {
-  width: 100%;
+/* body hyperlinks */
+.toc-content p a,
+.toc-content li a,
+.toc-content td a,
+.toc-content .section a {
+  color: #007bff !important;
+  text-decoration: none !important;
+}
+
+.toc-content p a:hover,
+.toc-content li a:hover,
+.toc-content td a:hover,
+.toc-content .section a:hover,
+.toc-content p a:focus,
+.toc-content li a:focus,
+.toc-content td a:focus,
+.toc-content .section a:focus {
+  color: #007bff !important;
+  text-decoration: underline !important;
 }

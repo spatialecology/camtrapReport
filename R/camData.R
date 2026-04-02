@@ -367,13 +367,10 @@
 }
 
 #---------
-
-
 if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,...)
+  setGeneric("camData", function(data, habitat, study_area, ...)
     standardGeneric("camData"))
 }
-
 
 setMethod('camData', signature(data='character'), 
           function(data,habitat,study_area=NULL,...) {
