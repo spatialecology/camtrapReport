@@ -6,7 +6,7 @@ text: "While camera trap capture rates do not reflect true population densities,
 code: |
   #| name: abundance
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: ggplot2, ggrepel
+  #| packages: ggplot2, ggrepel, htmltools
   
   
   group_label <- .paste_comma_and(object$setting$focus_groups)
@@ -142,7 +142,7 @@ code: |
     print(plot_rate)
     
     
-    HTML('<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">
+    htmltools::HTML('<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">
     <b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Log-transformed capture rates per 100 trap-days for frequently observed ', 
          group_label, ' across survey years.</i></p>')
     
@@ -195,7 +195,7 @@ code: |
       ' across survey years.</i></p>'
     )
     # Output as HTML
-    HTML(caption_text)
+    htmltools::HTML(caption_text)
     #----------
     
     cat("### REM-Based Density {.unnumbered}\n\n")
@@ -256,7 +256,7 @@ code: |
       print(plot_density)
       
       # Styled caption
-      HTML(paste0(
+      htmltools::HTML(paste0(
         '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
         '<b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Trends in estimated REM-based population density for ', 
         group_label, ' across survey years.</i></p>'
