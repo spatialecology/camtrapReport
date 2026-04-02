@@ -454,7 +454,7 @@ setMethod('camData', signature(data='character'),
             fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
             site_Name <- cm$siteName
             cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
-            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
+            cm$subtitle <- "Ecological report for wildlife monitoring using camera-trap data"
             rm(.d); gc()
             
             cm$setup()
