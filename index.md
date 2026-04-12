@@ -69,8 +69,6 @@ install_All()
 *Tip: You may be prompted to approve package installations or compile packages from source. Make sure you have an active internet connection.*
 
 ## Create the camReport object
-
-
 At the core of `camtrapReport` is a mutable Reference Class object called `camReport`, which acts as the central workflow container and module registry. It stores harmonised input data, user-defined settings, and intermediate results throughout the reporting process.
 
 Use `camData()` to create the `camReport` object by reading and pre-processing your camera-trap dataset.
@@ -82,10 +80,13 @@ To keep the workflow simple and reproducible, the only required input is a singl
 ```r
 cm <- camData("C:/Users/ebrah010/Data/EOW-Veluwe.zip")
 ```
+## Optional input
+
+Additional input data can be provided to improve maps, add spatial context, and support more informative summaries and analyses.
 
 ### **Habitat data**
 
-Habitat information may already be included in [deployment.csv](https://camtrap-dp.tdwg.org/data/#deployments). If it is missing, you can either add it in your data management systems (eg., [Agouti](https://agouti.eu/)) before exporting the dataset or provide it separately as a two-column CSV file with *locationName* and *Habitat*.
+Habitat information may already be included in [deployment.csv](https://camtrap-dp.tdwg.org/data/#deployments). If it is missing, you can either add it in your data management systems (eg., [Agouti](https://agouti.eu/)) before exporting the dataset or provide it separately as a two-column CSV file with `locationName` and `Habitat`. An example template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
 
 ``` r
 habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")
@@ -104,7 +105,7 @@ A polygon shapefile of the site boundary can be provided to improve maps and add
 study_area <- vect("C:/Users/ebrah010/Data/studyarea_nl.shp")
 ```
 
-When optional input data are available, they can be supplied directly to camData():
+When optional input data are available, they can be supplied directly to `camData()`:
 
 ``` r
 cm <- camData(
@@ -122,7 +123,7 @@ To generate a data status report and review the quality and completeness of the 
 cm$generateStatusReport()
 ```
 
-## Ecological report generation
+## Ecological report
 
 Once the input data have been prepared, a full ecological report can be generated using `report()`:
 

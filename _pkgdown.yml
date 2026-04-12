@@ -19,7 +19,7 @@ home:
 
 navbar:
   structure:
-    left: [home, example, article, output]
+    left: [home, tutorials, reference, news]
     right: [search, report-bug, discussion, github]
 
   components:
@@ -27,17 +27,17 @@ navbar:
       text: Get started
       href: index.html
 
-    example:
-      text: Examples
-      href: example.html
+    tutorials:
+      text: Tutorials
+      href: articles.html
 
-    article:
-      text: Overview
-      href: article.html
+    reference:
+      text: Reference
+      href: reference/index.html
 
-    output:
-      text: Outputs
-      href: output.html
+    news:
+      text: News
+      href: news/index.html
 
     report-bug:
       icon: fa-bug
@@ -55,12 +55,32 @@ navbar:
       href: https://github.com/spatialecology/camtrapReport
       aria-label: GitHub repository
 
+articles:
+  - title: Package overview
+    navbar: Tutorials
+    contents:
+      - ecological-report
+      - data-status-report
+
+  - title: Extending the package
+    contents:
+      - modules
+
 reference:
-  - title: Main functions
+  - title: Data input and setup
     contents:
       - camData
+      - info
+
+  - title: Report generation
+    contents:
       - report
+      - updateReportSection
+
+  - title: Report sections and modules
+    contents:
       - reportSection
       - testSection
       - add_Module
+      
 ---

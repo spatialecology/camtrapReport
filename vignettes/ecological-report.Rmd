@@ -1,0 +1,17 @@
+---
+title: Ecological report
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ecological report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# Ecological report
+
+This tutorial shows how to generate a full ecological report with `camtrapReport`.
+
+## Input data
+
+Create the `camReport` object from a Camtrap-DP `.zip` file:
+

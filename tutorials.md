@@ -1,7 +1,7 @@
 ---
-title: Example
+title: Tutorials
 ---
-# Example
+# Tutorials
 
 This page presents example outputs from `camtrapReport`, including results from *Data Status Check* and *Ecological Report Generation*.
 
