@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.5
+# Version 1.6
 # Licence GPL v3
 #--------
 
@@ -2029,7 +2029,7 @@
       paste0(
         "Camera surveys at this site were conducted using the following camera model",
         ifelse(length(vals) > 1, "s: ", ": "),
-        to_comma_and(vals), "."
+        .paste_comma_and(vals), "."
       )
     } else {
       "Multiple camera models were used at this site."
@@ -2064,7 +2064,7 @@
     if (length(x_num) <= 3) {
       paste0(
         "Cameras were mounted at approximately ",
-        to_comma_and(format(round(x_num, 2), trim = TRUE)),
+        .paste_comma_and(format(round(x_num, 2), trim = TRUE)),
         " m above the ground."
       )
     } else {
@@ -2085,7 +2085,7 @@
     
     paste0(
       "Media were captured using ",
-      to_comma_and(vals),
+      .paste_comma_and(vals),
       "."
     )
   }
