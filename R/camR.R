@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.9
+# Version 3.0
 # Licence GPL v3
 #--------
 
@@ -139,7 +139,6 @@ camR <- setRefClass(
     annonator = "character",
     acknowledgement  = "character",
     description = "character",
-    sampling = "character",
     years = "numeric",
     group_definition = "list",
     filterExclude    = "list",
@@ -185,7 +184,7 @@ camR <- setRefClass(
       
       .self$description <- "No discription has been provided for this site. The report object can be updated by overriding the 'description' field!"
       
-      .self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
+      #.self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
       .self$title <- 'Report generated using the camtrapReport package'
       .self$authors <- 'Elham Ebrahimi, Patrick Jansen'
       #-----
@@ -366,6 +365,7 @@ camR <- setRefClass(
       # x: the output of species_summary_by_location wit cor_matrix=F
       # if x is null -> species_summary_by_location will be called with other arguments
       #---------
+      .crop <- NULL
       if (is.null(x)) {
         x <- .self$species_summary_by_location(year=year,spList=species,cor_matrix=FALSE)
         x$lon <- x$longitude
@@ -386,15 +386,36 @@ camR <- setRefClass(
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       } else if (!is.null(.self$study_area) && !is.null(.self$study_area$path)) {
-        .self$study_area$object <- readRDS(.self$study_area$path)
-        .ext <- as.vector(ext(.self$study_area$object))
+        .self$study_area$object <- terra::readRDS(.self$study_area$path)
+        if (exists(".crs") && !is.null(.crs)) {
+          .crop <- project(.self$study_area$object,.crs)
+          .ext <- as.vector(ext(.crop))
+        } else {
+          if (.is.projected(.self$study_area$object)) {
+            .crop <- .get_projected_vect(project(.self$study_area$object,crs(rast())))
+            .crs <- crs(.crop)
+            .ext <- as.vector(ext(.crop))
+          } else {
+            .crop <- .get_projected_vect(.self$study_area$object)
+            .crs <- crs(.crop)
+            .ext <- as.vector(ext(.crop))
+          }
+        }
+        
         xr[1] <- min(c(.ext[1],xr[1]))
         xr[2] <- max(c(.ext[2],xr[2]))
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       }
+      #-----
+      .w <- (xr[2] - xr[1]) * 0.05
+      xr[1] <- xr[1] - .w
+      xr[2] <- xr[2] + .w
       
-      
+      .w <- (yr[2] - yr[1]) * 0.05
+      yr[1] <- yr[1] - .w
+      yr[2] <- yr[2] + .w
+      #------
       .win <- .eval("owin(xrange = xr, yrange = yr)",env = environment())
       .ppp_obj <- .eval("ppp(x = x$x, y=x$y,window= .win,marks=x$total_observations)",env = environment())
       den <- density(.ppp_obj, weights = x$total_observations)
@@ -402,6 +423,8 @@ camR <- setRefClass(
       r <- rast(den)
       crs(r) <- .crs
       names(r) <- 'spatial_density'
+      #----
+      if (!is.null(.crop)) r <- crop(r, .crop, mask=TRUE)
       r
     },
     species_summary_by_location=function(year=NULL,spList=NULL,cor_matrix=TRUE,PA=TRUE) {
