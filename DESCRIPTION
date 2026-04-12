@@ -3,10 +3,15 @@ Type: Package
 Title: Cameratrap Report Generator
 Version: 0.2-28
 Date: 2026-04-12
-Authors@R: c(person(given = "Elham",
-                      family = "Ebrahimi",
-                      role = c("aut", "cre"),
-                      email = "eebrahimi.bio@gmail.com"))
+Authors@R: c(
+    person(
+        given = "Elham",
+        family = "Ebrahimi",
+        role = c("aut", "cre"),
+        email = "eebrahimi.bio@gmail.com",
+        comment = c(ORCID = "0000-0001-5191-9832")
+    )
+)
 Depends: methods, R (>= 4.1.0), dplyr, terra, rmarkdown
 Imports: glue
 Suggests: data.table
