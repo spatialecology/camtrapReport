@@ -19,11 +19,11 @@ code1: |
     habitat_colors <- colorFactor(
       palette = color_palette,
       domain = .all_habitat,
-      na.color = "#EDAC8C"
+      na.color = "#1C1C1C"
     )
     
     
-    data <- data %>%
+    data <- data |>
       mutate(
         popup_text = paste0(
           "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
@@ -38,7 +38,7 @@ code1: |
         )
       )
     
-    map <- leaflet(data) %>%
+    map <- leaflet(data) |>
       addTiles()
     
     
@@ -46,7 +46,7 @@ code1: |
       object$study_area$object <- readRDS(object$study_area$path)
       .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
       
-      map <- map %>%
+      map <- map |>
         addPolygons(
           data = .tmpStudyArea,
           fillColor = "transparent",
@@ -57,14 +57,14 @@ code1: |
     }
     #---
     
-    map <- map %>%
+    map <- map |>
       addCircleMarkers(
         lng = ~longitude, lat = ~latitude,
         radius = 6,
         color = ~habitat_colors(Habitat_Type),
         fillOpacity = 0.85, stroke = TRUE, weight = 1,
         popup = ~popup_text
-      ) %>%
+      ) |>
       fitBounds(
         lng1 = min(data$longitude, na.rm = TRUE),
         lat1 = min(data$latitude, na.rm = TRUE),
@@ -73,7 +73,7 @@ code1: |
       )
     
     if (add_legend) {
-      map <- map %>%
+      map <- map |>
         leaflet::addLegend(
           position = "bottomright",
           pal = habitat_colors,
@@ -149,14 +149,14 @@ code2: |
     )
   
   
-  map <- leaflet(.dat_year, width = "100%", height = "400px") %>%
+  map <- leaflet(.dat_year, width = "100%", height = "400px") |>
     addTiles()
   
   if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
-    object$study_area$object <- readRDS(object$study_area$path)
+    object$study_area$object <- terra::readRDS(object$study_area$path)
     .tmpStudyArea <- project(object$study_area$object,"epsg:4326")
     
-    map <- map %>%
+    map <- map |>
       addPolygons(
         data = .tmpStudyArea,
         fillColor = "transparent",
@@ -169,7 +169,7 @@ code2: |
   
   
   # ✅ **Step 5: Generate and Display Interactive Leaflet Map**
-  map <- map %>%
+  map <- map |>
     
     # 🔹 **Add Camera Locations with Color Mapping Based on Habitat**
     addCircleMarkers(
@@ -178,7 +178,7 @@ code2: |
       color = ~habitat_colors(Habitat_Type),  # ✅ Apply Color Mapping
       fillOpacity = 0.85, stroke = TRUE, weight = 1,
       popup = ~label
-    ) %>%
+    ) |>
     
     # ✅ **Fix: Set Consistent Zoom Level**
     fitBounds(
@@ -188,7 +188,7 @@ code2: |
       lat2 = max(.dat_year$latitude, na.rm = TRUE)
     ) 
   if (object$setting$locationLegend) {
-    map <- map %>%
+    map <- map |>
       leaflet::addLegend(
         position = "bottomright",
         pal = habitat_colors,

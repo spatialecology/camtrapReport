@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.5
+# Version 2.6
 # Licence GPL v3
 #--------
 
@@ -398,7 +398,7 @@ setMethod('camData', signature(data='character'),
                 if (file.exists(study_area)) {
                   .v <- try(terra::vect(study_area),silent = TRUE)
                   if (!inherits(.v,'try-error')) {
-                    saveRDS(.v,paste0(cm$info$directory,'/study_area.map'))
+                    terra::saveRDS(.v,paste0(cm$info$directory,'/study_area.map'))
                     cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
                     cm$study_area$object <- .v
                     rm(.v)
@@ -409,12 +409,12 @@ setMethod('camData', signature(data='character'),
                 }
               } else if (inherits(study_area,'SpatVector')) {
                 cm$study_area$object <- study_area
-                saveRDS(study_area,paste0(cm$info$directory,'/study_area.map'))
+                terra::saveRDS(study_area,paste0(cm$info$directory,'/study_area.map'))
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
                 
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
                 cm$study_area$object <- vect(study_area)
-                saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
+                terra::saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
               } else {
                 warning("study_area is ignored (should be a filename or a spatial dataset)...!")
@@ -457,7 +457,7 @@ setMethod('camData', signature(data='character'),
             fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
             site_Name <- cm$siteName
             cm$title <- as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}"))
-            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
+            cm$subtitle <- "Ecological Report based on Camera Trap Data for Wildlife Monitoring"
             rm(.d); gc()
             
             cm$setup()

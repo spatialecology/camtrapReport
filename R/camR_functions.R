@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.6
+# Version 1.7
 # Licence GPL v3
 #--------
 
@@ -463,7 +463,7 @@
   
   # 6) sea vs land
   loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
-  wrld  <- readRDS(system.file("external/world.map", package="camtrapReport"))
+  wrld  <- terra::readRDS(system.file("external/world.map", package="camtrapReport"))
   loc$on_land <- !is.na(terra::extract( wrld[,'name'],loc)$name)
   num_sea_outliers <- sum(!loc$on_land)
   
