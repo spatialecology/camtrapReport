@@ -1,0 +1,12 @@
+---
+title: Data status report
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data status report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# Data status report
+
+This tutorial explains how to generate and interpret the data status report.

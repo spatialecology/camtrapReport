@@ -1,7 +1,7 @@
 ---
-title: Output
+title: News
 ---
-# Output
+# News
 
 This page lists dissemination and outreach outputs related to *`camtrapReport`*.
 

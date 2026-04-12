@@ -1,0 +1,16 @@
+
+---
+title: Modules
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Modules}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# Modules
+
+`camtrapReport` is designed as a modular and extensible workflow. Analytical outputs are generated through independent modules that can be combined within a report.
+
+## Module-based design
+
