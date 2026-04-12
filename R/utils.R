@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 0.2.22
-# Licence MIT
+# Last Update :  April 2026
+# Version 2.1
+# Licence GPL v3
 #--------
 
 .paste_comma_and <- function(x) {
@@ -12,7 +12,7 @@
   }
 }
 #-----------
-.trim <- function(x) {
+.trim <- function(x,squish=TRUE) {
   x <- strsplit(x,'')[[1]]
   if (x[1] == ' ') {
     i <- 1
@@ -30,7 +30,22 @@
     x <- x[1:i]
   }
   #----
-  paste(x,collapse='')
+  if (squish & length(x) > 0) {
+    j <- FALSE
+    k <- c()
+    
+    for (i in 1:length(x)) {
+      if (x[i] == " ") {
+        if (j) k <- c(k,i)
+        else j <- TRUE
+      } else j <- FALSE
+      
+    }
+    if (length(k) > 0) x <- x[-k]
+  }
+  #----------
+  if (length(x) > 0) paste(x,collapse='')
+  else ""
 }
 #------------
 
@@ -113,83 +128,6 @@
   }
 }
 #----
-
-.getTextObj <- function(name=NULL,title=NULL,parent=NULL,headLevel=1,txt=NULL) {
-  new('.textSection',name=name,title=title,parent=parent,headLevel=headLevel,txt=txt)
-}
-#---
-
-
-.getRchunk <- function(parent=NULL,name=NULL,setting=NULL,code) {
-  
-  if (!is.null(setting) && as.character(substitute(setting))[1] == '{' ) {
-    setting <- substitute(setting)
-    setting <- as.character(setting)[-1]
-    setting <- .trim(setting)
-    setting <- .rmChar(setting,rm=c(1,2),rmLast = TRUE)
-  }
-  
-  
-  #----
-  code <- substitute(code)
-  
-  if (as.character(code)[1] != '{' ) stop('code should be placed within { } ')
-  
-  code <- paste(as.character(code)[-1],collapse = '\n')
-  
-  new('.Rchunk',parent=parent,name=name,setting=setting,code=code)
-  
-  # if (is.null(setting)) {
-  #   p1 <- paste('```{r',name,'}')
-  # } else {
-  #   p1 <- paste('```{r',name,',',paste(setting,collapse = ','),'}')
-  # }
-  # #--
-  # 
-  # #---
-  # paste0(p1,'\n',code,'\n','```')
-  
-}
-#----
-
-.glueTextSection <- function(x,.envir) {
-  #if (!is.null(x@parent)) headLevel <- 1
-  #----
-  .title <- paste0(paste(rep('#',x@headLevel),collapse = ''),' ',x@title)
-  
-  if (!is.null(x@txt)) .out <- paste0(c(.title,sapply(x@txt,glue::glue,.envir=.envir)),collapse = '\n\n')
-  else .out <- paste0(.title,'\n\n')
-  #---
-  if (!is.null(x@Rchunk)) {
-    
-    if (is.list(x@Rchunk)) {
-      for (i in seq_along(x@Rchunk)) {
-        if (is.null(x@Rchunk[[i]]@setting)) {
-          .p1 <- paste0('```{r ',x@Rchunk[[i]]@name,'}')
-        } else {
-          .p1 <- paste0('```{r ',x@Rchunk[[i]]@name,',',paste(x@Rchunk[[i]]@setting,collapse = ','),'}')
-        }
-        .p1 <- paste0(.p1,'\n',x@Rchunk[[i]]@code,'\n','```')
-        .out <- paste0(.out,'\n\n',.p1,'\n\n')
-      }
-      
-      
-    } else {
-      if (is.null(x@Rchunk@setting)) {
-        p1 <- paste0('```{r ',x@Rchunk@name,'}')
-      } else {
-        p1 <- paste0('```{r ',x@Rchunk@name,',',paste(x@Rchunk@setting,collapse = ','),'}')
-      }
-      p1 <- paste0(p1,'\n',x@Rchunk@code,'\n','```')
-      .out <- paste0(.out,'\n\n',p1,'\n\n')
-    }
-    
-  }
-  .out
-}
-#--------
-
-
 .getMissingTaxon_GBIF <- function(x) {
   # this retrieves the class and order taxonomic information for each scientific name from GBIF
   # it uses the taxize package for the job:
@@ -304,7 +242,7 @@
   # Centroid longitude & latitude
   cen <- sf::st_coordinates(sf::st_centroid(sf::st_union(.xxs)))
   
-  cen <- colMeans(terra::crds(.xs))
+  cen <- colMeans(crds(.xs))
   
   lon <- cen[1]; lat <- cen[2]
   if (abs(lat) <= 84) {
@@ -324,7 +262,7 @@
 }
 
 .is.projected <- function(x) {
-  e <- as.vector(terra::ext(x))
+  e <- as.vector(ext(x))
   !all(e >= -180 & e <= 180)
 }
 #----
@@ -335,19 +273,19 @@
   # x is an SpatVector (terra)
   
   if (!.is.projected(x)) {
-    cen <- colMeans(terra::crds(x))
+    cen <- colMeans(crds(x))
     lon <- cen[1]; lat <- cen[2]
     if (abs(lat) <= 84) {
       # UTM zone calculation
       .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
       .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-      return(terra::project(x, paste0("EPSG:",.epsg)))
+      return(project(x, paste0("EPSG:",.epsg)))
     } else {
       proj4 <- sprintf(
         "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
         lat, lon
       )
-      return(terra::project(x, proj4))
+      return(project(x, proj4))
     }
   } else {
     warning('The input dataset seems projected, so no projection is applied...!')
@@ -501,3 +439,119 @@
   if (length(hit)) hit[1] else NA_character_
 }
 #----
+.charN <- function(x,space=TRUE) {
+  if (missing(x) || is.null(x)) return(NULL)
+  x <- as.character(x)
+  if (x %in% c(""," ","  ","   ","    ")) return(0)
+  #-----
+  x <- .trim(x)
+  x <- strsplit(x,'')[[1]]
+  if (space) length(x)
+  else length(x[x != " "])
+}
+#-----
+.wordN <- function(x) {
+  if (missing(x) || is.null(x)) return(NULL)
+  x <- as.character(x)
+  
+  if (length(x) > 1) return(sapply(1:length(x),function(i) .wordN(x[i])))
+  
+  if (x %in% c(""," ","  ","   ","    ")) return(0)
+  #-----
+  x <- .trim(x)
+  #----
+  if (.charN(x) > 0) {
+    x <- strsplit(x,'')[[1]]
+    j <- 1
+    for (i in 1:length(x)) {
+      if (x[i] == " ") j <- j + 1
+    }
+    return(j)
+  }
+  return(0)
+}
+#-----
+.word <- function(x,start=NULL,end=NULL) {
+  if (missing(x) || is.null(x)) return(NULL)
+  x <- as.character(x)
+  if (length (x) == 0 || x %in% c(""," ","  ","   ","    ")) return(NULL)
+  #-----
+  x <- .trim(x)
+  #----
+  
+  .w <- c()
+  x <- strsplit(x,'')[[1]]
+  while (length(x) > 0) {
+    i <- 1
+    j <- TRUE
+    while (j) {
+      if (x[i] %in% c(" ",",",";",":",".") ) {
+        .x <- x[1:(i-1)]
+        .x <- .x[!.x %in% c(',',':',';',' ','.')]
+        if (length(.x) > 0) {
+          .w <- c(.w,paste(.x,collapse = ''))
+        }
+        x <- x[-c(1:(i-1))]
+        while (length(x) > 0 && x[1] == ' ') x <- x[-1]
+        i <- 1
+      } else if (i == length(x)) {
+        .w <- c(.w,paste(x,collapse = ''))
+        x <- c()
+        j <- FALSE
+      }
+      i <- i + 1
+    }
+  }
+  #-------
+  if (length(.w) > 0) {
+    if (!is.null(start) && is.numeric(start) && start != 0) {
+      if (start < 0) {
+        start <- (-1 * as.integer(start)) 
+        if (start > length(.w)) start <- length(.w)
+        end <- length(.w)
+        start <- length(.w) - start + 1
+      } else {
+        if (start <= length(.w)) {
+          if (is.null(end)) end <- start
+          else {
+            if (is.numeric(end) && end <= length(.w)) {
+              if (end < start) {
+                warning('The "end" argument cannot be lower than "start"...!')
+                end <- start
+              }
+            } else end <- start
+          }
+        } else {
+          start <- 1
+          end <- length(.w)
+        }
+      }
+      
+      
+    } else {
+      start <- 1
+      end <- length(.w)
+    }
+    #----
+    return(.w[start:end])
+  }
+  
+  return(.w)
+}
+#------
+# if a label has two parts with "_", it is replaced with space:
+.pretty_label <- function(x) {
+  x <- as.character(x)
+  x <- gsub("_", " ", x)
+  x <- gsub("\\s+", " ", x)
+  x <- trimws(x)
+  
+  # OPTIONAL: if you want to drop the word "wild"
+  # x <- gsub("^wild\\s+", "", x)
+  
+  # "a, b, and c"
+  if (length(x) == 1) return(x)
+  if (length(x) == 2) return(paste(x, collapse = " and "))
+  paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
+}
+

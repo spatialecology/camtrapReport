@@ -1,8 +1,8 @@
 ---
 name: "habitat_preferences"
-title: "## Habitat preferences {.tabset}"
+title: "## Habitat Preferences {.tabset}"
 parent: "results"
-text: "Differences in capture rate - the number of observations per unit effort - reflect the degree to which animals prefer or avoid certain points or habitat types."
+text: "Habitat preferences were assessed by comparing proportional capture rates across habitat types for each species. Capture rate, expressed as detections relative to sampling effort, serves here as an indicator of habitat use and relative habitat association rather than a direct estimate of habitat selection. Differences in the distribution of capture rates among habitat types therefore highlight habitats in which species were more or less frequently recorded. Together, these patterns provide insight into species-specific habitat use within the study area and help identify broad differences in habitat association among the focal species."
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE

@@ -1,20 +1,25 @@
 ---
 name: "abundance_trends"
-title: "## Abundance Trends {.tabset}"
+title: "## Capture-Based and Abundance Trends {.tabset}"
 parent: "results"
-text: "While camera trap capture rates do not reflect true population densities, they serve as a valuable proxy for assessing changes in relative species abundance over time. An increase in capture rate, such as twice as many captures per unit time, may indicate a proportional increase in the number of individuals present, assuming detection probability remains constant."
+text: "Camera-trap capture data do not directly measure true population size, but they can provide useful indicators of temporal variation in relative abundance and species detectability, provided that survey effort and detection conditions remain reasonably comparable among years."
 code: |
   #| name: abundance
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: ggplot2, ggrepel, htmltools
+  #| packages: ggplot2, ggrepel
   
   
-  group_label <- .paste_comma_and(object$setting$focus_groups)
-    cat(paste0(
-      "The graphs below illustrate temporal trends in the number of captures, the number of active camera locations, ",
-      "and the resulting capture rates for ", group_label, " species observed more than ", object$filterCount,
-      " times in ", object$siteName, " across the sampling period (following Figures) .\n\n"
-    ))
+  
+    group_label <- .pretty_label(object$setting$focus_groups)
+
+  cat(paste0(
+    "The figures below summarize capture-based trends for frequently detected ", group_label,
+    " recorded in at least ", object$filterCount,
+    " capture events during the study period in ", object$siteName, ". ",
+    "The tabs present complementary metrics, including the number of captures, capture rate (captures per 100 trap-days), number of capture locations, and, where available, REM-based density estimates. ",
+    "Together, these metrics support comparison of temporal patterns in species records across survey years.\n\n"
+  ))
+    
     #----
     
     cat("### Number of Captures {.unnumbered}\n\n")
@@ -42,18 +47,18 @@ code: |
     # Filter and prep data
     #large_mammals_frequently <- group_summary$scientificName
     
-    capture_total_filtered <- object$capture %>%
-      filter(scientificName %in% .w, Year != "total") %>%
+    capture_total_filtered <- object$capture |>
+      filter(scientificName %in% .w, Year != "total") |>
       mutate(
         Year = as.factor(Year),
         Year_numeric = as.numeric(as.character(Year))
-      ) %>%
+      ) |>
       arrange(scientificName, Year)
     
     #  Labels for most recent year
-    label_data <- capture_total_filtered %>%
-      group_by(scientificName) %>%
-      dplyr::filter(Year_numeric == max(Year_numeric)) %>%
+    label_data <- capture_total_filtered |>
+      group_by(scientificName) |>
+      dplyr::filter(Year_numeric == max(Year_numeric)) |>
       ungroup()
     
     # Build the plot
@@ -101,18 +106,18 @@ code: |
     
     cat("### Capture Rate {.unnumbered} \n\n")
     
-    df_capture_rate <- object$capture %>%
-      filter(scientificName %in% .w, Year != "total") %>%
+    df_capture_rate <- object$capture |>
+      filter(scientificName %in% .w, Year != "total") |>
       mutate(
         Year = as.factor(Year),
         Year_numeric = as.numeric(as.character(Year)),
         CaptureRate_100 = 100 * Capture_Rate
-      ) %>%
+      ) |>
       arrange(scientificName, Year)
     
-    label_data <- df_capture_rate %>%
-      group_by(scientificName) %>%
-      filter(Year_numeric == max(Year_numeric)) %>%
+    label_data <- df_capture_rate |>
+      group_by(scientificName) |>
+      filter(Year_numeric == max(Year_numeric)) |>
       ungroup()
     
     # Plot
@@ -142,7 +147,7 @@ code: |
     print(plot_rate)
     
     
-    htmltools::HTML('<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">
+    HTML('<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">
     <b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Log-transformed capture rates per 100 trap-days for frequently observed ', 
          group_label, ' across survey years.</i></p>')
     
@@ -195,7 +200,7 @@ code: |
       ' across survey years.</i></p>'
     )
     # Output as HTML
-    htmltools::HTML(caption_text)
+    HTML(caption_text)
     #----------
     
     cat("### REM-Based Density {.unnumbered}\n\n")
@@ -211,8 +216,8 @@ code: |
     
     if (nrow(estimates_rem) > 0) {
       # Filter density-only data
-      density_data <- estimates_rem %>%
-        dplyr::filter(Metric == "density") %>%
+      density_data <- estimates_rem |>
+        dplyr::filter(Metric == "density") |>
         mutate(
           Year = as.factor(Year),
           scientificName = factor(scientificName, levels = unique(scientificName)),
@@ -224,9 +229,9 @@ code: |
       species_colors_rem <- species_colors[species_list_rem]
       
       # Prepare label data for latest year
-      label_data <- density_data %>%
-        group_by(scientificName) %>%
-        filter(Year_numeric == max(Year_numeric)) %>%
+      label_data <- density_data |>
+        group_by(scientificName) |>
+        filter(Year_numeric == max(Year_numeric)) |>
         ungroup()
       
       # Plot
@@ -256,7 +261,7 @@ code: |
       print(plot_density)
       
       # Styled caption
-      htmltools::HTML(paste0(
+      HTML(paste0(
         '<p style="font-size: 16px; color: black; font-weight: normal; margin-top: 10px;">',
         '<b>Figure ',object$getFigureNumber(text=FALSE),'.</b> <i>Trends in estimated REM-based population density for ', 
         group_label, ' across survey years.</i></p>'

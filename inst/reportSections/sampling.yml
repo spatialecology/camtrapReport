@@ -2,11 +2,14 @@
 name: "sampling"
 title: "Sampling"
 parent: "methods"
-text: "{sampling}"
+text: null
 code: |
   #| name: sampling_table
   #| setting: echo=FALSE, results='asis', message=FALSE, warning=FALSE
   #| packages: gt, dplyr
+  
+  
+  cat(object$reportTextElements$sampling,"More detailed information on camera-trap deployments by survey year is provided in the summarized information table below.\n")
   
   object$camera_setup %>%
       gt() %>%

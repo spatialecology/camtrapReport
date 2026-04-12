@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 0.2.20
-# Licence MIT
+# Last Update :  April 2026
+# Version 2.5
+# Licence GPL v3
 #--------
 
 
@@ -42,7 +42,7 @@
   })
   #-----
   if (all(w == 0)) {
-    dplyr::.bind_rows(lapply(x,function(x) {
+    .bind_rows(lapply(x,function(x) {
       .x <- strsplit(x$taxonID,'/')[[1]]
       .x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       if (length(x$vernacularNames) > 0) .x[["vernacularNames"]] <- x$vernacularNames
@@ -78,7 +78,7 @@
     }
     
     
-    dplyr::bind_rows(lapply(x,function(x) {
+    bind_rows(lapply(x,function(x) {
       .x <- .xx
       
       .tmp <- strsplit(x$taxonID,'/')[[1]]
@@ -360,17 +360,20 @@
   #------
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
   
-  .d$observations$taxonID <- dplyr::left_join(.d$observations, .d$taxonomy, by = "scientificName")$taxonID
+  .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
   
-  list(data=.d,json=.js,directory=.path)
+  list(data=.d,json=.js,directory=normalizePath(.path))
   
 }
 
 #---------
+
+
 if (!isGeneric("camData")) {
-  setGeneric("camData", function(data, habitat, study_area, ...)
+  setGeneric("camData", function(data,habitat,study_area,...)
     standardGeneric("camData"))
 }
+
 
 setMethod('camData', signature(data='character'), 
           function(data,habitat,study_area=NULL,...) {
@@ -410,7 +413,7 @@ setMethod('camData', signature(data='character'),
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
                 
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area$object <- terra::vect(study_area)
+                cm$study_area$object <- vect(study_area)
                 saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
               } else {
@@ -453,11 +456,30 @@ setMethod('camData', signature(data='character'),
             country <- cm$data_status$Spatial$country
             fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
             site_Name <- cm$siteName
-            cm$title <- glue("Camera-Trap Report: {fg} at {site_Name}, {country}")
-            cm$subtitle <- "Ecological report for wildlife monitoring using camera-trap data"
+            cm$title <- as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}"))
+            cm$subtitle <- "Report on Camera Trapping for the European Observatory of Wildlife"
             rm(.d); gc()
             
             cm$setup()
+            #------
+            .project_info(cm)
+            
+            .get_sampling_text(cm)
+            
+            cm$authors <- .get_authors_text(cm)
+            cm$institute <- .get_institute(cm)
+            cm$description <- paste0(
+                "The study was conducted in ", cm$siteName, ", located in ", cm$data_status$Spatial$country, ". ",
+                "The site is geographically defined by the coordinates ", cm$data_status$Spatial$coordinate_range,
+                " and covers an area of approximately ", round(cm$data_status$Spatial$MCArea,2), " km². ",
+                cm$reportObjectElements$habitat_text, " ",
+                cm$reportObjectElements$message, " ",
+                "The site supports a diverse range of wildlife, with approximately ",
+                cm$data_status$Species$Keep_sp_n, " species recorded. ",
+                "The most frequently observed species include ",
+                cm$reportTextElements$most_observed_sp_text, "."
+              )
+            #-----------
             .module_dir <- .section_dir("camtrapReport")
             
             mods <- .read_modules(
@@ -490,6 +512,5 @@ setMethod('camData', signature(data='character'),
           }
 )
 #--------
-
 
 

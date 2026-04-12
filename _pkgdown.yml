@@ -24,19 +24,19 @@ navbar:
 
   components:
     home:
-      text: Home
+      text: Get started
       href: index.html
 
     example:
-      text: Example
+      text: Examples
       href: example.html
 
     article:
-      text: Article
+      text: Overview
       href: article.html
 
     output:
-      text: Output
+      text: Outputs
       href: output.html
 
     report-bug:
@@ -63,4 +63,4 @@ reference:
       - reportSection
       - testSection
       - add_Module
-      
+---

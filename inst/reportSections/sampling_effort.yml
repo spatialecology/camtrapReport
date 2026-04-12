@@ -2,7 +2,7 @@
 name: "effort"
 title: "## Sampling Efforts"
 parent: "methods"
-text: "Sampling effort refers to the total number of camera trap operational days, accounting for both the number of active cameras and their duration of deployment. It provides critical context for interpreting species detection rates and comparing data across years."
+text: "Sampling effort refers to the total number of camera trap operational days, accounting for both the number of active cameras and their duration of deployment. It provides critical context for interpreting species detection rates and comparing data across years. A summary of yearly sampling effort is provided below, including camera breakdowns, average operational days, and total effort per year:"
 code: |
   #| name: camera_locations_leaflet
   #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
@@ -16,36 +16,60 @@ code: |
     runtime_range <- object$camera_stats$runtime_range[i]
     total_runtime_days <- object$camera_stats$total_runtime_days[i]
     total_runtime_years <- object$camera_stats$total_runtime_years[i]
-    
-    if (failed_cameras > 0) {
-      if (failed_cameras > 1) {
-        paste0(
-          "In ", year, ", ", failed_cameras, " cameras broke down during the study period. ",
-          "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
-          "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
-        )
-      } else {
-        paste0(
-          "In ", year, ", ", failed_cameras, " camera broke down during the study period. ",
-          "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
-          "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
-        )
-      }
+
+    broken_text <- if (failed_cameras == 0) {
+      "No cameras broke down during the study period"
+    } else if (failed_cameras == 1) {
+      "One camera broke down during the study period"
+    } else if (failed_cameras == 2) {
+      "Two cameras broke down during the study period"
     } else {
-      paste0(
-        "In ", year, ", NO cameras broke down during the study period. ",
-        "The cameras ran on average ", average_runtime, " days (range ", runtime_range, " days). ",
-        "The total sampling effort was ", total_runtime_days, " days, which equals ", total_runtime_years, " years."
-      )
+      paste(failed_cameras, "cameras broke down during the study period")
     }
-    
+
+    paste0(
+      "<p><strong>", year, ":</strong> ",
+      broken_text,
+      ", the cameras operated for an average of ", average_runtime,
+      " days (range: ", runtime_range,
+      " days), and the total sampling effort was ", total_runtime_days,
+      " days, equivalent to ", total_runtime_years, " years.</p>"
+    )
   })
-  
-  #  Combine Text with Proper Formatting
-  .camera_summary_text <- paste(.camera_summary_text, collapse = " ")
-  
-  # Print Output in RMarkdown HTML
-  cat(.camera_summary_text, "See Figure 2 for detailed information on sampling effort over time.")
+
+  cat('
+  <style>
+    ul.effort-list {
+      margin-top: 0.6rem;
+      margin-bottom: 1rem;
+      padding-left: 1.4rem;
+    }
+
+    ul.effort-list li {
+      margin-bottom: 0.7rem;
+      line-height: 1.6;
+    }
+
+    ul.effort-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    ul.effort-list li::marker {
+      color: #1b5e20;
+    }
+
+    p.effort-figure-note {
+      margin-top: 0.8rem;
+    }
+  </style>
+  ')
+
+  cat(
+    '<ul class="effort-list">',
+    paste0("<li>", gsub("^<p>|</p>$", "", .camera_summary_text), "</li>", collapse = "\n"),
+    '</ul>',
+    '<p class="effort-figure-note"> The following figure provides detailed information on sampling effort over time, and the slider can be used to focus on specific time periods.</p>'
+  )
   #---------------
   
   
@@ -64,11 +88,13 @@ code: |
     htmlwidgets::saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
     
     # Embed iframe inside a **plain gray box (no shadow)**
-  htmltools::tags$div(
-  style = "border: 1px solid #ccc;
-           border-radius: 5px;",
-  htmltools::tags$iframe(
-    srcdoc = paste(readLines(temp_file), collapse = "\n"),
+    tags$div(
+      style = "border: 1px solid #ccc; 
+             background-color: #f0f0f0; 
+             padding: 15px; 
+             border-radius: 5px;",
+      tags$iframe(
+        srcdoc = paste(readLines(temp_file), collapse = "\n"),
         width = "100%", height = "500px",
         style = "border: none;"
       )

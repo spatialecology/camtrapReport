@@ -2,7 +2,7 @@
 name: "co_occurrence"
 title: "## Species Co-occurrence {.tabset}"
 parent: "results"
-text: "Species co-occurrence analysis examines how different species share habitats and interact within the same locations. By using correlation matrices and clustering techniques, we identify species that tend to be found together and those that exhibit avoidance patterns. Understanding co-occurrence patterns helps assess interspecific relationships and habitat preferences."
+text: "Species co-occurrence analysis was used to assess pairwise associations among species recorded across camera-trap locations. Relationships were summarized in a correlation matrix, where positive values indicate species pairs that tended to co-occur more frequently across sites and negative values indicate lower co-occurrence. Such patterns can provide insight into shared space use or spatial segregation among species, although they should be interpreted cautiously because co-occurrence alone does not imply direct interaction. (*Gotelli, 2000*)."
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE,cache=FALSE
