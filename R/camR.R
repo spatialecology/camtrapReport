@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.8
+# Version 2.9
 # Licence GPL v3
 #--------
 
@@ -1229,6 +1229,7 @@ camR <- setRefClass(
       
       if (nrow(.self$habitat) > 0) {
         caps_by_site <- .captures(.self$data, by = "locationName") |>
+          dplyr::select(-scientificName) |>
           left_join(
             .self$data$taxonomy |> 
               dplyr::select(taxonID, scientificName),
@@ -1242,7 +1243,6 @@ camR <- setRefClass(
         
         summary_by_species_habitat <- obs_with_habitat |>
           group_by(
-            observationType,
             class,
             order,
             Habitat_Type,
@@ -1258,7 +1258,6 @@ camR <- setRefClass(
             capture_rate = captures / as.numeric(effort)
           ) |>
           dplyr::select(
-            observationType,
             class,
             order,
             Habitat_Type,

@@ -1,14 +1,12 @@
 Package: camtrapReport
 Type: Package
 Title: Cameratrap Report Generator
-Version: 0.2-26
+Version: 0.2.27
 Date: 2026-04-12
-Authors@R: c(
-    person(given = "Elham",
+Authors@R: c(person(given = "Elham",
            family =:contentReference[oaicite:0]{index=0}re"),
            email = "eebrahimi.bio@gmail.com",
-           comment = c(ORCID = "0000-0001-5191-9832"))
-    )
+           comment = c(ORCID = "0000-0001-5191-9832")))
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -50,4 +48,3 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-
