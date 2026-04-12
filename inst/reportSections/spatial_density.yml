@@ -2,7 +2,7 @@
 name: "spatial_density"
 title: "## Spatial Density"
 parent: "results"
-text: "Spatial density maps generated from point pattern analysis illustrate where species were most frequently detected across the study area. These visualizations highlight spatial variation in observation intensity, helping to identify hotspots of activity as well as areas with low detection probability. Each map shows the density distribution for a selected species, either by year or across the full monitoring period. Warmer colors represent areas of higher detection density, while cooler tones indicate less frequent observations. The interactive layout allows users to explore spatial patterns by toggling between species and years, enabling direct comparisons and revealing temporal shifts in distribution."
+text: "Spatial density maps derived from point pattern analysis illustrate the spatial distribution of species detections across the study area. These visualizations highlight variation in detection intensity and help identify areas with relatively high or low concentrations of records. The following maps are presented for each species, either by survey year or across the full monitoring period. Warmer colors represent higher estimated detection density, whereas cooler colors indicate lower density. Together, these maps support comparison of spatial detection patterns among species and across survey years."
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
@@ -89,8 +89,12 @@ code: |
       }
     }
     
-    cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
+    #cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
+    
+    cat("\n##  {.tabset .unnumbered}\n\n")
+    
     .w <- leaflet()
+    
     for (.year in object$years) {
       .generate_density_maps(.year)
     }

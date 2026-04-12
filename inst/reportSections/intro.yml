@@ -3,12 +3,23 @@ name: "introduction"
 title: "Introduction"
 parent: null
 text: |
-
-  Terrestrial wildlife populations are fundamental to ecosystem structure and function. Wildlife across taxonomic groups contributes to key ecological processes such as nutrient cycling, energy flow, seed dispersal, trophic interactions, and habitat modification, thereby supporting biodiversity and ecosystem resilience (Dirzo et al., 2014). At the same time, wildlife populations are increasingly affected by anthropogenic pressures, especially habitat alteration and land-use change, which may influence their distribution and abundance across space and time (Newbold et al., 2015). Quantifying these responses is therefore crucial for effective protected-area management and evidence-based conservation (Coad et al., 2015).
-
-  Camera trapping has become a cost-effective, reliable, and non-invasive method for monitoring wildlife populations (Burton et al., 2015). Through the automatic capture of images or videos triggered by animal movement within the detection zone of infrared sensors, camera traps provide robust information on species occurrence, habitat use, activity patterns, and relative abundance while minimizing observer-related disturbance. Consequently, camera-trap data have become an important source of biodiversity information and are widely used in ecological research, biodiversity monitoring, and adaptive conservation management.
-
-  The aim of this study is to estimate and monitor {cm$setting$focus_groups} over time and across deployments at {siteName}, and to improve understanding of their spatiotemporal dynamics.
+  Terrestrial wildlife populations play a fundamental role in ecosystem structure and function. Across taxonomic groups, wildlife contributes to key ecological processes such as nutrient cycling, energy flow, seed dispersal, trophic interactions, and habitat modification, thereby supporting biodiversity and strengthening ecosystem resilience (*Dirzo et al., 2014*). However, these populations are increasingly exposed to anthropogenic pressures, especially habitat alteration and land-use change, which may affect their distribution and abundance across space and time (*Newbold et al., 2015*). Understanding and monitoring these responses is therefore crucial for conservation planning, effective protected-area management, and evidence-based decision-making (*Coad et al., 2015*).
   
-code: 
+  To better understand and monitor these responses, camera trapping has become a cost-effective, reliable, and non-invasive method for monitoring wildlife populations. By automatically capturing images or videos when animals move through the detection zone of infrared sensors, camera traps generate robust information on species occurrence, habitat use, activity patterns, and relative abundance while minimizing observer-related disturbance. Consequently, camera-trap data have become an important source of biodiversity information and are widely applied in ecological research, biodiversity monitoring, and adaptive conservation management (*Kays et al., 2009*). These data are valuable to both scientists and practitioners, as they support ecological analyses, advance understanding of species ecology, and provide critical insights into population status and trends (*O’Connell et al., 2011*).
+  
+code: |
+  #| name: intro
+  #| setting: echo=FALSE, results='asis', message=FALSE, warning=FALSE
+  
+  cat(object$reportTextElements$CT_Project$Intro_text,"\n")
+  
+  cat(paste0(
+  "This report presents the results of camera-trap surveys conducted in **",
+  object$siteName,
+  "**, **",
+  object$data_status$Spatial$country,
+  "**. The aim is to estimate and monitor ",
+  .paste_comma_and(object$setting$focus_groups),
+  " over time and across deployments, and to provide insight into wildlife status at this site, including behaviour and changes in spatial and temporal patterns."
+  ))
 ---

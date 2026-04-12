@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.2
-# Licence MIT
+# Version 1.5
+# Licence GPL v3
 #--------
 
 .ct_icons <- function() {
@@ -20,73 +20,70 @@
 .camr_getMergedSummary <- function(cm) {
   
   #----------- # dep_loc = deployments + locations --------------------------
-  dep_loc <- dplyr::left_join(cm$data$deployments,cm$data$locations,by="locationID")
+  dep_loc <- left_join(cm$data$deployments,cm$data$locations,by="locationID")
   
-  if (!"Habitat_Type" %in% colnames(dep_loc) && "habitat" %in% colnames(dep_loc)) {
-    colnames(dep_loc)[colnames(dep_loc) == "habitat"] <- "Habitat_Type"
-  }
-  if ("Habitat_Type" %in% colnames(dep_loc)) {
-    dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type)
-    dep_loc$Habitat_Type <- ifelse(dep_loc$Habitat_Type == "Other", "Unclassified Habitat", dep_loc$Habitat_Type)
-  }
+  if (!"Habitat_Type" %in%  colnames(dep_loc) && 'habitat' %in% colnames(dep_loc)) colnames(dep_loc)[colnames(dep_loc) == "habitat"] <- "Habitat_Type"
+  dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type)
+  dep_loc$Habitat_Type <- ifelse(dep_loc$Habitat_Type == "Other", "Unclassified Habitat", dep_loc$Habitat_Type)
+  
   #----------------- #Count Deployments Per Location --------------------------
   deployments_per_location <- dep_loc |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(
+    group_by(locationID) |>
+    summarise(
       deploymentID_List = toString(unique(deploymentID)), 
-      Num_Deployments = dplyr::n()
+      Num_Deployments = n()
     ) |>
-    dplyr::ungroup()
+    ungroup()
   #----------------- #Capture Methods Per Location --------------------------
   capture_methods_per_location <- cm$data$sequences |>
-    dplyr::left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
-    dplyr::ungroup()
+    left_join(dplyr::select(dep_loc, deploymentID, locationID), by = "deploymentID") |>
+    group_by(locationID) |>
+    summarise(CaptureMethod_List = toString(sort(unique(captureMethod)))) |>
+    ungroup()
   
   #----------------- #setup By Per Location --------------------------
   # Group by locationID and list unique setupBy names
   setup_per_location <- dep_loc |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
-    dplyr::ungroup()
+    group_by(locationID) |>
+    summarise(Setup_By_List = toString(sort(unique(setupBy)))) |>
+    ungroup()
   
   #----------------- #Classify By Per Location --------------------------
   
   #Extract sequenceID to deploymentID mapping from sequences
   sequence_to_deployment <- cm$data$sequences |>
     dplyr::select(sequenceID, deploymentID) |>
-    dplyr::distinct()  # Ensure unique mapping
+    distinct()  # Ensure unique mapping
   
   
   # Merge deploymentID into observations using sequenceID
   observations_with_deployment <- cm$data$observations |>
     dplyr::select(-deploymentID) |>
-    dplyr::left_join(sequence_to_deployment, by = "sequenceID") |>
-    dplyr::left_join(dep_loc[,c("deploymentID","locationID")], by = "deploymentID")  # Merge locationID using deploymentID
+    left_join(sequence_to_deployment, by = "sequenceID") |>
+    left_join(dep_loc[,c("deploymentID","locationID")], by = "deploymentID")  # Merge locationID using deploymentID
   
   
   # Group by locationID and list unique ClassifyBy names
   Classify_per_location <- observations_with_deployment |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(Classify_By_List = toString(sort(unique(classifiedBy)))) |>
-    dplyr::ungroup()
+    group_by(locationID) |>
+    summarise(Classify_By_List = toString(sort(unique(classifiedBy)))) |>
+    ungroup()
   
   # ----------------- List of unique baitUse per location --------------------------
   # Group by locationID and list unique baitUse values, properly separated by ", "
   bait_use_per_location <- dep_loc |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(BaitUse_List = paste(sort(unique(baitUse)), collapse = ", ")) |>  # Ensure ", " separation
-    dplyr::ungroup()
+    group_by(locationID) |>
+    summarise(BaitUse_List = paste(sort(unique(baitUse)), collapse = ", ")) |>  # Ensure ", " separation
+    ungroup()
   
   
   # ----------------- List of deployment years for each location --------------------------
   
   # Aggregate Year List per locationID
   years_per_location <- dep_loc |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(Year_List = paste(sort(unique(Year)), collapse = ", ")) |>  # Keep years in one row
-    dplyr::ungroup()
+    group_by(locationID) |>
+    summarise(Year_List = paste(sort(unique(Year)), collapse = ", ")) |>  # Keep years in one row
+    ungroup()
   
   
   #----------------- How Many Cameras in Each Year? 
@@ -98,64 +95,64 @@
   location_count_per_year <- location_count_per_year[order(location_count_per_year$Unique_Locations,decreasing = TRUE),]
   #-------
   
-  photos_per_location <- dplyr::left_join(dep_loc[,c("deploymentID","locationID")],cm$data$sequences[,c("deploymentID","nrphotos")],by='deploymentID')
+  photos_per_location <- .left_join(dep_loc[,c("deploymentID","locationID")],cm$data$sequences[,c("deploymentID","nrphotos")],by='deploymentID')
   photos_per_location <- photos_per_location |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(Total_Photos=sum(nrphotos,na.rm=TRUE)) |>
-    dplyr::ungroup()
+    group_by(locationID) |>
+    summarise(Total_Photos=sum(nrphotos,na.rm=TRUE)) |>
+    ungroup()
   
   # ----------------- List of Species for Each Location (Final Filtering) --------------------------
   # Step 1-1: Merge observations with taxonomy
   observations_with_taxonomy <- cm$data$observations |>
     dplyr::select(-scientificName) |>
-    dplyr::left_join(cm$data$taxonomy, by = "taxonID")
+    left_join(cm$data$taxonomy, by = "taxonID")
   
   
   # Step 1-2: Group by sequenceID and create a cleaned list of species
   scientific_names_per_observation <- observations_with_taxonomy |>
-    dplyr::group_by(sequenceID) |>
-    dplyr::summarise(ScientificName_List = paste(
+    group_by(sequenceID) |>
+    summarise(ScientificName_List = paste(
       sort(unique(scientificName[
         !is.na(scientificName) & 
           scientificName != "" & 
           grepl("\\s", scientificName)  # Keep only species with at least two words
       ])),
       collapse = ", ")) |>
-    dplyr::ungroup()
+    ungroup()
   
   
   #---
   # Step 2: Merge with scientific_names_per_observation to get deploymentID
   scientific_names_with_deployment <- scientific_names_per_observation |>
-    dplyr::left_join(sequence_to_deployment, by = "sequenceID")
+    left_join(sequence_to_deployment, by = "sequenceID")
   
   # Step 3: Select relevant columns from 'dataNew$deployments' to map 'deploymentID' to 'locationID'
   deployment_to_location <- dep_loc |>
     dplyr::select(deploymentID, locationID) |>
-    dplyr::distinct()  # Ensure unique mapping
+    distinct()  # Ensure unique mapping
   
   # Step 4: Merge with scientific_names_with_deployment to get locationID
   species_per_location <- scientific_names_with_deployment |>
-    dplyr::left_join(deployment_to_location, by = "deploymentID") |>
-    dplyr::group_by(locationID) |>
-    dplyr::summarise(Species_List = paste(
+    left_join(deployment_to_location, by = "deploymentID") |>
+    group_by(locationID) |>
+    summarise(Species_List = paste(
       sort(unique(ScientificName_List[!is.na(ScientificName_List) & ScientificName_List != ""])), 
       collapse = ", ")) |>
-    dplyr::ungroup()
+    ungroup()
   
   
   
   
   
   ################ **Join all data into a single dataframe required for the **Research Area Plot** ################ 
-  .d<-dplyr::left_join(dep_loc, capture_methods_per_location, by= "locationID")
-  .d<-dplyr::left_join(.d, setup_per_location, by= "locationID")
-  .d<-dplyr::left_join(.d, Classify_per_location, by= "locationID")
-  .d<-dplyr::left_join(.d, bait_use_per_location, by= "locationID")
-  .d<-dplyr::left_join(.d, years_per_location, by= "locationID")
-  .d<-dplyr::left_join(.d, photos_per_location, by= "locationID")
+  .d<-left_join(dep_loc, capture_methods_per_location, by= "locationID")
+  .d<-left_join(.d, setup_per_location, by= "locationID")
+  .d<-left_join(.d, Classify_per_location, by= "locationID")
+  .d<-left_join(.d, bait_use_per_location, by= "locationID")
+  .d<-left_join(.d, years_per_location, by= "locationID")
+  .d<-left_join(.d, photos_per_location, by= "locationID")
   
-  .d <- dplyr::left_join(.d, species_per_location, by= "locationID")
+  .d <- left_join(.d, species_per_location, by= "locationID")
   rm(species_per_location,photos_per_location,years_per_location,bait_use_per_location,Classify_per_location,
      setup_per_location,capture_methods_per_location,dep_loc,observations_with_taxonomy,sequence_to_deployment,deployments_per_location)
   .d
@@ -263,6 +260,7 @@
   out <- list(
     total_locationsrow  = NA_integer_,
     total_unique_locations = NA_integer_,
+    coordinate_range = "",
     number_missing_rows   = NA_integer_,
     message_missing = "Not computed",
     num_duplicated_coordinate = NA_integer_,
@@ -329,6 +327,15 @@
            paste(missing_rows, collapse = ", "), "]")
   }
   
+  
+  if (nrow(location_cleaned) > 0) {
+    out$coordinate_range <- sprintf(
+      "%.3f°–%.3f°N and %.3f°–%.3f°E",
+      min(location_cleaned$latitude), max(location_cleaned$latitude),
+      min(location_cleaned$longitude), max(location_cleaned$longitude)
+    )
+  }
+  
   # 2) duplicated IDs / Names
   dup_msg <- function(n_groups, n_extra, icon, label) {
     if (n_extra > 0) sprintf("%s %d duplicated %s (%d extra rows).", icon, n_groups, label, n_extra)
@@ -383,7 +390,7 @@
     
     # Pairwise distance matrix (in meters)
     
-    dist_matrix <- as.matrix(terra::distance(coords_mat,lonlat=TRUE))
+    dist_matrix <- as.matrix(distance(coords_mat,lonlat=TRUE))
     diag(dist_matrix) <- NA
     
     
@@ -455,7 +462,7 @@
     distance_outlier_summary <- paste0(g, " No spatial outliers detected")
   
   # 6) sea vs land
-  loc   <- terra::vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
+  loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
   wrld  <- readRDS(system.file("external/world.map", package="camtrapReport"))
   loc$on_land <- !is.na(terra::extract( wrld[,'name'],loc)$name)
   num_sea_outliers <- sum(!loc$on_land)
@@ -473,8 +480,8 @@
   center_lon <- mean(total_unique_locations_df$longitude, na.rm = TRUE)
   is_northern <- mean(total_unique_locations_df$latitude, na.rm = TRUE) >= 0
   
-  mcp_poly <- terra::hull(.get_projected_vect(loc))
-  out$MCArea <- terra::expanse(mcp_poly,unit='km')
+  mcp_poly <- hull(.get_projected_vect(loc))
+  out$MCArea <- expanse(mcp_poly,unit='km')
   
   
   out$status_MCArea <- paste0(
@@ -564,7 +571,7 @@
   } else {
     out$status_spatial <- "⚠️ Too few locations to detect a spatial pattern"
   }
-  
+  #--------
   cm$data_status$Spatial <- out
 }
 
@@ -1348,7 +1355,7 @@
   req <- c("classificationMethod", "classificationConfidence")
   if (!all(req %in% names(cm$data$observations))) {
     cm$data_status$Annotation$Status <- paste0(
-      .ct_icons()$red, " Missing required columns: ",
+      icon_red, " Missing required columns: ",
       paste(req[!(req %in% names(cm$data$observations))], collapse = ", ")
     )
     return(NULL)
@@ -1719,7 +1726,7 @@
   
   # working table: observationType + captureMethod (from observations if available)
   joined_data <- cm$data$observations |>
-    dplyr::mutate(
+    mutate(
       observationType = .trim_chr(.data[[col_ot]]),
       captureMethod   = if (!is.na(col_cap_obs)) .trim_chr(.data[[col_cap_obs]]) else NA_character_
     )
@@ -1744,9 +1751,9 @@
           )
         
         joined_data <- joined_data |>
-          dplyr::mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
-          dplyr::left_join(seq_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          dplyr::mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_seq)) |>
+          mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
+          left_join(seq_map, by = c("seq_join_key" = "sequenceID_join")) |>
+          mutate(captureMethod = coalesce(captureMethod, captureMethod_seq)) |>
           dplyr::select(-captureMethod_seq, -seq_join_key)
       }
     }
@@ -1762,7 +1769,7 @@
       if (!is.na(col_seq_med) && !is.na(col_cap_med)) {
         
         med_map <- cm$data$media |>
-          dplyr::mutate(sequenceID_join = .trim_chr(.data[[col_seq_med]])) |>
+          mutate(sequenceID_join = .trim_chr(.data[[col_seq_med]])) |>
           dplyr::filter(!is.na(sequenceID_join) & sequenceID_join != "") |>
           dplyr::distinct(sequenceID_join, .keep_all = TRUE) |>
           dplyr::transmute(
@@ -1771,9 +1778,9 @@
           )
         
         joined_data <- joined_data |>
-          dplyr::mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
-          dplyr::left_join(med_map, by = c("seq_join_key" = "sequenceID_join")) |>
-          dplyr::mutate(captureMethod = dplyr::coalesce(captureMethod, captureMethod_med)) |>
+          mutate(seq_join_key = .trim_chr(.data[[col_seq_obs]])) |>
+          left_join(med_map, by = c("seq_join_key" = "sequenceID_join")) |>
+          mutate(captureMethod = coalesce(captureMethod, captureMethod_med)) |>
           dplyr::select(-captureMethod_med, -seq_join_key)
       }
     }
@@ -1808,7 +1815,562 @@
     Combined = observation_type_df
   )
 }
+#--------
+# add information about project (CT_project) to the reportObjectElements
+.project_info <- function(cm) {
+  txt <- unlist(c(cm$info$json$project$title, cm$info$json$name))
+  txt <- txt[!is.na(txt) & nzchar(txt)]
+  
+  if (length(txt) > 0 && any(grepl("\\beow\\b", txt, ignore.case = TRUE))) {
+    cm$reportTextElements$name <- "EOW"
+    cm$reportTextElements$message <- "This survey is part of the [European Observatory of Wildlife](https://wildlifeobservatory.org/), an international project in which institutions monitor protected areas across European countries."
+    cm$reportTextElements$Intro_text <- "The [European Observatory of Wildlife (EOW)](https://wildlifeobservatory.org/) is a standardized camera-trapping network operating across more than 100 study areas in Europe. It is coordinated by the [ENETWILD](https://enetwild.com/) consortium and funded by the [European Food Safety Authority (EFSA)](https://www.efsa.europa.eu/en). Images collected by camera traps within this network are processed and archived in Agouti, exported in the [Camtrap-DP](https://camtrap-dp.tdwg.org/) standard format, and included in annual monitoring reports submitted to EFSA. A key feature of the EOW protocol is the use of the [Random Encounter Model (REM)](https://github.com/MarcusRowcliffe/camtrapDensity) to estimate population density from camera-trap detections (*Rowcliffe et al., 2014*). As a result, the entire workflow follows an established and standardized framework."
+    cm$info[["is.EOW"]] <- TRUE
+  } else {
+    cm$reportTextElements$name <- "Non-EOW"
+    cm$reportTextElements$message <- ""
+    cm$reportTextElements$Intro_text <- ""
+    cm$info[["is.EOW"]] <- FALSE
+  }
+  
+  #-------- Extract habitat values
+  hab_vals <- character(0)
+  
+  if ("habitat" %in% names(cm$data$deployments)) {
+    hab_vals <- c(hab_vals, cm$data$deployments$habitat)
+  }
+  
+  if (nrow(cm$habitat) > 0 && "habitat" %in% names(cm$habitat)) {
+    hab_vals <- c(hab_vals, cm$habitat$habitat)
+  }
+  
+  hab_vals <- trimws(as.character(hab_vals))
+  hab_vals <- hab_vals[!is.na(hab_vals) & hab_vals != ""]
+  hab_vals <- sort(unique(hab_vals))
+  
+  if (length(hab_vals) == 0) {
+    cm$reportTextElements$habitat_values <- ""
+    cm$reportTextElements$habitat_text <- ""
+  } else {
+    cm$reportTextElements$habitat_values <- hab_vals
+    
+    if (length(hab_vals) == 1) {
+      cm$reportTextElements$habitat_text <- paste0(
+        "The habitat type in this area is mostly ", hab_vals, "."
+      )
+    } else {
+      cm$reportTextElements$habitat_text <- paste0(
+        "The area is a mosaic of ", .paste_comma_and(hab_vals), " habitat types."
+      )
+    }
+  }
+  
+  #-------- Extract 5 most observed species
+  if (is.null(cm$data_status$Species$Table)) .Species(cm)
+  
+  sp_table <- cm$data_status$Species$Table
+  
+  if (is.data.frame(sp_table) &&
+      all(c("scientificName", "obs_records_count") %in% names(sp_table))) {
+    
+    sp_table <- sp_table[
+      !is.na(sp_table$scientificName) & trimws(sp_table$scientificName) != "",
+      ,
+      drop = FALSE
+    ]
+    
+    top5_names <- sp_table$scientificName[
+      order(sp_table$obs_records_count, decreasing = TRUE)
+    ][1:min(5, nrow(sp_table))]
+    
+    cm$data_status$Species$most_observed_sp <- top5_names
+    top5_names_italic <- paste0("*", top5_names, "*")
+    cm$reportTextElements$most_observed_sp_text <- .paste_comma_and(top5_names_italic)
+    
+  } else {
+    cm$data_status$Species$most_observed_sp <- character(0)
+    cm$reportTextElements$most_observed_sp_text <- ""
+  }
+  
+  #-------- Image processing source
+  if (!is.null(cm$info$json$sources) &&
+      length(cm$info$json$sources) > 0 && !is.null(cm$info$json$sources[[1]]$title)) {
+    cm$reportTextElements$data_source <- cm$info$json$sources[[1]]$title
+  } else {
+    cm$reportTextElements$data_source <- ""
+  }
+}
+#--------
 
+.get_sampling_text <- function(cm) {
+  p1 <- p2 <- p3 <- ""
+  if (!is.null(cm$info$is.EOW) && cm$info$is.EOW) {
+    p1 <- paste(
+      "Based on the [EOW camera-trap protocol](https://enetwild.com/ct-protocol-for-wild-boar),",
+      "at least 40 unbaited camera traps were deployed per survey on a 1 km grid for a minimum of one month.",
+      "This design ensures unbiased sampling of natural wildlife movements and provides representative ecological data",
+      "for the study area, enabling trend analyses and spatiotemporal comparisons.",
+      "The EOW protocol also includes camera calibration procedures, allowing researchers to georeference image pixels",
+      "for precise spatial analyses."
+    )
+  }
+  #-----
+  # p2:
+  if (!is.null(cm$info$json) && !is.null(cm$info$json$project$samplingDesign) && length(cm$info$json$project$samplingDesign) > 0) {
+    sampling_design <- unique(trimws(as.character(cm$info$json$project$samplingDesign)))
+    sampling_design <- sampling_design[!is.na(sampling_design) & sampling_design != ""]
+    #-----
+    if (length(sampling_design) > 0) {
+      
+      pretty_label_for <- function(x) {
+        switch(
+          x,
+          "simpleRandom" = "simple random",
+          "systematicRandom" = "systematic random",
+          "clusteredRandom" = "clustered random",
+          "experimental" = "experimental",
+          "targeted" = "targeted",
+          "opportunistic" = "opportunistic",
+          x
+        )
+      }
+      
+      pretty_labels <- vapply(sampling_design, pretty_label_for, FUN.VALUE = character(1))
+      
+      format_nice_list <- function(x) {
+        n <- length(x)
+        if (n == 1) return(x)
+        if (n == 2) return(paste(x, collapse = " and "))
+        paste0(paste(x[1:(n - 1)], collapse = ", "), ", and ", x[n])
+      }
+      
+      descriptions <- list(
+        simpleRandom = paste(
+          "In a simple random design, camera locations are placed purely at random within the study area,",
+          "which minimizes spatial bias but can lead to uneven coverage in some regions."
+        ),
+        systematicRandom = paste(
+          "In a systematic random design, camera locations are initially chosen at random but then arranged in a regular pattern, such as a grid,",
+          "providing more even spatial coverage while retaining a random starting point."
+        ),
+        clusteredRandom = paste(
+          "In a clustered random design, cameras are grouped into clusters or arrays, and the positions of these clusters",
+          "and/or cameras within them are chosen at random, which is useful when logistical efficiency or local-scale questions require grouped sampling."
+        ),
+        experimental = paste(
+          "In an experimental design, camera placement is non-random and specifically structured to test hypotheses or treatment effects,",
+          "such as before-after or control-impact comparisons."
+        ),
+        targeted = paste(
+          "In a targeted design, cameras are placed non-randomly at locations expected to maximize detections of particular species,",
+          "such as trails or water sources."
+        ),
+        opportunistic = paste(
+          "In an opportunistic design, cameras are deployed in an ad hoc way, often without a predefined sampling frame,",
+          "which can yield useful records but is generally not suitable for rigorous population- or community-level inference."
+        )
+      )
+      
+      desc_vec   <- descriptions[sampling_design]
+      known_desc <- desc_vec[!vapply(desc_vec, is.null, logical(1))]
+      
+      if (length(pretty_labels) == 1) {
+        intro <- sprintf("The sampling design at this site is %s.", pretty_labels)
+      } else {
+        intro <- sprintf(
+          "The sampling design at this site combines the following approaches: %s.",
+          format_nice_list(pretty_labels)
+        )
+      }
+      
+      if (length(known_desc) == 0) {
+        p2 <- intro
+      } else p2 <- paste(intro, paste(unlist(known_desc), collapse = " "))
+    }
+    
+  }
+  #---------
+  
+  # Helper: clean unique values
+  clean_unique_vals <- function(x) {
+    x <- as.character(x)
+    x <- trimws(x)
+    x <- x[!is.na(x) & x != "" & tolower(x) != "na"]
+    unique(x)
+  }
+  
+  # Helper: normalize TRUE/FALSE-like values
+  normalize_boolish <- function(x) {
+    x <- as.character(x)
+    x <- trimws(tolower(x))
+    x <- x[!is.na(x) & x != "" & x != "na"]
+    x[x %in% c("true", "t", "1")] <- "TRUE"
+    x[x %in% c("false", "f", "0")] <- "FALSE"
+    unique(x[x %in% c("TRUE", "FALSE")])
+  }
+  
+  # Helper: pretty labels for capture methods
+  pretty_capture_method <- function(x) {
+    x <- trimws(as.character(x))
+    x <- gsub("activityDetection", "activity detection", x, fixed = TRUE)
+    x <- gsub("timeLapse", "time-lapse", x, fixed = TRUE)
+    x <- gsub("motionDetection", "motion detection", x, fixed = TRUE)
+    x <- gsub("audio", "audio recording", x, fixed = TRUE)
+    x
+  }
+  
+  # Helper: camera model sentence
+  camera_model_text_fun <- function(x) {
+    vals <- clean_unique_vals(x)
+    
+    if (length(vals) == 0) return("")
+    
+    if (length(vals) <= 3) {
+      paste0(
+        "Camera surveys at this site were conducted using the following camera model",
+        ifelse(length(vals) > 1, "s: ", ": "),
+        to_comma_and(vals), "."
+      )
+    } else {
+      "Multiple camera models were used at this site."
+    }
+  }
+  
+  # Helper: bait sentence
+  bait_text_fun <- function(x) {
+    vals <- normalize_boolish(x)
+    
+    if (length(vals) == 0) return("")
+    
+    if (identical(sort(vals), "FALSE")) {
+      "No bait was used during camera deployment."
+    } else if (identical(sort(vals), "TRUE")) {
+      "Bait was used in this survey."
+    } else if (all(c("TRUE", "FALSE") %in% vals)) {
+      "A mixture of baited and unbaited camera deployments was used in this survey."
+    } else {
+      ""
+    }
+  }
+  
+  # Helper: camera height sentence
+  camera_height_text_fun <- function(x) {
+    x_num <- suppressWarnings(as.numeric(as.character(x)))
+    x_num <- x_num[!is.na(x_num)]
+    x_num <- sort(unique(x_num))
+    
+    if (length(x_num) == 0) return("")
+    
+    if (length(x_num) <= 3) {
+      paste0(
+        "Cameras were mounted at approximately ",
+        to_comma_and(format(round(x_num, 2), trim = TRUE)),
+        " m above the ground."
+      )
+    } else {
+      paste0(
+        "Multiple camera heights were used at this site, ranging from ",
+        round(min(x_num), 2), " to ", round(max(x_num), 2),
+        " m above the ground."
+      )
+    }
+  }
+  
+  # Helper: capture method sentence
+  capture_method_text_fun <- function(x) {
+    vals <- clean_unique_vals(x)
+    vals <- pretty_capture_method(vals)
+    
+    if (length(vals) == 0) return("")
+    
+    paste0(
+      "Media were captured using ",
+      to_comma_and(vals),
+      "."
+    )
+  }
+  
+  # Helper: individual animals sentence
+  individual_animals_text_fun <- function(x) {
+    vals <- normalize_boolish(x)
+    
+    if (length(vals) == 0) return("")
+    
+    if (identical(sort(vals), "FALSE")) {
+      "This project was not specifically designed to identify individual animals, but rather to support broader wildlife monitoring."
+    } else if (identical(sort(vals), "TRUE")) {
+      "This project was designed to support the identification and monitoring of individual animals."
+    } else if (all(c("TRUE", "FALSE") %in% vals)) {
+      "This project supports both the identification of individual animals and broader wildlife monitoring."
+    } else {
+      ""
+    }
+  }
+  
+  # Extract source values
+  cam_models <- if ("cameraModel" %in% names(cm$data$deployments)) cm$data$deployments$cameraModel else NULL
+  bait_vals  <- if ("baitUse" %in% names(cm$data$deployments)) cm$data$deployments$baitUse else NULL
+  height_vals <- if ("cameraHeight" %in% names(cm$data$deployments)) cm$data$deployments$cameraHeight else NULL
+  
+  capture_methods <- cm$info$json$project$captureMethod
+  individual_animals <- cm$info$json$project$individualAnimals
+  
+  # Combine into one flexible paragraph
+  p3 <- c(
+    camera_model_text_fun(cam_models),
+    bait_text_fun(bait_vals),
+    camera_height_text_fun(height_vals),
+    capture_method_text_fun(capture_methods),
+    individual_animals_text_fun(individual_animals)
+  )
+  
+  p3 <- p3[!is.na(p3) & nzchar(trimws(p3))]
+  
+  p3 <- paste(p3, collapse = " ")
+  #---------
+  cm$reportTextElements$sampling <- paste(list(p1=p1,p2=p2,p3=p3),collapse = '\n')
+  
+}
+#--------
 
+.get_authors_text <- function(cm) {
+  
+  contributors <- cm$info$json$contributors
+  
+  if (is.null(contributors) || length(contributors) == 0) {
+    return("")
+  }
+  
+  # Convert list-of-lists to data frame
+  contributors_df <- dplyr::bind_rows(contributors)
+  
+  # Pattern for likely organizations / non-person entries
+  org_pattern <- paste(
+    "university|universiteit|institute|institution|center|centre|research|admin|",
+    "observatory|consortium|network|project|laboratory|lab|group|team",
+    sep = ""
+  )
+  
+  authors_tbl <- contributors_df |>
+    dplyr::filter(!is.na(title), nzchar(trimws(title)))
+  
+  authors_tbl$title_clean <- sapply(authors_tbl$title,.trim)
+  authors_tbl$title_lower <- sapply(authors_tbl$title_clean,tolower)
+  authors_tbl$n_words <- sapply(authors_tbl$title_clean,.wordN)
+  authors_tbl$is_contact <- authors_tbl$role == "contact"
+  
+  authors_tbl <- authors_tbl |>
+    # Remove likely organizations
+    dplyr::filter(!grepl(org_pattern,title_lower)) |>
+    # Keep likely personal names only
+    dplyr::filter(n_words >= 2) |>
+    # If duplicate names exist, keep the contact version first
+    dplyr::arrange(dplyr::desc(is_contact), title_clean) |>
+    dplyr::group_by(title_clean) |>
+    dplyr::slice(1) |>
+    dplyr::ungroup()
+  
+  authors_tbl$family_name <- sapply(authors_tbl$title_clean,.word,start=-1)
+  
+  
+  if (nrow(authors_tbl) == 0) {
+    return("")
+  }
+  # Order:
+  # 1) all non-contacts by family name
+  # 2) all contacts by family name, at the end
+  authors_tbl <- authors_tbl |>
+    dplyr::arrange(is_contact, family_name, title_clean)
+  
+  author_names <- authors_tbl$title_clean
+  
+  # Mark the last contact author with *
+  if (any(authors_tbl$is_contact)) {
+    last_contact_id <- max(which(authors_tbl$is_contact))
+    author_names[last_contact_id] <- paste0(author_names[last_contact_id], "*")
+  }
+  
+  # Format author list
+  n <- length(author_names)
+  
+  if (n == 1) {
+    return(author_names[1])
+  } else if (n == 2) {
+    return(paste(author_names[1], "and", author_names[2]))
+  } else {
+    return(paste0(
+      paste(author_names[1:(n - 1)], collapse = ", "),
+      ", and ",
+      author_names[n]
+    ))
+  }
+}
+
+#--------
+
+.get_institute <- function(cm) {
+  contributors <- cm$info$json$contributors
+  x <- dplyr::bind_rows(contributors)
+  
+  # make sure needed columns exist
+  for (nm in c("title", "role", "organization")) {
+    if (!nm %in% names(x)) x[[nm]] <- NA_character_
+  }
+  
+  x$title <- trimws(as.character(x$title))
+  x$role <- trimws(as.character(x$role))
+  x$organization <- trimws(as.character(x$organization))
+  
+  # always remove Agouti Admins
+  x <- x[tolower(x$title) != "agouti admins", , drop = FALSE]
+  # helper: get affiliation for a given person by searching all rows of that person
+  get_affiliation_for_person <- function(person_name) {
+    aff <- x$organization[
+      x$title == person_name &
+        !is.na(x$organization) &
+        nzchar(x$organization)
+    ]
+    aff <- unique(aff)
+    if (length(aff) == 0) NA_character_ else aff[1]
+  }
+  
+  # 1. contact affiliations first
+  contact_names <- unique(x$title[x$role == "contact"])
+  contact_names <- contact_names[!is.na(contact_names) & nzchar(contact_names)]
+  
+  contact_aff <- vapply(contact_names, get_affiliation_for_person, character(1))
+  contact_aff <- unique(contact_aff[!is.na(contact_aff) & nzchar(contact_aff)])
+  
+  # 2. then PI affiliations (excluding contacts already handled)
+  pi_names <- unique(x$title[x$role == "principalInvestigator"])
+  pi_names <- pi_names[!is.na(pi_names) & nzchar(pi_names)]
+  pi_names <- setdiff(pi_names, contact_names)
+  
+  pi_aff <- vapply(pi_names, get_affiliation_for_person, character(1))
+  pi_aff <- unique(pi_aff[!is.na(pi_aff) & nzchar(pi_aff)])
+  
+  # 3. then other contributor affiliations
+  other_aff <- x$organization[
+    !x$role %in% c("contact", "principalInvestigator") &
+      !is.na(x$organization) &
+      nzchar(x$organization)
+  ]
+  other_aff <- unique(other_aff)
+  
+  # combine in priority order
+  aff_all <- c(
+    contact_aff,
+    pi_aff[!pi_aff %in% contact_aff],
+    other_aff[!other_aff %in% c(contact_aff, pi_aff)]
+  )
+  
+  .paste_comma_and(aff_all)
+}
+#-----------
+# ---------------------------------------------------
+# Helpers used by the capture-processing block
+
+.round_capture_metric <- function(x) {
+  dplyr::case_when(
+    is.na(x)    ~ NA_real_,
+    x >= 1      ~ round(x, 2),
+    x >= 0.1    ~ round(x, 3),
+    TRUE        ~ round(x, 4)
+  )
+}
+
+.pick_station_col <- function(data) {
+  if (!is.null(data$locations) && "locationName" %in% names(data$locations)) {
+    "locationName"
+  } else if (!is.null(data$deployments) && "locationID" %in% names(data$deployments)) {
+    "locationID"
+  } else {
+    "deploymentID"
+  }
+}
+
+.make_species_name <- function(df) {
+  nm <- rep(NA_character_, nrow(df))
+  
+  if ("vernacularNames.eng" %in% names(df)) {
+    nm <- dplyr::coalesce(nm, as.character(df$vernacularNames.eng))
+  }
+  if ("vernacularNames" %in% names(df)) {
+    nm <- dplyr::coalesce(nm, as.character(df$vernacularNames))
+  }
+  if ("scientificName" %in% names(df)) {
+    nm <- dplyr::coalesce(nm, as.character(df$scientificName))
+  }
+  if ("taxonID" %in% names(df)) {
+    nm <- dplyr::coalesce(nm, as.character(df$taxonID))
+  }
+  
+  nm
+}
+#--------
+.build_capture_table <- function(pkg, year_label, station_col) {
+  
+  # Species-level summary across the package/year
+  cap <- .captures(pkg)
+  
+  if (is.null(cap) || nrow(cap) == 0) {
+    return(
+      data.frame(
+        Species_Name = character(),
+        scientificName = character(),
+        Year = character(),
+        Captures = integer(),
+        Capture_Rate = numeric(),
+        RAI = numeric(),
+        Locations = integer()
+      )
+    )
+  }
+  
+  # Stable key for joins
+  key_cols <- intersect(c("taxonID", "scientificName"), names(cap))
+  if (length(key_cols) == 0) {
+    stop("No stable taxonomic key found in capture summary.")
+  }
+  
+  # Count number of unique stations/locations with >=1 capture
+  cap_by_station <- .captures(pkg, by = station_col)
+  
+  loc_count <- cap_by_station |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(key_cols))) |>
+    dplyr::summarise(
+      Locations = dplyr::n_distinct(.data[[station_col]]),
+      .groups = "drop"
+    )
+  
+  out <- cap |>
+    dplyr::left_join(loc_count, by = key_cols) |>
+    dplyr::mutate(
+      Locations = dplyr::coalesce(.data$Locations, 0L)
+    )
+  
+  # Prefer vernacular name for display, but keep scientificName as key/output
+  out$Species_Name <- .make_species_name(out)
+  
+  out <- out |>
+    dplyr::mutate(
+      Year = as.character(year_label),
+      Capture_Rate = .round_capture_metric(.data$capture_rate),
+      RAI = .round_capture_metric(.data$rai)
+    ) |>
+    dplyr::select(
+      Species_Name,
+      scientificName,
+      Year,
+      Captures = captures,
+      Capture_Rate,
+      RAI,
+      Locations
+    ) |>
+    dplyr::distinct(.data$scientificName, .data$Year, .keep_all = TRUE) |>
+    dplyr::arrange(.data$Species_Name)
+  
+  out
+}
 
 

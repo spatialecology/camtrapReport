@@ -1,37 +1,139 @@
 ---
-title: camtrapReport
+title: Get started
 ---
+# Get started
 
-# camtrapReport
+## Package aims
 
-## Context
-[**camtrapReport**](https://github.com/spatialecology/camtrapReport) is a modular and extensible R package that provides an end-to-end workflow for processing camera-trap data and automatically generating reproducible reports that deliver ecological insights. The main functions of the package include:
+[**`camtrapReport`**](https://github.com/spatialecology/camtrapReport) helps turn camera-trap data into standardised, reproducible ecological outputs through a workflow designed to automate as much of the reporting process as possible. The package combines data quality checks, summarisation, visualisation, and ecological analysis in a modular framework, helping users move efficiently from raw records to interpretable results. Its automated workflow improves comparability, scalability, and reproducibility across sites and over time, while reducing technical barriers and supporting transparent, efficient, and timely ecological reporting. The main functions of the package include:
 
-- **<span class="module-accent">Data Status Check</span>**, which performs automated diagnostics of data quality and completeness.
-- **<span class="module-accent">Ecological Report Generation</span>**, which produces standardised outputs and a broad range of ecological analyses and visualisations through modular components.
+-   **Data status report**, which performs automated diagnostics of data quality and completeness across key components of camera-trap datasets, including spatial and temporal information, key column availability, annotations, validation status, and observation types by capture method. These checks help users identify missing information, inconsistencies, and unusual values that may require correction or completion.
 
-*`camtrapReport`* transforms raw camera-trap data into structured ecological insights through an automated and reproducible workflow. It improves comparability across sites and over time, reduces technical barriers for users with different levels of programming experience, and supports timely, transparent, and shareable ecological reporting for evidence-based conservation.
+-   **Ecological report**, which produces standardised outputs through modular components. Reports can include descriptive information, summaries of key data, visualisations of important patterns, and ecological assessments and analyses.
 
-## Data Standard Format
 
-*`camtrapReport`* is designed for datasets provided in, or converted to, the [Camtrap-DP standard](https://camtrap-dp.tdwg.org/) format, which is a community-developed data exchange format for camera-trap data.
+## Data standard format
 
-Several camera-trap data management systems support Camtrap-DP as an export format, including [Agouti](https://agouti.eu/) and [TRAPPER](https://os-conservation.org/trapper/). It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap-DP format for use in *`camtrapReport`*.
+`camtrapReport` is designed for datasets provided in, or converted to, the [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/), which is a community-developed data exchange format for camera-trap data. Several camera-trap data management systems support Camtrap-DP as an export format, including [Agouti](https://agouti.eu/) and [TRAPPER](https://os-conservation.org/trapper/). It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap-DP format for use in `camtrapReport`.
 
-## Example Input Datasets
+### Example input datasets
 
-Several open-source camera-trap datasets based on the Camtrap-DP standard are available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data) and can be useful for testing the *`camtrapReport`* package:
+Several open-source camera-trap datasets based on the Camtrap-DP standard are available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data) and can be useful for testing `camtrapReport`.
 
-- [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download)
-- [Antwerp dataset](https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download)
-- [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download)
-- [Colombia dataset](https://album.wildlabs.net/dataset/3856c01f-5031-4cc1-a5b2-2daa9537411b/download)
-- [Alpine-Tundra dataset](https://album.wildlabs.net/dataset/13101e81-bc62-4553-9fd9-c5c8eb3fb9ab/download)
-- [Snapshot-Japan dataset](https://album.wildlabs.net/dataset/f0a42d7d-1eda-4ec8-ac66-c1343acea3bc/download)
-- [Forest-Colombia dataset](https://album.wildlabs.net/dataset/f0963153-077b-4676-a337-891a06fab52a/download)
-- [Amsterdam dataset](https://album.wildlabs.net/dataset/74196cd9-7ebc-4b20-bc27-3c2d22e31ed7/download)
-- [Cali dataset](https://album.wildlabs.net/dataset/77972fac-09bc-460b-a0d6-34b87b1b4b72/download)
-- [Luxembourg dataset](https://album.wildlabs.net/dataset/fc3f505a-05d8-4b3e-908c-8880fc9899f7/download)
+::: {style="columns: 2; -webkit-columns: 2; -moz-columns: 2;"}
+<ul>
+
+<li><a href="https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download">Leuven dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download">Antwerp dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download">MICA dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/3856c01f-5031-4cc1-a5b2-2daa9537411b/download">Colombia dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/13101e81-bc62-4553-9fd9-c5c8eb3fb9ab/download">Alpine-Tundra dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/f0a42d7d-1eda-4ec8-ac66-c1343acea3bc/download">Snapshot-Japan dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/f0963153-077b-4676-a337-891a06fab52a/download">Forest-Colombia dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/74196cd9-7ebc-4b20-bc27-3c2d22e31ed7/download">Amsterdam dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/77972fac-09bc-460b-a0d6-34b87b1b4b72/download">Cali dataset</a></li>
+
+<li><a href="https://album.wildlabs.net/dataset/fc3f505a-05d8-4b3e-908c-8880fc9899f7/download">Luxembourg dataset</a></li>
+
+</ul>
+:::
+
+## First use: installation
+
+Install `camtrapReport` with the standard `remotes` workflow:
+
+``` r
+# install using the "remotes" package
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("spatialecology/camtrapReport")
+```
+
+### Load the package
+
+In addition to loading `camtrapReport` package, depending on which report sections and methods you use, additional packages may be required. To ensure full functionality, run the helper function, `inatall_All`, that installs all package dependencies:
+
+``` r
+library(camtrapReport)
+install_All()
+```
+*Tip: You may be prompted to approve package installations or compile packages from source. Make sure you have an active internet connection.*
+
+## Create the camReport object
+
+
+At the core of `camtrapReport` is a mutable Reference Class object called `camReport`, which acts as the central workflow container and module registry. It stores harmonised input data, user-defined settings, and intermediate results throughout the reporting process.
+
+Use `camData()` to create the `camReport` object by reading and pre-processing your camera-trap dataset.
+
+## Required input
+
+To keep the workflow simple and reproducible, the only required input is a single `.zip` file containing the dataset in Camtrap-DP format.
+
+```r
+cm <- camData("C:/Users/ebrah010/Data/EOW-Veluwe.zip")
+```
+
+### **Habitat data**
+
+Habitat information may already be included in [deployment.csv](https://camtrap-dp.tdwg.org/data/#deployments). If it is missing, you can either add it in your data management systems (eg., [Agouti](https://agouti.eu/)) before exporting the dataset or provide it separately as a two-column CSV file with *locationName* and *Habitat*.
+
+``` r
+habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")
+head(habitat)
+#   locationName      Habitat
+# 1       VEL-01     Sandhill
+# 2       VEL-02       Forest
+# 3       VEL-03 Dry_heathland
+```
+
+### **Study area polygon**
+
+A polygon shapefile of the site boundary can be provided to improve maps and add spatial context to the report.
+
+``` r
+study_area <- vect("C:/Users/ebrah010/Data/studyarea_nl.shp")
+```
+
+When optional input data are available, they can be supplied directly to camData():
+
+``` r
+cm <- camData(
+  "C:/Users/ebrah010/Data/EOW-Veluwe.zip",
+  habitat = habitat,
+  study_area = study_area
+)
+```
+
+## Data status report
+
+To generate a data status report and review the quality and completeness of the input data, use:
+
+``` r
+cm$generateStatusReport()
+```
+
+## Ecological report generation
+
+Once the input data have been prepared, a full ecological report can be generated using `report()`:
+
+``` r
+report(cm, view = TRUE)  
+# Open the report automatically after creation with view = TRUE
+```
+
+## Conclusion
+
+This page introduced the basic workflow for setting up input data, reviewing data quality, and generating reports with `camtrapReport`. To explore the available options for customising the ecological report, see the [Package overview vignette](). For more detail on the package’s modular and extensible design, including how to add new report sections, see the [Module vignette]().
 
 ## Contribute
 
@@ -39,12 +141,12 @@ Questions, suggestions, and ideas for improvement are always welcome. You can co
 
 ## Citation
 
-As the official scientific publication for *`camtrapReport`* is still in preparation, please cite the package as:
+As the official scientific publication for `camtrapReport` is still in preparation, please cite the package as:
 
-<span class="citation-text">Ebrahimi, E., &amp; Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. https://zenodo.org/records/18405441</span>
+[Ebrahimi, E., & Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. <https://zenodo.org/records/18405441>]{.citation-text}
 
 For package citation details, please refer to the citation information available in the [GitHub repository](https://github.com/spatialecology/camtrapReport).
 
 ## Acknowledgment
 
-The development of *`camtrapReport`* was supported by [Biodiversa+](https://www.biodiversa.eu/2022/10/07/2022-2023-joint-call/) through the [Big Picture project](https://wildlifecamera.eu/).
+The development of `camtrapReport` was supported by [Biodiversa+](https://www.biodiversa.eu/2022/10/07/2022-2023-joint-call/) through the [Big Picture project](https://wildlifecamera.eu/).

@@ -2,30 +2,30 @@
 name: "appendix"
 title: "Appendix {.tabset .unnumbered}"
 parent: null
-text: "This report was generated using the R package camtrapReport, developed by Elham Ebrahimi and Patrick Jansen from the Wildlife Ecology and Conservation Group, Wageningen University, and the Wildlife Ecology and Nature Restoration Group, Utrecht University. Users are kindly requested to cite the package using its DOI (https://doi.org/10.5281/zenodo.15721045) when using camtrapReport or publishing results based on it."
+text: null
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE
-  #| packages: dplyr, htmltools
+  #| packages: dplyr, htmltools, magick
   
   # Filter media with favorites
-    favoImgs <- object$data$media %>%
-      dplyr::filter(favourite == TRUE) %>%
-      left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') %>%
-      left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") %>%
+    favoImgs <- object$data$media |>
+      dplyr::filter(favourite == TRUE) |>
+      left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') |>
+      left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") |>
       group_by(scientificName)
     
     .downloadable <- FALSE
     
     if (nrow(favoImgs) > 0) {
       if (!is.null(object$setting$focus_groups)) {
-        favoImgs <- favoImgs %>%
-          dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) %>%
-          sample_n(1) %>%
+        favoImgs <- favoImgs |>
+          dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) |>
+          sample_n(1) |>
           ungroup()
       } else {
-        favoImgs <- favoImgs %>%
-          sample_n(1) %>%
+        favoImgs <- favoImgs |>
+          sample_n(1) |>
           ungroup()
       }
       
@@ -87,16 +87,16 @@ code: |
         .fn <- favoImgs$fileName
         html_output <- '<div class="image-container">'
         for (i in seq_along(.fn)) {
-          .pic_fn <- paste0(object$info$directory,"/_camtrap_pictures/",.fn[i])
+          .pic_fn <- normalizePath(paste0(object$info$directory,"/_camtrap_pictures/",.fn[i]))
           if (!file.exists(.pic_fn)) {
             .pic_link <- favoImgs$filePath[i]
             if (grepl("^https?://", .pic_link)) {
               e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
               if (!inherits(e,'try-error')) {
                 # Resize and save locally
-                image_read(.pic_fn) %>%
-                  image_scale("600") %>%
-                  image_write(path = .pic_fn)
+                image_read(.pic_fn) |>
+                  image_scale("600") |>
+                  image_write(path =  .pic_fn)
                 
                 .downloadable <- TRUE
               }
@@ -107,12 +107,10 @@ code: |
             .downloadable <- TRUE
             # Add image with lightbox effect
             html_output <- paste0(html_output, '
-        <div class="image-box">
-          <a href="#img', i, '"><img src="', .pic_fn, '" alt="Image ', i, '"></a>
-        </div>')
-          } # else {
-          #html_output <- paste0(html_output, "<p style='color: red;'> Image not found: ", .pic_link, "</p>")
-          #}
+            <div class="image-box">
+              <a href="#img', i, '"><img src="', .pic_fn, '" alt="Image ', i, '"></a>
+            </div>')
+          }
         }
         #------
         html_output <- paste0(html_output, '</div>')
@@ -131,9 +129,6 @@ code: |
         }
         
         # Render HTML correctly
-        
-        
-        
       }
     }
   

@@ -1,15 +1,15 @@
 ---
 name: "population_densities"
-title: "### Population densities {.tabset}"
+title: "### Population Density Estimates {.tabset}"
 parent: "population_density"
-text: "For each study species, population densities were estimated using the REM implemented via the *camtrapDensity* package. The resulting plots are organized into interactive tabs, allowing users to dynamically explore density estimates across survey years for each species.\n\n"
+text: "The plots below show annual population density estimates for each study species, together with 95% confidence intervals. These estimates allow comparison of temporal variation in density across survey years.\n\n"
 code: |
   #| name: pop_densities
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
   #| packages: ggplot2, dplyr
   
   
-  if ("estiamtes_rem" %in% ls()) {
+  if (!"estiamtes_rem" %in% ls()) {
     # to be tested alone!
     spn <- object$get_speciesNames(object$setting$focus_groups)
     
@@ -21,7 +21,7 @@ code: |
     }
   }
   if (nrow(estimates_rem) > 0) {
-      density_data <- estimates_rem %>%
+      density_data <- estimates_rem |>
         dplyr::filter(Metric == "density")
       
       # Ensure data is not empty
@@ -40,7 +40,7 @@ code: |
           cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
           
           # Filter for current species
-          species_data <- density_data %>%
+          species_data <- density_data |>
             filter(scientificName == species)
           
           # Select the corresponding color

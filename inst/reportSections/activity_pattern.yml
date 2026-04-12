@@ -2,7 +2,7 @@
 name: "activity_patterns"
 title: "## Activity Patterns {.tabset}"
 parent: "results"
-text: "Activity patterns describe how animals distribute their behavior throughout the 24-hour day and are typically derived from the timing of detections recorded by camera traps. These patterns help us understand when species are most active, offering valuable insight into their daily routines, ecological roles, and potential interactions with other species. By examining activity curves, we can detect whether a species is diurnal, nocturnal, or crepuscular, and identify shifts in behavior that may result from environmental factors or human disturbance. Below, activity curves illustrate the daily activity patterns for each study species, based on camera trap detections across the monitoring period."
+text: "Activity patterns describe the temporal distribution of animal activity across the 24-hour day and are typically inferred from the timing of camera-trap detections. These patterns help identify whether species are primarily diurnal, nocturnal, or crepuscular, and can provide insight into daily behavior, ecological roles, and potential responses to environmental factors or human disturbance. The figures below present estimated daily activity curves for each study species, based on camera-trap detections collected across the monitoring period and derived using functionality from the [activity](https://cran.r-project.org/package=activity) R package (*Rowcliffe, 2016*)."
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
@@ -26,7 +26,7 @@ code: |
         
         cat("\n###", species, "{.unnumbered}\n\n")
         
-        res <- object$.get_REM_Param(species)
+        res <- object$.get_REM_Param(species,activity_only = TRUE)
         
         
         if (is.null(res) || is.logical(res) || is.null(res$activity_model) ) {

@@ -1,0 +1,256 @@
+---
+name: "species_accumulation"
+title: "## Species Accumulation Curves {.tabset}"
+parent: "results"
+text: "Species accumulation curves summarize how recorded species richness increases with sampling effort. Here, effort is measured as the number of camera-trap deployments (sampling units), and curves are incidence-based (presence–absence across deployments). For each year and for the pooled dataset, an incidence (presence–absence) matrix of species detections across deployments is constructed and incidence-based rarefaction/extrapolation curves are computed using [iNEXT](https://cran.r-project.org/web/packages/iNEXT/index.html) (q = 0; species richness) with 95% confidence intervals. The Comparison tab overlays years when available; subsequent tabs show each year separately; the Total tab summarizes the full dataset."
+code: |
+  #| name: species_accumulation_code
+  #| setting: echo=FALSE,results="asis",message=FALSE,warning=FALSE
+  #| packages: dplyr,iNEXT,ggplot2
+
+  suppressPackageStartupMessages({
+    library(dplyr)
+    library(iNEXT)
+    library(ggplot2)
+  })
+
+  deployments  <- object$data$deployments
+  observations <- object$data$observations
+
+  if (is.null(deployments) || is.null(observations)) {
+    cat("\n\n! Missing deployments or observations in object$data.\n\n")
+    return(invisible(NULL))
+  }
+
+  dep_id_col  <- intersect(c("deploymentID","deployment_id","deploymentId","deployment"), names(deployments))[1]
+  obs_dep_col <- intersect(c("deploymentID","deployment_id","deploymentId","deployment"), names(observations))[1]
+  sp_col      <- intersect(c("scientificName","species","Species"), names(observations))[1]
+  dt_col      <- intersect(c("observationDateTime","timestamp","datetime","dateTime","DateTimeOriginal","eventStart"), names(observations))[1]
+
+  if (is.na(dep_id_col) || is.na(obs_dep_col) || is.na(sp_col) || is.na(dt_col)) {
+    cat("\n\n! Required columns not found.\n\n")
+    cat("Deployments columns:\n  ", paste(names(deployments), collapse=", "), "\n\n")
+    cat("Observations columns:\n  ", paste(names(observations), collapse=", "), "\n\n")
+    return(invisible(NULL))
+  }
+
+  # restrict to the current focus group
+  focus_species <- object$get_speciesNames(object$setting$focus_groups)
+
+  if (is.null(focus_species) || length(focus_species) == 0) {
+    cat("\n\n! No species found in the current focus group.\n\n")
+    return(invisible(NULL))
+  }
+
+  observations <- observations |>
+    filter(.data[[sp_col]] %in% focus_species)
+
+  if (nrow(observations) == 0) {
+    cat("\n\n! No observations found for the current focus group.\n\n")
+    return(invisible(NULL))
+  }
+
+  if (!inherits(observations[[dt_col]], "POSIXct")) {
+    observations[[dt_col]] <- as.POSIXct(observations[[dt_col]], tz = "")
+  }
+  observations$.__year__ <- suppressWarnings(as.integer(format(observations[[dt_col]], "%Y")))
+
+  merged <- observations |>
+    transmute(
+      deployment_id = .data[[obs_dep_col]],
+      species_name  = .data[[sp_col]],
+      year          = .__year__
+    ) |>
+    filter(!is.na(deployment_id), !is.na(species_name), species_name != "", !is.na(year)) |>
+    inner_join(
+      deployments |> transmute(deployment_id = .data[[dep_id_col]]),
+      by = "deployment_id"
+    )
+
+  if (nrow(merged) == 0) {
+    cat("\n\n! No records left after filtering/merging for the current focus group.\n\n")
+    return(invisible(NULL))
+  }
+
+  make_vec <- function(df) {
+    inc_mat <- table(df$deployment_id, df$species_name)
+    nT <- as.integer(nrow(inc_mat))
+    nS <- as.integer(ncol(inc_mat))
+
+    if (nT < 2 || nS < 2) return(NULL)
+
+    yi <- colSums(inc_mat > 0)
+    yi <- as.integer(yi)
+    yi <- yi[!is.na(yi) & yi > 0]
+    yi <- pmin(yi, nT)
+
+    if (length(yi) < 2) return(NULL)
+    c(nT, yi)
+  }
+
+  years <- sort(unique(merged$year))
+  years_chr <- as.character(years)
+
+  base_cols <- c(
+    "#88A0DCFF", "#381A61FF", "#7C4B73FF", "#ED968CFF", "#AB3329FF",
+    "#E78429FF", "#F9D14AFF", "#2F6F7EFF", "#1F4E5FFF", "#3B7A57FF",
+    "#6B8E23FF", "#A67C52FF", "#8C564BFF", "#5A5A5AFF", "#4F6D8CFF"
+  )
+
+  if (length(years_chr) <= length(base_cols)) {
+    year_cols <- setNames(base_cols[seq_along(years_chr)], years_chr)
+  } else {
+    extra <- grDevices::hcl.colors(length(years_chr) - length(base_cols), palette = "Dark 3")
+    year_cols <- setNames(c(base_cols, extra), years_chr)
+  }
+
+  focus_label <- paste(object$setting$focus_groups, collapse = ", ")
+
+  # =========================
+  # Tab 1: Comparison
+  # =========================
+  cat("\n### Comparison {.unnumbered}\n\n")
+
+  if (length(years_chr) == 1) {
+    cat("\nOnly one year is present in this dataset for the current focus group; see the year and Total tabs.\n\n")
+  } else {
+
+    year_vecs <- lapply(years, function(yy) make_vec(merged |> filter(year == yy)))
+    names(year_vecs) <- years_chr
+    year_vecs <- year_vecs[!sapply(year_vecs, is.null)]
+
+    if (length(year_vecs) < 2) {
+      cat("\n! Not enough valid year-level data to compare for the current focus group.\n\n")
+    } else {
+
+      res_all <- tryCatch(
+        iNEXT(year_vecs, q = 0, datatype = "incidence_freq"),
+        error = function(e) {
+          cat("\n! iNEXT failed (Comparison): ", conditionMessage(e), "\n\n", sep = "")
+          NULL
+        }
+      )
+
+      if (!is.null(res_all)) {
+        p_all <- tryCatch(
+          ggiNEXT(res_all, type = 1, se = TRUE) +
+            labs(
+              x = "Number of sampling units (deployments)",
+              y = "Species richness (q = 0)",
+              color = "Year", fill = "Year"
+            ) +
+            theme_minimal(base_size = 13) +
+            theme(legend.position = "bottom") +
+            scale_color_manual(values = year_cols) +
+            scale_fill_manual(values  = year_cols),
+          error = function(e) {
+            cat("\n! ggiNEXT failed (Comparison): ", conditionMessage(e), "\n\n", sep = "")
+            NULL
+          }
+        )
+
+        if (!is.null(p_all)) {
+          print(p_all)
+          cat(paste0(
+            "\n\n", object$getFigureNumber(),
+            " *Species accumulation curves comparing years for focus group ", focus_label,
+            ", based on incidence-based rarefaction/extrapolation of species richness (q = 0) across camera-trap deployments. Shaded bands indicate 95% confidence intervals.*\n\n"
+          ))
+        }
+      }
+    }
+  }
+
+  # =========================
+  # Tabs per year
+  # =========================
+  for (yy in years) {
+
+    yy_chr <- as.character(yy)
+    cat("\n### ", yy_chr, " {.unnumbered}\n\n", sep = "")
+
+    vec <- make_vec(merged |> filter(year == yy))
+    if (is.null(vec)) {
+      cat("\n! Skipping: not enough deployments/species for this year within the current focus group.\n\n")
+      next
+    }
+
+    res <- tryCatch(
+      iNEXT(setNames(list(vec), yy_chr), q = 0, datatype = "incidence_freq"),
+      error = function(e) {
+        cat("\n! iNEXT failed for year ", yy_chr, ": ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+    if (is.null(res)) next
+
+    p <- tryCatch(
+      ggiNEXT(res, type = 1, se = TRUE) +
+        labs(
+          x = "Number of sampling units (deployments)",
+          y = "Species richness (q = 0)"
+        ) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_color_manual(values = setNames(year_cols[yy_chr], yy_chr)) +
+        scale_fill_manual(values  = setNames(year_cols[yy_chr], yy_chr)),
+      error = function(e) {
+        cat("\n! ggiNEXT failed for year ", yy_chr, ": ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+
+    if (!is.null(p)) {
+      print(p)
+      cat(paste0(
+        "\n\n", object$getFigureNumber(),
+        " *Species accumulation curve for ", yy_chr,
+        " for focus group ", focus_label,
+        ", based on incidence-based rarefaction/extrapolation of species richness (q = 0) across camera-trap deployments. The shaded band indicates the 95% confidence interval.*\n\n"
+      ))
+    }
+  }
+
+  # =========================
+  # Final tab: Total
+  # =========================
+  cat("\n### Total {.unnumbered}\n\n")
+
+  vec_total <- make_vec(merged)
+  if (is.null(vec_total)) {
+    cat("\n! Not enough data to compute a total accumulation curve for the current focus group.\n\n")
+    return(invisible(NULL))
+  }
+
+  res_total <- tryCatch(
+    iNEXT(list(Total = vec_total), q = 0, datatype = "incidence_freq"),
+    error = function(e) {
+      cat("\n! iNEXT failed (Total): ", conditionMessage(e), "\n\n", sep = "")
+      NULL
+    }
+  )
+  if (is.null(res_total)) return(invisible(NULL))
+
+  p_total <- tryCatch(
+    ggiNEXT(res_total, type = 1, se = TRUE) +
+      labs(
+        x = "Number of sampling units (deployments)",
+        y = "Species richness (q = 0)"
+      ) +
+      theme_minimal(base_size = 13) +
+      theme(legend.position = "none"),
+    error = function(e) {
+      cat("\n! ggiNEXT failed (Total): ", conditionMessage(e), "\n\n", sep = "")
+      NULL
+    }
+  )
+
+  if (!is.null(p_total)) {
+    print(p_total)
+    cat(paste0(
+      "\n\n", object$getFigureNumber(),
+      " *Overall species accumulation curve for focus group ", focus_label,
+      ", based on incidence-based rarefaction/extrapolation of species richness (q = 0) across all camera-trap deployments. The shaded band indicates the 95% confidence interval.*\n\n"
+    ))
+  } 
+---

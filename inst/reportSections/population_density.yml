@@ -2,6 +2,6 @@
 name: "population_density"
 title: "## Population Density Estimation"
 parent: "results"
-text: "Population densities were estimated using the [REM](https://doi.org/10.1002/rse2.269), applied to study species with sufficient data to support reliable parameter estimation. Detection probability varies across species, habitat types, and camera models. The estimated model parameters and resulting population density estimates are presented below. For consistency, densities were calculated using parameter values averaged across all sampling rounds. \n\n"
+text:  "Population density was estimated using the Random Encounter Model (REM) for species with sufficient data to support reliable parameter estimation (*Palencia et al., 2022*). All REM analyses were conducted using the [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity) R package. Because detectability may vary among species, habitat types, and camera models, these estimates should be interpreted with reference to the assumptions of the model. The estimated model parameters and derived density values are presented in the following sections. For consistency, all density estimates were calculated using parameter values averaged across sampling rounds."
 code: null
 ---
