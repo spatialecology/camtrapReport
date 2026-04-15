@@ -10,46 +10,63 @@ code: |
   
   
   .spn <- object$get_speciesNames(object$setting$focus_groups)
-    
-    .generate_density_maps <- function(.year=NULL) {
-      df <- object$species_summary_by_location(year = .year,spList = .spn,cor_matrix = FALSE)
-      df$lon <- df$longitude
-      df$lat <- df$latitude
-      if (is.null(df)) return(NULL)
-      .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
-      .dfs <- .get_projected_vect(.dfs)
-      .crs <- crs(.dfs)
-      .dfs <- as.data.frame(.dfs,geom="XY")
-      species_list <- unique(.dfs$scientificName)
-      #---
-      if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
-        object$study_area$object <- readRDS(object$study_area$path)
-        .ext <- as.vector(ext(project(object$study_area$object,.crs)))
-      } else .ext <- NULL
-      
+
+  df <- object$species_summary_by_location(year = NULL,spList = .spn,cor_matrix = FALSE)
+  df$lon <- df$longitude
+  df$lat <- df$latitude
+  
+  .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
+  .dfs <- .get_projected_vect(.dfs)
+  .crs <- crs(.dfs)
+  .dfs <- as.data.frame(.dfs,geom="XY")
+  
+  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+    object$study_area$object <- terra::readRDS(object$study_area$path)
+    .crop <- project(object$study_area$object,.crs)
+    .ext <- as.vector(ext(.crop))
+  } else {
+    .ext <- NULL
+    .crop <- NULL
+  }
+  #------
+  .generate_density_maps <- function(.year=NULL,.ext=.ext,.crop=.crop) {
+    df <- object$species_summary_by_location(year = .year,spList = .spn,cor_matrix = FALSE)
+    df$lon <- df$longitude
+    df$lat <- df$latitude
+    if (is.null(df)) return(NULL)
+    .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
+    .dfs <- .get_projected_vect(.dfs)
+    .crs <- crs(.dfs)
+    .dfs <- as.data.frame(.dfs,geom="XY")
+    #species_list <- unique(.dfs$scientificName)
+    #---
+    .w <- table(.dfs$scientificName)
+    .w <- .w[.w > 3]
+    if (length(.w) > 0) {
+      species_list <- names(.w)
       .label <- 'Total'
       if (!is.null(.year)) .label <- as.character(.year)
       
       cat("\n###", .label, "{.tabset .unnumbered}\n\n")
       
       for (sp in species_list) {
-        df_sp <- .dfs %>% dplyr::filter(scientificName == sp)
-        if (nrow(df_sp) < 3) next
+        df_sp <- .dfs |> dplyr::filter(scientificName == sp)
+        #if (nrow(df_sp) < 3) next
         
-        r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext),silent = TRUE)
+        r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext,.crop=.crop),silent = TRUE)
         if (inherits(r,'try-error')) r <- NULL
         if (is.null(r)) next
         
         cat("\n####", sp, "{.unnumbered}\n\n")
-        m <- leaflet(df_sp) %>%
-          addTiles(group = "OSM") %>%
+        m <- leaflet(df_sp) |>
+          addTiles(group = "OSM") |>
           addRasterImage(
             r, opacity = 0.7,
             colors = colorRampPalette(c("gray","orange","red","darkred"))(200),
             group = "Density"
           )
         if ("Habitat_type" %in% colnames(df_sp)) {
-          m <- m %>%
+          m <- m |>
             addCircleMarkers(
               ~longitude, ~latitude,
               popup = ~sprintf(
@@ -61,7 +78,7 @@ code: |
               group  = "Points"
             )
         } else {
-          m <- m %>%
+          m <- m |>
             addCircleMarkers(
               ~longitude, ~latitude,
               popup = ~sprintf(
@@ -73,13 +90,24 @@ code: |
               group  = "Points"
             )
         }
+        if (!is.null(.crop)) {
+          m <- m |>
+            addPolygons(
+            data = project(.crop,"epsg:4326"),
+            fillColor = "transparent",
+            fillOpacity = 0.3,
+            color = "black",
+            weight = 2
+          )
+        }
+        
         #----
-         m <- m %>%
+        m <- m |>
           addLayersControl(
             baseGroups    = "OSM",
             overlayGroups = c("Density","Points"),
             options = layersControlOptions(collapsed = FALSE)
-          ) %>%
+          ) |>
           setView(
             lng = mean(df_sp$longitude, na.rm = TRUE),
             lat = mean(df_sp$latitude,  na.rm = TRUE),
@@ -88,24 +116,25 @@ code: |
         print(tagList(m))
       }
     }
+  
+  }
     
-    #cat("\n## Species Density Maps {.tabset .unnumbered}\n\n")
     
-    cat("\n##  {.tabset .unnumbered}\n\n")
-    
-    .w <- leaflet()
-    
-    for (.year in object$years) {
-      .generate_density_maps(.year)
-    }
-    #---
-    .generate_density_maps(.year=NULL) # for Total
-    #----
-    cat("\n\n")
-    
-    #---------
-    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
-    } else cat(object$getFigureNumber()," *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
+  cat("\n##  {.tabset .unnumbered}\n\n")
+  
+  .w <- leaflet()
+  
+  for (.year in object$years) {
+    .generate_density_maps(.year,.ext,.crop)
+  }
+  #---
+  .generate_density_maps(.year=NULL,.ext,.crop)
+  #----
+  cat("\n\n")
+  
+  #---------
+  if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
+    cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
+  } else cat(object$getFigureNumber()," *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
     
 ---
