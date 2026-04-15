@@ -10,7 +10,7 @@ code: |
   
   
   
-    group_label <- .pretty_label(object$setting$focus_groups)
+  group_label <- .pretty_label(object$setting$focus_groups)
 
   cat(paste0(
     "The figures below summarize capture-based trends for frequently detected ", group_label,
@@ -41,7 +41,13 @@ code: |
         object$capture$Year != "total"
     ])
     
-    species_colors <- setNames(object$reportObjectElements$color_palette[1:length(species_list)], species_list)
+    species_colors <- object$reportObjectElements$color_palette
+    
+    if (length(species_list) > length(species_colors)) {
+      species_colors <- .eval("colorRampPalette(species_colors)(length(species_list))",env = environment())
+    }
+    
+    species_colors <- setNames(species_colors[1:length(species_list)], species_list)
     
     
     # Filter and prep data

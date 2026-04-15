@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 3.0
+# Version 3.1
 # Licence GPL v3
 #--------
 
@@ -360,12 +360,13 @@ camR <- setRefClass(
       }
       .rich
     },
-    spatial_density=function(x=NULL,species=NULL,year=NULL,.crs=NULL,.ext=NULL) {
+    spatial_density=function(x=NULL,species=NULL,year=NULL,.crs=NULL,.ext=NULL,.crop=NULL) {
       # spatial density raster map
       # x: the output of species_summary_by_location wit cor_matrix=F
       # if x is null -> species_summary_by_location will be called with other arguments
+      # .crop: projected study_area used to crop the density map
       #---------
-      .crop <- NULL
+      
       if (is.null(x)) {
         x <- .self$species_summary_by_location(year=year,spList=species,cor_matrix=FALSE)
         x$lon <- x$longitude
@@ -381,24 +382,20 @@ camR <- setRefClass(
       
       if (!is.null(.ext) && length(as.vector(.ext)) == 4) {
         .ext <- as.vector(.ext)
-        xr[1] <- min(c(.ext[1],xr[1]))
-        xr[2] <- max(c(.ext[2],xr[2]))
-        yr[1] <- min(c(.ext[3],yr[1]))
-        yr[2] <- max(c(.ext[4],yr[2]))
-      } else if (!is.null(.self$study_area) && !is.null(.self$study_area$path)) {
-        .self$study_area$object <- terra::readRDS(.self$study_area$path)
-        if (exists(".crs") && !is.null(.crs)) {
-          .crop <- project(.self$study_area$object,.crs)
-          .ext <- as.vector(ext(.crop))
-        } else {
-          if (.is.projected(.self$study_area$object)) {
-            .crop <- .get_projected_vect(project(.self$study_area$object,crs(rast())))
-            .crs <- crs(.crop)
-            .ext <- as.vector(ext(.crop))
-          } else {
-            .crop <- .get_projected_vect(.self$study_area$object)
-            .crs <- crs(.crop)
-            .ext <- as.vector(ext(.crop))
+        if (!is.null(.crop)) {
+          if (xr[1] < .ext[1] | xr[2] > .ext[2] | yr[1] < .ext[3] | yr[2] > .ext[4]) {
+            .ww <- c()
+            .w <- xr[1] - .ext[1]
+            if (.w < 0) .ww <- c(.ww,abs(.w))
+            .w <- xr[2] - .ext[2]
+            if (.w > 0) .ww <- c(.ww,.w)
+            .w <- yr[1] - .ext[1]
+            if (.w < 0) .ww <- c(.ww,abs(.w))
+            .w <- yr[2] - .ext[2]
+            if (.w > 0) .ww <- c(.ww,.w)
+            .ww <- max(.ww)
+            .ww <- .ww + (.ww * 0.1)
+            .crop <- buffer(.crop,.ww)
           }
         }
         
@@ -407,12 +404,36 @@ camR <- setRefClass(
         yr[1] <- min(c(.ext[3],yr[1]))
         yr[2] <- max(c(.ext[4],yr[2]))
       }
+      # if (!is.null(.self$study_area) && !is.null(.self$study_area$path)) {
+      #   .self$study_area$object <- terra::readRDS(.self$study_area$path)
+      #   if (exists(".crs") && !is.null(.crs)) {
+      #     .crop <- project(.self$study_area$object,.crs)
+      #     .ext <- as.vector(ext(.crop))
+      #   } else {
+      #     if (.is.projected(.self$study_area$object)) {
+      #       .crop <- .get_projected_vect(project(.self$study_area$object,crs(rast())))
+      #       .crs <- crs(.crop)
+      #       .ext <- as.vector(ext(.crop))
+      #     } else {
+      #       .crop <- .get_projected_vect(.self$study_area$object)
+      #       .crs <- crs(.crop)
+      #       .ext <- as.vector(ext(.crop))
+      #     }
+      #   }
+      #   
+      #   xr[1] <- min(c(.ext[1],xr[1]))
+      #   xr[2] <- max(c(.ext[2],xr[2]))
+      #   yr[1] <- min(c(.ext[3],yr[1]))
+      #   yr[2] <- max(c(.ext[4],yr[2]))
+      # }
       #-----
-      .w <- (xr[2] - xr[1]) * 0.05
+      
+      
+      .w <- (xr[2] - xr[1]) * 0.1
       xr[1] <- xr[1] - .w
       xr[2] <- xr[2] + .w
       
-      .w <- (yr[2] - yr[1]) * 0.05
+      .w <- (yr[2] - yr[1]) * 0.1
       yr[1] <- yr[1] - .w
       yr[2] <- yr[2] + .w
       #------
