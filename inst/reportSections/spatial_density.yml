@@ -54,8 +54,7 @@ code: |
         #if (nrow(df_sp) < 3) next
         
         r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext,.crop=.crop),silent = TRUE)
-        if (inherits(r,'try-error')) r <- NULL
-        if (is.null(r)) next
+        if (inherits(r,'try-error')) next
         
         cat("\n####", sp, "{.unnumbered}\n\n")
         m <- leaflet(df_sp) |>
@@ -125,10 +124,10 @@ code: |
   .w <- leaflet()
   
   for (.year in object$years) {
-    .generate_density_maps(.year,.ext,.crop)
+    .generate_density_maps(.year=.year,.ext=.ext,.crop=.crop)
   }
   #---
-  .generate_density_maps(.year=NULL,.ext,.crop)
+  .generate_density_maps(.year=NULL,.ext=.ext,.crop=.crop)
   #----
   cat("\n\n")
   

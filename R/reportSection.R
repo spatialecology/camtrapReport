@@ -72,13 +72,13 @@
 #--------
 
 if (!isGeneric("reportSection")) {
-  setGeneric("reportSection", function(name,title,parent,txt,code_setting,code,object,packages)
+  setGeneric("reportSection", function(name,title,parent,txt,code_setting,packages,code)
     standardGeneric("reportSection"))
 }
 
 
 setMethod('reportSection', signature(name='character'), 
-          function(name,title,parent,txt,code_setting,code,object,packages) {
+          function(name,title,parent,txt,code_setting,packages,code) {
             if (missing(title)) title <- ""
             if (missing(parent)) parent <- NULL
             if (missing(txt)) txt <- NULL
@@ -86,7 +86,7 @@ setMethod('reportSection', signature(name='character'),
             if (missing(code)) code <- NULL
             else code <- substitute(code)
             
-            if (missing(object)) object <- NULL
+            #if (missing(object)) object <- NULL
             if (missing(packages)) packages <- NULL
             #------------
             .x <- .getTextObj(name=name,title=title,parent=parent,txt=txt)

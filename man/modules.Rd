@@ -8,7 +8,9 @@
 \alias{add_Module,character-method}
 \alias{move_Module,character-method}
 \alias{restore_Module,character-method}
-
+\alias{list_Modules,ANY-method}
+\alias{empty_trash,ANY-method}
+\alias{remove_Module,character-method}
 
 \title{
 Managing modules
@@ -18,7 +20,7 @@ Managing modules
 A list of functions are available to manage modules in the package including listing the existing modules, adding a new one or deleting an existing one, or moving the position of a module in a report
 }
 \usage{
-add_Module(x,to,before,after,test)
+add_Module(x,before,after,test)
 
 move_Module(name,before,after,parent,level0)
 

@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.6
+# Version 2.7
 # Licence GPL v3
 #--------
 
@@ -438,7 +438,7 @@ setMethod('camData', signature(data='character'),
                                "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
                                "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus")))
             
-            cm$setting$focus_groups <- 'large_mammals'
+            if (is.null(cm$setting$focus_groups)) cm$setting$focus_groups <- 'large_mammals'
             #-------
             if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
               cm$siteName <- .d$json$project$title
@@ -454,7 +454,7 @@ setMethod('camData', signature(data='character'),
             
             #sp_summary <- .summarize_spatial_info(cm)
             country <- cm$data_status$Spatial$country
-            fg <- .firstUpper(.paste_comma_and(cm$setting$focus_groups))
+            fg <- .pretty_label(.paste_comma_and(.firstUpper(cm$setting$focus_groups)))
             site_Name <- cm$siteName
             cm$title <- as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}"))
             cm$subtitle <- "Ecological Report based on Camera Trap Data for Wildlife Monitoring"

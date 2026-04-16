@@ -1,13 +1,13 @@
 Package: camtrapReport
 Type: Package
 Title: Cameratrap Report Generator
-Version: 0.2-30
-Date: 2026-04-15
+Version: 0.2-32
+Date: 2026-04-16
 Authors@R: c(person(given = "Elham",
                       family = "Ebrahimi",
                       role = c("aut", "cre"),
                       email = "eebrahimi.bio@gmail.com"))
-Depends: methods, R (>= 4.1.0), dplyr, terra, rmarkdown
+Depends: sp, methods, R (>= 4.1.0), dplyr, terra, rmarkdown
 Imports: glue
 Suggests: data.table
 Description: An extensible framework for exploring and processing cameratrap

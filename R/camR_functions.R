@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.7
+# Version 1.8
 # Licence GPL v3
 #--------
 
@@ -1355,7 +1355,7 @@
   req <- c("classificationMethod", "classificationConfidence")
   if (!all(req %in% names(cm$data$observations))) {
     cm$data_status$Annotation$Status <- paste0(
-      icon_red, " Missing required columns: ",
+      .ct_icons()$red, " Missing required columns: ",
       paste(req[!(req %in% names(cm$data$observations))], collapse = ", ")
     )
     return(NULL)
