@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  December 2025
-# Version 1.3
+# Last Update :  April 2026
+# Version 1.4
 # Licence GPL v3
 #--------
 
@@ -9,6 +9,7 @@
 
 #setOldClass("ctdp")
 setOldClass("datapackage")
+setOldClass("camInfo")
 #setOldClass("difftime")
 
 setClassUnion("characterORnull", c("character", "NULL"))

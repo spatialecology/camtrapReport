@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.0
+# Version 1.1
 # Licence GPL v3
 #--------
 
@@ -294,8 +294,8 @@ setMethod('updateReportSection', signature(x='camReport'),
             if (missing(code_name)) code_name <- NULL
             if (missing(code_setting)) code_setting <- NULL
             if (missing(packages)) packages <- NULL
-            if (missing(packages)) packages <- FALSE
             if (missing(append_code)) append_code <- FALSE
+            if (missing(append_text)) append_text <- FALSE
             #----------
             if (missing(section) || !is.character(section) || length(section) != 1L) {
               stop("'section' should be a single character string (name or title).")

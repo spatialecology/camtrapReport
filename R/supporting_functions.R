@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.4
+# Version 1.5
 # Licence GPL v3
 #--------
 
@@ -225,7 +225,7 @@
   if (!count) return(sort(unique(cls)))
   
   tab <- sort(table(cls), decreasing = TRUE)
-  tibble::tibble(class = names(tab), count = as.integer(tab))
+  dplyr::tibble(class = names(tab), count = as.integer(tab))
 }
 #------
 

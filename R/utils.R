@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.1
+# Version 2.2
 # Licence GPL v3
 #--------
 
@@ -234,13 +234,15 @@
   # automatically project a spatial data with a geographic CRS
   # identify the best metric CRS given the size and location of data
   # x is an sf object!
+  if (!.require("sf")) return(NULL)
   
   # Ensure data is geographic
-  if (sf::st_crs(x)$epsg != 4326) {
-    x <- sf::st_transform(x, 4326)
-  }
-  # Centroid longitude & latitude
-  cen <- sf::st_coordinates(sf::st_centroid(sf::st_union(.xxs)))
+  .eval("if (sf::st_crs(x)$epsg != 4326) {
+      x <- sf::st_transform(x, 4326)
+    }
+    # Centroid longitude & latitude
+    cen <- sf::st_coordinates(sf::st_centroid(sf::st_union(.xxs)))",env=environment())
+    
   
   cen <- colMeans(crds(.xs))
   
@@ -249,13 +251,13 @@
     # UTM zone calculation
     .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
     .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-    return(sf::st_transform(x, .epsg))
+    return(.eval("sf::st_transform(x, .epsg)",env=environment()))
   } else {
     proj4 <- sprintf(
       "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
       lat, lon
     )
-    return(sf::st_transform(x, proj4))
+    return(.eval("sf::st_transform(x, proj4)",env=environment()))
   }
   
   

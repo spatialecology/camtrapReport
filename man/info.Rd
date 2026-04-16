@@ -15,7 +15,7 @@ This function facilitates to extract specific fields (e.g., title, authors, etc.
 \usage{
 \S4method{info}{camReport}(x, name)
 
-\S4method{info}{camReport}(x, name) <- value
+\S4method{info}{camReport}(x, name)<- value
 
 }
 

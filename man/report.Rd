@@ -1,17 +1,21 @@
 \name{report}
 \alias{report}
+\alias{status}
 \alias{report,camReport-method}
+\alias{status,camReport-method}
 
 
 \title{
-Generating a report based on \code{camReport} object 
+Generating automated reports based on a \code{camReport} object 
 }
 
 \description{
-This function facilitates generating an HTML report by creating an RMarkdown file based on the modules added to \code{camReport} object, then rendering an HTML file containing the camtrap report sections.
+These functions facilitate generating two reports (data quality status, and ecological insights) automatically. Each report is an HTML rendered by creating an RMarkdown file based on the modules added to the \code{camReport} object.
 }
 \usage{
 report(object,filename,view)
+
+status(object,filename,view)
 }
 
 \arguments{
@@ -21,7 +25,7 @@ report(object,filename,view)
   
 }
 \details{
-By default (if filename is not specified), two files including "report.html" and "report.rmd" will be written in the folder of the camera-trap dataset.
+By default (if filename is not specified), two files including "report.html" and "report.rmd" ("data_status.html" and "data_status.rmd" for the data status report) will be written in the folder of the camera-trap dataset.
 
 }
 \references{
@@ -42,7 +46,9 @@ camData
 \dontrun{
 cm <- camData("data-folder")
 
-report(cm, view=T)
+report(cm, view=T) # ecological insights
+
+status(cm, view=T) #  data quality status
 
 
 

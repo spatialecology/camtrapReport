@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 3.1
+# Version 3.2
 # Licence GPL v3
 #--------
 
@@ -2110,6 +2110,7 @@ camR <- setRefClass(
       rmd_template <- glue::glue("
 ---
 title: \"{.self$title}\"
+subtitle: \"{.self$institute}\"
 author: \"{.self$authors}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
@@ -2168,11 +2169,12 @@ output:
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
       pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
       status_title <- paste0("Data Status Report for ",.self$siteName)
-      if (length(.self$institute) > 0) status_title <- paste0(status_title," - ",.self$institute)
+      #if (length(.self$institute) > 0) sub_title <- .self$institute
       
       rmd_template <- glue::glue("
 ---
 title: \"{status_title}\"
+subtitle: \"{.self$institute}\"
 author: \"{.self$authors}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
