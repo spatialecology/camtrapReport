@@ -1,5 +1,5 @@
 ---
-name: "richness"
+name: "richness_"
 title: "## Richness {.tabset}"
 parent: "results"
 text: "Species richness refers to the number of unique species recorded at each camera-trap location. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type (if available). These features help identify biodiversity hotspots and potential detection gaps across the study area."
@@ -56,46 +56,29 @@ code: |
       data$Richness <- factor(data$Richness, levels = present_levels)
       
       if (!is.null(study_areaSHP)) {
-        leaflet(data) |>
-          addTiles() |>
-          addCircleMarkers(
-            lng = ~longitude, lat = ~latitude,
-            radius = ~ifelse(as.numeric(as.character(Richness)) == 1, 2, as.numeric(as.character(Richness)) * 2),
-            fillColor = ~richness_palette(Richness),
-            fillOpacity = 0.7, stroke = TRUE, color = "black",
-            popup = ~popup
-          ) |>
-          addPolygons(
-            data = study_areaSHP,
-            color = "#3A3F44", weight = 2, opacity = 0.9,
-            fillColor = "transparent", fillOpacity = 0
-          ) |>
-          leaflet::addLegend(
-            position = "bottomright",
-            pal = richness_palette,
-            values = present_levels,
-            title = "Species Richness",
-            opacity = 1,
-            labFormat = labelFormat(transform = identity)
-          )
-      } else {
-        leaflet(data) |>
-          addTiles() |>
-          addCircleMarkers(
-            lng = ~longitude, lat = ~latitude,
-            radius = ~ifelse(as.numeric(as.character(Richness)) == 1, 2, as.numeric(as.character(Richness)) * 2),
-            fillColor = ~richness_palette(Richness),
-            fillOpacity = 0.7, stroke = TRUE, color = "black",
-            popup = ~popup
-          ) |>
-          leaflet::addLegend(
-            position = "bottomright",
-            pal = richness_palette,
-            values = present_levels,
-            title = "Species Richness",
-            opacity = 1,
-            labFormat = labelFormat(transform = identity)
-          )
+      leaflet(data) |>
+      addTiles() |>
+      addCircleMarkers(
+        lng = ~longitude, lat = ~latitude,
+      radius = ~ifelse(as.numeric(as.character(Richness)) == 1, 2, as.numeric(as.character(Richness)) * 2),
+      fillColor = ~richness_palette(Richness),
+      fillOpacity = 0.7, stroke = TRUE, color = "black",
+        popup = ~popup
+      ) |>
+      addPolygons(
+      data = study_areaSHP,
+      color = "#3A3F44", weight = 2, opacity = 0.9,
+      fillColor = "transparent", fillOpacity = 0,
+      options = pathOptions(interactive = FALSE)
+      ) |>
+      leaflet::addLegend(
+      position = "bottomright",
+      pal = richness_palette,
+      values = present_levels,
+      title = "Species Richness",
+      opacity = 1,
+      labFormat = labelFormat(transform = identity)
+    )
       }
     }
     
@@ -124,6 +107,4 @@ code: |
       cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species richness based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n"))
     } else cat(object$getFigureNumber()," *Species richness across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n")
     
-  
-
 ---
