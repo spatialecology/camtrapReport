@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.7
+# Version 2.8
 # Licence GPL v3
 #--------
 
@@ -276,6 +276,25 @@
   .d$observations$mediaID <- ifelse(.d$observations$mediaID == "", NA,.d$observations$mediaID)
   .event_obs <-.d$observations[is.na(.d$observations$mediaID) & !is.na(.d$observations$eventID),c("eventID", "deploymentID", "eventStart", "eventEnd")]
   
+  if (!.is.POSIXct(.event_obs$eventStart)) {
+    .w <- which(!is.na(.event_obs$eventStart))
+    if (length(.w) > 0) {
+      .w <- .w[1:min(3,length(.w))]
+      .f <- .getFormat(.event_obs$eventStart[.w])
+      .event_obs$eventStart <- as.POSIXct(.event_obs$eventStart,tz=tz,format = .f)
+    } else .event_obs$eventStart <- NA
+  }
+  #------
+  if (!.is.POSIXct(.event_obs$eventEnd)) {
+    .w <- which(!is.na(.event_obs$eventEnd))
+    if (length(.w) > 0) {
+      .w <- .w[1:min(3,length(.w))]
+      .f <- .getFormat(.event_obs$eventEnd[.w])
+      .event_obs$eventEnd <- as.POSIXct(.event_obs$eventEnd,tz=tz,format = .f)
+    } else .event_obs$eventEnd <- NA
+  }
+  #-----
+  
   if ("eventID" %in% names(.d$observations)) {
     colnames(.d$observations)[which(colnames(.d$observations) == "eventID")] <- "sequenceID"
   } else {
@@ -382,7 +401,6 @@ setMethod('camData', signature(data='character'),
             
             if (missing(study_area)) study_area <- NULL
             
-            #.d <- .read_camtrapDATA(data,ctdp = TRUE)
             .d <- .read_camdp(data)
             cm <- camR$new()
             cm$setting$locationLegend <- TRUE
