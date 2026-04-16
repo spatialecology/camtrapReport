@@ -19,7 +19,9 @@ code: |
   method <- "motionDetection"
   
   if (method %in% observation_type_df$CaptureMethod) {
-    cat("\n\n### Motion {.unnumbered}\n")
+    
+    cat("\n\n## Motion {.unnumbered}\n")
+    
     # Prepare pie data with updated labels for legend
     pie_data <- observation_type_df |>
       dplyr::filter(CaptureMethod == method) |>
@@ -48,7 +50,7 @@ code: |
   
   if (method %in% tolower(observation_type_df$CaptureMethod)) {
     
-    cat("\n\n### TimeLapse {.unnumbered}\n")
+    cat("\n\n## TimeLapse {.unnumbered}\n")
     
     pie_data <- observation_type_df %>%
       dplyr::filter(tolower(CaptureMethod) == "timelapse") %>%
@@ -74,7 +76,7 @@ code: |
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n### Total {.unnumbered}\n")
+    cat("\n\n## Total {.unnumbered}\n")
     
     pie_data <- observation_type_df %>%
       filter(CaptureMethod == method) %>%
@@ -98,10 +100,4 @@ code: |
   }
   
   
-  
-  
-  
-  
-  
-
 ---
