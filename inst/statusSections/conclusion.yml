@@ -10,7 +10,6 @@ code: |
   
   
   cat(paste0("Based on results across five key sections—Spatial, Temporal, Data Availability, Validation, and Annotation, this dataset is classified as ",
-  "<span style='color: orange; font-weight: bold;'>Acceptable </span> — Minor issues found; the dataset remains usable, although corrections are recommended.",
-  "The main issue to address concerns Table 3 (Essential Data Availability)" ))
+  "<span style='color: orange; font-weight: bold;'>Acceptable </span> — Minor issues found; the dataset remains usable, although corrections are recommended."))
   
 ---
