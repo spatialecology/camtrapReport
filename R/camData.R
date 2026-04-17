@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 2.8
+# Version 2.9
 # Licence GPL v3
 #--------
 
@@ -13,6 +13,8 @@
     dplyr::distinct() |> 
     dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |> 
     data.table::data.table(key = "sequenceID")',environment())
+  
+  sequences <- sequences[!is.na(sequences$sequenceID),]
   
   # summarize per key
   sequences <- sequences[, list(deploymentID = unique(deploymentID),
@@ -262,7 +264,7 @@
   if (length(.w) > 0) .d$observations <- .d$observations[,-.w]
   
   # add taxonID if missing
-  if(!"taxonID" %in% colnames(.d$observations)){
+  if(!"taxonID" %in% colnames(.d$observations)) {
     .d$observations$taxonID <- NA_character_
   }
   # add taxonIDReference if missing
