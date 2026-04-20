@@ -13,5 +13,7 @@ Suggests: data.table
 Description: An extensible framework for exploring and processing cameratrap
     data to automatically generate a report with maps, tables, description, etc.
 License: GPL (>= 3)
-URL: https://www.biogeoai.com
+URL: https://spatialecology.github.io/camtrapReport/,
+    https://github.com/spatialecology/camtrapReport
 VignetteBuilder: rmarkdown
+RoxygenNote: 7.3.3
