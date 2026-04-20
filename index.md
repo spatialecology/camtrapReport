@@ -18,33 +18,17 @@ title: Get started
 
 ### Example input datasets
 
-Several open-source camera-trap datasets based on the Camtrap-DP standard are available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data) and can be useful for testing `camtrapReport`.
+Three example datasets are provided below. These open-access camera-trap datasets, available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data), follow the Camtrap-DP standard and can be used to test `camtrapReport`. ### Example input datasets
 
-::: {style="columns: 2; -webkit-columns: 2; -moz-columns: 2;"}
-<ul>
+Three example datasets are provided below. These open-access camera-trap datasets, available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data), follow the Camtrap-DP standard and can be used to test `camtrapReport`. 
 
-<li><a href="https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download">Leuven dataset</a></li>
+| Dataset | Habitat data | Study area |
+|:---:|:---:|:---:|
+| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download) | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) | [Leuven study area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing) |
+| [Antwerp dataset](https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download) | [Antwerp habitat](https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing) | [Antwerp study area boundary](https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing) |
+| [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download) | [MICA habitat](https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing) | [MICA study area boundary](https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing) |
 
-<li><a href="https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download">Antwerp dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download">MICA dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/3856c01f-5031-4cc1-a5b2-2daa9537411b/download">Colombia dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/13101e81-bc62-4553-9fd9-c5c8eb3fb9ab/download">Alpine-Tundra dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/f0a42d7d-1eda-4ec8-ac66-c1343acea3bc/download">Snapshot-Japan dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/f0963153-077b-4676-a337-891a06fab52a/download">Forest-Colombia dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/74196cd9-7ebc-4b20-bc27-3c2d22e31ed7/download">Amsterdam dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/77972fac-09bc-460b-a0d6-34b87b1b4b72/download">Cali dataset</a></li>
-
-<li><a href="https://album.wildlabs.net/dataset/fc3f505a-05d8-4b3e-908c-8880fc9899f7/download">Luxembourg dataset</a></li>
-
-</ul>
-:::
+**Note:** The [habitat data](https://doi.org/10.1038/s41597-025-06235-7) and study area files were prepared exclusively for testing `camtrapReport` and do not represent official data products published by the original dataset owners.
 
 ## First use: installation
 
@@ -86,7 +70,7 @@ Additional input data can be provided to improve maps, add spatial context, and 
 
 ### **Habitat data**
 
-Habitat information may already be included in [deployment.csv](https://camtrap-dp.tdwg.org/data/#deployments). If it is missing, you can either add it in your data management systems (eg., [Agouti](https://agouti.eu/)) before exporting the dataset or provide it separately as a two-column CSV file with `locationName` and `Habitat`. An example template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
+Habitat information cen be provide as a two-column CSV file with `locationName` and `Habitat`. An example template of habitat.csv can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
 
 ``` r
 habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")

@@ -1,5 +1,4 @@
 url: https://spatialecology.github.io/camtrapReport/
-
 template:
   bootstrap: 5
   bootswatch: flatly
@@ -29,14 +28,22 @@ navbar:
 
     tutorials:
       text: Tutorials
-      href: articles.html
+      menu:
+        - text: Package Overview
+          href: articles/Package-Overview.html
+        - text: Ecological Report
+          href: articles/ecological-report.html
+        - text: Data Status Report
+          href: articles/data-status-report.html
+        - text: Module Management
+          href: articles/modules.html
 
     reference:
       text: Reference
       href: reference/index.html
 
     news:
-      text: News
+      text: Changelog
       href: news/index.html
 
     report-bug:
@@ -56,14 +63,13 @@ navbar:
       aria-label: GitHub repository
 
 articles:
-  - title: Package overview
-    navbar: Tutorials
+  - title: Tutorials
+    desc: >
+      Step-by-step guides for using camtrapReport.
     contents:
+      - Package-Overview
       - ecological-report
       - data-status-report
-
-  - title: Extending the package
-    contents:
       - modules
 
 reference:
@@ -71,6 +77,10 @@ reference:
     contents:
       - camData
       - info
+
+  - title: Core classes
+    contents:
+      - camReport-classes
 
   - title: Report generation
     contents:
@@ -82,5 +92,5 @@ reference:
       - reportSection
       - testSection
       - add_Module
-      
+
 ---
