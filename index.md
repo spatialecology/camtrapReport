@@ -44,12 +44,6 @@ Three example datasets are provided below. These open-access camera-trap
 datasets, available through
 [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data),
 follow the Camtrap-DP standard and can be used to test `camtrapReport`.
-\### Example input datasets
-
-Three example datasets are provided below. These open-access camera-trap
-datasets, available through
-[GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data),
-follow the Camtrap-DP standard and can be used to test `camtrapReport`.
 
 |                                               Dataset                                               |                                             Habitat data                                              |                                                    Study area                                                     |
 |:---------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|
@@ -57,10 +51,11 @@ follow the Camtrap-DP standard and can be used to test `camtrapReport`.
 | [Antwerp dataset](https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download) | [Antwerp habitat](https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing) | [Antwerp study area boundary](https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing) |
 |  [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download)   |  [MICA habitat](https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing)   |  [MICA study area boundary](https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing)   |
 
-**Note:** The [habitat data](https://doi.org/10.1038/s41597-025-06235-7)
-and study area files were prepared exclusively for testing
-`camtrapReport` and do not represent official data products published by
-the original dataset owners.
+***Note:** The [habitat
+data](https://doi.org/10.1038/s41597-025-06235-7) and study area files
+were prepared exclusively for testing `camtrapReport` and do not
+represent official data products published by the original dataset
+owners.*
 
 ## First use: installation
 
@@ -74,20 +69,43 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 remotes::install_github("spatialecology/camtrapReport")
 ```
 
+***Note:** `camtrapReport` requires R ≥ 4.1.0. If you are unsure of your
+current R version, run `R.version.string` in the R console.*
+
 ### Load the package
 
 In addition to loading `camtrapReport` package, depending on which
 report sections and methods you use, additional packages may be
 required. To ensure full functionality, run the helper function,
-`inatall_All`, that installs all package dependencies:
+`install_All`, that installs all package dependencies:
 
 ``` r
 library(camtrapReport)
 install_All()
 ```
 
-*Tip: You may be prompted to approve package installations or compile
-packages from source. Make sure you have an active internet connection.*
+***Note:** You may be prompted to approve package installations or
+compile packages from source. Make sure you have an active internet
+connection.*
+
+### Troubleshooting installation
+
+If `remotes::install_github()` fails, a common cause is a missing GitHub
+personal access token (PAT). To set one up, run:
+
+``` r
+install.packages(c("remotes", "usethis", "gitcreds"))
+usethis::create_github_token()  # Opens GitHub in your browser — create and copy the token
+gitcreds::gitcreds_set()        # Paste the token when prompted in R
+remotes::install_github("spatialecology/camtrapReport")
+```
+
+If installation still fails, please [open an
+issue](https://github.com/spatialecology/camtrapReport/issues) and
+include the full error message, the output of
+[`sessionInfo()`](https://rdrr.io/r/utils/sessionInfo.html), and
+information on whether the error occurred during `install_github()` or
+`install_All()`.
 
 ## Create the camReport object
 
@@ -107,7 +125,7 @@ To keep the workflow simple and reproducible, the only required input is
 a single `.zip` file containing the dataset in Camtrap-DP format.
 
 ``` r
-cm <- camData("C:/Users/ebrah010/Data/EOW-Veluwe.zip")
+cm <- camData("path/to/your/dataset.zip")
 ```
 
 ## Optional input
@@ -117,7 +135,7 @@ context, and support more informative summaries and analyses.
 
 ### **Habitat data**
 
-Habitat information cen be provide as a two-column CSV file with
+Habitat information can be provided as a two-column CSV file with
 `locationName` and `Habitat`. An example template of habitat.csv can be
 downloaded
 [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
@@ -145,7 +163,7 @@ When optional input data are available, they can be supplied directly to
 
 ``` r
 cm <- camData(
-  "C:/Users/ebrah010/Data/EOW-Veluwe.zip",
+  "path/to/your/dataset.zip",
   habitat = habitat,
   study_area = study_area
 )
@@ -157,8 +175,11 @@ To generate a data status report and review the quality and completeness
 of the input data, use:
 
 ``` r
-cm$generateStatusReport()
+status (cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
+
+***Example:** [Data Status Report
+output](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view)*
 
 ## Ecological report
 
@@ -168,19 +189,24 @@ generated using
 
 ``` r
 report(cm, view = TRUE)  
-# Open the report automatically after creation with view = TRUE
 ```
+
+***Example:** [Ecological Report
+output](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view)*
 
 ## Conclusion
 
 This page introduced the basic workflow for setting up input data,
 reviewing data quality, and generating reports with `camtrapReport`. To
-explore the available options for customising the ecological report, see
-the [Package overview
-vignette](https://spatialecology.github.io/camtrapReport/). For more
-detail on the package’s modular and extensible design, including how to
-add new report sections, see the [Module
-vignette](https://spatialecology.github.io/camtrapReport/).
+understand how the package is organised, see the [Package
+Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html).
+To explore data quality checks in detail, see the [Data Status
+Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html).
+To customise the ecological report, see the [Ecological
+Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html).
+For more detail on the package’s modular and extensible design,
+including how to add new report sections, see [Module
+Management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
 
 ## Contribute
 
