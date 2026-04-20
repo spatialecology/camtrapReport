@@ -8,9 +8,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
-# Data Status Report
-
 ## Introduction
 
 ## Purpose of the Data Status Report

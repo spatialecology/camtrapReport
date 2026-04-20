@@ -14,8 +14,6 @@
 \alias{characterORlistORnull-class}
 \alias{data.frameORnull-class}
 
-
-
 \alias{show,camReport-method}
 \alias{show,camInfo-method}
 
@@ -37,17 +35,12 @@ Slots for camReport objects:
 \item{\code{reportObjects}}{a list of modules}
 
 \item{\code{statusReportObjects}}{a list of modules}
-
-
-
 }
+}
+
 \references{
 Ebrahimi et al. (2025) xxx
 }
 \author{
 Elham Ebrahimi
 }
-
-
-
-

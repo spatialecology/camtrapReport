@@ -9,8 +9,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Ecological Report
-
 ## Introduction
 
 The Ecological Report is the main interpretive output of `camtrapReport`. It assembles processed camera-trap data into an article-style document that combines narrative text, tables, figures, and maps. This tutorial explains how the report is organised, what each section is designed to show, and how the main outputs can be interpreted.
