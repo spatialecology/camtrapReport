@@ -14,7 +14,9 @@ This vignette provides a conceptual overview of how the package is
 organised. It explains the main parts of the workflow, the role of the
 central `camReport` object, and how data checks, analyses, and report
 sections fit together. For a practical introduction to installation,
-input data, and first use, see the **Get started** page.
+input data, and first use, see the [Get
+started](https://spatialecology.github.io/camtrapReport/index.html)
+page.
 
 ## What *camtrapReport* is designed to do
 

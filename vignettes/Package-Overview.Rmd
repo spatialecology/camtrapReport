@@ -13,7 +13,7 @@ vignette: >
 
 *camtrapReport* is designed to help users move from raw camera-trap records to clear, reproducible ecological outputs. Rather than treating data cleaning, summarisation, analysis, visualisation, and reporting as separate tasks, the package brings them together in a single workflow. This makes it easier to produce consistent outputs across study sites and survey periods while reducing the manual effort required to prepare reports.
 
-This vignette provides a conceptual overview of how the package is organised. It explains the main parts of the workflow, the role of the central `camReport` object, and how data checks, analyses, and report sections fit together. For a practical introduction to installation, input data, and first use, see the **Get started** page.
+This vignette provides a conceptual overview of how the package is organised. It explains the main parts of the workflow, the role of the central `camReport` object, and how data checks, analyses, and report sections fit together. For a practical introduction to installation, input data, and first use, see the [Get started](https://spatialecology.github.io/camtrapReport/index.html) page.
 
 ## What *camtrapReport* is designed to do
 
