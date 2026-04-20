@@ -14,6 +14,6 @@ Description: An extensible framework for exploring and processing cameratrap
     data to automatically generate a report with maps, tables, description, etc.
 License: GPL (>= 3)
 URL: https://spatialecology.github.io/camtrapReport/,
-    https://github.com/spatialecology/camtrapReport
+    https://spatialecology.github.io/camtrapReport/
 VignetteBuilder: rmarkdown
 RoxygenNote: 7.3.3
