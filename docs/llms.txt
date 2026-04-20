@@ -1,0 +1,302 @@
+# Get started
+
+## Package aims
+
+[**`camtrapReport`**](https://github.com/spatialecology/camtrapReport)
+helps turn camera-trap data into standardised, reproducible ecological
+outputs through a workflow designed to automate as much of the reporting
+process as possible. The package combines data quality checks,
+summarisation, visualisation, and ecological analysis in a modular
+framework, helping users move efficiently from raw records to
+interpretable results. Its automated workflow improves comparability,
+scalability, and reproducibility across sites and over time, while
+reducing technical barriers and supporting transparent, efficient, and
+timely ecological reporting. The main functions of the package include:
+
+- **Data status report**, which performs automated diagnostics of data
+  quality and completeness across key components of camera-trap
+  datasets, including spatial and temporal information, key column
+  availability, annotations, validation status, and observation types by
+  capture method. These checks help users identify missing information,
+  inconsistencies, and unusual values that may require correction or
+  completion.
+
+- **Ecological report**, which produces standardised outputs through
+  modular components. Reports can include descriptive information,
+  summaries of key data, visualisations of important patterns, and
+  ecological assessments and analyses.
+
+## Data standard format
+
+`camtrapReport` is designed for datasets provided in, or converted to,
+the [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/), which is
+a community-developed data exchange format for camera-trap data. Several
+camera-trap data management systems support Camtrap-DP as an export
+format, including [Agouti](https://agouti.eu/) and
+[TRAPPER](https://os-conservation.org/trapper/). It is also possible to
+convert data from other camera-trap sources, including manually managed
+datasets and Wildlife Insights exports, into Camtrap-DP format for use
+in `camtrapReport`.
+
+### Example input datasets
+
+Three example datasets are provided below. These open-access camera-trap
+datasets, available through
+[GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data),
+follow the Camtrap-DP standard and can be used to test `camtrapReport`.
+\### Example input datasets
+
+Three example datasets are provided below. These open-access camera-trap
+datasets, available through
+[GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data),
+follow the Camtrap-DP standard and can be used to test `camtrapReport`.
+
+| Dataset | Habitat data | Study area |
+|:--:|:--:|:--:|
+| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download) | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) | [Leuven study area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing) |
+| [Antwerp dataset](https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download) | [Antwerp habitat](https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing) | [Antwerp study area boundary](https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing) |
+| [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download) | [MICA habitat](https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing) | [MICA study area boundary](https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing) |
+
+**Note:** The [habitat data](https://doi.org/10.1038/s41597-025-06235-7)
+and study area files were prepared exclusively for testing
+`camtrapReport` and do not represent official data products published by
+the original dataset owners.
+
+## First use: installation
+
+Install `camtrapReport` with the standard `remotes` workflow:
+
+``` r
+# install using the "remotes" package
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("spatialecology/camtrapReport")
+```
+
+### Load the package
+
+In addition to loading `camtrapReport` package, depending on which
+report sections and methods you use, additional packages may be
+required. To ensure full functionality, run the helper function,
+`inatall_All`, that installs all package dependencies:
+
+``` r
+library(camtrapReport)
+install_All()
+```
+
+*Tip: You may be prompted to approve package installations or compile
+packages from source. Make sure you have an active internet connection.*
+
+## Create the camReport object
+
+At the core of `camtrapReport` is a mutable Reference Class object
+called `camReport`, which acts as the central workflow container and
+module registry. It stores harmonised input data, user-defined settings,
+and intermediate results throughout the reporting process.
+
+Use
+[`camData()`](https://spatialecology.github.io/camtrapReport/reference/camData.md)
+to create the `camReport` object by reading and pre-processing your
+camera-trap dataset.
+
+## Required input
+
+To keep the workflow simple and reproducible, the only required input is
+a single `.zip` file containing the dataset in Camtrap-DP format.
+
+``` r
+cm <- camData("C:/Users/ebrah010/Data/EOW-Veluwe.zip")
+```
+
+## Optional input
+
+Additional input data can be provided to improve maps, add spatial
+context, and support more informative summaries and analyses.
+
+### **Habitat data**
+
+Habitat information cen be provide as a two-column CSV file with
+`locationName` and `Habitat`. An example template of habitat.csv can be
+downloaded
+[here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
+
+``` r
+habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")
+head(habitat)
+#   locationName      Habitat
+# 1       VEL-01     Sandhill
+# 2       VEL-02       Forest
+# 3       VEL-03 Dry_heathland
+```
+
+### **Study area polygon**
+
+A polygon shapefile of the site boundary can be provided to improve maps
+and add spatial context to the report.
+
+``` r
+study_area <- vect("C:/Users/ebrah010/Data/studyarea_nl.shp")
+```
+
+When optional input data are available, they can be supplied directly to
+[`camData()`](https://spatialecology.github.io/camtrapReport/reference/camData.md):
+
+``` r
+cm <- camData(
+  "C:/Users/ebrah010/Data/EOW-Veluwe.zip",
+  habitat = habitat,
+  study_area = study_area
+)
+```
+
+## Data status report
+
+To generate a data status report and review the quality and completeness
+of the input data, use:
+
+``` r
+cm$generateStatusReport()
+```
+
+## Ecological report
+
+Once the input data have been prepared, a full ecological report can be
+generated using
+[`report()`](https://spatialecology.github.io/camtrapReport/reference/report.md):
+
+``` r
+report(cm, view = TRUE)  
+# Open the report automatically after creation with view = TRUE
+```
+
+## Conclusion
+
+This page introduced the basic workflow for setting up input data,
+reviewing data quality, and generating reports with `camtrapReport`. To
+explore the available options for customising the ecological report, see
+the [Package overview
+vignette](https://spatialecology.github.io/camtrapReport/). For more
+detail on the package’s modular and extensible design, including how to
+add new report sections, see the [Module
+vignette](https://spatialecology.github.io/camtrapReport/).
+
+## Contribute
+
+Questions, suggestions, and ideas for improvement are always welcome.
+You can contribute to the development of the [camtrapReport R
+package](https://github.com/spatialecology/camtrapReport) by [opening an
+issue](https://github.com/spatialecology/camtrapReport/issues) or
+joining the conversation in [GitHub
+Discussions](https://github.com/spatialecology/camtrapReport/discussions).
+
+## Citation
+
+As the official scientific publication for `camtrapReport` is still in
+preparation, please cite the package as:
+
+Ebrahimi, E., & Jansen, P. A. (2026). *CamtrapReport: An R Package for
+Automating Camera-Trap Data Reporting for Wildlife Monitoring*. p. 65.
+Abstract from *The International Biogeography Society – 12th Biennial
+Conference*, Aarhus, Denmark. <https://zenodo.org/records/18405441>
+
+For package citation details, please refer to the citation information
+available in the [GitHub
+repository](https://github.com/spatialecology/camtrapReport).
+
+## Acknowledgment
+
+The development of `camtrapReport` was supported by
+[Biodiversa+](https://www.biodiversa.eu/2022/10/07/2022-2023-joint-call/)
+through the [Big Picture project](https://wildlifecamera.eu/).
+
+# Package index
+
+## Data input and setup
+
+- [`camData()`](https://spatialecology.github.io/camtrapReport/reference/camData.md)
+  : Create camera trap data object
+
+- [`info(`*`<camReport>`*`)`](https://spatialecology.github.io/camtrapReport/reference/info.md)
+  [`` `info<-`( ``*`<camReport>`*`)`](https://spatialecology.github.io/camtrapReport/reference/info.md)
+  :
+
+  Get or set field values in a `camReport` object
+
+## Core classes
+
+- [`camReport-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`camInfo-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`sdmFormula-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`listORcharacter-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`listORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`characterORlist-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`characterORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`characterORlistORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`data.frameORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`show,camReport-method`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  [`show,camInfo-method`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
+  : camReport classes
+
+## Report generation
+
+- [`report()`](https://spatialecology.github.io/camtrapReport/reference/report.md)
+  [`status()`](https://spatialecology.github.io/camtrapReport/reference/report.md)
+  :
+
+  Generating automated reports based on a `camReport` object
+
+- [`updateReportSection()`](https://spatialecology.github.io/camtrapReport/reference/update.md)
+  [`listReportSections()`](https://spatialecology.github.io/camtrapReport/reference/update.md)
+  : Updating content of report sections
+
+## Report sections and modules
+
+- [`reportSection()`](https://spatialecology.github.io/camtrapReport/reference/reportSection.md)
+  : Creates a reproducible subsection of the report.
+
+- [`testSection()`](https://spatialecology.github.io/camtrapReport/reference/testSection.md)
+  :
+
+  Test a sub-section object (`.textSection` class)
+
+- [`add_Module()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
+  [`move_Module()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
+  [`remove_Module()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
+  [`empty_trash()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
+  [`list_Modules()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
+  : Managing modules
+
+# Articles
+
+### Tutorials
+
+Step-by-step guides for using camtrapReport.
+
+- [Package
+  Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.md):
+
+  An overview of the camtrapReport workflow, package architecture, core
+  functionality, and the data quality checks and ecological reports it
+  produces.
+
+- [Ecological
+  Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.md):
+
+  An overview of the Ecological Report, its main components, workflow
+  steps, and outputs.
+
+- [Data Status
+  Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.md):
+
+  This vignette describes the Data Status Report and explains the checks
+  used to assess the quality, completeness, and consistency of
+  camera-trap data.
+
+- [Module
+  Management](https://spatialecology.github.io/camtrapReport/articles/modules.md):
+
+  This vignette explains how users can manage modules, customize them,
+  remove them from the report, change their order, and register and
+  integrate new modules into the ecological report.
