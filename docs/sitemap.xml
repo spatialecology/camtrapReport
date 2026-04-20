@@ -1,20 +1,17 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://spatialecology.github.io/camtrapReport/404.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/article.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/data-status-report.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/ecological-report.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/modules.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/articles/vignette-title.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/authors.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/example.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/LICENSE-text.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/LICENSE.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/news/index.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/output.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/camData.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reference/camDataRd.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/reference/classes.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/info.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/modules.html</loc></url>
