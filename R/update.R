@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  April 2026
-# Version 1.1
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -269,7 +269,7 @@
   
   node
 }
-.norm_parent <- camtrapReport:::.norm_parent
+
 #-------
 
 
@@ -290,12 +290,27 @@ setMethod('updateReportSection', signature(x='camReport'),
             
             if (missing(text)) text <- NULL
             if (missing(title)) title <- NULL
-            if (missing(code)) code <- NULL
+            
+            if (missing(code)) {
+              code <- NULL
+              code_missing <- TRUE
+            }
+            
             if (missing(code_name)) code_name <- NULL
-            if (missing(code_setting)) code_setting <- NULL
-            if (missing(packages)) packages <- NULL
+            
+            if (missing(code_setting)) {
+              code_setting <- NULL
+              code_setting_missing <- TRUE
+            }
+            
+            if (missing(packages)) {
+              packages <- NULL
+              packages_missing <- TRUE
+            }
+            
             if (missing(append_code)) append_code <- FALSE
             if (missing(append_text)) append_text <- FALSE
+            
             #----------
             if (missing(section) || !is.character(section) || length(section) != 1L) {
               stop("'section' should be a single character string (name or title).")
@@ -315,10 +330,6 @@ setMethod('updateReportSection', signature(x='camReport'),
             )
             
             target_name <- hit$name[1]
-            
-            code_missing <- missing(code)
-            code_setting_missing <- missing(code_setting)
-            packages_missing <- missing(packages)
             
             if (!code_missing) {
               code <- .capture_code_text(code, env = parent.frame())
