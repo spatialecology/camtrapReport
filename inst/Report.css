@@ -40,3 +40,34 @@ h4.date {
   margin-bottom: 18px;
   font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+/* Justify normal paragraph text */
+p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Make hyperlinks blue */
+a,
+a:visited {
+  color: #0066cc !important;
+}
+
+/* Hyperlink hover style */
+a:hover {
+  color: #004999 !important;
+  text-decoration: underline;
+}
+
+/* Make tab labels blue */
+.nav-tabs > li > a,
+.nav-tabs .nav-link {
+  color: #0066cc !important;
+}
+
+/* Active tab */
+.nav-tabs > li.active > a,
+.nav-tabs .nav-link.active {
+  color: #003366 !important;
+  font-weight: bold;
+}
