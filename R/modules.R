@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  March 2026
-# Version 1.0
+# Last Update :  May 2026
+# Version 1.1
 # Licence GPL v3
 #--------
 
@@ -355,11 +355,11 @@
 .add_Module <- function(x,
                         before = NULL,
                         after = NULL,
-                        test = TRUE,
+                        test = FALSE,
                         level0 = c("introduction", "methods", "results",
                                    "acknowledgements", "appendix"),
                         package = "camtrapReport",
-                        dir = NULL) {
+                        dir = NULL,object=NULL) {
   module_dir <- .section_dir(package = package, dir = dir)
   .trash_dir(module_dir, create = TRUE)
   info_path <- .modules_info_path(module_dir)
@@ -371,9 +371,10 @@
   }
   
   if (isTRUE(test)) {
-    vv <- methods::validObject(m, test = TRUE)
+    vv <- .QuickTestReportSection(m,object,path = NULL)
     if (!isTRUE(vv)) {
-      stop("Invalid .textSection object:\n", paste(vv, collapse = "\n"))
+      if (is.null(object)) stop("Testing of the module caused error...(does the test require the camReport object?!)")
+      else stop("Testing of the module caused error...!")
     }
   }
   
@@ -1247,12 +1248,8 @@
 #################################
 
 
-
-
-
-
 if (!isGeneric("add_Module")) {
-  setGeneric("add_Module", function(x,before,after,test)
+  setGeneric("add_Module", function(x,before,after,test,object)
     standardGeneric("add_Module"))
 }
 
@@ -1261,7 +1258,11 @@ setMethod('add_Module', signature(x='character'),
           function(x,before,after,test) {
             if (missing(before)) before <- NULL
             if (missing(after)) after <- NULL
-            if (missing(test) || !is.logical(test)) test <- TRUE
+            if (missing(object) || !inherits(object,'camReport')) object <- NULL
+            if (missing(test) || !is.logical(test)) {
+              if (is.null(object)) test <- FALSE
+              else test <- TRUE
+            }
             #----------
             .module_dir <- .section_dir(package = "camtrapReport")
             if (isTRUE(test)) {
@@ -1277,7 +1278,8 @@ setMethod('add_Module', signature(x='character'),
               after = after,
               test = test,
               package = "camtrapReport",
-              dir = .module_dir
+              dir = .module_dir,
+              object = object
             )
             
           }

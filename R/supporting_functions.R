@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 1.5
+# Last Update :  May 2026
+# Version 1.6
 # Licence GPL v3
 #--------
 
@@ -811,36 +811,7 @@
 
 
 #----------
-# .pivot_wider <- function(data,
-#                          id_cols,
-#                          names_from,
-#                          values_from,
-#                          fill = 0,
-#                          agg_fun = sum) {
-#   stopifnot(is.data.frame(data))
-#   stopifnot(length(id_cols) == 1L) 
-#   id <- id_cols
-#   
-#   # Keep only needed columns
-#   x <- data[, c(id, names_from, values_from)]
-#   names(x) <- c("..id", "..name", "..value")
-#   
-#   # Aggregate duplicates (if any) to ensure one cell per (id, name)
-#   x <- aggregate(..value ~ ..id + ..name, data = x, FUN = agg_fun)
-#   
-#   # Pivot: LHS is the value column (already tabulated), RHS are dimensions
-#   tab <- xtabs(..value ~ ..id + ..name, data = x) 
-#   
-#   # Convert to data.frame with explicit id column; keep original column names
-#   out <- data.frame(
-#     setNames(list(rownames(tab)), id),
-#     as.data.frame.matrix(tab, stringsAsFactors = FALSE, optional = TRUE),
-#     row.names = NULL,
-#     check.names = FALSE
-#   )
-#   
-#   out
-# }
+
 .pivot_wider <- function(data,
                          id_cols = NULL,
                          names_from,
@@ -963,3 +934,94 @@
   
   out
 }
+################
+
+.get_module_names <- function() {
+  m <- list_Modules(tree = FALSE,brief = TRUE)
+  m$name[m$valid]
+}
+#-------
+
+# check if the parent of selected modules are available!
+.check_parent <- function(n) {
+  ml <- list_Modules()
+  ml <- ml[ml$name %in% n,]
+  #-----
+  .x <- c()
+  for (i in 1:nrow(ml)) {
+    if (ml$parent[i] == '.root') next
+    else if (ml$parent[i] %in% ml$name) next
+    else .x <- c(.x,ml$name[i])
+  }
+  if (length(.x) > 0) return(.x)
+  
+}
+#-----------
+
+.attach_modules <- function(cm,n='all') {
+  if (missing(n)) n <- 'all'
+  
+  if (is.character(n)) {
+    if ('all' %in% n) n <- .get_module_names()
+    else {
+      nn <- .get_module_names()
+      n <- nn[nn %in% n]
+      #---------
+      nn <- .check_parent(n)
+      if (!is.null(nn)) {
+        warning(paste0('Some sections (',.paste_comma_and(nn),') are excluded because their parents are not available!'))
+        n <- n[!n %in% nn]
+      }
+      if (length(n) == 0) stop('No modules (report sections) are selected!')
+    }
+  }
+  #------
+  if (!all(is.na(cm$reportObjectElements$Modules_info$tested))) {
+    .w <- cm$reportObjectElements$Modules_info$tested
+    .w <- sort(c(which(is.na(.w)),which(.w[!is.na(.w)])))
+    if (length(.w) > 0) {
+      .w <- cm$reportObjectElements$Modules_info$name[.w]
+      n <- n[n %in% .w]
+    }
+  }
+  #---------
+  mods <- cm$reportObjectElements$Modules[n]
+  cm$reportObjects <- list()
+  for (i in seq_along(mods)) {
+    cm$addReportObject(mods[[i]])
+  }
+  
+}
+#-------
+
+.attach_status_modules <- function(cm,n='all') {
+  if (missing(n)) n <- 'all'
+  
+  if (is.character(n)) {
+    if ('all' %in% n) n <- cm$reportObjectElements$Status_modules_info$name
+    else {
+      nn <- cm$reportObjectElements$Status_modules_info$name
+      n <- nn[nn %in% n]
+      
+      if (length(n) == 0) stop('No data status modules (status_report sections) are selected!')
+    }
+  }
+  #------
+  if (!all(is.na(cm$reportObjectElements$Status_modules_info$tested))) {
+    .w <- cm$reportObjectElements$Status_modules_info$tested
+    .w <- sort(c(which(is.na(.w)),which(.w[!is.na(.w)])))
+    if (length(.w) > 0) {
+      .w <- cm$reportObjectElements$Status_modules_info$name[.w]
+      n <- n[n %in% .w]
+    }
+  }
+  #---------
+  mods <- cm$reportObjectElements$Status_modules[n]
+  cm$statusReportObjects <- list()
+  for (i in seq_along(mods)) {
+    cm$addStatusReportObject(mods[[i]])
+  }
+  
+}
+#-------
+

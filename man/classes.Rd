@@ -4,7 +4,6 @@
 
 \alias{camReport-class}
 \alias{camInfo-class}
-\alias{sdmFormula-class}
 
 \alias{listORcharacter-class}
 
