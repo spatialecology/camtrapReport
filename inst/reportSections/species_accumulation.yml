@@ -1,0 +1,414 @@
+---
+name: "species_accumulation"
+title: "## Species Accumulation Curves {.tabset}"
+parent: "results"
+text: "Species accumulation curves show how recorded species richness changes with sampling effort, measured here as the number of camera-trap deployments. For each year available for this site, curves were derived from species presence–absence across deployments using the [iNEXT](https://cran.r-project.org/web/packages/iNEXT/index.html) R package. The tabs below show yearly curves with 95% confidence intervals, and the final Comparison tab overlays years with sufficient data."
+code: |
+  #| name: species_accumulation_code
+  #| setting: echo=FALSE,results="asis",message=FALSE,warning=FALSE,fig.width=10,fig.height=6
+  #| packages: dplyr,iNEXT,ggplot2,tidyr
+
+  deployments  <- object$data$deployments
+  observations <- object$data$observations
+
+  dep_id_col <- intersect(
+    c("deploymentID", "deployment_id", "deploymentId", "deployment"),
+    names(deployments)
+  )[1]
+
+  obs_dep_col <- intersect(
+    c("deploymentID", "deployment_id", "deploymentId", "deployment"),
+    names(observations)
+  )[1]
+
+  sp_col <- intersect(
+    c("scientificName", "species", "Species"),
+    names(observations)
+  )[1]
+
+  obs_dt_col <- intersect(
+    c("observationDateTime", "timestamp", "datetime", "dateTime", "DateTimeOriginal", "eventStart"),
+    names(observations)
+  )[1]
+
+  dep_year_col <- intersect(
+    c("year", "deploymentYear", "deployment_year"),
+    names(deployments)
+  )[1]
+
+  dep_dt_col <- intersect(
+    c("deploymentStart", "deploymentStartDate", "deploymentStartDateTime",
+      "start", "startDate", "startDateTime",
+      "setupDate", "cameraStart", "cameraStartDate",
+      "eventStart", "timestamp", "datetime", "dateTime"),
+    names(deployments)
+  )[1]
+
+  if (is.na(dep_id_col) || is.na(obs_dep_col) || is.na(sp_col)) {
+    cat("\n\n! Required columns not found.\n\n")
+    cat("Deployments columns:\n  ", paste(names(deployments), collapse = ", "), "\n\n")
+    cat("Observations columns:\n  ", paste(names(observations), collapse = ", "), "\n\n")
+    return(invisible(NULL))
+  }
+
+  if (is.na(dep_year_col) && is.na(dep_dt_col)) {
+    cat("\n\n! No deployment year/date column found in deployments.\n\n")
+    cat("To keep zero-detection deployments in yearly accumulation curves, deployments must contain either a year column or a deployment date column.\n\n")
+    cat("Deployments columns:\n  ", paste(names(deployments), collapse = ", "), "\n\n")
+    return(invisible(NULL))
+  }
+
+  focus_species <- object$get_speciesNames(object$setting$focus_groups)
+
+  observations <- observations |>
+    dplyr::filter(.data[[sp_col]] %in% focus_species)
+
+  # -------------------------
+  # Build deployment-year table
+  # -------------------------
+  if (!is.na(dep_year_col)) {
+    deployment_tbl <- deployments |>
+      transmute(
+        deployment_id = .data[[dep_id_col]],
+        year = suppressWarnings(as.integer(.data[[dep_year_col]]))
+      )
+  } else {
+    if (!inherits(deployments[[dep_dt_col]], "POSIXct")) {
+      deployments[[dep_dt_col]] <- as.POSIXct(deployments[[dep_dt_col]], tz = "")
+    }
+
+    deployment_tbl <- deployments |>
+      transmute(
+        deployment_id = .data[[dep_id_col]],
+        year = suppressWarnings(as.integer(format(.data[[dep_dt_col]], "%Y")))
+      )
+  }
+
+  deployment_tbl <- deployment_tbl |>
+    dplyr::filter(!is.na(deployment_id), deployment_id != "", !is.na(year)) |>
+    dplyr::distinct(deployment_id, year)
+
+  if (nrow(deployment_tbl) == 0) {
+    cat("\n\n! No valid deployment-year records found.\n\n")
+  }
+
+  # -------------------------
+  # Observation detections linked to deployment year
+  # -------------------------
+  obs_tbl <- observations |>
+    transmute(
+      deployment_id = .data[[obs_dep_col]],
+      species_name  = .data[[sp_col]]
+    ) |>
+    dplyr::filter(!is.na(deployment_id), deployment_id != "",
+           !is.na(species_name), species_name != "") |>
+    dplyr::inner_join(deployment_tbl, by = "deployment_id") |>
+    dplyr::distinct(year, deployment_id, species_name)
+
+  if (nrow(obs_tbl) == 0) {
+    cat("\n\n! No records left after filtering and linking observations to deployments.\n\n")
+  }
+
+  if (is.null(object$years) || length(object$years) == 0) {
+    cat("\n\n! object$years is missing or empty.\n\n")
+  }
+
+  years <- suppressWarnings(as.integer(object$years))
+  years <- sort(unique(years[!is.na(years)]))
+
+  if (length(years) == 0) {
+    cat("\n\n! object$years does not contain valid years.\n\n")
+  }
+
+  years_chr <- as.character(years)
+
+  # -------------------------
+  # Incidence-frequency vector using ALL deployments in a year
+  # -------------------------
+  make_vec <- function(year_value, deployment_tbl, obs_tbl) {
+
+    dep_ids <- deployment_tbl |>
+      dplyr::filter(year == year_value) |>
+      dplyr::distinct(deployment_id) |>
+      dplyr::arrange(deployment_id)
+
+    nT <- nrow(dep_ids)
+
+    if (nT < 2) return(NULL)
+
+    species_year <- obs_tbl |>
+      dplyr::filter(year == year_value) |>
+      dplyr::distinct(species_name) |>
+      dplyr::arrange(species_name)
+
+    nS <- nrow(species_year)
+
+    if (nS < 2) return(NULL)
+
+    inc_df <- tidyr::expand_grid(
+      deployment_id = dep_ids$deployment_id,
+      species_name  = species_year$species_name
+    ) |>
+      left_join(
+        obs_tbl |>
+          dplyr::filter(year == year_value) |>
+          mutate(value = 1L) |>
+          dplyr::distinct(deployment_id, species_name, value),
+        by = c("deployment_id", "species_name")
+      ) |>
+      mutate(value = ifelse(is.na(value), 0L, value))
+
+    inc_mat <- xtabs(value ~ deployment_id + species_name, data = inc_df)
+
+    yi <- colSums(inc_mat > 0, na.rm = TRUE)
+    yi <- as.integer(yi)
+    yi <- yi[!is.na(yi) & yi > 0]
+    yi <- pmin(yi, nT, na.rm = TRUE)
+
+    if (length(yi) < 2) return(NULL)
+
+    c(nT, yi)
+  }
+
+  year_vecs_all <- lapply(years, function(yy) {
+    make_vec(yy, deployment_tbl = deployment_tbl, obs_tbl = obs_tbl)
+  })
+  
+  names(year_vecs_all) <- years_chr
+
+  valid_idx <- !vapply(year_vecs_all, is.null, logical(1))
+  year_vecs_valid <- year_vecs_all[valid_idx]
+
+  if (length(year_vecs_valid) == 0) {
+    cat("\n\n! No valid year-level data available for the requested object$years.\n\n")
+    cat("A year needs at least 2 deployments and at least 2 detected species within the focal group.\n\n")
+  }
+
+  tol_cols <- c(
+    "#4477AA", "#66CCEE", "#228833", "#CCBB44", "#EE6677",
+    "#AA3377", "#BBBBBB", "#EE7733", "#0077BB", "#33BBEE",
+    "#009988", "#EE3377", "#CC3311", "#BBBBBB"
+  )
+
+  if (length(years_chr) <= length(tol_cols)) {
+    year_cols <- setNames(tol_cols[seq_along(years_chr)], years_chr)
+  } else {
+    extra_cols <- .eval("grDevices::hcl.colors(length(years_chr) - length(tol_cols), palette = 'Dark 3')",env=environment())
+    year_cols <- setNames(c(tol_cols, extra_cols), years_chr)
+  }
+
+  fill_cols <- setNames(
+    .eval("grDevices::adjustcolor(year_cols, alpha.f = 0.18)",env=environment()),
+    names(year_cols)
+  )
+
+  style_gginext_plot <- function(p,
+                                 show_ribbon = TRUE,
+                                 ribbon_alpha = 0.16,
+                                 line_width = 1.35,
+                                 point_size = 4) {
+    for (i in seq_along(p$layers)) {
+      geom_name <- class(p$layers[[i]]$geom)[1]
+
+      if (geom_name == "GeomRibbon") {
+        p$layers[[i]]$aes_params$alpha <- if (show_ribbon) ribbon_alpha else 0
+        p$layers[[i]]$show.legend <- FALSE
+      }
+
+      if (geom_name %in% c("GeomLine", "GeomPath")) {
+        p$layers[[i]]$aes_params$linewidth <- line_width
+      }
+
+      if (geom_name == "GeomPoint") {
+        p$layers[[i]]$aes_params$size <- point_size
+      }
+    }
+    p
+  }
+
+  get_axis_limits <- function(res_obj, vecs) {
+    x_max <- NA_real_
+    y_max <- NA_real_
+
+    if (!is.null(res_obj) &&
+        !is.null(res_obj$iNextEst) &&
+        !is.null(res_obj$iNextEst$size_based)) {
+
+      sb <- res_obj$iNextEst$size_based
+
+      if ("m" %in% names(sb)) {
+        x_max <- suppressWarnings(max(sb$m, na.rm = TRUE))
+      }
+
+      y_col <- intersect(c("qD.UCL", "qD_UCL", "qD"), names(sb))[1]
+      if (!is.na(y_col)) {
+        y_max <- suppressWarnings(max(sb[[y_col]], na.rm = TRUE))
+      }
+    }
+
+    if (!is.finite(x_max)) {
+      x_max <- 2 * max(vapply(vecs, function(v) v[1], numeric(1)), na.rm = TRUE)
+    }
+
+    if (!is.finite(y_max)) {
+      y_max <- max(vapply(vecs, function(v) length(v) - 1, numeric(1)), na.rm = TRUE)
+    }
+
+    x_step <- if (x_max <= 100) 10 else if (x_max <= 500) 50 else 100
+    y_step <- 1
+
+    x_max <- ceiling(x_max / x_step) * x_step
+    y_max <- ceiling(y_max / y_step) * y_step
+
+    list(
+      x = c(0, x_max),
+      y = c(0, y_max)
+    )
+  }
+
+  res_all <- NULL
+  if (length(year_vecs_valid) >= 2) {
+    res_all <- tryCatch(
+      iNEXT(year_vecs_valid, q = 0, datatype = "incidence_freq"),
+      error = function(e) {
+        cat("\n! iNEXT failed (Comparison): ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+  }
+
+  axis_limits <- get_axis_limits(res_all, year_vecs_valid)
+
+  base_theme <- theme_minimal(base_size = 14) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = "grey85", linewidth = 0.4),
+      axis.title = element_text(size = 13),
+      axis.text = element_text(size = 11),
+      legend.title = element_text(size = 11),
+      legend.text = element_text(size = 10),
+      legend.position = "bottom",
+      legend.box = "horizontal",
+      legend.direction = "horizontal",
+      legend.spacing.x = grid::unit(0.25, "cm"),
+      legend.key.width = grid::unit(1.2, "cm")
+    )
+
+  # =========================
+  # Year tabs
+  # =========================
+  for (yy in years) {
+    yy_chr <- as.character(yy)
+    cat("\n### ", yy_chr, " {.unnumbered}\n\n", sep = "")
+
+    vec <- year_vecs_all[[yy_chr]]
+
+    if (is.null(vec)) {
+      cat("\n! Skipping: this year has fewer than 2 deployments or fewer than 2 detected species in the focal group.\n\n")
+      next
+    }
+
+    res <- tryCatch(
+      iNEXT(setNames(list(vec), yy_chr), q = 0, datatype = "incidence_freq"),
+      error = function(e) {
+        cat("\n! iNEXT failed for year ", yy_chr, ": ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+
+    if (is.null(res)) next
+
+    p <- tryCatch(
+      ggiNEXT(res, type = 1, se = TRUE) |>
+        style_gginext_plot(
+          show_ribbon = TRUE,
+          ribbon_alpha = 0.16,
+          line_width = 1.4,
+          point_size = 4
+        ) +
+        labs(
+          x = "Number of sampling units (deployments)",
+          y = "Species richness (q = 0)"
+        ) +
+        base_theme +
+        theme(legend.position = "none") +
+        scale_color_manual(values = setNames(year_cols[yy_chr], yy_chr)) +
+        scale_fill_manual(values = setNames(fill_cols[yy_chr], yy_chr)) +
+        scale_x_continuous(breaks = pretty(axis_limits$x, n = 6)) +
+        scale_y_continuous(breaks = pretty(axis_limits$y, n = 6)) +
+        coord_cartesian(
+          xlim = axis_limits$x,
+          ylim = axis_limits$y,
+          expand = FALSE
+        ),
+      error = function(e) {
+        cat("\n! ggiNEXT failed for year ", yy_chr, ": ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+
+    if (!is.null(p)) {
+      print(p)
+      cat(paste0(
+        "\n\n", object$getFigureNumber(),
+        " *Species accumulation curve for the focal species group in ", yy_chr,
+        ", with 95% confidence interval.*\n\n"
+      ))
+    }
+  }
+
+  # =========================
+  # Comparison tab last
+  # =========================
+  cat("\n### Comparison {.unnumbered}\n\n")
+
+  if (length(year_vecs_valid) < 2) {
+    cat("\n! Not enough valid year-level data to compare for the current focus group.\n\n")
+  } else if (!is.null(res_all)) {
+
+    p_all <- tryCatch(
+      ggiNEXT(res_all, type = 1, se = TRUE) |>
+        style_gginext_plot(
+          show_ribbon = TRUE,
+          ribbon_alpha = 0.16,
+          line_width = 1.35,
+          point_size = 4
+        ) +
+        labs(
+          x = "Number of sampling units (deployments)",
+          y = "Species richness (q = 0)",
+          color = "Year",
+          shape = "Year",
+          linetype = NULL
+        ) +
+        base_theme +
+        scale_color_manual(values = year_cols[names(year_vecs_valid)]) +
+        scale_fill_manual(values = fill_cols[names(year_vecs_valid)]) +
+        scale_x_continuous(breaks = pretty(axis_limits$x, n = 6)) +
+        scale_y_continuous(breaks = pretty(axis_limits$y, n = 6)) +
+        coord_cartesian(
+          xlim = axis_limits$x,
+          ylim = axis_limits$y,
+          expand = FALSE
+        ) +
+        guides(
+          fill = "none",
+          color = guide_legend(order = 1, nrow = 1, byrow = TRUE),
+          shape = guide_legend(order = 1, nrow = 1, byrow = TRUE),
+          linetype = guide_legend(order = 2, nrow = 1, byrow = TRUE)
+        ),
+      error = function(e) {
+        cat("\n! ggiNEXT failed (Comparison): ", conditionMessage(e), "\n\n", sep = "")
+        NULL
+      }
+    )
+
+    if (!is.null(p_all)) {
+      print(p_all)
+      cat(paste0(
+        "\n\n", object$getFigureNumber(),
+        " *Species accumulation curves by year for the focal species group. Solid lines indicate rarefaction, dashed lines extrapolation, and points observed sample size.*\n\n"
+      ))
+    }
+  }
+---

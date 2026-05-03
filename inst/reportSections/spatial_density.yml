@@ -1,5 +1,5 @@
 ---
-name: "spat_density"
+name: "spatial_density"
 title: "## Spatial Density"
 parent: "results"
 text: "Spatial density maps derived from point pattern analysis illustrate the spatial distribution of species detections across the study area. These visualizations highlight variation in detection intensity and help identify areas with relatively high or low concentrations of records. The following maps are presented for each species, either by survey year or across the full monitoring period. Warmer colors represent higher estimated detection density, whereas cooler colors indicate lower density. Together, these maps support comparison of spatial detection patterns among species and across survey years."
@@ -91,14 +91,14 @@ code: |
             )
         }
       if (!is.null(.crop)) {
-      m <- m |>
-      addPolygons(
-      data = project(.crop, "epsg:4326"),
-      fillColor = "transparent",
-      fillOpacity = 0.3,
-      color = "black",
-      weight = 2,
-      options = pathOptions(interactive = FALSE)
+        m <- m |>
+        addPolygons(
+          data = project(.crop, "epsg:4326"),
+          fillColor = "transparent",
+          fillOpacity = 0.3,
+          color = "black",
+          weight = 2,
+          options = pathOptions(interactive = FALSE)
           )
         }
         

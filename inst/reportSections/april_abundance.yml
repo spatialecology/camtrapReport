@@ -1,0 +1,358 @@
+---
+name: "abun_trends"
+title: "## Capture-Based and Abundance Trends {.tabset}"
+parent: "results"
+text: "Camera-trap capture data do not directly measure true population size, but they can provide useful indicators of temporal variation in relative abundance and species detectability, provided that survey effort and detection conditions remain reasonably comparable among years."
+code: |
+  #| name: abundance
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
+  #| packages: ggplot2, dplyr, tidyr, grid
+
+  group_label <- .pretty_label(object$setting$focus_groups)
+
+  cat(paste0(
+    "The figures below summarize capture-based trends for frequently detected ", group_label,
+    " recorded in at least ", object$filterCount,
+    " capture events during the study period in ", object$siteName, ". ",
+    "The tabs present complementary metrics, including the number of captures, capture rate (captures per 100 trap-days), number of capture locations, and, where available, REM-based density estimates. ",
+    "Together, these metrics support comparison of temporal patterns in species records across survey years.\n\n"
+  ))
+
+  # ------------------------------------------------------------
+  # Species selection
+  # ------------------------------------------------------------
+  if (!is.null(object$setting$focus_groups)) {
+    .w <- which(names(object$species_summary) %in% object$setting$focus_groups)
+    .w <- unlist(lapply(.w, function(i) object$species_summary[[i]]$site_list$scientificName))
+  } else {
+    if (any(c("wild_mammals", "large_mammals", "birds", "amphibians", "reptiles") %in% object$species_summary$count$Group)) {
+      .w <- which(names(object$species_summary) %in% c("wild_mammals", "large_mammals", "birds", "amphibians", "reptiles"))
+      .w <- unlist(lapply(.w, function(i) object$species_summary[[i]]$site_list$scientificName))
+    } else {
+      .w <- unique(object$capture$scientificName[object$capture$Year != "total"])
+    }
+  }
+
+  .w <- unique(.w)
+
+  # ------------------------------------------------------------
+  # Shared base data
+  # ------------------------------------------------------------
+  capture_base <- object$capture |>
+    dplyr::filter(scientificName %in% .w, Year != "total") |>
+    dplyr::mutate(
+      Year_numeric = as.numeric(as.character(Year))
+    ) |>
+    dplyr::arrange(scientificName, Year_numeric)
+
+  all_years <- sort(unique(capture_base$Year_numeric))
+
+  # Species order in legend = species with highest latest value first
+  latest_order_df <- capture_base |>
+    dplyr::group_by(scientificName) |>
+    dplyr::slice_max(order_by = Year_numeric, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup() |>
+    dplyr::arrange(dplyr::desc(Captures), scientificName)
+
+  species_list <- latest_order_df$scientificName
+
+  species_colors <- setNames(
+    object$reportObjectElements$color_palette[seq_along(species_list)],
+    species_list
+  )
+
+  # ------------------------------------------------------------
+  # Helper functions
+  # ------------------------------------------------------------
+  build_segments <- function(df, y_col) {
+    df |>
+      dplyr::filter(!is.na(.data[[y_col]])) |>
+      dplyr::arrange(scientificName, Year_numeric) |>
+      dplyr::group_by(scientificName) |>
+      dplyr::mutate(
+        x    = Year_numeric,
+        y    = .data[[y_col]],
+        xend = dplyr::lead(Year_numeric),
+        yend = dplyr::lead(.data[[y_col]]),
+        gap_years = xend - x - 1,
+        segment_type = dplyr::if_else(gap_years > 0, "gap", "observed")
+      ) |>
+      dplyr::filter(!is.na(xend), !is.na(yend)) |>
+      dplyr::ungroup()
+  }
+
+  build_points <- function(df, y_col) {
+    df |>
+      dplyr::filter(!is.na(.data[[y_col]])) |>
+      dplyr::mutate(value = .data[[y_col]]) |>
+      dplyr::arrange(scientificName, Year_numeric)
+  }
+
+  make_trend_plot <- function(df,
+                              y_col,
+                              y_lab,
+                              palette,
+                              legend_order,
+                              y_limits = NULL,
+                              y_breaks = waiver(),
+                              y_labels = waiver(),
+                              log_scale = FALSE) {
+
+    plot_df <- df |>
+      dplyr::mutate(
+        scientificName = factor(scientificName, levels = legend_order)
+      )
+
+    seg_df <- build_segments(plot_df, y_col)
+    pt_df  <- build_points(plot_df, y_col)
+
+    p <- ggplot() +
+      geom_segment(
+        data = seg_df,
+        aes(
+          x = x, xend = xend,
+          y = y, yend = yend,
+          color = scientificName,
+          linetype = segment_type
+        ),
+        linewidth = 1.05,
+        lineend = "round",
+        show.legend = TRUE
+      ) +
+      geom_point(
+        data = pt_df,
+        aes(
+          x = Year_numeric,
+          y = value,
+          color = scientificName
+        ),
+        shape = 21,
+        size = 2.3,
+        stroke = 0.9,
+        fill = "white",
+        show.legend = TRUE
+      ) +
+      scale_color_manual(values = palette, breaks = legend_order, name = NULL) +
+      scale_linetype_manual(
+        values = c(observed = "solid", gap = "33"),
+        guide = "none"
+      ) +
+      scale_x_continuous(
+        breaks = all_years,
+        labels = all_years,
+        expand = expansion(mult = c(0.02, 0.03))
+      ) +
+      labs(
+        x = "Survey Year",
+        y = y_lab
+      ) +
+      theme_minimal(base_size = 12) +
+      theme(
+        axis.title.x = element_text(size = 14, face = "bold", color = "black"),
+        axis.title.y = element_text(size = 14, face = "bold", color = "black"),
+        axis.text.x  = element_text(size = 11, color = "black", angle = 0, hjust = 0.5),
+        axis.text.y  = element_text(size = 11, color = "black"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "grey84", linewidth = 0.45),
+        panel.grid.major.y = element_line(color = "grey84", linewidth = 0.45),
+
+        legend.position = "right",
+        legend.justification = "center",
+        legend.direction = "vertical",
+        legend.text = element_text(size = 10, face = "italic", color = "black"),
+        legend.key.width = grid::unit(0.7, "lines"),
+        legend.key.height = grid::unit(0.5, "lines"),
+        legend.spacing.y = grid::unit(0.12, "lines"),
+        legend.box.margin = margin(0, 0, 0, 6),
+
+        plot.margin = ggplot2::margin(20, 25, 20, 20)
+      ) +
+      guides(
+        color = guide_legend(
+          override.aes = list(
+            linetype = "solid",
+            linewidth = 0.9,
+            shape = 21,
+            size = 2.0,
+            fill = "white",
+            stroke = 0.8
+          )
+        )
+      )
+
+    if (log_scale) {
+      p <- p + scale_y_log10(
+        breaks = y_breaks,
+        labels = y_labels,
+        limits = y_limits
+      )
+    } else {
+      p <- p + scale_y_continuous(
+        breaks = y_breaks,
+        labels = y_labels,
+        limits = y_limits
+      )
+    }
+
+    p
+  }
+
+  make_caption <- function(text) {
+    cat(paste0(
+      '<p style="font-size:16px; color:black; font-weight:normal; margin-top:10px;">',
+      '<b>Figure ', object$getFigureNumber(text = FALSE), '.</b> <i>',
+      text,
+      '</i></p>'
+    ))
+  }
+
+  # ============================================================
+  # Number of Captures
+  # ============================================================
+  cat("### Number of Captures {.unnumbered}\n\n")
+
+  df_captures <- capture_base |>
+    dplyr::select(scientificName, Year, Year_numeric, Captures) |>
+    dplyr::arrange(scientificName, Year_numeric)
+
+  plot_captures <- make_trend_plot(
+    df = df_captures,
+    y_col = "Captures",
+    y_lab = "Number of Captures",
+    palette = species_colors,
+    legend_order = species_list
+  )
+
+  print(plot_captures)
+
+  make_caption(paste0(
+    "Trends in camera-trap detections over the survey years for frequently observed ",
+    group_label,
+    ", based on the number of captures."
+  ))
+
+  # ============================================================
+  # Capture Rate
+  # ============================================================
+  cat("### Capture Rate {.unnumbered}\n\n")
+
+  df_capture_rate <- capture_base |>
+    dplyr::mutate(
+      CaptureRate_100 = 100 * Capture_Rate
+    ) |>
+    dplyr::select(scientificName, Year, Year_numeric, CaptureRate_100) |>
+    dplyr::filter(!is.na(CaptureRate_100), CaptureRate_100 > 0) |>
+    dplyr::arrange(scientificName, Year_numeric)
+
+  plot_rate <- make_trend_plot(
+    df = df_capture_rate,
+    y_col = "CaptureRate_100",
+    y_lab = "Capture Rate (per 100 trap/days)",
+    palette = species_colors,
+    legend_order = species_list,
+    y_limits = c(0.1, 100),
+    y_breaks = c(0.1, 1, 10, 100),
+    y_labels = c("0.1", "1", "10", "100"),
+    log_scale = TRUE
+  )
+
+  print(plot_rate)
+
+  make_caption(paste0(
+    "Log-transformed capture rates per 100 trap-days for frequently observed ",
+    group_label,
+    " across survey years."
+  ))
+
+  # ============================================================
+  # Number of Locations
+  # ============================================================
+  cat("### Number of Locations {.unnumbered}\n\n")
+
+  df_locations <- capture_base |>
+    dplyr::select(scientificName, Year, Year_numeric, Locations) |>
+    dplyr::arrange(scientificName, Year_numeric)
+
+  max_locations <- max(df_locations$Locations, na.rm = TRUE)
+  upper_loc <- max(5, ceiling(max_locations / 5) * 5)
+  loc_breaks <- pretty(c(0, upper_loc), n = 6)
+
+  plot_locations <- make_trend_plot(
+    df = df_locations,
+    y_col = "Locations",
+    y_lab = "Number of Locations",
+    palette = species_colors,
+    legend_order = species_list,
+    y_limits = c(0, upper_loc),
+    y_breaks = loc_breaks,
+    y_labels = loc_breaks
+  )
+
+  print(plot_locations)
+
+  make_caption(paste0(
+    "Trends in the number of camera-trap locations where each species was recorded, showing spatial dynamics across survey years for ",
+    group_label,
+    "."
+  ))
+
+  # ============================================================
+  # REM-Based Density
+  # ============================================================
+  cat("### REM-Based Density {.unnumbered}\n\n")
+
+  spn <- object$get_speciesNames(object$setting$focus_groups)
+
+  estimates_rem <- dplyr::bind_rows(object$get_REM(spn[1]))
+  if (length(spn) > 1) {
+    for (i in 2:length(spn)) {
+      estimates_rem <- rbind(estimates_rem, dplyr::bind_rows(object$get_REM(spn[i])))
+    }
+  }
+
+  if (nrow(estimates_rem) > 0) {
+
+    density_data <- estimates_rem |>
+      dplyr::filter(Metric == "density") |>
+      dplyr::mutate(
+        Year_numeric = as.numeric(as.character(Year))
+      ) |>
+      dplyr::filter(!is.na(estimate), estimate > 0) |>
+      dplyr::select(scientificName, Year, Year_numeric, estimate) |>
+      dplyr::arrange(scientificName, Year_numeric)
+
+    if (nrow(density_data) > 0) {
+
+      species_list_rem <- density_data |>
+        dplyr::group_by(scientificName) |>
+        dplyr::slice_max(order_by = Year_numeric, n = 1, with_ties = FALSE) |>
+        dplyr::ungroup() |>
+        dplyr::arrange(dplyr::desc(estimate), scientificName) |>
+        dplyr::pull(scientificName)
+
+      species_colors_rem <- species_colors[species_list_rem]
+
+      max_density <- max(density_data$estimate, na.rm = TRUE)
+      density_breaks <- pretty(c(0, max_density), n = 6)
+
+      plot_density <- make_trend_plot(
+        df = density_data,
+        y_col = "estimate",
+        y_lab = "Density (individuals / km²)",
+        palette = species_colors_rem,
+        legend_order = species_list_rem,
+        y_limits = c(0, max_density * 1.05),
+        y_breaks = density_breaks,
+        y_labels = density_breaks
+      )
+
+      print(plot_density)
+
+      make_caption(paste0(
+        "Trends in estimated REM-based population density for ",
+        group_label,
+        " across survey years."
+      ))
+    }
+  }
+---

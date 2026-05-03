@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 2.9
+# Last Update :  May 2026
+# Version 3.0
 # Licence GPL v3
 #--------
 
@@ -476,8 +476,8 @@ setMethod('camData', signature(data='character'),
             country <- cm$data_status$Spatial$country
             fg <- .pretty_label(.paste_comma_and(.firstUpper(cm$setting$focus_groups)))
             site_Name <- cm$siteName
-            cm$title <- as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}"))
-            cm$subtitle <- "Ecological Report based on Camera Trap Data for Wildlife Monitoring"
+            cm$title <- .pretty_label(as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}")))
+            cm$subtitle <- .pretty_label("Ecological Report based on Camera Trap Data for Wildlife Monitoring")
             rm(.d); gc()
             
             cm$setup()
@@ -500,37 +500,42 @@ setMethod('camData', signature(data='character'),
                 cm$reportTextElements$most_observed_sp_text, "."
               )
             #-----------
-            .module_dir <- .section_dir("camtrapReport")
-            
-            mods <- .read_modules(
-              level0 = c("introduction", "methods", "results",
-                         "acknowledgements", "appendix"),
-              package = "camtrapReport",
-              dir = .module_dir,
-              write_info = TRUE
-            )
-            for (i in seq_along(mods)) {
-              cm$addReportObject(mods[[i]])
-            }
-            #------
-            # adding data_status modules:
-            .module_dir <- system.file("statusSections", package = "camtrapReport")
-            
-            mods <- .read_modules(
-              level0 = c("abstract", "spatial", "temporal",
-                         "availability", "validation","annotation",
-                         "observation_type","conclusion","acknowledge"),
-              package = "camtrapReport",
-              dir = .module_dir,
-              write_info = TRUE
-            )
-            for (i in seq_along(mods)) {
-              cm$addStatusReportObject(mods[[i]])
-            }
+            .attach_modules(cm,n='all')
+            .attach_status_modules(cm,n='all')
+            # .module_dir <- .section_dir("camtrapReport")
+            # 
+            # mods <- .read_modules(
+            #   level0 = c("introduction", "methods", "results",
+            #              "acknowledgements", "appendix"),
+            #   package = "camtrapReport",
+            #   dir = .module_dir,
+            #   write_info = TRUE
+            # )
+            # for (i in seq_along(mods)) {
+            #   cm$addReportObject(mods[[i]])
+            # }
+            # #------
+            # # adding data_status modules:
+            # .module_dir <- system.file("statusSections", package = "camtrapReport")
+            # 
+            # mods <- .read_modules(
+            #   level0 = c("abstract", "spatial", "temporal",
+            #              "availability", "validation","annotation",
+            #              "observation_type","conclusion","acknowledge"),
+            #   package = "camtrapReport",
+            #   dir = .module_dir,
+            #   write_info = TRUE
+            # )
+            # for (i in seq_along(mods)) {
+            #   cm$addStatusReportObject(mods[[i]])
+            # }
             #----
             cm
           }
 )
 #--------
+
+
+
 
 
