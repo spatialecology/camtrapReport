@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  May 2026
-# Version 1.0
+# Version 1.1
 # Licence GPL v3
 #--------
 
@@ -16,7 +16,7 @@ setMethod('section_names', signature(keep='ANY'),
           function(keep,exclude) {
             if (missing(keep)) keep <- NULL # if NULL, keep all modules 
             if (missing(exclude)) exclude <- NULL
-            if (missing(test)) test <- FALSE
+            
             #---------
             n <- .get_module_names()
             
