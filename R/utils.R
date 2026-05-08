@@ -49,14 +49,196 @@
 }
 #------------
 
-# copied from the sdm package:
-.require <-function(x) {
-  x <- as.character(x)
-  xx <- unlist(lapply(.libPaths(), function(lib) find.package(x, lib, quiet=TRUE, verbose=FALSE)))
-  if (length(xx) > 0) {
-    .loaded <- eval(parse(text=paste0('require(',x,')')))
-    return (.loaded)
-  } else FALSE
+# Quiet package loader
+# Returns TRUE if the package is available and attached; FALSE otherwise.
+# It hides technical startup/conflict messages such as:
+# "Loading required package...", "Attaching package...", and "masked from ...".
+.require <- function(x) {
+  x <- as.character(x)[1]
+
+  if (is.na(x) || !nzchar(x)) return(FALSE)
+
+  if (!requireNamespace(x, quietly = TRUE)) {
+    return(FALSE)
+  }
+
+  # Default: quiet user-friendly loading.
+  # Developer mode: options(camtrapReport.verbose = TRUE)
+  if (isTRUE(getOption("camtrapReport.verbose", FALSE))) {
+    return(
+      require(
+        x,
+        character.only = TRUE,
+        quietly = FALSE,
+        warn.conflicts = TRUE
+      )
+    )
+  }
+
+  suppressPackageStartupMessages(
+    suppressMessages(
+      require(
+        x,
+        character.only = TRUE,
+        quietly = TRUE,
+        warn.conflicts = FALSE
+      )
+    )
+  )
+}
+
+# Run an expression while hiding package startup chatter.
+# This is useful for internal setup steps, but do NOT use it around data-reading
+# progress bars if you want users to see useful progress.
+.suppress_startup <- function(expr) {
+  suppressPackageStartupMessages(
+    suppressMessages(
+      force(expr)
+    )
+  )
+}
+
+# Format elapsed time for user-facing messages.
+.format_duration <- function(seconds) {
+  seconds <- as.numeric(seconds)
+
+  if (is.na(seconds) || seconds < 0) return("unknown time")
+
+  if (seconds < 60) {
+    return(paste0(round(seconds), " sec"))
+  }
+
+  if (seconds < 3600) {
+    minutes <- floor(seconds / 60)
+    sec <- round(seconds %% 60)
+    return(paste0(minutes, " min ", sprintf("%02d", sec), " sec"))
+  }
+
+  hours <- floor(seconds / 3600)
+  minutes <- floor((seconds %% 3600) / 60)
+  paste0(hours, " h ", minutes, " min")
+}
+
+# Format file sizes for readable messages.
+.format_file_size <- function(bytes) {
+  bytes <- as.numeric(bytes)
+
+  if (is.na(bytes) || length(bytes) == 0) return("unknown size")
+
+  if (bytes < 1024) {
+    return(paste0(round(bytes), " B"))
+  }
+
+  if (bytes < 1024^2) {
+    return(paste0(round(bytes / 1024, 1), " KB"))
+  }
+
+  if (bytes < 1024^3) {
+    return(paste0(round(bytes / 1024^2, 1), " MB"))
+  }
+
+  paste0(round(bytes / 1024^3, 2), " GB")
+}
+
+# Estimate dataset size before camData() starts reading.
+# For zip files, it also estimates the uncompressed size without unzipping.
+.estimate_camdata_size <- function(data) {
+  if (is.null(data) || length(data) == 0 || is.na(data[1]) || !file.exists(data[1])) {
+    return(list(
+      file_size = NA_real_,
+      file_size_label = "unknown size",
+      zip_uncompressed_size = NA_real_,
+      zip_uncompressed_label = "unknown size",
+      effective_size = NA_real_,
+      effective_size_label = "unknown size",
+      size_class = "unknown"
+    ))
+  }
+
+  file_size <- file.info(data[1])$size
+  zip_uncompressed_size <- NA_real_
+
+  if (grepl("\\.[Zz][Ii][Pp]$", data[1])) {
+    zip_info <- try(utils::unzip(data[1], list = TRUE), silent = TRUE)
+
+    if (!inherits(zip_info, "try-error") && "Length" %in% names(zip_info)) {
+      zip_uncompressed_size <- sum(zip_info$Length, na.rm = TRUE)
+    }
+  }
+
+  effective_size <- suppressWarnings(max(c(file_size, zip_uncompressed_size), na.rm = TRUE))
+  if (!is.finite(effective_size)) effective_size <- NA_real_
+
+  size_class <- if (is.na(effective_size)) {
+    "unknown"
+  } else if (effective_size < 200 * 1024^2) {
+    "small"
+  } else if (effective_size < 1024^3) {
+    "medium"
+  } else if (effective_size < 5 * 1024^3) {
+    "large"
+  } else {
+    "very_large"
+  }
+
+  list(
+    file_size = file_size,
+    file_size_label = .format_file_size(file_size),
+    zip_uncompressed_size = zip_uncompressed_size,
+    zip_uncompressed_label = .format_file_size(zip_uncompressed_size),
+    effective_size = effective_size,
+    effective_size_label = .format_file_size(effective_size),
+    size_class = size_class
+  )
+}
+
+# Friendly start message for camData().
+# It does not promise an exact processing time; it gives a safe expectation based on file size.
+.camdata_start_message <- function(data) {
+  size_info <- .estimate_camdata_size(data)
+
+  message("📷 camtrapReport is preparing your camera-trap data...")
+
+  if (!is.na(size_info$zip_uncompressed_size)) {
+    message(
+      "Dataset size: ",
+      size_info$file_size_label,
+      " compressed; about ",
+      size_info$zip_uncompressed_label,
+      " after unzip."
+    )
+  } else {
+    message("Dataset size: ", size_info$file_size_label, ".")
+  }
+
+  if (identical(size_info$size_class, "small")) {
+    message("This should be quick.")
+  } else if (identical(size_info$size_class, "medium")) {
+    message("This may take a little while. Useful progress messages will stay visible.")
+  } else if (identical(size_info$size_class, "large")) {
+    message("This looks like a large dataset. Good moment for a coffee ☕ — progress will stay visible.")
+  } else if (identical(size_info$size_class, "very_large")) {
+    message("This is a very large dataset. Please keep R running; progress will stay visible ☕")
+  } else {
+    message("Reading time depends on file size and number of records. Useful progress messages will stay visible.")
+  }
+
+  invisible(size_info)
+}
+
+# Friendly completion message for camData().
+# The elapsed time is measured dynamically and is never hard-coded.
+.camdata_done_message <- function(start_time, site_name = NULL) {
+  elapsed <- difftime(Sys.time(), start_time, units = "secs")
+
+  if (is.null(site_name) || length(site_name) == 0 || is.na(site_name[1]) || !nzchar(site_name[1])) {
+    site_name <- "your study site"
+  }
+
+  message("✅ Data loaded successfully in ", .format_duration(elapsed), ".")
+  message("🦌 camtrapReport object is ready for ", site_name, ".")
+
+  invisible(TRUE)
 }
 #-------
 .eval <- function(x,env) {
@@ -337,9 +519,11 @@
 
 #-----------
 .loadPKG <- function(pkgs) {
-  options(warn=-1)
-  all(unlist(lapply(pkgs,function(p) {.require(p)})))
-  options(warn=0)
+  old_warn <- getOption("warn")
+  on.exit(options(warn = old_warn), add = TRUE)
+
+  options(warn = -1)
+  all(unlist(lapply(pkgs, function(p) .require(p))))
 }
 #---------
 
