@@ -747,10 +747,7 @@
   x <- gsub("\\s+", " ", x)
   x <- trimws(x)
   
-  # OPTIONAL: if you want to drop the word "wild"
-  # x <- gsub("^wild\\s+", "", x)
-  
-  # "a, b, and c"
+
   if (length(x) == 1) return(x)
   if (length(x) == 2) return(paste(x, collapse = " and "))
   paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
