@@ -55,36 +55,25 @@
 # "Loading required package...", "Attaching package...", and "masked from ...".
 .require <- function(x) {
   x <- as.character(x)[1]
-
-  if (is.na(x) || !nzchar(x)) return(FALSE)
-
+  
   if (!requireNamespace(x, quietly = TRUE)) {
     return(FALSE)
   }
-
-  # Default: quiet user-friendly loading.
-  # Developer mode: options(camtrapReport.verbose = TRUE)
-  if (isTRUE(getOption("camtrapReport.verbose", FALSE))) {
-    return(
-      require(
-        x,
-        character.only = TRUE,
-        quietly = FALSE,
-        warn.conflicts = TRUE
-      )
-    )
-  }
-
-  suppressPackageStartupMessages(
+  
+  ok <- suppressWarnings(
     suppressMessages(
-      require(
-        x,
-        character.only = TRUE,
-        quietly = TRUE,
-        warn.conflicts = FALSE
+      suppressPackageStartupMessages(
+        require(
+          x,
+          character.only = TRUE,
+          quietly = TRUE,
+          warn.conflicts = FALSE
+        )
       )
     )
   )
+  
+  isTRUE(ok)
 }
 
 # Run an expression while hiding package startup chatter.
