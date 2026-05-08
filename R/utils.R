@@ -110,22 +110,26 @@
 
 # Format file sizes for readable messages.
 .format_file_size <- function(bytes) {
-  bytes <- as.numeric(bytes)
-
-  if (is.na(bytes) || length(bytes) == 0) return("unknown size")
-
+  if (is.null(bytes) || length(bytes) == 0) return("unknown size")
+  
+  bytes <- suppressWarnings(as.numeric(bytes[1]))
+  
+  if (is.na(bytes) || !is.finite(bytes) || bytes < 0) {
+    return("unknown size")
+  }
+  
   if (bytes < 1024) {
     return(paste0(round(bytes), " B"))
   }
-
+  
   if (bytes < 1024^2) {
     return(paste0(round(bytes / 1024, 1), " KB"))
   }
-
+  
   if (bytes < 1024^3) {
     return(paste0(round(bytes / 1024^2, 1), " MB"))
   }
-
+  
   paste0(round(bytes / 1024^3, 2), " GB")
 }
 
@@ -200,18 +204,40 @@
     message("Dataset size: ", size_info$file_size_label, ".")
   }
 
-  if (identical(size_info$size_class, "small")) {
-    message("This should be quick.")
-  } else if (identical(size_info$size_class, "medium")) {
-    message("This may take a little while. Useful progress messages will stay visible.")
-  } else if (identical(size_info$size_class, "large")) {
-    message("This looks like a large dataset. Good moment for a coffee ☕ — progress will stay visible.")
-  } else if (identical(size_info$size_class, "very_large")) {
-    message("This is a very large dataset. Please keep R running; progress will stay visible ☕")
-  } else {
-    message("Reading time depends on file size and number of records. Useful progress messages will stay visible.")
+  
+  .camdata_start_message <- function(data) {
+    size_info <- .estimate_camdata_size(data)
+    
+    message("📷 camtrapReport is preparing your camera-trap data...")
+    
+    if (!is.na(size_info$zip_uncompressed_size)) {
+      message(
+        "Dataset size: ",
+        size_info$file_size_label,
+        " compressed; about ",
+        size_info$zip_uncompressed_label,
+        " after unzip."
+      )
+    } else {
+      message("Dataset size: ", size_info$file_size_label, ".")
+    }
+    
+    message("⏳ The camReport object is being created...")
+    
+    if (identical(size_info$size_class, "small")) {
+      message("This should only take a moment.")
+    } else if (identical(size_info$size_class, "medium")) {
+      message("This may take a little while. Progress updates will be shown below.")
+    } else if (identical(size_info$size_class, "large")) {
+      message("This is a large dataset. You may want to grab a coffee while the camReport object is being created ☕. Progress updates will be shown below.")
+    } else if (identical(size_info$size_class, "very_large")) {
+      message("This is a very large dataset. Please keep R running; creating the camReport object may take some time ⏳. Progress updates will be shown below.")
+    } else {
+      message("Creating the camReport object may take some time, depending on file size and number of records. Progress updates will be shown below.")
+    }
+    
+    invisible(size_info)
   }
-
   invisible(size_info)
 }
 
