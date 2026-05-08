@@ -89,7 +89,110 @@
   }
 }
 #---------
+#---------
+.html_attr_escape <- function(x) {
+  x <- as.character(x)[1]
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub('"', "&quot;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x
+}
 
+.report_logo_block <- function(logo_path = NULL) {
+  
+  # 1. User-provided logo
+  user_logo <- !is.null(logo_path) &&
+    length(logo_path) > 0 &&
+    !is.na(logo_path[1]) &&
+    nzchar(logo_path[1]) &&
+    file.exists(logo_path[1])
+  
+  # 2. Default package logo from inst/report-assets
+  default_logo <- system.file(
+    "report-assets",
+    "camtrapReport-logo.png",
+    package = "camtrapReport"
+  )
+  
+  has_default_logo <- nzchar(default_logo) && file.exists(default_logo)
+  
+  # 3. Choose which logo to use
+  if (isTRUE(user_logo)) {
+    final_logo <- normalizePath(logo_path[1], winslash = "/", mustWork = FALSE)
+    alt_text <- "Report logo"
+  } else if (isTRUE(has_default_logo)) {
+    final_logo <- normalizePath(default_logo, winslash = "/", mustWork = FALSE)
+    alt_text <- "camtrapReport logo"
+  } else {
+    final_logo <- NULL
+  }
+  
+  # 4. Return HTML
+  if (!is.null(final_logo)) {
+    
+    # Embed the image directly in the HTML report
+    img_src <- knitr::image_uri(final_logo)
+    
+    paste0(
+      "```{=html}\n",
+      "<div class=\"report-logo-placeholder\">",
+      "<img src=\"", .html_attr_escape(img_src), "\" alt=\"", alt_text, "\" />",
+      "</div>\n",
+      "```\n"
+    )
+    
+  } else {
+    
+    paste0(
+      "```{=html}\n",
+      "<div class=\"report-logo-placeholder\">",
+      "<div class=\"logo-empty\">PNG logo placeholder<br/>200 px wide</div>",
+      "</div>\n",
+      "```\n"
+    )
+    
+  }
+}
+
+.report_css_block <- function() {
+  paste0(
+    "```{=html}\n",
+    "<style>\n",
+    
+    ".report-logo-placeholder {\n",
+    "  margin: 8px 0 28px 0;\n",
+    "  text-align: right;\n",
+    "}\n",
+    
+    ".report-logo-placeholder img {\n",
+    "  width: 170px;\n",
+    "  max-width: 170px;\n",
+    "  height: auto;\n",
+    "  display: inline-block;\n",
+    "}\n",
+    
+    ".report-logo-placeholder .logo-empty {\n",
+    "  width: 170px;\n",
+    "  height: 72px;\n",
+    "  border: 1px dashed #b9c2cc;\n",
+    "  border-radius: 8px;\n",
+    "  display: inline-flex;\n",
+    "  align-items: center;\n",
+    "  justify-content: center;\n",
+    "  color: #6c757d;\n",
+    "  font-size: 13px;\n",
+    "  line-height: 1.25;\n",
+    "  background: #f8f9fa;\n",
+    "  text-align: center;\n",
+    "}\n",
+    
+    "</style>\n",
+    "```\n"
+  )
+}
+#---------
+#-------------
 
 # in group_definition, the groups like large_mammals, wild_mammals can be defined
 # each group can be specified based on data columns (e.g., order, class, scientificNames)
@@ -159,6 +262,7 @@ camR <- setRefClass(
       #.self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
       .self$title <- 'Report generated using the camtrapReport package'
       .self$authors <- 'Elham Ebrahimi, Patrick Jansen'
+      .self$logoPath <- ''
       #-----
       .self$reportObjectElements$color_palette <- c(
         "#855C75", "#D9AF6B", "#AF6458", "#736F4C", "#526A83", "#625377",
@@ -1945,6 +2049,9 @@ camR <- setRefClass(
       module_pkgs <- .collect_module_packages(.self$reportObjects)
       pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
       
+      style_block <- .report_css_block()
+      logo_block <- .report_logo_block(.self$logoPath)
+      
       rmd_template <- glue::glue("
 ---
 title: \"{.self$title}\"
@@ -1963,6 +2070,11 @@ output:
 ---
 
 {pkg_chunk}
+
+{style_block}
+
+{logo_block}
+
 ", .envir = environment())
       for (.n in names(.self$reportObjects)) {
         .x <- .self$reportObjects[[.n]]
@@ -1995,18 +2107,22 @@ output:
       out <- rmarkdown::render(
         input       = rmd_file, 
         output_file = output_file,
-        envir       = render_env
+        envir       = render_env,
+        quiet       = TRUE
       )
       
       message("Report generated at: ", normalizePath(out))
       return(invisible(out))
     },
-    generateStatusReport = function(output_file = "data_status_report.html",rmd_file="data_status_report.Rmd") {
+    generateStatusReport = function(output_file = "data_status_report.html", rmd_file = "data_status_report.Rmd") {
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
       pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
-      status_title <- paste0("Data Status Report for ",.self$siteName)
+      
+      style_block <- .report_css_block()
+      logo_block <- .report_logo_block(.self$logoPath)
+      status_title <- paste0("Data Status Report for ", .self$siteName)
       #if (length(.self$institute) > 0) sub_title <- .self$institute
       
       rmd_template <- glue::glue("
@@ -2028,6 +2144,10 @@ output:
 ---
 
 {pkg_chunk}
+
+{style_block}
+
+{logo_block}
 ", .envir = environment())
       for (.n in names(.self$statusReportObjects)) {
         .x <- .self$statusReportObjects[[.n]]
@@ -2055,7 +2175,8 @@ output:
       out <- rmarkdown::render(
         input       = rmd_file, 
         output_file = output_file,
-        envir       = render_env
+        envir       = render_env,
+        quiet       = TRUE
       )
       
       message("Data_Status Report generated at: ", normalizePath(out))
