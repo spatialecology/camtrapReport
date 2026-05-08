@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  May 2026
-# Version 3.0
+# Version 3.1
 # Licence GPL v3
 #--------
 
@@ -397,7 +397,10 @@ if (!isGeneric("camData")) {
 
 
 setMethod('camData', signature(data='character'), 
-          function(data,habitat,study_area=NULL,...) {
+          function(data, habitat, study_area = NULL, ...) {
+            
+            .camdata_start_time <- Sys.time()
+            .camdata_start_message(data)
             
             if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
             
@@ -461,7 +464,7 @@ setMethod('camData', signature(data='character'),
             if (is.null(cm$setting$focus_groups)) cm$setting$focus_groups <- 'large_mammals'
             #-------
             if (!is.null(.d$json$project$title) && .d$json$project$title != "") {
-              cm$siteName <- .d$json$project$title
+              cm$siteName <- .pretty_label(.d$json$project$title)
             } else cm$siteName <- "Unnamed Site"
             
             .summarize_spatial(cm)
@@ -530,6 +533,9 @@ setMethod('camData', signature(data='character'),
             #   cm$addStatusReportObject(mods[[i]])
             # }
             #----
+            #----
+            .camdata_done_message(.camdata_start_time, cm$siteName)
+            
             cm
           }
 )
