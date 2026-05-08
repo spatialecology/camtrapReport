@@ -218,7 +218,7 @@
   
   rm(.obs,obs_first_radius_angle)
   
-  if (!.is.POSIXct(.d$observations$classificationTimestam)) {
+  if (!.is.POSIXct(.d$observations$classificationTimestamp)) {
     .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
     #.d$observations <- .left_join(.d$observations,.d$media[,c("mediaID","timestamp")],by = "mediaID")
     .w <- which(!is.na(.d$observations$classificationTimestamp))
