@@ -2,83 +2,287 @@
 name: "activity_patterns"
 title: "## Activity Patterns {.tabset}"
 parent: "results"
-text: "Activity patterns describe the temporal distribution of animal activity across the 24-hour day and are typically inferred from the timing of camera-trap detections. These patterns help identify whether species are primarily diurnal, nocturnal, or crepuscular, and can provide insight into daily behavior, ecological roles, and potential responses to environmental factors or human disturbance. The figures below present estimated daily activity curves for each study species, based on camera-trap detections collected across the monitoring period and derived using functionality from the [activity](https://cran.r-project.org/package=activity) R package (*Rowcliffe, 2016*)."
+text: "Activity patterns describe the temporal distribution of animal activity across the 24-hour day and are typically inferred from the timing of independent camera-trap detections. These patterns help identify whether species are primarily diurnal, nocturnal, or crepuscular, and can provide insight into daily behaviour, ecological roles, and potential responses to environmental factors or human disturbance. The figures below present estimated daily activity curves for each study species, fitted using the [activity](https://cran.r-project.org/package=activity) R package (*Rowcliffe, 2016*). When available, dashed vertical lines indicate the average sunrise and sunset times across survey years."
 code: |
-  #| name: code
+  #| name: Activity_Pattern
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: ggplot2, dplyr
+  #| packages: ggplot2, dplyr, activity
   
-  
-  if (!is.null(object$sun_times) && nrow(object$sun_times) > 0) {
-      frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
+  if (!requireNamespace("activity", quietly = TRUE)) {
+    cat("\n\nThe **activity** package is not installed, so activity patterns cannot be estimated.\n")
+  } else {
+    
+    #-----------------------------
+    # Helper functions
+    #-----------------------------
+    
+    .prepare_activity_data <- function(object, species) {
+      obs <- object$data$observations
       
-      # Color palette
-      species_colors <- setNames(object$reportObjectElements$color_palette[1:length(frequent_species_scientific)], frequent_species_scientific)
+      if (is.null(obs) || !is.data.frame(obs) || nrow(obs) == 0) {
+        stop("No observation data are available.")
+      }
       
-      ############
+      if (!all(c("scientificName", "timestamp") %in% names(obs))) {
+        stop("The observations table must contain 'scientificName' and 'timestamp' columns.")
+      }
       
-      # Compute total average sunrise/sunset
-      overall_sunrise <- mean(object$sun_times$avg_sunrise, na.rm = TRUE)
-      overall_sunset  <- mean(object$sun_times$avg_sunset, na.rm = TRUE)
+      obs <- obs |>
+        dplyr::filter(
+          !is.na(.data$scientificName),
+          .data$scientificName == species,
+          !is.na(.data$timestamp)
+        )
       
+      if (nrow(obs) == 0) {
+        stop("No timestamped detections are available.")
+      }
+      
+      # Use independent detections where possible
+      if ("sequenceID" %in% names(obs) && any(!is.na(obs$sequenceID))) {
+        obs <- obs |>
+          dplyr::filter(!is.na(.data$sequenceID)) |>
+          dplyr::distinct(.data$sequenceID, .keep_all = TRUE)
+      } else if ("observationID" %in% names(obs) && any(!is.na(obs$observationID))) {
+        obs <- obs |>
+          dplyr::filter(!is.na(.data$observationID)) |>
+          dplyr::distinct(.data$observationID, .keep_all = TRUE)
+      } else if ("deploymentID" %in% names(obs)) {
+        obs <- obs |>
+          dplyr::distinct(.data$deploymentID, .data$timestamp, .keep_all = TRUE)
+      } else {
+        obs <- obs |>
+          dplyr::distinct(.data$timestamp, .keep_all = TRUE)
+      }
+      
+      # Make sure timestamp is POSIXct
+      if (!inherits(obs$timestamp, "POSIXct")) {
+        tz_use <- if (!is.null(object$setting$tz) && nzchar(object$setting$tz)) object$setting$tz else "UTC"
+        obs$timestamp <- as.POSIXct(obs$timestamp, tz = tz_use)
+      }
+      
+      obs <- obs[!is.na(obs$timestamp), , drop = FALSE]
+      
+      if (nrow(obs) == 0) {
+        stop("No valid timestamps remain after cleaning.")
+      }
+      
+      obs
+    }
+    
+    .fit_activity_species <- function(object, species, reps = 200, min_records = 20) {
+      obs <- .prepare_activity_data(object, species)
+      
+      # Convert times to radians
+      tt <- as.POSIXlt(obs$timestamp)
+      hour_decimal <- tt$hour + tt$min / 60 + tt$sec / 3600
+      time_rad <- (hour_decimal / 24) * 2 * pi
+      time_rad <- time_rad[is.finite(time_rad)]
+      
+      if (length(time_rad) < min_records) {
+        stop(
+          paste0(
+            "Too few independent detections for fitting (n = ",
+            length(time_rad),
+            "; minimum = ",
+            min_records,
+            ")."
+          )
+        )
+      }
+      
+      if (length(unique(round(time_rad, 6))) < 5) {
+        stop("Too few unique detection times for stable activity estimation.")
+      }
+      
+      model <- activity::fitact(
+        x = time_rad,
+        sample = "data",
+        reps = reps
+      )
+      
+      pdf_obj <- tryCatch(slot(model, "pdf"), error = function(e) NULL)
+      
+      if (is.null(pdf_obj)) {
+        stop("The activity model was fitted, but the pdf slot could not be extracted.")
+      }
+      
+      pdf_obj <- as.data.frame(pdf_obj)
+      
+      if (!all(c("x", "y") %in% names(pdf_obj))) {
+        stop("The activity model output does not contain the expected columns.")
+      }
+      
+      if (!"lcl" %in% names(pdf_obj)) pdf_obj$lcl <- NA_real_
+      if (!"ucl" %in% names(pdf_obj)) pdf_obj$ucl <- NA_real_
+      
+      pred <- data.frame(
+        time = (pdf_obj$x / (2 * pi)) * 24,
+        estimate = pdf_obj$y,
+        lcl = pdf_obj$lcl,
+        ucl = pdf_obj$ucl
+      )
+      
+      pred$time[pred$time < 0] <- pred$time[pred$time < 0] + 24
+      pred$time[pred$time > 24] <- pred$time[pred$time > 24] - 24
+      pred <- pred[order(pred$time), , drop = FALSE]
+      
+      list(
+        model = model,
+        pred = pred,
+        n = length(time_rad)
+      )
+    }
+    
+    #-----------------------------
+    # Species list
+    #-----------------------------
+    
+    frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
+    frequent_species_scientific <- unique(frequent_species_scientific)
+    frequent_species_scientific <- frequent_species_scientific[!is.na(frequent_species_scientific)]
+    
+    if (length(frequent_species_scientific) == 0) {
+      cat("\n\nNo focal species are available for activity pattern analysis.\n")
+    } else {
+      
+      # Ensure enough colours
+      species_palette <- rep(
+        object$reportObjectElements$color_palette,
+        length.out = length(frequent_species_scientific)
+      )
+      species_colors <- stats::setNames(species_palette, frequent_species_scientific)
+      
+      # Sunrise / sunset (optional)
+      overall_sunrise <- NA_real_
+      overall_sunset  <- NA_real_
+      
+      if (!is.null(object$sun_times) &&
+          is.data.frame(object$sun_times) &&
+          nrow(object$sun_times) > 0 &&
+          all(c("avg_sunrise", "avg_sunset") %in% names(object$sun_times))) {
+        
+        overall_sunrise <- mean(object$sun_times$avg_sunrise, na.rm = TRUE)
+        overall_sunset  <- mean(object$sun_times$avg_sunset,  na.rm = TRUE)
+        
+        if (!is.finite(overall_sunrise)) overall_sunrise <- NA_real_
+        if (!is.finite(overall_sunset))  overall_sunset  <- NA_real_
+      } else {
+        cat("\n\n*Note: average sunrise and sunset times were not available, so daylight reference lines are not shown.*\n\n")
+      }
+      
+      #-----------------------------
       # Loop through species
+      #-----------------------------
+      
       for (species in frequent_species_scientific) {
         
-        cat("\n###", species, "{.unnumbered}\n\n")
+        cat("\n### ", species, " {.unnumbered}\n\n", sep = "")
         
-        res <- object$.get_REM_Param(species,activity_only = TRUE)
+        fit_res <- tryCatch(
+          .fit_activity_species(object, species, reps = 200, min_records = 20),
+          error = function(e) e
+        )
         
-        
-        if (is.null(res) || is.logical(res) || is.null(res$activity_model) ) {
-          cat("\n! Skipping", species, "- missing models!\n")
-          
-        } else {
-          activity_pred <- data.frame(
-            time = (res$activity_model@pdf[, "x"] / (2 * pi)) * 24,
-            estimate = res$activity_model@pdf[, "y"],
-            lcl = res$activity_model@pdf[, "lcl"],
-            ucl = res$activity_model@pdf[, "ucl"]
-          )
-          
-          p <- ggplot(activity_pred, aes(x = time, y = estimate)) +
-            geom_line(color = species_colors[[species]], size = 1.2) +
-            geom_ribbon(aes(ymin = lcl, ymax = ucl),
-                        fill = species_colors[[species]], alpha = 0.3) +
-            
-            # Sunrise and sunset lines
-            geom_vline(xintercept = overall_sunrise, color = "gold", linetype = "dashed", linewidth = 0.8) +
-            geom_vline(xintercept = overall_sunset, color = "gray", linetype = "dashed", linewidth = 0.8) +
-            
-            scale_x_continuous(
-              limits = c(0, 24),
-              breaks = seq(0, 24, by = 6),
-              labels = c("00:00", "06:00", "12:00", "18:00", "24:00")
-            ) +
-            labs(
-              x = "Time of Day",
-              y = "Estimated Activity Density"
-            ) +
-            theme_minimal(base_family = "", base_size = 13) +
-            theme(
-              axis.title.x = element_text(face = "bold", color = "black"),
-              axis.title.y = element_text(face = "bold", color = "black"),
-              axis.text.x = element_text(size = 12),
-              axis.text.y = element_text(size = 12),
-              legend.position = "none",
-              panel.grid.minor = element_blank(),
-              plot.margin = ggplot2::margin(20, 40, 20, 40)
+        if (inherits(fit_res, "error")) {
+          cat(
+            paste0(
+              "\nInsufficient or unsuitable data prevented estimation of an activity curve for **",
+              species,
+              "**. Reason: ",
+              fit_res$message,
+              "\n\n"
             )
-          
-          print(p)
-          
-          cat(paste0(
-            "\n\n",object$getFigureNumber()," *Estimated daily activity pattern for ", 
-            species, 
-            ", aggregated across all sampling rounds. Dashed lines indicate the average sunrise (yellow) and sunset (gray) times across survey years. The solid line shows the fitted activity model, and the shaded region shows the 95% CI.*\n\n"
-          ))
+          )
+          next
         }
+        
+        activity_pred <- fit_res$pred
+        n_det <- fit_res$n
+        
+        p <- ggplot(activity_pred, aes(x = time, y = estimate))
+        
+        if (any(is.finite(activity_pred$lcl)) && any(is.finite(activity_pred$ucl))) {
+          p <- p +
+            geom_ribbon(
+              aes(ymin = lcl, ymax = ucl),
+              fill = species_colors[[species]],
+              alpha = 0.25
+            )
+        }
+        
+        p <- p +
+          geom_line(
+            color = species_colors[[species]],
+            linewidth = 1.1
+          ) +
+          scale_x_continuous(
+            limits = c(0, 24),
+            breaks = seq(0, 24, by = 6),
+            labels = c("00:00", "06:00", "12:00", "18:00", "24:00"),
+            expand = c(0.01, 0.01)
+          ) +
+          labs(
+            x = "Time of day",
+            y = "Estimated activity density"
+          ) +
+          theme_minimal(base_size = 13) +
+          theme(
+            axis.title.x = element_text(face = "bold", color = "black"),
+            axis.title.y = element_text(face = "bold", color = "black"),
+            axis.text.x = element_text(size = 11),
+            axis.text.y = element_text(size = 11),
+            legend.position = "none",
+            panel.grid.minor = element_blank(),
+            plot.margin = ggplot2::margin(12, 18, 12, 18)
+          )
+        
+        if (is.finite(overall_sunrise)) {
+          p <- p + geom_vline(
+            xintercept = overall_sunrise,
+            color = "goldenrod2",
+            linetype = "dashed",
+            linewidth = 0.8
+          )
+        }
+        
+        if (is.finite(overall_sunset)) {
+          p <- p + geom_vline(
+            xintercept = overall_sunset,
+            color = "gray45",
+            linetype = "dashed",
+            linewidth = 0.8
+          )
+        }
+        
+        print(p)
+        
+        daylight_text <- if (is.finite(overall_sunrise) && is.finite(overall_sunset)) {
+          "Dashed lines indicate the average sunrise (gold) and sunset (grey) times across survey years. "
+        } else {
+          ""
+        }
+        
+        cat(
+          paste0(
+            "\n\n",
+            object$getFigureNumber(),
+            " *Estimated daily activity pattern for ",
+            species,
+            ", based on ",
+            n_det,
+            " independent detections aggregated across all sampling rounds. ",
+            daylight_text,
+            "The solid line shows the fitted activity-density function estimated using the `activity` R package",
+            if (any(is.finite(activity_pred$lcl)) && any(is.finite(activity_pred$ucl))) {
+              ", and the shaded band shows the 95% confidence interval."
+            } else {
+              "."
+            },
+            "*\n\n"
+          )
+        )
       }
-    } else cat('\n\n The sun times have not been calculated; it requires the suncalc package (run setup first...)!\n')
-  
-
+    }
+  }
 ---
