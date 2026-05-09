@@ -549,7 +549,7 @@
   .eff$effort <- as.numeric(.eff$effort)
   
   a <- dat$observations |> group_by(deploymentID,scientificName) |> count(scientificName)
-  if (!is.null(species)) a <- a |> filter(scientificName == species)
+  if (!is.null(species)) a <- a |> dplyr::filter(scientificName == species)
   else a <- a |> dplyr::filter(scientificName != species & grepl('\\s',scientificName)) 
   res <- a |> dplyr::left_join(dep, by = "deploymentID") |> 
     dplyr::left_join(.eff, by = "deploymentID") |> dplyr::group_by(locationName) |> 

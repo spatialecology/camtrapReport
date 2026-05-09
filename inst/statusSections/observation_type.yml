@@ -73,31 +73,29 @@ code: |
   }
   
   method <- "TOTAL"
-  
+
   if (method %in% observation_type_df$CaptureMethod) {
-    
-    cat("\n\n## Total {.unnumbered}\n")
-    
-    pie_data <- observation_type_df %>%
-      filter(CaptureMethod == method) %>%
-      mutate(
-        Percent = round(100 * Freq / sum(Freq), 1),
-        Var1_label = paste0(Var1, " (", Percent, "%)"),
-        Label = ifelse(Percent < 3, "", Var1_label),
-        ypos = cumsum(Freq) - 0.5 * Freq
-      )
-    
-    # Create plot
-    p <- ggplot(pie_data, aes(x = "", y = Freq, fill = Var1_label)) +
-      geom_col(width = 1, color = "white") +
-      coord_polar(theta = "y") +
-      geom_text(aes(label = Label), position = position_stack(vjust = 0.5), size = 3) +
-      theme_void() +
-      labs(title = paste("Observation Types -", method), fill = "Observation Type") +
-      scale_fill_brewer(palette = "Set3")
-    
-    print(p)
-  }
   
+  cat("\n\n## Total {.unnumbered}\n")
+  
+  pie_data <- observation_type_df %>%
+    dplyr::filter(CaptureMethod == method) %>%
+    dplyr::mutate(
+      Percent = round(100 * Freq / sum(Freq), 1),
+      Var1_label = paste0(Var1, " (", Percent, "%)"),
+      Label = ifelse(Percent < 3, "", Var1_label),
+      ypos = cumsum(Freq) - 0.5 * Freq
+    )
+  
+  p <- ggplot(pie_data, aes(x = "", y = Freq, fill = Var1_label)) +
+    geom_col(width = 1, color = "white") +
+    coord_polar(theta = "y") +
+    geom_text(aes(label = Label), position = position_stack(vjust = 0.5), size = 3) +
+    theme_void() +
+    labs(title = paste("Observation Types -", method), fill = "Observation Type") +
+    scale_fill_brewer(palette = "Set3")
+  
+  print(p)
+  }
   
 ---

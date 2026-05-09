@@ -41,7 +41,7 @@ code: |
           
           # Filter for current species
           species_data <- density_data |>
-            filter(scientificName == species)
+            dplyr::filter(scientificName == species)
           
           # Select the corresponding color
           species_color <- species_colors[species]

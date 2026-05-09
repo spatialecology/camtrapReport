@@ -61,7 +61,7 @@ code: |
       activity_data <- speed_activity_data %>%
         dplyr::filter(Metric == "activity_level") %>%
         group_by(scientificName) %>%
-        filter(Year == min(Year)) %>%
+        dplyr::filter(Year == min(Year)) %>%
         ungroup()
       
       # Generate color map by scientific name
@@ -95,7 +95,7 @@ code: |
       overall_speed_data <- speed_activity_data %>%
         dplyr::filter(Metric == "overall_speed") %>%
         group_by(scientificName) %>%
-        filter(Year == min(Year)) %>%
+        dplyr::filter(Year == min(Year)) %>%
         ungroup()
       
       # Define color mapping using scientific names
