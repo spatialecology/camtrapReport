@@ -190,23 +190,10 @@
 }
 
 #------------
-
 .camdata_start_message <- function(data) {
   size_info <- .estimate_camdata_size(data)
   
   message("⏳ The camReport object is being created...")
-  
-  if (!is.na(size_info$zip_uncompressed_size)) {
-    message(
-      "Dataset size: ",
-      size_info$file_size_label,
-      " compressed; about ",
-      size_info$zip_uncompressed_label,
-      " after unzip."
-    )
-  } else {
-    message("Dataset size: ", size_info$file_size_label, ".")
-  }
   
   if (identical(size_info$size_class, "small")) {
     message("This should only take a moment.")
@@ -220,7 +207,7 @@
     message("Creating the camReport object may take some time, depending on file size and number of records. Progress updates will be shown below.")
   }
   
-  invisible(Sys.time())
+  invisible(size_info)
 }
 
 #------------
