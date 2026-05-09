@@ -53,8 +53,7 @@ code: |
       
       print(p)
       # Caption
-      cat("\n\n**Figure 7.** *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")
-      
+  cat("\n\n", object$getFigureNumber(), " *Estimated active movement speeds (km/h) across study species, with error bars showing 95% confidence intervals.*\n")      
       
       cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
       
@@ -87,7 +86,7 @@ code: |
       print(p)
       
       # Caption
-      cat("\n\n**Figure 8.** *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
+      cat("\n\n", object$getFigureNumber(), " *Estimated activity levels (proportion of the day active) for each study species. Whiskers represent 95% confidence intervals.*\n")
       #---------
       
       cat('\n#### Day range {.tabset .unnumbered}\n\n')

@@ -71,10 +71,13 @@ code: |
   # render (same as before) ...
   spatial_table$Status <- gsub("\n", "<br>", spatial_table$Status)
   blue_pastel <- c("#e6f0fa", "#f0f7fd", "#dceeff")
-  cat("<h3 style='font-size:9pt; text-align:center; color:black; margin-top:4px; margin-bottom:4px;'>
-  <b><em>Table 1</em></b>. Spatial summary of camera-trap locations</h3>")
-  cat("<div style='text-align: center; margin: 0 auto;'>")
-  cat("<table style='margin: auto; border-collapse: collapse; max-width: 800px; font-family: Arial, sans-serif; font-size: 12px;'>")
+  cat("<div style='max-width:850px; margin:14px auto 22px auto; text-align:center;'>")
+
+  cat("<div style='font-size:13px; color:#24384a; margin-bottom:6px; text-align:center;'>
+       <strong><em>Table 1.</em></strong> Spatial summary of camera-trap locations
+     </div>")
+
+  cat("<table style='margin:auto; width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:12.5px;'>") 
   cat("<thead><tr style='background-color: #f2f2f2; font-weight: bold;'>")
   cat("<th style='border: 1px solid #ccc; padding: 4px;'>Metric</th>")
   cat("<th style='border: 1px solid #ccc; padding: 4px;'>Result</th>")

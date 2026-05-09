@@ -4,7 +4,6 @@ title: "## Temporal Data {.unnumbered}"
 parent: null
 text: |
   This section summarizes the temporal patterns of the camera-trap dataset, including coverage over time, potential gaps, and any detected anomalies or outliers, which are presented in Table 2.
-  
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
@@ -52,44 +51,66 @@ code: |
   out[["Min gap between deployments"]] <-  temporal_data$dep_min_gap
   out[["Missing deployment intervals"]] <-  temporal_data$dep_missing_intervals
   out[["Temporal outliers"]] <-  temporal_data$temporal_outliers
-  temporal_data <- data.frame(Metric=names(out),Details=sapply(out,function(x) x))
+  temporal_data <- data.frame(
+  Metric = names(out),
+  Result = unname(as.character(sapply(out, function(x) x))),
+  stringsAsFactors = FALSE
+  )
   
   mint_pastel <- c("#eafaf1", "#f3fcf7", "#e1f7ec")
 
+  # Make sure the second column is called Result
+  if ("Details" %in% names(temporal_data) && !"Result" %in% names(temporal_data)) {
+  names(temporal_data)[names(temporal_data) == "Details"] <- "Result"
+  }
+
   cat("
-  <div style='text-align:center; margin:0 auto;'>
+  <div style='max-width:800px; margin:12px auto 22px auto; text-align:center;'>
+
+  <div style='font-size:12.5px; color:#24384a; margin-bottom:5px; text-align:center;'>
+    <strong><em>Table 2.</em></strong> Temporal coverage summary
+  </div>
+
   <table style='
     margin:auto;
     border-collapse:collapse;
     table-layout:fixed;
-    width:900px;
+    width:100%;
     font-family:Arial, sans-serif;
-    font-size:13px;'>
-  <thead>
-    <tr style='background-color:#f2f2f2; font-weight:bold;'>
-      <th style='border:1px solid #ccc; padding:6px; width:45%;'>Metric</th>
-      <th style='border:1px solid #ccc; padding:6px; width:55%;'>Result</th>
-    </tr>
-  </thead>
-  <tbody>
+    font-size:12px;
+    line-height:1.35;'>
+    <thead>
+      <tr style='background-color:#f2f2f2; font-weight:bold;'>
+        <th style='border:1px solid #ccc; padding:5px; width:42%; text-align:center;'>Metric</th>
+        <th style='border:1px solid #ccc; padding:5px; width:58%; text-align:center;'>Result</th>
+      </tr>
+    </thead>
+    <tbody>
   ")
-  
-  for (i in seq_len(nrow(temporal_data))) {
-    bg_color <- mint_pastel[(i - 1) %% length(mint_pastel) + 1]
-  
-    # Use the correct column name ("Result"); fall back to "Details" if needed
-    res_val <- if ("Result" %in% names(temporal_data)) temporal_data$Result[i] else temporal_data$Details[i]
-    res_val <- gsub("\n", "<br>", res_val)
-  
-    cat(sprintf(
-      "<tr style='background-color:%s;'>
-         <td style='border:1px solid #ddd; padding:6px; vertical-align:top;'>%s</td>
-         <td style='border:1px solid #ddd; padding:6px; vertical-align:top; white-space:normal; word-break:break-word;'>%s</td>
-       </tr>",
-      bg_color, temporal_data$Metric[i], res_val
-    ))
-  }
-  
-  cat("</tbody></table></div>")
 
+  for (i in seq_len(nrow(temporal_data))) {
+  
+  bg_color <- mint_pastel[(i - 1) %% length(mint_pastel) + 1]
+  
+  metric_val <- temporal_data$Metric[i]
+  metric_val <- ifelse(is.na(metric_val), "", metric_val)
+  
+  res_val <- temporal_data$Result[i]
+  res_val <- ifelse(is.na(res_val), "", res_val)
+  res_val <- gsub("\n", "<br>", res_val)
+  
+  cat(sprintf(
+    "<tr style='background-color:%s;'>
+       <td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:center;'>%s</td>
+       <td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:center; white-space:normal; word-break:break-word;'>%s</td>
+     </tr>",
+    bg_color, metric_val, res_val
+  ))
+  }
+
+  cat("
+    </tbody>
+  </table>
+  </div>
+")
 ---

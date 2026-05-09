@@ -62,54 +62,88 @@ code: |
                    "longitude", "latitude", "timestamps", 
                    "scientificName", "vernacularNames.eng")
   
-  # Container
-  cat("<div style='overflow-x: auto; display: flex; justify-content: center; margin: 20px auto;'>")
-  
   # Pastel color setup
   pastel_colors <- c("#f0f4f8", "#f7f9fc", "#eef2f6")
-  
-  # Table start
-  cat("<table style='border-collapse: collapse; max-width: 800px; font-family: Arial, sans-serif; font-size: 11px;'>")
-  cat("<thead><tr style='background-color: #f2f2f2; font-weight: bold;'>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px; max-width: 120px;'>Category</th>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px; max-width: 160px;'>Field</th>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px; max-width: 200px;'>Status</th>")
-  cat("</tr></thead><tbody>")
-  
+
+  # Wrapper + table title + table start
+  cat("
+  <div style='max-width:800px; margin:14px auto 22px auto; text-align:center;'>
+
+  <div style='font-size:12.5px; color:#24384a; margin-bottom:6px; text-align:center;'>
+    <strong><em>Table 3.</em></strong> Essential data availability and completeness
+  </div>
+
+  <table style='
+    margin:auto;
+    border-collapse:collapse;
+    table-layout:fixed;
+    width:100%;
+    font-family:Arial, sans-serif;
+    font-size:12px;
+    line-height:1.35;'>
+    
+    <thead>
+      <tr style='background-color:#f2f2f2; font-weight:bold;'>
+        <th style='border:1px solid #ccc; padding:5px; width:20%; text-align:center;'>Category</th>
+        <th style='border:1px solid #ccc; padding:5px; width:32%; text-align:center;'>Field</th>
+        <th style='border:1px solid #ccc; padding:5px; width:48%; text-align:center;'>Status</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+  ")
+
   # Setup for merged Category cells
   row_spans <- rle(data_summary$Category)
   start_indices <- cumsum(c(1, head(row_spans$lengths, -1)))
   current_group <- 1
-  
+
   # Loop for table rows
   for (i in seq_len(nrow(data_summary))) {
-    if (i %in% start_indices) current_group <- which(start_indices == i)
-    bg_color <- pastel_colors[(current_group - 1) %% length(pastel_colors) + 1]
-    
-    cat(sprintf("<tr style='background-color: %s;'>", bg_color))
-    
-    # Render category cell only once per group
-    if (i %in% start_indices) {
-      rowspan <- row_spans$lengths[which(start_indices == i)]
-      cat(sprintf("<td style='border: 1px solid #ddd; padding: 4px;' rowspan='%d'>%s</td>", 
-                  rowspan, data_summary$Category[i]))
-    }
-    
-    # Apply bold if in list
-    field_val <- data_summary$Field[i]
-    field_html <- if (field_val %in% bold_fields) {
-      sprintf("<strong>%s</strong>", field_val)
-    } else {
-      field_val
-    }
-    
-    cat(sprintf("<td style='border: 1px solid #ddd; padding: 4px;'>%s</td>", field_html))
-    cat(sprintf("<td style='border: 1px solid #ddd; padding: 4px; color: black;'>%s</td>", data_summary$Status[i]))
-    
-    cat("</tr>")
+  
+  if (i %in% start_indices) {
+    current_group <- which(start_indices == i)
   }
   
-  cat("</tbody></table>")
-  cat("</div>")
+  bg_color <- pastel_colors[(current_group - 1) %% length(pastel_colors) + 1]
+  
+  cat(sprintf("<tr style='background-color:%s;'>", bg_color))
+  
+  # Render category cell only once per group
+  if (i %in% start_indices) {
+    rowspan <- row_spans$lengths[which(start_indices == i)]
+    
+    cat(sprintf(
+      "<td style='border:1px solid #ddd; padding:5px; vertical-align:middle; text-align:center; word-break:break-word;' rowspan='%d'>%s</td>",
+      rowspan,
+      data_summary$Category[i]
+    ))
+  }
+  
+  # Apply bold if in list
+  field_val <- data_summary$Field[i]
+  field_html <- if (field_val %in% bold_fields) {
+    sprintf("<strong>%s</strong>", field_val)
+  } else {
+    field_val
+  }
+  
+  cat(sprintf(
+    "<td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:left; word-break:break-word;'>%s</td>",
+    field_html
+  ))
+  
+  cat(sprintf(
+    "<td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:left; color:black; white-space:normal; word-break:break-word;'>%s</td>",
+    data_summary$Status[i]
+  ))
+  
+  cat("</tr>")
+  }
 
+  cat("
+    </tbody>
+  </table>
+  </div>
+  ")
 ---
