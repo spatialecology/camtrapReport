@@ -5,7 +5,7 @@ parent: "results"
 text: "Camera-trap capture data do not directly measure true population size, but they can provide useful indicators of temporal variation in relative abundance and species detectability, provided that survey effort and detection conditions remain reasonably comparable among years."
 code: |
   #| name: abundance
-  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=11, fig.height=5.8, out.width="100%", fig.align="center", dpi=120
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=12, fig.height=5.8, out.width="100%", fig.align="center", dpi=120
   #| packages: ggplot2, ggrepel, dplyr
   
   group_label <- .pretty_label(object$setting$focus_groups)
@@ -246,7 +246,7 @@ code: |
         ) +
         ggplot2::scale_x_continuous(
           breaks = years_all,
-          expand = ggplot2::expansion(mult = c(0.02, 0.18))
+          expand = ggplot2::expansion(mult = c(0.02, 0.28))
         ) +
         ggplot2::scale_color_manual(values = species_colors) +
         ggplot2::labs(
@@ -260,7 +260,7 @@ code: |
           axis.text.x = ggplot2::element_text(angle = 0, hjust = 0.5),
           legend.position = "none",
           panel.grid.minor = ggplot2::element_blank(),
-          plot.margin = ggplot2::margin(20, 60, 20, 40)
+          plot.margin = ggplot2::margin(20, 100, 20, 40)
         )
       
       print(p)
@@ -333,10 +333,19 @@ code: |
           ggplot2::facet_wrap(~ scientificName, ncol = 3) +
           ggplot2::scale_x_continuous(breaks = years_all) +
           ggplot2::scale_y_log10(
-            breaks = y_breaks,
-            labels = format(y_breaks, scientific = FALSE, trim = TRUE),
-            limits = c(y_lower, y_upper)
-          ) +
+  breaks = y_breaks,
+  labels = function(x) {
+    out <- ifelse(
+      x >= 1,
+      formatC(x, format = "f", digits = 0),
+      formatC(x, format = "f", digits = 2)
+    )
+    out <- sub("0+$", "", out)
+    out <- sub("\\.$", "", out)
+    out
+  },
+  limits = c(y_lower, y_upper)
+  ) +
           ggplot2::scale_color_manual(values = species_colors) +
           ggplot2::labs(
             x = "Survey Year",
@@ -392,13 +401,22 @@ code: |
           ) +
           ggplot2::scale_x_continuous(
             breaks = years_all,
-            expand = ggplot2::expansion(mult = c(0.02, 0.18))
+            expand = ggplot2::expansion(mult = c(0.02, 0.28))
           ) +
           ggplot2::scale_y_log10(
-            breaks = y_breaks,
-            labels = format(y_breaks, scientific = FALSE, trim = TRUE),
-            limits = c(y_lower, y_upper)
-          ) +
+  breaks = y_breaks,
+  labels = function(x) {
+    out <- ifelse(
+      x >= 1,
+      formatC(x, format = "f", digits = 0),
+      formatC(x, format = "f", digits = 2)
+    )
+    out <- sub("0+$", "", out)
+    out <- sub("\\.$", "", out)
+    out
+  },
+  limits = c(y_lower, y_upper)
+  ) +
           ggplot2::scale_color_manual(values = species_colors) +
           ggplot2::labs(
             x = "Survey Year",
@@ -411,7 +429,7 @@ code: |
             axis.text.y = ggplot2::element_text(angle = 0, hjust = 0.5),
             legend.position = "none",
             panel.grid.minor = ggplot2::element_blank(),
-            plot.margin = ggplot2::margin(20, 60, 20, 40)
+            plot.margin = ggplot2::margin(20, 100, 20, 40)
           )
         
         print(p)
@@ -523,7 +541,7 @@ code: |
         ) +
         ggplot2::scale_x_continuous(
           breaks = years_all,
-          expand = ggplot2::expansion(mult = c(0.02, 0.18))
+          expand = ggplot2::expansion(mult = c(0.02, 0.28))
         ) +
         ggplot2::scale_y_continuous(
           breaks = y_breaks,
@@ -692,7 +710,7 @@ code: |
             ) +
             ggplot2::scale_x_continuous(
               breaks = rem_years,
-              expand = ggplot2::expansion(mult = c(0.02, 0.18))
+              expand = ggplot2::expansion(mult = c(0.02, 0.28))
             ) +
             ggplot2::scale_color_manual(values = rem_colors) +
             ggplot2::labs(
@@ -706,7 +724,7 @@ code: |
               axis.text.x = ggplot2::element_text(angle = 0, hjust = 0.5, face = "plain"),
               legend.position = "none",
               panel.grid.minor = ggplot2::element_blank(),
-              plot.margin = ggplot2::margin(20, 60, 20, 40)
+              plot.margin = ggplot2::margin(20, 100, 20, 40)
             )
           
           print(p)
