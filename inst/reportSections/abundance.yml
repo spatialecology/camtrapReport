@@ -5,7 +5,7 @@ parent: "results"
 text: "Camera-trap capture data do not directly measure true population size, but they can provide useful indicators of temporal variation in relative abundance and species detectability, provided that survey effort and detection conditions remain reasonably comparable among years."
 code: |
   #| name: abundance
-  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=11, fig.height=5.8, out.width="100%", fig.align="center", dpi=120
   #| packages: ggplot2, ggrepel, dplyr
   
   group_label <- .pretty_label(object$setting$focus_groups)
