@@ -14,12 +14,24 @@ code: |
   Validation_data <- object$data_status$Validation$FinalTableFormatted
   # Custom pastel row colors
   mint_pastel <- c("#eafaf1", "#f3fcf7", "#e1f7ec")
-  
-  # Begin centered table container
-  cat("<div style='text-align: center; margin: 0 auto;'>")
-  
-  # Begin table setup
-  cat("<table style='margin: auto; border-collapse: collapse; max-width: 850px; font-family: Arial, sans-serif; font-size: 12px;'>")
+
+  # Begin centered table container, title, and table
+  cat("
+  <div style='max-width:850px; margin:14px auto 22px auto; text-align:center;'>
+
+  <div style='font-size:12.5px; color:#24384a; margin-bottom:6px; text-align:center;'>
+    <strong><em>Table 4.</em></strong> Classification and validation summary
+  </div>
+
+  <table style='
+    margin:auto;
+    border-collapse:collapse;
+    width:100%;
+    font-family:Arial, sans-serif;
+    font-size:12px;
+    line-height:1.35;'>
+  ")
+
   cat("<thead><tr style='background-color: #c6ebe1; font-weight: bold;'>")
   
   # Add column headers
@@ -44,5 +56,4 @@ code: |
   # Close the table and container
   cat("</tbody></table>")
   cat("</div>")
-
 ---

@@ -14,7 +14,15 @@ code: |
   
   observation_type_df <- object$data_status$Visuals$capt_method$Combined
   colnames(observation_type_df) <- c("Var1", "Freq", "CaptureMethod")
-  
+  .pie_caption <- function(label, text) {
+  cat(paste0(
+    "\n\n<p style='font-size:13px; color:#24384a; text-align:center; ",
+    "margin-top:8px; margin-bottom:18px;'>",
+    "<strong><em>", label, ".</em></strong> ",
+    text,
+    "</p>\n\n"
+  ))
+  }
   # Choose one method manually for preview
   method <- "motionDetection"
   
@@ -42,7 +50,13 @@ code: |
       scale_fill_brewer(palette = "Set3")
     
     print(p)
+
+  .pie_caption(
+  "Figure 1a",
+  "Distribution of observation types for motion-detection records."
+  )
   }
+  
   #-------
   
 
@@ -70,6 +84,12 @@ code: |
       labs(title = "Observation Types - timeLapse", fill = "Observation Type") +
       scale_fill_brewer(palette = "Set3", na.translate = FALSE)
     print(p)
+
+  .pie_caption(
+  "Figure 1b",
+  "Distribution of observation types for time-lapse records."
+  )
+    
   }
   
   method <- "TOTAL"
@@ -96,6 +116,11 @@ code: |
     scale_fill_brewer(palette = "Set3")
   
   print(p)
+
+  .pie_caption(
+  "Figure 1c",
+  "Overall distribution of observation types across all capture methods."
+  )
   }
   
 ---
