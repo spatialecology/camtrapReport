@@ -8,68 +8,131 @@ code: |
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
   #| packages: ggplot2, dplyr
   
-  
-  if (!"estiamtes_rem" %in% ls()) {
-    # to be tested alone!
+  if (!exists("estimates_rem") || is.null(estimates_rem)) {
     spn <- object$get_speciesNames(object$setting$focus_groups)
     
-    estimates_rem <- bind_rows(object$get_REM(spn[1]))
+    estimates_rem <- dplyr::bind_rows(object$get_REM(spn[1]))
+    
     if (length(spn) > 1) {
       for (i in 2:length(spn)) {
-        estimates_rem <- rbind(estimates_rem,bind_rows(object$get_REM(spn[i])))
+        estimates_rem <- rbind(
+          estimates_rem,
+          dplyr::bind_rows(object$get_REM(spn[i]))
+        )
       }
     }
   }
-  if (nrow(estimates_rem) > 0) {
-      density_data <- estimates_rem |>
-        dplyr::filter(Metric == "density")
+  
+  if (exists("estimates_rem") && !is.null(estimates_rem) && nrow(estimates_rem) > 0) {
+    
+    density_data <- estimates_rem |>
+      dplyr::filter(Metric == "density") |>
+      dplyr::filter(!is.na(scientificName)) |>
+      dplyr::filter(!is.na(Year)) |>
+      dplyr::filter(as.character(Year) != "9999") |>
+      dplyr::mutate(
+        Year = as.numeric(as.character(Year)),
+        estimate = as.numeric(estimate),
+        lcl95 = as.numeric(lcl95),
+        ucl95 = as.numeric(ucl95)
+      ) |>
+      dplyr::filter(is.finite(Year), is.finite(estimate))
+    
+    if (nrow(density_data) > 0) {
       
-      # Ensure data is not empty
-      if (nrow(density_data) > 0) {
-        # Get a list of unique species
-        species_list <- unique(density_data$scientificName)
+      species_list <- unique(density_data$scientificName)
+      
+      species_colors <- stats::setNames(
+        rep(object$reportObjectElements$color_palette, length.out = length(species_list)),
+        species_list
+      )
+      
+      for (i in seq_along(species_list)) {
         
-        # Assign Acadia colors to species (cycling if necessary)
-        species_colors <- setNames(rep(object$reportObjectElements$color_palette, length.out = length(species_list)), species_list)
+        species <- species_list[i]
         
-        # Loop through each species
-        for (i in seq_along(species_list)) {
-          species <- species_list[i]  # Define species inside the loop
-          
-          # Header
-          cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
-          
-          # Filter for current species
-          species_data <- density_data |>
-            dplyr::filter(scientificName == species)
-          
-          # Select the corresponding color
-          species_color <- species_colors[species]
-          
-          # Plot per species
-          p <- ggplot(species_data, aes(x = as.factor(Year), y = estimate)) +
-            geom_bar(stat = "identity", fill = species_color, width = 0.6) +  # Apply species-specific color
-            geom_errorbar(aes(ymin = lcl95, ymax = ucl95), width = 0.2, color = "black") +
-            labs(x = "Year", y = expression("Population density (km"^-2*")")) +
-            theme_minimal() +
-            theme(
-              axis.text.x = element_text(angle = 45, hjust = 1),
-              plot.title = element_text(face = "bold", size = 14)
-            )
-          
-          # Print the plot
-          print(p)
-          
-          # Caption (COMPLETED)
-          cat(paste0(
-            "\n\n",object$getFigureNumber()," *Estimated population density per sampling year for ", 
-            species, 
-            ". Whiskers represent the 95% confidence intervals.*\n"
-          ))
-          
+        cat(paste0("\n#### ", species, " {.unnumbered}\n\n"))
+        
+        species_data <- density_data |>
+          dplyr::filter(scientificName == species) |>
+          dplyr::arrange(Year)
+        
+        if (nrow(species_data) == 0) {
+          cat("\nNo REM density estimates were available for this species.\n\n")
+          next
         }
+        
+        species_color <- species_colors[[species]]
+        
+        # Detect very wide or unstable confidence intervals
+        finite_ucl <- species_data$ucl95[is.finite(species_data$ucl95)]
+        finite_est <- species_data$estimate[is.finite(species_data$estimate)]
+        
+        max_est <- max(finite_est, na.rm = TRUE)
+        max_ucl <- if (length(finite_ucl) > 0) max(finite_ucl, na.rm = TRUE) else NA_real_
+        
+        unstable_ci <- is.finite(max_ucl) &&
+          is.finite(max_est) &&
+          max_est > 0 &&
+          max_ucl > 10 * max_est
+        
+        # Plot limit: keep the plot readable if CI is extremely wide
+        if (unstable_ci) {
+          y_upper <- max_est * 1.35
+        } else {
+          y_upper <- max(c(species_data$estimate, species_data$ucl95), na.rm = TRUE) * 1.08
+        }
+        
+        if (!is.finite(y_upper) || y_upper <= 0) {
+          y_upper <- max(species_data$estimate, na.rm = TRUE) * 1.2
+        }
+        
+        p <- ggplot(species_data, aes(x = as.factor(Year), y = estimate)) +
+          geom_col(fill = species_color, width = 0.6)
+        
+        if (any(is.finite(species_data$lcl95)) && any(is.finite(species_data$ucl95))) {
+          p <- p +
+            geom_errorbar(
+              aes(ymin = lcl95, ymax = ucl95),
+              width = 0.2,
+              color = "black"
+            )
+        }
+        
+        p <- p +
+          coord_cartesian(ylim = c(0, y_upper)) +
+          labs(
+            x = "Year",
+            y = expression("Population density (km"^-2*")")
+          ) +
+          theme_minimal(base_size = 13) +
+          theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.title.x = element_text(face = "bold", color = "black"),
+            axis.title.y = element_text(face = "bold", color = "black"),
+            plot.title = element_text(face = "bold", size = 14),
+            panel.grid.minor = element_blank()
+          )
+        
+        print(p)
+        
+        if (unstable_ci) {
+          cat(paste0(
+            "\n\n*Note: The confidence intervals for **", species,
+            "** are extremely wide relative to the point estimates. ",
+            "The y-axis has been restricted for readability; this indicates high uncertainty in the REM estimate and should be interpreted cautiously.*\n"
+          ))
+        }
+        
+        cat(paste0(
+          "\n\n", object$getFigureNumber(),
+          " *Estimated population density per sampling year for ",
+          species,
+          ". Whiskers represent the 95% confidence intervals",
+          if (unstable_ci) " and may extend beyond the displayed y-axis range" else "",
+          ".*\n"
+        ))
       }
     }
-  
-
+  }
 ---
