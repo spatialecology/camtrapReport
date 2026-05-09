@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update :  May 2026
-# Version 3.1
+# Version 3.2
 # Licence GPL v3
 #--------
 
@@ -80,7 +80,7 @@
     }
     
     
-    bind_rows(lapply(x,function(x) {
+    dplyr::bind_rows(lapply(x, function(x) {
       .x <- .xx
       
       .tmp <- strsplit(x$taxonID,'/')[[1]]
@@ -110,15 +110,83 @@
     }))
   }
 }
-
+.parse_cam_datetime <- function(x, tz = "UTC") {
+  if (inherits(x, "POSIXct")) return(x)
+  if (inherits(x, "POSIXt")) return(as.POSIXct(x, tz = tz))
+  
+  if (is.null(x)) {
+    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
+  }
+  
+  x_chr <- trimws(as.character(x))
+  x_chr[x_chr %in% c("", "NA", "NaN", "NULL")] <- NA_character_
+  
+  out <- as.POSIXct(rep(NA_real_, length(x_chr)), origin = "1970-01-01", tz = tz)
+  
+  x_try <- x_chr
+  x_try <- gsub("Z$", "+0000", x_try)
+  x_try <- gsub("([+-][0-9]{2}):([0-9]{2})$", "\\1\\2", x_try)
+  
+  formats <- c(
+    "%Y-%m-%dT%H:%M:%OS%z",
+    "%Y-%m-%d %H:%M:%OS%z",
+    "%Y/%m/%dT%H:%M:%OS%z",
+    "%Y/%m/%d %H:%M:%OS%z",
+    "%Y-%m-%dT%H:%M:%OS",
+    "%Y-%m-%d %H:%M:%OS",
+    "%Y/%m/%dT%H:%M:%OS",
+    "%Y/%m/%d %H:%M:%OS",
+    "%Y-%m-%dT%H:%M%z",
+    "%Y-%m-%d %H:%M%z",
+    "%Y-%m-%dT%H:%M",
+    "%Y-%m-%d %H:%M",
+    "%Y/%m/%dT%H:%M",
+    "%Y/%m/%d %H:%M",
+    "%Y-%m-%d",
+    "%Y/%m/%d"
+  )
+  
+  for (fmt in formats) {
+    missing_i <- is.na(out) & !is.na(x_try)
+    if (!any(missing_i)) break
+    
+    parsed <- suppressWarnings(as.POSIXct(x_try[missing_i], format = fmt, tz = tz))
+    ok <- !is.na(parsed)
+    out[which(missing_i)[ok]] <- parsed[ok]
+  }
+  
+  missing_i <- is.na(out) & !is.na(x_chr)
+  if (any(missing_i) && requireNamespace("lubridate", quietly = TRUE)) {
+    parsed <- suppressWarnings(
+      lubridate::parse_date_time(
+        x_chr[missing_i],
+        orders = c(
+          "ymd HMS z", "ymd HMS",
+          "ymd HM z",  "ymd HM",
+          "ymd z",     "ymd",
+          "Ymd HMS z", "Ymd HMS"
+        ),
+        tz = tz,
+        quiet = TRUE
+      )
+    )
+    ok <- !is.na(parsed)
+    out[which(missing_i)[ok]] <- as.POSIXct(parsed[ok], tz = tz)
+  }
+  
+  out
+}
 
 # file is filename (.zip file OR unzipped folder with the contents)
 .read_camdp <- function(file,path=NULL,tz="") {
   
   if (!.require('jsonlite')) stop('package jsonlite is not installed; please first install the package...!')
   
-  .d <- list()
+  if (is.null(tz) || length(tz) == 0 || is.na(tz) || !nzchar(tz)) {
+    tz <- "UTC"
+  }
   
+  .d <- list()
   
   if (.isZip(file)) {
     if (!is.null(path) && is.character(path)) {
@@ -165,6 +233,30 @@
   if (any(.w)) .js <- .eval("jsonlite::read_json(file[.w])",env = environment())
   else stop('datapackage.json IS NOT available in the dataset...!')
   #--------------------------
+  # Robust date-time parsing before creating intervals or joining tables
+  if ("deploymentStart" %in% names(.d$deployments)) {
+    .d$deployments$deploymentStart <- .parse_cam_datetime(.d$deployments$deploymentStart, tz = tz)
+  }
+  
+  if ("deploymentEnd" %in% names(.d$deployments)) {
+    .d$deployments$deploymentEnd <- .parse_cam_datetime(.d$deployments$deploymentEnd, tz = tz)
+  }
+  
+  if ("timestamp" %in% names(.d$media)) {
+    .d$media$timestamp <- .parse_cam_datetime(.d$media$timestamp, tz = tz)
+  }
+  
+  if ("eventStart" %in% names(.d$observations)) {
+    .d$observations$eventStart <- .parse_cam_datetime(.d$observations$eventStart, tz = tz)
+  }
+  
+  if ("eventEnd" %in% names(.d$observations)) {
+    .d$observations$eventEnd <- .parse_cam_datetime(.d$observations$eventEnd, tz = tz)
+  }
+  
+  if ("classificationTimestamp" %in% names(.d$observations)) {
+    .d$observations$classificationTimestamp <- .parse_cam_datetime(.d$observations$classificationTimestamp, tz = tz)
+  }
   ##############################
   
   .d$locations <- unique(.d$deployments[,c("locationID","locationName","longitude","latitude")])
@@ -219,41 +311,17 @@
   rm(.obs,obs_first_radius_angle)
   
   if ("classificationTimestamp" %in% names(.d$observations)) {
-  .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
-  
-  if (!.is.POSIXct(.d$observations$classificationTimestamp)) {
-    .w <- which(!is.na(.d$observations$classificationTimestamp))
-    
-    if (length(.w) > 0) {
-      .w <- .w[1:min(3, length(.w))]
-      .f <- .getFormat(.d$observations$classificationTimestamp[.w])
-      .d$observations$observation_timestamp <- as.POSIXct(
-        .d$observations$classificationTimestamp,
-        tz = tz,
-        format = .f
-      )
-    } else {
-      .d$observations$observation_timestamp <- NA
-    }
-  } else {
     .d$observations$observation_timestamp <- .d$observations$classificationTimestamp
+    .d$observations$classificationTimestamp <- NULL
+  } else {
+    .d$observations$observation_timestamp <- as.POSIXct(
+      rep(NA_real_, nrow(.d$observations)),
+      origin = "1970-01-01",
+      tz = tz
+    )
   }
   
-  .d$observations$classificationTimestamp <- NULL
-} else {
-  .d$observations$observation_timestamp <- NA
-}
-  
-  .d$observations <- .d$observations[,-which(colnames(.d$observations) == "classificationTimestamp")]
-  
-  if (!.is.POSIXct(.d$observations$eventStart)) {
-    .w <- which(!is.na(.d$observations$eventStart))
-    if (length(.w) > 0) {
-      .w <- .w[1:min(3,length(.w))]
-      .f <- .getFormat(.d$observations$eventStart[.w])
-      .d$observations$timestamp <- as.POSIXct(.d$observations$eventStart,tz=tz,format = .f)
-    } else .d$observations$timestamp <- NA
-  }
+
   #------
   if ("cameraSetupType" %in% names(.d$observations)) {
     colnames(.d$observations)[which(colnames(.d$observations) == "cameraSetupType")] <- "cameraSetup"
@@ -292,23 +360,8 @@
   .d$observations$mediaID <- ifelse(.d$observations$mediaID == "", NA,.d$observations$mediaID)
   .event_obs <-.d$observations[is.na(.d$observations$mediaID) & !is.na(.d$observations$eventID),c("eventID", "deploymentID", "eventStart", "eventEnd")]
   
-  if (!.is.POSIXct(.event_obs$eventStart)) {
-    .w <- which(!is.na(.event_obs$eventStart))
-    if (length(.w) > 0) {
-      .w <- .w[1:min(3,length(.w))]
-      .f <- .getFormat(.event_obs$eventStart[.w])
-      .event_obs$eventStart <- as.POSIXct(.event_obs$eventStart,tz=tz,format = .f)
-    } else .event_obs$eventStart <- NA
-  }
-  #------
-  if (!.is.POSIXct(.event_obs$eventEnd)) {
-    .w <- which(!is.na(.event_obs$eventEnd))
-    if (length(.w) > 0) {
-      .w <- .w[1:min(3,length(.w))]
-      .f <- .getFormat(.event_obs$eventEnd[.w])
-      .event_obs$eventEnd <- as.POSIXct(.event_obs$eventEnd,tz=tz,format = .f)
-    } else .event_obs$eventEnd <- NA
-  }
+  .event_obs$eventStart <- .parse_cam_datetime(.event_obs$eventStart, tz = tz)
+  .event_obs$eventEnd   <- .parse_cam_datetime(.event_obs$eventEnd,   tz = tz)
   #-----
   
   if ("eventID" %in% names(.d$observations)) {
@@ -316,8 +369,21 @@
   } else {
     .d$observations$sequenceID <- NA
   }
-  #-------
-  colnames(.d$observations)[which(colnames(.d$observations) == "eventStart")] <- "timestamp"
+  
+  # eventStart becomes the main observation timestamp
+  if ("eventStart" %in% names(.d$observations)) {
+    colnames(.d$observations)[which(colnames(.d$observations) == "eventStart")] <- "timestamp"
+  }
+  
+  if (!"timestamp" %in% names(.d$observations)) {
+    .d$observations$timestamp <- as.POSIXct(
+      rep(NA_real_, nrow(.d$observations)),
+      origin = "1970-01-01",
+      tz = tz
+    )
+  }
+  
+  .d$observations$timestamp <- .parse_cam_datetime(.d$observations$timestamp, tz = tz)
   
   # Join on deploymentID and timestamp between eventStart and eventEnd
   by <- .eval('dplyr::join_by("deploymentID", dplyr::between(x$timestamp, y$eventStart, y$eventEnd))',env = environment())
@@ -358,14 +424,7 @@
   )',environment())
   
   
-  if (!.is.POSIXct(.media$timestamp)) {
-    .w <- which(!is.na(.media$timestamp))
-    if (length(.w) > 0) {
-      .w <- .w[1:min(30,length(.w))]
-      .f <- .getFormat(.media$timestamp[.w])
-      .media$timestamp <- as.POSIXct(.media$timestamp,tz=tz,format = .f)
-    } else .media$timestamp <- NA
-  }
+  .media$timestamp <- .parse_cam_datetime(.media$timestamp, tz = tz)
   
   .d$media <- .media
   rm(.media)
@@ -393,7 +452,9 @@
     rm(.w,w)
   }
   #------
-  .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
+  if ("taxonID" %in% names(.d$observations)) {
+    .d$observations$taxonID <- NULL
+  }
   
   .d$observations$taxonID <- dplyr::left_join(
     .d$observations,
@@ -417,7 +478,8 @@ if (!isGeneric("camData")) {
 setMethod('camData', signature(data='character'), 
           function(data, habitat, study_area = NULL, ...) {
             
-            .camdata_start_time <- .camdata_start_message(data)
+            .camdata_start_time <- Sys.time()
+            .camdata_start_message(data)
             
             if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
             
