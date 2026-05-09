@@ -195,21 +195,32 @@
   
   message("⏳ The camReport object is being created...")
   
+  if (!is.na(size_info$zip_uncompressed_size)) {
+    message(
+      "Dataset size: ",
+      size_info$file_size_label,
+      " compressed; about ",
+      size_info$zip_uncompressed_label,
+      " after unzip."
+    )
+  } else {
+    message("Dataset size: ", size_info$file_size_label, ".")
+  }
+  
   if (identical(size_info$size_class, "small")) {
-    message("This should only take a moment.")
+    message("File size looks modest, but full object creation may still take several minutes depending on the number of records.")
   } else if (identical(size_info$size_class, "medium")) {
-    message("This may take a little while. Progress updates will be shown below.")
+    message("This may take several minutes. Progress updates will be shown below.")
   } else if (identical(size_info$size_class, "large")) {
     message("This is a large dataset. You may want to grab a coffee while the camReport object is being created ☕. Progress updates will be shown below.")
   } else if (identical(size_info$size_class, "very_large")) {
     message("This is a very large dataset. Please keep R running; creating the camReport object may take some time ⏳. Progress updates will be shown below.")
   } else {
-    message("Creating the camReport object may take some time, depending on file size and number of records. Progress updates will be shown below.")
+    message("Creating the camReport object may take some time, depending on file size, number of records, and enabled analyses. Progress updates will be shown below.")
   }
   
   invisible(size_info)
 }
-
 #------------
 
 .camdata_done_message <- function(start_time, site_name = NULL) {
