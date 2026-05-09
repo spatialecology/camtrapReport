@@ -15,7 +15,6 @@
 
 - [`camReport-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`camInfo-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
-  [`sdmFormula-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`listORcharacter-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`listORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`characterORlist-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
