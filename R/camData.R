@@ -44,7 +44,7 @@
   })
   #-----
   if (all(w == 0)) {
-    .bind_rows(lapply(x,function(x) {
+    dplyr::bind_rows(lapply(x, function(x) {
       .x <- strsplit(x$taxonID,'/')[[1]]
       .x <- data.frame(taxonID=.x[length(.x)],scientificName=x$scientificName,family=x$family,order=x$order,class=NA,taxonRank=x$taxonRank)
       if (length(x$vernacularNames) > 0) .x[["vernacularNames"]] <- x$vernacularNames
@@ -218,17 +218,31 @@
   
   rm(.obs,obs_first_radius_angle)
   
+  if ("classificationTimestamp" %in% names(.d$observations)) {
+  .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
+  
   if (!.is.POSIXct(.d$observations$classificationTimestamp)) {
-    .d$observations$classificationTimestamp[.d$observations$classificationTimestamp == ""] <- NA_character_
-    #.d$observations <- .left_join(.d$observations,.d$media[,c("mediaID","timestamp")],by = "mediaID")
     .w <- which(!is.na(.d$observations$classificationTimestamp))
+    
     if (length(.w) > 0) {
-      .w <- .w[1:min(3,length(.w))]
+      .w <- .w[1:min(3, length(.w))]
       .f <- .getFormat(.d$observations$classificationTimestamp[.w])
-      .d$observations$observation_timestamp <- as.POSIXct(.d$observations$classificationTimestamp,tz=tz,format = .f)
-    } else .d$observations$observation_timestamp <- NA
+      .d$observations$observation_timestamp <- as.POSIXct(
+        .d$observations$classificationTimestamp,
+        tz = tz,
+        format = .f
+      )
+    } else {
+      .d$observations$observation_timestamp <- NA
+    }
+  } else {
+    .d$observations$observation_timestamp <- .d$observations$classificationTimestamp
   }
   
+  .d$observations$classificationTimestamp <- NULL
+} else {
+  .d$observations$observation_timestamp <- NA
+}
   
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == "classificationTimestamp")]
   
@@ -381,7 +395,11 @@
   #------
   .d$observations <- .d$observations[,-which(colnames(.d$observations) == 'taxonID')]
   
-  .d$observations$taxonID <- left_join(.d$observations,.d$taxonomy,by='scientificName')$taxonID
+  .d$observations$taxonID <- dplyr::left_join(
+    .d$observations,
+    .d$taxonomy,
+    by = "scientificName"
+  )$taxonID
   
   list(data=.d,json=.js,directory=normalizePath(.path))
   
@@ -399,8 +417,7 @@ if (!isGeneric("camData")) {
 setMethod('camData', signature(data='character'), 
           function(data, habitat, study_area = NULL, ...) {
             
-            .camdata_start_time <- Sys.time()
-            .camdata_start_message(data)
+            .camdata_start_time <- .camdata_start_message(data)
             
             if (missing(habitat) || !is.data.frame(habitat)) habitat <- NULL
             
@@ -436,7 +453,7 @@ setMethod('camData', signature(data='character'),
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
                 
               } else if (.eval("inherits(study_area,'sf')",env = environment())) {
-                cm$study_area$object <- vect(study_area)
+                cm$study_area$object <- terra::vect(study_area)
                 terra::saveRDS(cm$study_area$object,paste0(cm$info$directory,'/study_area.map'))
                 cm$study_area$path <- paste0(cm$info$directory,'/study_area.map')
               } else {
@@ -479,7 +496,9 @@ setMethod('camData', signature(data='character'),
             country <- cm$data_status$Spatial$country
             fg <- .pretty_label(.paste_comma_and(.firstUpper(cm$setting$focus_groups)))
             site_Name <- cm$siteName
-            cm$title <- .pretty_label(as.character(glue("Camera-Trap Report: {fg} at {site_Name}, {country}")))
+            cm$title <- .pretty_label(as.character(glue::glue(
+              "Camera-Trap Report: {fg} at {site_Name}, {country}"
+            )))
             cm$subtitle <- .pretty_label("Ecological Report based on Camera Trap Data for Wildlife Monitoring")
             rm(.d); gc()
             
