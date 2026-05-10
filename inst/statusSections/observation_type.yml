@@ -1,6 +1,6 @@
 ---
 name: "observation_type"
-title: "## Chapter 6: Observation Types by Capture Method {{.tabset .unnumbered}"
+title: "## Chapter 6: Observation Types by Capture Method {{.tabset .unnumbered}}"
 parent: null
 text: |
   
@@ -32,7 +32,7 @@ code: |
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n## Motion {.unnumbered}\n\n")
+    cat("\n\n## Motion {{.unnumbered}}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(.data$CaptureMethod == method) |>
@@ -43,7 +43,10 @@ code: |
         ypos = cumsum(.data$Freq) - 0.5 * .data$Freq
       )
     
-    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+    p <- ggplot2::ggplot(
+      pie_data,
+      ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)
+    ) +
       ggplot2::geom_col(width = 1, color = "white") +
       ggplot2::coord_polar(theta = "y") +
       ggplot2::geom_text(
@@ -74,7 +77,7 @@ code: |
   
   if (method %in% tolower(observation_type_df$CaptureMethod)) {
     
-    cat("\n\n## TimeLapse {.unnumbered}\n\n")
+    cat("\n\n## TimeLapse {{.unnumbered}}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(tolower(.data$CaptureMethod) == "timelapse") |>
@@ -83,10 +86,18 @@ code: |
       dplyr::mutate(
         Percent = round(100 * .data$Freq / sum(.data$Freq, na.rm = TRUE), 1),
         Var1_label = paste0(.data$Var1, " (", .data$Percent, "%)"),
-        Label = dplyr::if_else(.data$Percent < 3, "", .data$Var1_label, missing = .data$Var1_label)
+        Label = dplyr::if_else(
+          .data$Percent < 3,
+          "",
+          .data$Var1_label,
+          missing = .data$Var1_label
+        )
       )
     
-    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+    p <- ggplot2::ggplot(
+      pie_data,
+      ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)
+    ) +
       ggplot2::geom_col(width = 1, color = "white") +
       ggplot2::coord_polar(theta = "y") +
       ggplot2::geom_text(
@@ -117,7 +128,7 @@ code: |
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n## Total {.unnumbered}\n\n")
+    cat("\n\n## Total {{.unnumbered}}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(.data$CaptureMethod == method) |>
@@ -128,7 +139,10 @@ code: |
         ypos = cumsum(.data$Freq) - 0.5 * .data$Freq
       )
     
-    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+    p <- ggplot2::ggplot(
+      pie_data,
+      ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)
+    ) +
       ggplot2::geom_col(width = 1, color = "white") +
       ggplot2::coord_polar(theta = "y") +
       ggplot2::geom_text(

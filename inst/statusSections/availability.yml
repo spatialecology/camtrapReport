@@ -4,10 +4,9 @@ title: "## Chapter 2: Data Availability {{.unnumbered}}"
 parent: null
 text: |
   
-  ### Review Essential Data Availability {.unnumbered}
+  ### Review Essential Data Availability {{.unnumbered}}
   
   In this chapter, we review all essential data components required for generating the report. These include both mandatory fields and necessary supporting fields or files that contribute to the completeness and overall quality of the final output. Table 3 provides a structured overview of the availability and completeness of these elements. While all fields listed in the table are important for generating a high-quality report, the **bolded** fields are mandatory. Their status must be marked as **Complete**; otherwise, any associated records with missing or partial values will be automatically excluded from the final output.
-  
 code: |
   #| name: code
   #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE

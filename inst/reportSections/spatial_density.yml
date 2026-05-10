@@ -1,143 +1,223 @@
 ---
 name: "spatial_density"
-title: "## Spatial Density"
+title: "## Spatial Density {.tabset}"
 parent: "results"
 text: "Spatial density maps derived from point pattern analysis illustrate the spatial distribution of species detections across the study area. These visualizations highlight variation in detection intensity and help identify areas with relatively high or low concentrations of records. The following maps are presented for each species, either by survey year or across the full monitoring period. Warmer colors represent higher estimated detection density, whereas cooler colors indicate lower density. Together, these maps support comparison of spatial detection patterns among species and across survey years."
 code: |
   #| name: code
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: leaflet, terra
-  
+  #| packages: leaflet, terra, dplyr, htmltools
   
   .spn <- object$get_speciesNames(object$setting$focus_groups)
-
-  df <- object$species_summary_by_location(year = NULL,spList = .spn,cor_matrix = FALSE)
-  df$lon <- df$longitude
-  df$lat <- df$latitude
   
-  .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
-  .dfs <- .get_projected_vect(.dfs)
-  .crs <- crs(.dfs)
-  .dfs <- as.data.frame(.dfs,geom="XY")
+  df_all <- object$species_summary_by_location(
+    year = NULL,
+    spList = .spn,
+    cor_matrix = FALSE
+  )
   
-  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
-    object$study_area$object <- terra::readRDS(object$study_area$path)
-    .crop <- project(object$study_area$object,.crs)
-    .ext <- as.vector(ext(.crop))
+  if (is.null(df_all) || nrow(df_all) == 0) {
+    
+    cat("\n\nNo spatial density data were available for the selected species focus group.\n\n")
+    
   } else {
-    .ext <- NULL
-    .crop <- NULL
-  }
-  #------
-  .generate_density_maps <- function(.year=NULL,.ext=.ext,.crop=.crop) {
-    df <- object$species_summary_by_location(year = .year,spList = .spn,cor_matrix = FALSE)
-    df$lon <- df$longitude
-    df$lat <- df$latitude
-    if (is.null(df)) return(NULL)
-    .dfs <- vect(df,geom=c('lon','lat'),crs=crs(rast()))
-    .dfs <- .get_projected_vect(.dfs)
-    .crs <- crs(.dfs)
-    .dfs <- as.data.frame(.dfs,geom="XY")
-    #species_list <- unique(.dfs$scientificName)
-    #---
-    .w <- table(.dfs$scientificName)
-    .w <- .w[.w > 3]
-    if (length(.w) > 0) {
-      species_list <- names(.w)
-      .label <- 'Total'
-      if (!is.null(.year)) .label <- as.character(.year)
+    
+    df_all$lon <- df_all$longitude
+    df_all$lat <- df_all$latitude
+    
+    .dfs_all <- terra::vect(
+      df_all,
+      geom = c("lon", "lat"),
+      crs = terra::crs(terra::rast())
+    )
+    
+    .dfs_all <- .get_projected_vect(.dfs_all)
+    .crs <- terra::crs(.dfs_all)
+    
+    if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+      object$study_area$object <- terra::readRDS(object$study_area$path)
+      .crop <- terra::project(object$study_area$object, .crs)
+      .ext <- as.vector(terra::ext(.crop))
+    } else {
+      .crop <- NULL
+      .ext <- NULL
+    }
+    
+    .density_caption <- function(sp, label) {
+      cat(
+        "\n\n",
+        object$getFigureNumber(),
+        " *Spatial point pattern density for **",
+        sp,
+        "** based on the species focus group in this report, shown for ",
+        label,
+        ".*\n\n",
+        sep = ""
+      )
+    }
+    
+    .generate_density_maps <- function(.year = NULL, .ext = .ext, .crop = .crop) {
       
-      cat("\n###", .label, "{.tabset .unnumbered}\n\n")
+      df <- object$species_summary_by_location(
+        year = .year,
+        spList = .spn,
+        cor_matrix = FALSE
+      )
+      
+      if (is.null(df) || nrow(df) == 0) {
+        return(NULL)
+      }
+      
+      df <- df |>
+        dplyr::filter(
+          !is.na(.data$longitude),
+          !is.na(.data$latitude)
+        )
+      
+      if (nrow(df) == 0) {
+        return(NULL)
+      }
+      
+      df$lon <- df$longitude
+      df$lat <- df$latitude
+      
+      .dfs <- terra::vect(
+        df,
+        geom = c("lon", "lat"),
+        crs = terra::crs(terra::rast())
+      )
+      
+      .dfs <- .get_projected_vect(.dfs)
+      .crs_local <- terra::crs(.dfs)
+      .dfs <- as.data.frame(.dfs, geom = "XY")
+      
+      .w <- table(.dfs$scientificName)
+      .w <- .w[.w > 3]
+      
+      if (length(.w) == 0) {
+        return(NULL)
+      }
+      
+      species_list <- names(.w)
+      
+      .label <- "Total"
+      .caption_label <- "the cumulative dataset across all years"
+      
+      if (!is.null(.year)) {
+        .label <- as.character(.year)
+        .caption_label <- paste0("survey year ", .year)
+      }
+      
+      cat("\n### ", .label, " {.tabset .unnumbered}\n\n", sep = "")
       
       for (sp in species_list) {
-        df_sp <- .dfs |> dplyr::filter(scientificName == sp)
-        #if (nrow(df_sp) < 3) next
         
-        r <- try(object$spatial_density(df_sp,.crs=.crs,.ext=.ext,.crop=.crop),silent = TRUE)
-        if (inherits(r,'try-error')) r <- NULL
-        if (is.null(r)) next
+        df_sp <- .dfs |>
+          dplyr::filter(.data$scientificName == sp)
         
-        cat("\n####", sp, "{.unnumbered}\n\n")
-        m <- leaflet(df_sp) |>
-          addTiles(group = "OSM") |>
-          addRasterImage(
-            r, opacity = 0.7,
-            colors = colorRampPalette(c("gray","orange","red","darkred"))(200),
+        if (nrow(df_sp) < 4) {
+          next
+        }
+        
+        r <- try(
+          object$spatial_density(
+            df_sp,
+            .crs = .crs_local,
+            .ext = .ext,
+            .crop = .crop
+          ),
+          silent = TRUE
+        )
+        
+        if (inherits(r, "try-error") || is.null(r)) {
+          next
+        }
+        
+        cat("\n#### ", sp, " {.unnumbered}\n\n", sep = "")
+        
+        m <- leaflet::leaflet(df_sp) |>
+          leaflet::addTiles(group = "OSM") |>
+          leaflet::addRasterImage(
+            r,
+            opacity = 0.7,
+            colors = grDevices::colorRampPalette(
+              c("gray", "orange", "red", "darkred")
+            )(200),
             group = "Density"
           )
+        
         if ("Habitat_type" %in% colnames(df_sp)) {
+          
           m <- m |>
-            addCircleMarkers(
-              ~longitude, ~latitude,
+            leaflet::addCircleMarkers(
+              ~longitude,
+              ~latitude,
               popup = ~sprintf(
                 "<b>%s</b><br/>%s<br/>Obs: %d<br/>Habitat: %s",
-                scientificName, locationName, total_observations, Habitat_type
+                scientificName,
+                locationName,
+                total_observations,
+                Habitat_type
               ),
-              radius = ~sqrt(total_observations)*1.2,
-              color  = "blue", fillOpacity = 0.4,
-              group  = "Points"
+              radius = ~sqrt(total_observations) * 1.2,
+              color = "blue",
+              fillOpacity = 0.4,
+              group = "Points"
             )
+          
         } else {
+          
           m <- m |>
-            addCircleMarkers(
-              ~longitude, ~latitude,
+            leaflet::addCircleMarkers(
+              ~longitude,
+              ~latitude,
               popup = ~sprintf(
                 "<b>%s</b><br/>%s<br/>Obs: %d",
-                scientificName, locationName, total_observations
+                scientificName,
+                locationName,
+                total_observations
               ),
-              radius = ~sqrt(total_observations)*1.2,
-              color  = "blue", fillOpacity = 0.4,
-              group  = "Points"
+              radius = ~sqrt(total_observations) * 1.2,
+              color = "blue",
+              fillOpacity = 0.4,
+              group = "Points"
             )
         }
-      if (!is.null(.crop)) {
-        m <- m |>
-        addPolygons(
-          data = project(.crop, "epsg:4326"),
-          fillColor = "transparent",
-          fillOpacity = 0.3,
-          color = "black",
-          weight = 2,
-          options = pathOptions(interactive = FALSE)
-          )
+        
+        if (!is.null(.crop)) {
+          m <- m |>
+            leaflet::addPolygons(
+              data = terra::project(.crop, "epsg:4326"),
+              fillColor = "transparent",
+              fillOpacity = 0.3,
+              color = "black",
+              weight = 2,
+              options = leaflet::pathOptions(interactive = FALSE)
+            )
         }
         
-        #----
         m <- m |>
-          addLayersControl(
-            baseGroups    = "OSM",
-            overlayGroups = c("Density","Points"),
-            options = layersControlOptions(collapsed = FALSE)
+          leaflet::addLayersControl(
+            baseGroups = "OSM",
+            overlayGroups = c("Density", "Points"),
+            options = leaflet::layersControlOptions(collapsed = FALSE)
           ) |>
-          setView(
+          leaflet::setView(
             lng = mean(df_sp$longitude, na.rm = TRUE),
-            lat = mean(df_sp$latitude,  na.rm = TRUE),
+            lat = mean(df_sp$latitude, na.rm = TRUE),
             zoom = 11
           )
-        print(tagList(m))
+        
+        print(htmltools::tagList(m))
+        
+        .density_caption(sp, .caption_label)
       }
     }
-  
-  }
     
+    for (.year in object$years) {
+      .generate_density_maps(.year = .year, .ext = .ext, .crop = .crop)
+    }
     
-  cat("\n##  {.tabset .unnumbered}\n\n")
-  
-  .w <- leaflet()
-  
-  for (.year in object$years) {
-    .generate_density_maps(.year,.ext,.crop)
+    .generate_density_maps(.year = NULL, .ext = .ext, .crop = .crop)
   }
-  #---
-  .generate_density_maps(.year=NULL,.ext,.crop)
-  #----
-  cat("\n\n")
-  
-  #---------
-  cat(
-  "\n\n",
-  object$getFigureNumber(),
-  " *Spatial point pattern analysis based on the species focus group, for each survey year, as well as the cumulative (Total) across all years.*\n\n",
-  sep = ""
-  )
 ---
