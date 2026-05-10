@@ -134,8 +134,10 @@ code: |
   cat("\n\n")
   
   #---------
-  if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-    cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Spatial point pattern analysis based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", for each survey year, as well as the cumulative (Total) across all years.*\n"))
-  } else cat(object$getFigureNumber()," *Spatial point pattern analysis for each year separately as well as  the cumulative (Total) across all years.*\n")
-    
+  cat(
+  "\n\n",
+  object$getFigureNumber(),
+  " *Spatial point pattern analysis based on the species focus group, for each survey year, as well as the cumulative (Total) across all years.*\n\n",
+  sep = ""
+  )
 ---

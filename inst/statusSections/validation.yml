@@ -1,6 +1,6 @@
 ---
 name: "validation"
-title: "## Chapter 3: Validation {.unnumbered}"
+title: "## Chapter 4: Validation {.unnumbered}"
 parent: null
 text: |
   
@@ -8,52 +8,89 @@ text: |
   
 code: |
   #| name: code
-  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
   Validation_data <- object$data_status$Validation$FinalTableFormatted
+  
   # Custom pastel row colors
   mint_pastel <- c("#eafaf1", "#f3fcf7", "#e1f7ec")
-
-  # Begin centered table container, title, and table
+  
+  # Helper for safe table text
+  .clean_html <- function(x) {
+    x <- as.character(x)
+    x[is.na(x)] <- ""
+    x <- gsub("\n", "<br>", x)
+    x
+  }
+  
+  # Clean values
+  Validation_data[] <- lapply(Validation_data, .clean_html)
+  
+  # Begin centered table container
   cat("
-  <div style='max-width:850px; margin:14px auto 22px auto; text-align:center;'>
-
-  <div style='font-size:12.5px; color:#24384a; margin-bottom:6px; text-align:center;'>
-    <strong><em>Table 4.</em></strong> Classification and validation summary
+  <div style='max-width:900px; margin:16px auto 26px auto; text-align:center;'>
+  ")
+  
+  # Centered, larger caption
+  cat("
+  <div style='
+    width:100%;
+    text-align:center;
+    font-size:15px;
+    color:#24384a;
+    margin:0 auto 10px auto;
+    line-height:1.35;'>
+    <strong><em>Table 5.</em></strong> Classification and validation summary
   </div>
-
+  ")
+  
+  # Begin table
+  cat("
   <table style='
-    margin:auto;
+    margin:0 auto;
     border-collapse:collapse;
+    table-layout:auto;
     width:100%;
     font-family:Arial, sans-serif;
-    font-size:12px;
-    line-height:1.35;'>
+    font-size:13px;
+    line-height:1.35;
+    text-align:center;'>
   ")
-
-  cat("<thead><tr style='background-color: #c6ebe1; font-weight: bold;'>")
+  
+  cat("<thead><tr style='background-color:#c6ebe1; font-weight:bold;'>")
   
   # Add column headers
   headers <- colnames(Validation_data)
+  
   for (h in headers) {
-    cat(sprintf("<th style='border: 1px solid #ccc; padding: 6px;'>%s</th>", h))
+    cat(sprintf(
+      "<th style='border:1px solid #ccc; padding:7px; text-align:center; vertical-align:middle;'>%s</th>",
+      h
+    ))
   }
+  
   cat("</tr></thead><tbody>")
   
   # Add each row
   for (i in seq_len(nrow(Validation_data))) {
+    
     bg_color <- mint_pastel[(i - 1) %% length(mint_pastel) + 1]
-    cat(sprintf("<tr style='background-color: %s;'>", bg_color))
+    
+    cat(sprintf("<tr style='background-color:%s;'>", bg_color))
     
     for (j in seq_along(headers)) {
       value <- Validation_data[[i, j]]
-      cat(sprintf("<td style='border: 1px solid #ddd; padding: 5px;'>%s</td>", value))
+      cat(sprintf(
+        "<td style='border:1px solid #ddd; padding:6px; text-align:center; vertical-align:middle;'>%s</td>",
+        value
+      ))
     }
+    
     cat("</tr>")
   }
   
-  # Close the table and container
+  # Close table and container
   cat("</tbody></table>")
   cat("</div>")
 ---

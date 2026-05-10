@@ -2,126 +2,210 @@
 name: "richness"
 title: "## Richness {.tabset}"
 parent: "results"
-text: "Species richness refers to the number of unique species recorded at each camera-trap location. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type (if available). These features help identify biodiversity hotspots and potential detection gaps across the study area."
+text: "Species richness refers to the number of unique species recorded at each camera-trap location. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type, if available. These features help identify biodiversity hotspots and potential detection gaps across the study area."
 code: |
   #| name: Richness
-  #| setting: echo=FALSE,results="asis",warning=FALSE, fig.show ="hold"
-  #| packages: leaflet, dplyr
-  
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.show="hold"
+  #| packages: leaflet, dplyr, terra, htmltools
   
   study_areaSHP <- NULL
-    if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
-      object$study_area$object <- readRDS(object$study_area$path)
-      study_areaSHP <- project(object$study_area$object,"epsg:4326")
+  
+  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+    object$study_area$object <- readRDS(object$study_area$path)
+    study_areaSHP <- terra::project(object$study_area$object, "epsg:4326")
+  }
+  
+  # -------------------------
+  # Function to plot richness
+  # -------------------------
+  
+  plot_richness <- function(data) {
+    
+    if (is.null(data) || !is.data.frame(data) || nrow(data) == 0) {
+      return(NULL)
     }
     
-    #------------
+    if (!all(c("longitude", "latitude", "Richness") %in% names(data))) {
+      return(NULL)
+    }
     
-    plot_richness <- function(data) {
-      if ('Habitat_Type' %in% colnames(data)) {
-        data <- data|>
-          mutate(
-            Habitat_Type = gsub("_", " ", Habitat_Type),
-            popup = paste0(
-              "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
-              "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
-              "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>",
-              "<b>Habitat:</b> ", ifelse(!is.na(Habitat_Type), Habitat_Type, "N/A")
-            )
-          )
-      } else {
-        data <- data|>
-          mutate(
-            popup = paste0(
-              "<b>Location:</b> ", ifelse(!is.na(locationName), locationName, "N/A"), "<br>",
-              "<b>Richness:</b> ", ifelse(!is.na(Richness), Richness, "N/A"), "<br>",
-              "<b>Community:</b> ", ifelse(!is.na(Community_Composition), Community_Composition, "N/A"), "<br>"
-              
-            )
-          )
-      }
-      
-      #
-  # Force numeric ordering of richness values
-  data$Richness_num <- suppressWarnings(as.numeric(as.character(data$Richness)))
-
-  present_levels_num <- sort(unique(data$Richness_num[!is.na(data$Richness_num)]))
-  present_levels <- as.character(present_levels_num)
-
-  full_palette <- object$reportObjectElements$richness_palette
-
-  # Recycle palette if richness has more levels than available colours
-  richness_cols <- rep(full_palette, length.out = length(present_levels))
-
-  # Ordered factor keeps legend as 1, 2, 3, ..., 10, 11
-  data$Richness <- factor(
-  as.character(data$Richness_num),
-  levels = present_levels,
-  ordered = TRUE
-  )
-
-  legend_values <- factor(
-  present_levels,
-  levels = present_levels,
-  ordered = TRUE
-  )
-
-  richness_palette <- leaflet::colorFactor(
-  palette = richness_cols,
-  domain = legend_values,
-  ordered = TRUE,
-  na.color = "#bdbdbd"
-  )
-      
-      if (!is.null(study_areaSHP)) {
-          leaflet(data) |>
-          addTiles() |>
-          addCircleMarkers(
-            lng = ~longitude, lat = ~latitude,
-            radius = ~ifelse(Richness_num == 1, 2, Richness_num * 2),
-            fillColor = ~richness_palette(Richness),          fillOpacity = 0.7, stroke = TRUE, color = "black",
-            popup = ~popup
-          ) |>
-          addPolygons(
-          data = study_areaSHP,
-          color = "#3A3F44", weight = 2, opacity = 0.9,
-          fillColor = "transparent", fillOpacity = 0,
-          options = pathOptions(interactive = FALSE)
-          ) |>
-          leaflet::addLegend(
-          position = "bottomright",
-          pal = richness_palette,
-          values = legend_values,
-          title = "Species Richness",
-          opacity = 1,
-          labFormat = labelFormat(transform = identity)
+    data <- data |>
+      dplyr::filter(
+        !is.na(.data$longitude),
+        !is.na(.data$latitude),
+        !is.na(.data$Richness)
+      )
+    
+    if (nrow(data) == 0) {
+      return(NULL)
+    }
+    
+    # Add missing optional columns if not available
+    if (!"locationName" %in% names(data)) {
+      data$locationName <- NA_character_
+    }
+    
+    if (!"Community_Composition" %in% names(data)) {
+      data$Community_Composition <- NA_character_
+    }
+    
+    if (!"Habitat_Type" %in% names(data)) {
+      data$Habitat_Type <- NA_character_
+    }
+    
+    data <- data |>
+      dplyr::mutate(
+        Habitat_Type = gsub("_", " ", as.character(.data$Habitat_Type)),
+        popup = paste0(
+          "<b>Location:</b> ", ifelse(!is.na(.data$locationName), .data$locationName, "N/A"), "<br>",
+          "<b>Richness:</b> ", ifelse(!is.na(.data$Richness), .data$Richness, "N/A"), "<br>",
+          "<b>Community:</b> ", ifelse(!is.na(.data$Community_Composition), .data$Community_Composition, "N/A"), "<br>",
+          "<b>Habitat:</b> ", ifelse(!is.na(.data$Habitat_Type), .data$Habitat_Type, "N/A")
         )
-      }
+      )
+    
+    # Force numeric ordering of richness values
+    data$Richness_num <- suppressWarnings(as.numeric(as.character(data$Richness)))
+    
+    present_levels_num <- sort(unique(data$Richness_num[!is.na(data$Richness_num)]))
+    present_levels <- as.character(present_levels_num)
+    
+    if (length(present_levels) == 0) {
+      return(NULL)
     }
     
-    # Loop through each year
-    for (.year in object$years) {
-      
-      cat(paste0("\n### ", .year, " {.unnumbered}\n"))
-      
-      .richness <- object$richness(year=.year,spList=object$get_speciesNames(group = object$setting$focus_groups))
-      p <- plot_richness(.richness)
+    full_palette <- object$reportObjectElements$richness_palette
+    
+    if (is.null(full_palette) || length(full_palette) == 0) {
+      full_palette <- grDevices::hcl.colors(length(present_levels), palette = "YlOrRd")
+    }
+    
+    # Recycle palette if richness has more levels than available colours
+    richness_cols <- rep(full_palette, length.out = length(present_levels))
+    
+    # Ordered factor keeps legend as 1, 2, 3, ..., 10, 11
+    data$Richness <- factor(
+      as.character(data$Richness_num),
+      levels = present_levels,
+      ordered = TRUE
+    )
+    
+    legend_values <- factor(
+      present_levels,
+      levels = present_levels,
+      ordered = TRUE
+    )
+    
+    richness_palette <- leaflet::colorFactor(
+      palette = richness_cols,
+      domain = legend_values,
+      ordered = TRUE,
+      na.color = "#bdbdbd"
+    )
+    
+    map <- leaflet::leaflet(data) |>
+      leaflet::addTiles() |>
+      leaflet::addCircleMarkers(
+        lng = ~longitude,
+        lat = ~latitude,
+        radius = ~ifelse(
+          is.na(Richness_num),
+          2,
+          ifelse(Richness_num == 1, 2, Richness_num * 2)
+        ),
+        fillColor = ~richness_palette(Richness),
+        fillOpacity = 0.7,
+        stroke = TRUE,
+        color = "black",
+        weight = 1,
+        popup = ~popup
+      )
+    
+    if (!is.null(study_areaSHP)) {
+      map <- map |>
+        leaflet::addPolygons(
+          data = study_areaSHP,
+          color = "#3A3F44",
+          weight = 2,
+          opacity = 0.9,
+          fillColor = "transparent",
+          fillOpacity = 0,
+          options = leaflet::pathOptions(interactive = FALSE)
+        )
+    }
+    
+    # Fit map to camera locations
+    lon_range <- range(data$longitude, na.rm = TRUE)
+    lat_range <- range(data$latitude, na.rm = TRUE)
+    
+    if (all(is.finite(lon_range)) && all(is.finite(lat_range))) {
+      map <- map |>
+        leaflet::fitBounds(
+          lng1 = lon_range[1],
+          lat1 = lat_range[1],
+          lng2 = lon_range[2],
+          lat2 = lat_range[2]
+        )
+    }
+    
+    map |>
+      leaflet::addLegend(
+        position = "bottomright",
+        pal = richness_palette,
+        values = legend_values,
+        title = "Species Richness",
+        opacity = 1,
+        labFormat = leaflet::labelFormat(transform = function(x) as.character(x))
+      )
+  }
+  
+  # -------------------------
+  # Richness maps by year
+  # -------------------------
+  
+  for (.year in object$years) {
+    
+    cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
+    
+    .richness <- object$richness(
+      year = .year,
+      spList = object$get_speciesNames(group = object$setting$focus_groups)
+    )
+    
+    p <- plot_richness(.richness)
+    
+    if (is.null(p)) {
+      cat(paste0("\nNo richness map could be generated for ", .year, ".\n\n"))
+    } else {
       print(htmltools::tagList(p))
       cat("\n\n")
     }
-    
-    # Total summary map
-    cat("\n\n### Total {.unnumbered}\n")
-    
-    .richness <- object$richness(year=NULL,spList=object$get_speciesNames(group = object$setting$focus_groups))
-    p <- plot_richness(.richness)
-    
+  }
+  
+  # -------------------------
+  # Total richness map
+  # -------------------------
+  
+  cat("\n\n### Total {.unnumbered}\n\n")
+  
+  .richness <- object$richness(
+    year = NULL,
+    spList = object$get_speciesNames(group = object$setting$focus_groups)
+  )
+  
+  p <- plot_richness(.richness)
+  
+  if (is.null(p)) {
+    cat("\nNo cumulative richness map could be generated.\n\n")
+  } else {
     print(htmltools::tagList(p))
-    
     cat("\n\n")
-    
-    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species richness based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n"))
-    } else cat(object$getFigureNumber()," *Species richness across camera trap locations for each survey year, as well as the cumulative richness across all years.*\n")
-
+  }
+  
+  cat(
+    "\n\n",
+    object$getFigureNumber(),
+    " *Species richness based on the species focus group in this report, across camera-trap locations for each survey year, as well as the cumulative richness across all years.*\n\n",
+    sep = ""
+  )
 ---

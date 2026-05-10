@@ -72,8 +72,10 @@ code: |
       
     }
     #---------
-    if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-      cat(paste0("## {.unnumbered}\n",object$getFigureNumber()," *Species co-occurrence patterns based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),", afor each survey year, as well as the cumulative across all years.*\n"))
-    } else cat(object$getFigureNumber()," *Species co-occurrence patterns for each survey year, as well as the cumulative across all years.*\n")
-    
+   cat(
+  "\n\n",
+  object$getFigureNumber(),
+  " *Species co-occurrence patterns for the selected species focus group in this report, shown for each survey year and cumulatively across all years.*\n\n",
+  sep = ""
+  )
 ---
