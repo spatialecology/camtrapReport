@@ -5,50 +5,74 @@ parent: "results"
 text: "Habitat preferences were assessed by comparing proportional capture rates across habitat types for each species. Capture rate, expressed as detections relative to sampling effort, serves here as an indicator of habitat use and relative habitat association rather than a direct estimate of habitat selection. Differences in the distribution of capture rates among habitat types therefore highlight habitats in which species were more or less frequently recorded. Together, these patterns provide insight into species-specific habitat use within the study area and help identify broad differences in habitat association among the focal species."
 code: |
   #| name: code
-  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: leaflet, terra
-  
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE
+  #| packages: ggplot2, dplyr, scales
   
   .spn <- object$get_speciesNames(object$setting$focus_groups)
+  
+  capture_habitat_sel <- object$species_summary_by_habitat
+  
+  if (!is.null(capture_habitat_sel) && nrow(capture_habitat_sel) > 0) {
     
-    capture_habitat_sel <- object$species_summary_by_habitat 
+    capture_habitat_sel <- capture_habitat_sel |>
+      dplyr::filter(scientificName %in% .spn)
+    
     if (nrow(capture_habitat_sel) > 0) {
-      capture_habitat_sel <- capture_habitat_sel %>%
-        dplyr::filter(scientificName %in% .spn)
       
-      
-      # 🎨 **Define Acadia color palette**
+      # Define Acadia color palette
       acadia_colors <- object$reportObjectElements$acadia_colors
       
-      # 🎨 **Create a color mapping for habitat types**
+      # Create a color mapping for habitat types
       habitat_types <- unique(capture_habitat_sel$Habitat_Type)
-      habitat_colors <- setNames(rep(acadia_colors, length.out = length(habitat_types)), habitat_types)
-      
-      # 🎨 **Generate the plot with Acadia colors**
-      print(
-        ggplot(capture_habitat_sel, aes(x = scientificName, y = capture_rate, fill = Habitat_Type)) +
-          geom_bar(stat = "identity", position = "fill") +  
-          labs(
-            x = "Species",
-            y = "Capture Rate (Proportion)",
-            fill = "Habitat Type"
-          ) +
-          scale_fill_manual(values = habitat_colors) +  # Apply Acadia colors
-          scale_y_continuous(labels = scales::percent_format()) + 
-          theme_minimal() +
-          theme(
-            axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.title = element_text(size = 14, face = "bold")
-          )
+      habitat_colors <- stats::setNames(
+        rep(acadia_colors, length.out = length(habitat_types)),
+        habitat_types
       )
+      
+      # Generate the plot
+      p <- ggplot2::ggplot(
+        capture_habitat_sel,
+        ggplot2::aes(
+          x = scientificName,
+          y = capture_rate,
+          fill = Habitat_Type
+        )
+      ) +
+        ggplot2::geom_bar(stat = "identity", position = "fill") +
+        ggplot2::labs(
+          x = "Species",
+          y = "Capture Rate (Proportion)",
+          fill = "Habitat Type"
+        ) +
+        ggplot2::scale_fill_manual(values = habitat_colors) +
+        ggplot2::scale_y_continuous(labels = scales::percent_format()) +
+        ggplot2::theme_minimal(base_size = 13) +
+        ggplot2::theme(
+          axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+          axis.title.x = ggplot2::element_text(face = "bold", color = "black"),
+          axis.title.y = ggplot2::element_text(face = "bold", color = "black"),
+          plot.title = ggplot2::element_text(size = 14, face = "bold"),
+          panel.grid.minor = ggplot2::element_blank()
+        )
+      
+      print(p)
+      
       cat("\n\n")
       
-      #---------
       cat(
-  "\n\n",
-  object$getFigureNumber(),
-  " *Capture rate distribution across habitat types based on the species focus group. Each bar represents a species, with sections indicating the proportion of each habitat type.*\n\n",
-  sep = ""
-  )
+        "\n\n",
+        object$getFigureNumber(),
+        " *Capture rate distribution across habitat types based on the species focus group. Each bar represents a species, with sections indicating the proportion of each habitat type.*\n\n",
+        sep = ""
+      )
+      
+    } else {
+      
+      cat("\n\nNo habitat preference data were available for the selected species focus group.\n\n")
+    }
     
+  } else {
+    
+    cat("\n\nNo habitat preference data were available.\n\n")
+  }
 ---
