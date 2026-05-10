@@ -9,5 +9,5 @@ authors:
     email: "eebrahimi.bio@gmail.com"
 repository-code: "https://github.com/spatialecology/camtrapReport"
 url: "https://github.com/spatialecology/camtrapReport"
-license: "GPL-3.0-or-later"
+license: "MIT"
 version: "1.0.11"
