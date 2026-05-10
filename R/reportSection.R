@@ -148,15 +148,29 @@
 
 #--------
 
-if (!isGeneric("reportSection")) {
-  setGeneric(
-    "reportSection",
-    function(name, title, parent, txt, code_setting, packages, code)
-      standardGeneric("reportSection")
-  )
-}
+#' Create a report section
+#'
+#' Creates a text section object used by camtrapReport report modules.
+#'
+#' @param name Character. Internal name of the report section.
+#' @param title Character. Section title shown in the report.
+#' @param parent Character or NULL. Parent section name.
+#' @param txt Character vector or NULL. Text content of the section.
+#' @param code_setting Optional R Markdown chunk settings.
+#' @param packages Optional character vector of packages required by the code chunk.
+#' @param code Optional R code placed inside braces.
+#'
+#' @return A `.textSection` object.
+#'
+#' @export
+setGeneric(
+  "reportSection",
+  function(name, title, parent, txt, code_setting, packages, code)
+    standardGeneric("reportSection")
+)
 
-
+#' @rdname reportSection
+#' @export
 setMethod(
   "reportSection",
   signature(name = "character"),
@@ -173,23 +187,25 @@ setMethod(
       code <- substitute(code)
     }
     
-    # if (missing(object)) object <- NULL
     if (missing(packages)) packages <- NULL
     
-    #------------
-    .x <- .getTextObj(name = name, title = title, parent = parent, txt = txt)
-    #------------
+    .x <- .getTextObj(
+      name = name,
+      title = title,
+      parent = parent,
+      txt = txt
+    )
     
     if (!is.null(code)) {
       
-      if (!is.null(code_setting) && as.character(substitute(code_setting))[1] == "{") {
+      if (!is.null(code_setting) &&
+          as.character(substitute(code_setting))[1] == "{") {
         code_setting <- substitute(code_setting)
         code_setting <- as.character(code_setting)[-1]
         code_setting <- .trim(code_setting)
         code_setting <- .rmChar(code_setting, rm = c(1, 2), rmLast = TRUE)
       }
       
-      #----
       if (as.character(code)[1] != "{") {
         stop("code should be placed within { } ")
       }

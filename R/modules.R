@@ -1247,200 +1247,330 @@
 #################################
 #################################
 
-
-if (!isGeneric("add_Module")) {
-  setGeneric("add_Module", function(x,before,after,test,object)
-    standardGeneric("add_Module"))
-}
-
-
-setMethod('add_Module', signature(x='character'), 
-          function(x,before,after,test) {
-            if (missing(before)) before <- NULL
-            if (missing(after)) after <- NULL
-            if (missing(object) || !inherits(object,'camReport')) object <- NULL
-            if (missing(test) || !is.logical(test)) {
-              if (is.null(object)) test <- FALSE
-              else test <- TRUE
-            }
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            if (isTRUE(test)) {
-              v <- validate_module(path, render = "parse", view = FALSE)
-              if (!isTRUE(v$parse_ok && v$valid_s4)) {
-                stop("Module validation failed:\n", paste(v$messages, collapse = "\n"))
-              }
-            }
-            #----
-            .add_Module(
-              x = x,
-              before = before,
-              after = after,
-              test = test,
-              package = "camtrapReport",
-              dir = .module_dir,
-              object = object
-            )
-            
-          }
+#' Add a report module
+#'
+#' Add a new YAML report module to the camtrapReport module library.
+#'
+#' @param x Path to a YAML module file.
+#' @param before Optional module name before which the new module should be inserted.
+#' @param after Optional module name after which the new module should be inserted.
+#' @param test Logical. If TRUE, test the module before adding it.
+#' @param object Optional camReport object used for testing the module.
+#'
+#' @return Invisibly returns information about the added module.
+#'
+#' @export
+setGeneric(
+  "add_Module",
+  function(x, before, after, test, object)
+    standardGeneric("add_Module")
 )
+
+#' @rdname add_Module
+#' @export
+setMethod(
+  "add_Module",
+  signature(x = "character"),
+  function(x, before, after, test, object) {
+    
+    if (missing(before)) before <- NULL
+    if (missing(after)) after <- NULL
+    
+    if (missing(object) || !inherits(object, "camReport")) {
+      object <- NULL
+    }
+    
+    if (missing(test) || !is.logical(test)) {
+      if (is.null(object)) {
+        test <- FALSE
+      } else {
+        test <- TRUE
+      }
+    }
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    
+    if (isTRUE(test)) {
+      v <- validate_module(path = x, render = "parse", view = FALSE)
+      
+      if (!isTRUE(v$parse_ok && v$valid_s4)) {
+        stop(
+          "Module validation failed:\n",
+          paste(v$messages, collapse = "\n")
+        )
+      }
+    }
+    
+    .add_Module(
+      x = x,
+      before = before,
+      after = after,
+      test = test,
+      package = "camtrapReport",
+      dir = .module_dir,
+      object = object
+    )
+  }
+)
+
 #--------
 
-
-if (!isGeneric("move_Module")) {
-  setGeneric("move_Module", function(name,before,after,parent,level0)
-    standardGeneric("move_Module"))
-}
-
-
-setMethod('move_Module', signature(name='character'), 
-          function(name,before,after,parent,level0) {
-            if (missing(before)) before <- NULL
-            if (missing(after)) after <- NULL
-            if (missing(parent)) parent <- NULL
-            if (missing(level0)) level0 <- c("introduction", "methods", "results",
-                                             "acknowledgements", "appendix")
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            info_path  <- .modules_info_path(.module_dir)
-            info       <- .read_modules_info(.module_dir, level0 = level0)
-            
-            if (!name %in% info$name) {
-              stop("Unknown module: ", name)
-            }
-            
-            current_parent <- info$parent[match(name, info$name)]
-            if (is.null(parent)) parent <- current_parent
-            parent <- .norm_parent(parent)
-            
-            info2 <- info[info$name != name, c("name", "parent"), drop = FALSE]
-            info2 <- .resequence_info(info2)
-            
-            info2 <- .insert_module_info(
-              info = info2,
-              name = name,
-              parent = parent,
-              before = before,
-              after = after,
-              level0 = level0
-            )
-            
-            utils::write.csv(info2, info_path, row.names = FALSE)
-            invisible(info2)
-            
-          }
+#' Move a report module
+#'
+#' Move an existing module before or after another module, or under a new parent.
+#'
+#' @param name Name of the module to move.
+#' @param before Optional module name before which to move the module.
+#' @param after Optional module name after which to move the module.
+#' @param parent Optional new parent module.
+#' @param level0 Character vector defining the root-level module order.
+#'
+#' @return Invisibly returns the updated module information table.
+#'
+#' @export
+setGeneric(
+  "move_Module",
+  function(name, before, after, parent, level0)
+    standardGeneric("move_Module")
 )
+
+#' @rdname move_Module
+#' @export
+setMethod(
+  "move_Module",
+  signature(name = "character"),
+  function(name, before, after, parent, level0) {
+    
+    if (missing(before)) before <- NULL
+    if (missing(after)) after <- NULL
+    if (missing(parent)) parent <- NULL
+    if (missing(level0)) {
+      level0 <- c(
+        "introduction",
+        "methods",
+        "results",
+        "acknowledgements",
+        "appendix"
+      )
+    }
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    info_path <- .modules_info_path(.module_dir)
+    info <- .read_modules_info(.module_dir, level0 = level0)
+    
+    if (!name %in% info$name) {
+      stop("Unknown module: ", name)
+    }
+    
+    current_parent <- info$parent[match(name, info$name)]
+    if (is.null(parent)) parent <- current_parent
+    parent <- .norm_parent(parent)
+    
+    info2 <- info[info$name != name, c("name", "parent"), drop = FALSE]
+    info2 <- .resequence_info(info2)
+    
+    info2 <- .insert_module_info(
+      info = info2,
+      name = name,
+      parent = parent,
+      before = before,
+      after = after,
+      level0 = level0
+    )
+    
+    utils::write.csv(info2, info_path, row.names = FALSE)
+    invisible(info2)
+  }
+)
+
 #--------
 
-
-if (!isGeneric("remove_Module")) {
-  setGeneric("remove_Module", function(name,recursive)
-    standardGeneric("remove_Module"))
-}
-
-
-setMethod('remove_Module', signature(name='character'), 
-          function(name,recursive) {
-            if (missing(recursive)) recursive <- TRUE
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            
-            .delete_Module(
-              x = name,
-              recursive = recursive,
-              package = "camtrapReport",
-              dir = .module_dir
-            )
-          }
+#' Remove a report module
+#'
+#' Move a module, and optionally its child modules, to the module trash folder.
+#'
+#' @param name Name of the module to remove.
+#' @param recursive Logical. If TRUE, remove child modules as well.
+#'
+#' @return Invisibly returns information about the deleted module batch.
+#'
+#' @export
+setGeneric(
+  "remove_Module",
+  function(name, recursive)
+    standardGeneric("remove_Module")
 )
+
+#' @rdname remove_Module
+#' @export
+setMethod(
+  "remove_Module",
+  signature(name = "character"),
+  function(name, recursive) {
+    
+    if (missing(recursive)) recursive <- TRUE
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    
+    .delete_Module(
+      x = name,
+      recursive = recursive,
+      package = "camtrapReport",
+      dir = .module_dir
+    )
+  }
+)
+
 #--------
 
-if (!isGeneric("empty_trash")) {
-  setGeneric("empty_trash", function(name,id)
-    standardGeneric("empty_trash"))
-}
-
-
-setMethod('empty_trash', signature(), 
-          function(name,id) {
-            if (missing(name)) name <- NULL
-            if (missing(id)) id <- NULL
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            .purge_Trash(x = name,batch_id = id,recovered_only = FALSE,
-                         package = "camtrapReport",dir = .module_dir)
-          }
+#' Empty the module trash
+#'
+#' Permanently remove deleted modules from the trash folder.
+#'
+#' @param name Optional module name to purge.
+#' @param id Optional deletion batch ID to purge.
+#'
+#' @return Invisibly returns the updated trash index.
+#'
+#' @export
+setGeneric(
+  "empty_trash",
+  function(name, id)
+    standardGeneric("empty_trash")
 )
+
+#' @rdname empty_trash
+#' @export
+setMethod(
+  "empty_trash",
+  signature(name = "ANY", id = "ANY"),
+  function(name, id) {
+    
+    if (missing(name)) name <- NULL
+    if (missing(id)) id <- NULL
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    
+    .purge_Trash(
+      x = name,
+      batch_id = id,
+      recovered_only = FALSE,
+      package = "camtrapReport",
+      dir = .module_dir
+    )
+  }
+)
+
 #--------
 
-if (!isGeneric("list_Modules")) {
-  setGeneric("list_Modules", function(tree,brief,include_trash,validate)
-    standardGeneric("list_Modules"))
-}
-
-
-setMethod('list_Modules', signature(), 
-          function(tree,brief,include_trash,validate) {
-            if (missing(tree)) tree <- TRUE
-            if (missing(brief)) brief <- TRUE
-            if (missing(include_trash)) include_trash <- FALSE
-            if (missing(validate)) validate <- FALSE
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            
-            if (tree) {
-              info <- .read_modules_info(.module_dir)
-              return(.module_tree_df(info))
-            }
-            
-            out <- .list_Modules(
-              package = "camtrapReport",
-              dir = .module_dir,
-              include_unlisted = TRUE,
-              include_invalid = TRUE,
-              validate = validate
-            )
-            
-            if (include_trash) {
-              .trash <- .list_Trash(package = "camtrapReport", dir = .module_dir, active_only = TRUE)
-            }
-            
-            if (brief) {
-              out <- out[,c(1,2,3,10,13)]
-            }
-            
-            #----
-            if (include_trash && nrow(.trash) > 0) return(list(modules=out,trash=.trash))
-            else return(out)
-            
-          }
+#' List available report modules
+#'
+#' List modules available in the camtrapReport module library.
+#'
+#' @param tree Logical. If TRUE, return modules as a tree table.
+#' @param brief Logical. If TRUE, return a brief table.
+#' @param include_trash Logical. If TRUE, include active trash records.
+#' @param validate Logical. If TRUE, validate module YAML files.
+#'
+#' @return A data frame, or a list containing modules and trash records.
+#'
+#' @export
+setGeneric(
+  "list_Modules",
+  function(tree, brief, include_trash, validate)
+    standardGeneric("list_Modules")
 )
+
+#' @rdname list_Modules
+#' @export
+setMethod(
+  "list_Modules",
+  signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
+  function(tree, brief, include_trash, validate) {
+    
+    if (missing(tree)) tree <- TRUE
+    if (missing(brief)) brief <- TRUE
+    if (missing(include_trash)) include_trash <- FALSE
+    if (missing(validate)) validate <- FALSE
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    
+    if (isTRUE(tree)) {
+      info <- .read_modules_info(.module_dir)
+      return(.module_tree_df(info))
+    }
+    
+    out <- .list_Modules(
+      package = "camtrapReport",
+      dir = .module_dir,
+      include_unlisted = TRUE,
+      include_invalid = TRUE,
+      validate = validate
+    )
+    
+    .trash <- NULL
+    
+    if (isTRUE(include_trash)) {
+      .trash <- .list_Trash(
+        package = "camtrapReport",
+        dir = .module_dir,
+        active_only = TRUE
+      )
+    }
+    
+    if (isTRUE(brief)) {
+      out <- out[, c(1, 2, 3, 10, 13)]
+    }
+    
+    if (isTRUE(include_trash) && !is.null(.trash) && nrow(.trash) > 0) {
+      return(list(modules = out, trash = .trash))
+    }
+    
+    out
+  }
+)
+
 #--------
 
-
-if (!isGeneric("restore_Module")) {
-  setGeneric("restore_Module", function(name,batch_id,test)
-    standardGeneric("restore_Module"))
-}
-
-
-setMethod('restore_Module', signature(name='character'), 
-          function(name,batch_id,test) {
-            if (missing(batch_id)) batch_id <- NULL
-            if (missing(test)) test <- TRUE
-            
-            #----------
-            .module_dir <- .section_dir(package = "camtrapReport")
-            
-            .recover_Module(
-              x = name,
-              batch_id = batch_id,
-              package = "camtrapReport",
-              dir = .module_dir,
-              test = test
-            )
-            
-          }
+#' Restore a deleted report module
+#'
+#' Restore a module from the module trash folder.
+#'
+#' @param name Name of the module to restore.
+#' @param batch_id Optional deletion batch ID.
+#' @param test Logical. If TRUE, test the restored module.
+#'
+#' @return Invisibly returns information about restored modules.
+#'
+#' @export
+setGeneric(
+  "restore_Module",
+  function(name, batch_id, test)
+    standardGeneric("restore_Module")
 )
+
+#' @rdname restore_Module
+#' @export
+setMethod(
+  "restore_Module",
+  signature(name = "character"),
+  function(name, batch_id, test) {
+    
+    if (missing(batch_id)) batch_id <- NULL
+    if (missing(test)) test <- TRUE
+    
+    .module_dir <- .section_dir(package = "camtrapReport")
+    
+    .recover_Module(
+      x = name,
+      batch_id = batch_id,
+      package = "camtrapReport",
+      dir = .module_dir,
+      test = test
+    )
+  }
+)
+
 #--------
+
 

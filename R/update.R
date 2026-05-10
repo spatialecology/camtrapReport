@@ -1,8 +1,9 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 1.2
+# Last Update : May 2026
+# Version 1.3
 # Licence GPL v3
 #--------
+
 
 .reportSection_catalog <- function(node, path = character()) {
   out <- list()
@@ -45,30 +46,42 @@
   do.call(rbind, out)
 }
 
+#--------
+
 .matchReportSection <- function(catalog,
                                 section,
                                 by = c("auto", "name", "title"),
                                 ignore.case = TRUE) {
   by <- match.arg(by)
   
-  if (!nzchar(section)) stop("'section' is empty.")
+  if (!nzchar(section)) {
+    stop("'section' is empty.")
+  }
   
   cmp <- function(x, y) {
     if (ignore.case) tolower(x) == tolower(y) else x == y
   }
   
   contains <- function(x, y) {
-    if (ignore.case) grepl(y, x, ignore.case = TRUE, fixed = TRUE)
-    else grepl(y, x, fixed = TRUE)
+    if (ignore.case) {
+      grepl(y, x, ignore.case = TRUE, fixed = TRUE)
+    } else {
+      grepl(y, x, fixed = TRUE)
+    }
   }
   
   if (by == "name") {
+    
     w <- which(cmp(catalog$name, section))
     if (length(w) == 0) w <- which(contains(catalog$name, section))
+    
   } else if (by == "title") {
+    
     w <- which(cmp(catalog$title, section))
     if (length(w) == 0) w <- which(contains(catalog$title, section))
+    
   } else {
+    
     w <- which(cmp(catalog$name, section))
     if (length(w) == 0) w <- which(cmp(catalog$title, section))
     if (length(w) == 0) w <- which(contains(catalog$name, section))
@@ -91,19 +104,25 @@
   catalog[w, , drop = FALSE]
 }
 
-.capture_code_text <- function(arg, env = parent.frame()) {
-  expr <- substitute(arg)
+#--------
+
+.capture_code_text <- function(expr, env = parent.frame()) {
   
   # code passed as { ... }
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
-    lines <- vapply(as.list(expr)[-1], function(e) {
-      paste(deparse(e), collapse = "\n")
-    }, character(1))
+    lines <- vapply(
+      as.list(expr)[-1],
+      function(e) {
+        paste(deparse(e), collapse = "\n")
+      },
+      character(1)
+    )
     return(paste(lines, collapse = "\n"))
   }
   
   # character value passed directly
   val <- try(eval(expr, envir = env), silent = TRUE)
+  
   if (!inherits(val, "try-error") && is.character(val)) {
     return(paste(val, collapse = "\n"))
   }
@@ -112,8 +131,9 @@
   paste(deparse(expr), collapse = "\n")
 }
 
-.capture_setting_text <- function(arg, env = parent.frame()) {
-  expr <- substitute(arg)
+#--------
+
+.capture_setting_text <- function(expr, env = parent.frame()) {
   
   if (is.null(expr)) return(NULL)
   
@@ -125,6 +145,7 @@
   val <- try(eval(expr, envir = env), silent = TRUE)
   
   if (!inherits(val, "try-error")) {
+    
     if (is.null(val)) return(NULL)
     
     if (is.character(val) && length(val) == 1L) {
@@ -135,8 +156,10 @@
       if (!is.null(names(val)) && any(nzchar(names(val)))) {
         parts <- mapply(
           function(nm, vv) paste0(nm, " = ", deparse(vv)),
-          names(val), as.list(val),
-          SIMPLIFY = TRUE, USE.NAMES = FALSE
+          names(val),
+          as.list(val),
+          SIMPLIFY = TRUE,
+          USE.NAMES = FALSE
         )
         return(paste(parts, collapse = ", "))
       } else {
@@ -147,8 +170,10 @@
     if (is.list(val) && !is.null(names(val))) {
       parts <- mapply(
         function(nm, vv) paste0(nm, " = ", deparse(vv)),
-        names(val), val,
-        SIMPLIFY = TRUE, USE.NAMES = FALSE
+        names(val),
+        val,
+        SIMPLIFY = TRUE,
+        USE.NAMES = FALSE
       )
       return(paste(parts, collapse = ", "))
     }
@@ -156,7 +181,25 @@
   
   paste(deparse(expr), collapse = "")
 }
-#------------
+
+#--------
+
+.make_rchunk_from_text <- function(parent = NULL,
+                                   name = NULL,
+                                   setting = NULL,
+                                   packages = NULL,
+                                   code = "") {
+  new(
+    ".Rchunk",
+    parent = parent,
+    name = name,
+    setting = setting,
+    packages = packages,
+    code = code
+  )
+}
+
+#--------
 
 .update_section_chunk <- function(sec,
                                   code_missing,
@@ -167,14 +210,15 @@
                                   packages_missing,
                                   packages = NULL,
                                   append_code = FALSE) {
+  
   wants_chunk_update <- (!code_missing) || (!code_setting_missing) || (!packages_missing)
   
   if (!wants_chunk_update) {
     return(sec)
   }
   
-  # helper to update one existing chunk
   patch_chunk <- function(ch) {
+    
     if (!code_missing) {
       ch@code <- if (append_code && nzchar(ch@code)) {
         paste(ch@code, code, sep = "\n")
@@ -182,37 +226,50 @@
         code
       }
     }
-    if (!code_setting_missing) ch@setting <- code_setting
-    if (!packages_missing) ch@packages <- if (is.null(packages)) NULL else as.character(packages)
+    
+    if (!code_setting_missing) {
+      ch@setting <- code_setting
+    }
+    
+    if (!packages_missing) {
+      ch@packages <- if (is.null(packages)) NULL else as.character(packages)
+    }
+    
     ch
   }
   
-  # no chunk exists yet
+  # No chunk exists yet
   if (is.null(sec@Rchunk)) {
+    
     chunk_name <- code_name %||% paste0(sec@name, "__code")
-    sec@Rchunk <- .getRchunk(
+    
+    sec@Rchunk <- .make_rchunk_from_text(
       parent = sec@name,
       name = chunk_name,
       code = if (code_missing) "" else code,
       setting = if (code_setting_missing) NULL else code_setting,
       packages = if (packages_missing) NULL else packages
     )
+    
     return(sec)
   }
   
-  # single chunk
+  # Single chunk
   if (inherits(sec@Rchunk, ".Rchunk")) {
+    
     if (!is.null(code_name) && !identical(sec@Rchunk@name, code_name)) {
-      # user wants a second/new chunk
-      new_chunk <- .getRchunk(
+      
+      new_chunk <- .make_rchunk_from_text(
         parent = sec@name,
         name = code_name,
         code = if (code_missing) "" else code,
         setting = if (code_setting_missing) NULL else code_setting,
         packages = if (packages_missing) NULL else packages
       )
+      
       sec@Rchunk <- list(sec@Rchunk, new_chunk)
       names(sec@Rchunk) <- c(sec@Rchunk[[1]]@name, new_chunk@name)
+      
       return(sec)
     }
     
@@ -220,29 +277,43 @@
     return(sec)
   }
   
-  # multiple chunks
+  # Multiple chunks
   if (is.list(sec@Rchunk)) {
+    
     if (is.null(code_name)) {
+      
       if (length(sec@Rchunk) != 1L) {
         stop(
           "Section '", sec@name,
           "' has multiple code chunks; please supply 'code_name'."
         )
       }
+      
       idx <- 1L
+      
     } else {
-      idx <- which(vapply(sec@Rchunk, function(ch) inherits(ch, ".Rchunk") && identical(ch@name, code_name), logical(1)))
+      
+      idx <- which(vapply(
+        sec@Rchunk,
+        function(ch) inherits(ch, ".Rchunk") && identical(ch@name, code_name),
+        logical(1)
+      ))
+      
       if (length(idx) == 0L) {
-        new_chunk <- .getRchunk(
+        
+        new_chunk <- .make_rchunk_from_text(
           parent = sec@name,
           name = code_name,
           code = if (code_missing) "" else code,
           setting = if (code_setting_missing) NULL else code_setting,
           packages = if (packages_missing) NULL else packages
         )
+        
         sec@Rchunk[[code_name]] <- new_chunk
+        
         return(sec)
       }
+      
       idx <- idx[1]
     }
     
@@ -252,12 +323,17 @@
   
   sec
 }
-#---------
+
+#--------
+
 .updateReportSection_tree <- function(node, target_name, updater) {
+  
   if (inherits(node, ".textSection")) {
+    
     if (identical(node@name, target_name)) {
       return(updater(node))
     }
+    
     return(node)
   }
   
@@ -270,127 +346,180 @@
   node
 }
 
-#-------
-
-
-
-
-if (!isGeneric("updateReportSection")) {
-  setGeneric("updateReportSection", function(x,section,text,title,code,code_name,
-                                             code_setting,packages,append_text,
-                                             append_code)
-    standardGeneric("updateReportSection"))
-}
-
-
-setMethod('updateReportSection', signature(x='camReport'), 
-          function(x,section,text,title,code,code_name,
-                   code_setting,packages,append_text,
-                   append_code) {
-            
-            if (missing(text)) text <- NULL
-            if (missing(title)) title <- NULL
-            
-            if (missing(code)) {
-              code <- NULL
-              code_missing <- TRUE
-            }
-            
-            if (missing(code_name)) code_name <- NULL
-            
-            if (missing(code_setting)) {
-              code_setting <- NULL
-              code_setting_missing <- TRUE
-            }
-            
-            if (missing(packages)) {
-              packages <- NULL
-              packages_missing <- TRUE
-            }
-            
-            if (missing(append_code)) append_code <- FALSE
-            if (missing(append_text)) append_text <- FALSE
-            
-            #----------
-            if (missing(section) || !is.character(section) || length(section) != 1L) {
-              stop("'section' should be a single character string (name or title).")
-            }
-            
-            catalog <- .reportSection_catalog(x$reportObjects)
-            
-            if (nrow(catalog) == 0L) {
-              stop("No report sections were found in x$reportObjects.")
-            }
-            
-            hit <- .matchReportSection(
-              catalog = catalog,
-              section = section,
-              by = 'auto',
-              ignore.case = TRUE
-            )
-            
-            target_name <- hit$name[1]
-            
-            if (!code_missing) {
-              code <- .capture_code_text(code, env = parent.frame())
-            }
-            
-            if (!code_setting_missing) {
-              code_setting <- .capture_setting_text(code_setting, env = parent.frame())
-            }
-            
-            updater <- function(sec) {
-              if (!is.null(title)) {
-                sec@title <- as.character(title)[1]
-              }
-              
-              if (!is.null(text)) {
-                if (append_text) {
-                  old_txt <- .collapse_section_text(sec@txt)
-                  sec@txt <- if (nzchar(old_txt)) {
-                    paste(old_txt, as.character(text), sep = "\n\n")
-                  } else {
-                    as.character(text)
-                  }
-                } else {
-                  sec@txt <- as.character(text)
-                }
-              }
-              
-              sec <- .update_section_chunk(
-                sec = sec,
-                code_missing = code_missing,
-                code = code,
-                code_name = code_name,
-                code_setting_missing = code_setting_missing,
-                code_setting = code_setting,
-                packages_missing = packages_missing,
-                packages = packages,
-                append_code = append_code
-              )
-              
-              sec
-            }
-            
-            x$reportObjects <- .updateReportSection_tree(
-              node = x$reportObjects,
-              target_name = target_name,
-              updater = updater
-            )
-            
-            invisible(x)
-          }
-)
 #--------
 
-if (!isGeneric("listReportSections")) {
-  setGeneric("listReportSections", function(x)
-    standardGeneric("listReportSections"))
-}
 
-
-setMethod('listReportSections', signature(x='camReport'), 
-          function(x) {
-            .reportSection_catalog(x$reportObjects)
-          }
+#' Update a report section
+#'
+#' Updates the title, text, code chunk, code settings or package list of an
+#' existing report section in a `camReport` object.
+#'
+#' @param x A `camReport` object.
+#' @param section A single character string identifying the section by name or title.
+#' @param text Optional replacement text.
+#' @param title Optional replacement title.
+#' @param code Optional replacement or appended R code. Code can be supplied as
+#'   a character string or inside braces.
+#' @param code_name Optional code chunk name. Required if a section contains
+#'   multiple chunks and a specific chunk should be updated.
+#' @param code_setting Optional R Markdown chunk settings.
+#' @param packages Optional character vector of packages required by the chunk.
+#' @param append_text Logical. If `TRUE`, append text to the existing section text.
+#' @param append_code Logical. If `TRUE`, append code to the existing code chunk.
+#'
+#' @return Invisibly returns the updated `camReport` object.
+#'
+#' @export
+setGeneric(
+  "updateReportSection",
+  function(x, section, text, title, code, code_name,
+           code_setting, packages, append_text, append_code)
+    standardGeneric("updateReportSection")
 )
+
+#' @rdname updateReportSection
+#' @export
+setMethod(
+  "updateReportSection",
+  signature(x = "camReport"),
+  function(x, section, text, title, code, code_name,
+           code_setting, packages, append_text, append_code) {
+    
+    if (missing(text)) text <- NULL
+    if (missing(title)) title <- NULL
+    
+    if (missing(code)) {
+      code <- NULL
+      code_missing <- TRUE
+    } else {
+      code_expr <- substitute(code)
+      code_missing <- FALSE
+    }
+    
+    if (missing(code_name)) {
+      code_name <- NULL
+    }
+    
+    if (missing(code_setting)) {
+      code_setting <- NULL
+      code_setting_missing <- TRUE
+    } else {
+      code_setting_expr <- substitute(code_setting)
+      code_setting_missing <- FALSE
+    }
+    
+    if (missing(packages)) {
+      packages <- NULL
+      packages_missing <- TRUE
+    } else {
+      packages_missing <- FALSE
+    }
+    
+    if (missing(append_code)) append_code <- FALSE
+    if (missing(append_text)) append_text <- FALSE
+    
+    if (missing(section) || !is.character(section) || length(section) != 1L) {
+      stop("'section' should be a single character string, either a section name or title.")
+    }
+    
+    catalog <- .reportSection_catalog(x$reportObjects)
+    
+    if (nrow(catalog) == 0L) {
+      stop("No report sections were found in x$reportObjects.")
+    }
+    
+    hit <- .matchReportSection(
+      catalog = catalog,
+      section = section,
+      by = "auto",
+      ignore.case = TRUE
+    )
+    
+    target_name <- hit$name[1]
+    
+    if (!code_missing) {
+      code <- .capture_code_text(code_expr, env = parent.frame())
+    }
+    
+    if (!code_setting_missing) {
+      code_setting <- .capture_setting_text(code_setting_expr, env = parent.frame())
+    }
+    
+    updater <- function(sec) {
+      
+      if (!is.null(title)) {
+        sec@title <- as.character(title)[1]
+      }
+      
+      if (!is.null(text)) {
+        
+        if (append_text) {
+          
+          old_txt <- .collapse_section_text(sec@txt)
+          
+          sec@txt <- if (nzchar(old_txt)) {
+            paste(old_txt, as.character(text), sep = "\n\n")
+          } else {
+            as.character(text)
+          }
+          
+        } else {
+          
+          sec@txt <- as.character(text)
+        }
+      }
+      
+      sec <- .update_section_chunk(
+        sec = sec,
+        code_missing = code_missing,
+        code = code,
+        code_name = code_name,
+        code_setting_missing = code_setting_missing,
+        code_setting = code_setting,
+        packages_missing = packages_missing,
+        packages = packages,
+        append_code = append_code
+      )
+      
+      sec
+    }
+    
+    x$reportObjects <- .updateReportSection_tree(
+      node = x$reportObjects,
+      target_name = target_name,
+      updater = updater
+    )
+    
+    invisible(x)
+  }
+)
+
+#--------
+
+
+#' List report sections
+#'
+#' Lists report sections currently stored in a `camReport` object.
+#'
+#' @param x A `camReport` object.
+#'
+#' @return A data frame describing report section names, titles, parents and paths.
+#'
+#' @export
+setGeneric(
+  "listReportSections",
+  function(x)
+    standardGeneric("listReportSections")
+)
+
+#' @rdname listReportSections
+#' @export
+setMethod(
+  "listReportSections",
+  signature(x = "camReport"),
+  function(x) {
+    .reportSection_catalog(x$reportObjects)
+  }
+)
+
+#--------

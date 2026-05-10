@@ -468,13 +468,26 @@
 
 #---------
 
+#' Read Camera-Trap Data in Camtrap-DP Format
+#'
+#' Creates a `camReport` object from a Camtrap-DP dataset.
+#'
+#' @param data Path to a Camtrap-DP `.zip` file or an unzipped Camtrap-DP folder.
+#' @param habitat Optional data frame containing habitat information.
+#' @param study_area Optional study-area polygon, either as a file path, `SpatVector` or `sf` object.
+#' @param ... Additional arguments.
+#'
+#' @return A `camReport` object.
+#'
+#' @export
+setGeneric(
+  "camData",
+  function(data, habitat, study_area, ...)
+    standardGeneric("camData")
+)
 
-if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,...)
-    standardGeneric("camData"))
-}
-
-
+#' @rdname camData
+#' @export
 setMethod('camData', signature(data='character'), 
           function(data, habitat, study_area = NULL, ...) {
             
