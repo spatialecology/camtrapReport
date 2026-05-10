@@ -1,7 +1,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.13
+Version: 1.0.14
 Date: 2026-05-10
 Authors@R: c(
     person(
@@ -24,13 +24,13 @@ Depends:
     R (>= 4.1.0)
 Imports:
     data.table,
-    rlang,
     dplyr,
     glue,
     jsonlite,
     knitr,
     lubridate,
     methods,
+    rlang,
     rmarkdown,
     sf,
     sp,

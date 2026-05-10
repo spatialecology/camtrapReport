@@ -5,14 +5,25 @@
 #--------
 
 .paste_comma_and <- function(x) {
-  x <- x[!is.na(x)]
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return("")
+  }
+  
   x <- as.character(x)
+  x <- x[!is.na(x)]
+  x <- trimws(x)
+  x <- x[nzchar(x)]
+  x <- unique(x)
   
   if (length(x) == 0) return("")
   if (length(x) == 1) return(x)
   if (length(x) == 2) return(paste(x, collapse = " and "))
   
-  paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
+  paste0(
+    paste(x[-length(x)], collapse = ", "),
+    ", and ",
+    x[length(x)]
+  )
 }
 
 #-----------
