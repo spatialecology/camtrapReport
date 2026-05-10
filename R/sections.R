@@ -1,97 +1,184 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 1.1
+# Last Update : May 2026
+# Version 1.2
 # Licence GPL v3
 #--------
 
 
+#' Get available report section names
+#'
+#' Returns the names of available report sections/modules. Users can optionally
+#' keep only selected sections or exclude selected sections.
+#'
+#' @param keep Optional character vector of section/module names to keep.
+#' @param exclude Optional character vector of section/module names to exclude.
+#'
+#' @return A character vector of section/module names.
+#'
+#' @export
+setGeneric(
+  "section_names",
+  function(keep, exclude)
+    standardGeneric("section_names")
+)
 
-if (!isGeneric("section_names")) {
-  setGeneric("section_names", function(keep,exclude)
-    standardGeneric("section_names"))
-}
 
-
-setMethod('section_names', signature(keep='ANY'), 
-          function(keep,exclude) {
-            if (missing(keep)) keep <- NULL # if NULL, keep all modules 
-            if (missing(exclude)) exclude <- NULL
-            
-            #---------
-            n <- .get_module_names()
-            
-            if (is.character(keep) && length(keep) > 0) {
-              w <- keep %in% n
-              if (!all(w)) {
-                if (!any(w)) stop('None of the specified section/module names in keep are available; use modeule_names() to get a list of existing modules...!')
-                warning(paste0("Several section/module names specified in keep are not available: ",.paste_comma_and(keep[!w])))
-              }
-              #----
-              n <- keep[w]
-              w <- .check_parent(n)
-              if (!is.null(w)) {
-                n <- n[!n %in% w]
-              }
-              #----
-              return(n)
-            }
-            #-----
-            if (is.character(exclude) && length(exclude) > 0) {
-              w <- exclude %in% n
-              if (!all(w)) {
-                if (!any(w)) stop('None of the specified section/module names in exclude are available; use modeule_names() to get a list of existing modules...!')
-                warning(paste0("Several section/module names specified in exclude are not available: ",.paste_comma_and(exclude[!w])))
-              }
-              exclude <- exclude[w]
-              
-              n <- n[!n %in% exclude]
-              w <- .check_parent(n)
-              if (!is.null(w)) {
-                n <- n[!n %in% w]
-              }
-              return(n)
-            } else return(n)
-            
-          }
+#' @rdname section_names
+#' @export
+setMethod(
+  "section_names",
+  signature(keep = "ANY", exclude = "ANY"),
+  function(keep, exclude) {
+    
+    if (missing(keep)) keep <- NULL
+    if (missing(exclude)) exclude <- NULL
+    
+    # Get all available module names
+    n <- .get_module_names()
+    
+    if (is.character(keep) && length(keep) > 0) {
+      
+      w <- keep %in% n
+      
+      if (!all(w)) {
+        if (!any(w)) {
+          stop(
+            "None of the specified section/module names in 'keep' are available; use section_names() to get a list of existing modules."
+          )
+        }
+        
+        warning(
+          paste0(
+            "Several section/module names specified in 'keep' are not available: ",
+            .paste_comma_and(keep[!w])
+          )
+        )
+      }
+      
+      n <- keep[w]
+      
+      w <- .check_parent(n)
+      
+      if (!is.null(w)) {
+        n <- n[!n %in% w]
+      }
+      
+      return(n)
+    }
+    
+    if (is.character(exclude) && length(exclude) > 0) {
+      
+      w <- exclude %in% n
+      
+      if (!all(w)) {
+        if (!any(w)) {
+          stop(
+            "None of the specified section/module names in 'exclude' are available; use section_names() to get a list of existing modules."
+          )
+        }
+        
+        warning(
+          paste0(
+            "Several section/module names specified in 'exclude' are not available: ",
+            .paste_comma_and(exclude[!w])
+          )
+        )
+      }
+      
+      exclude <- exclude[w]
+      n <- n[!n %in% exclude]
+      
+      w <- .check_parent(n)
+      
+      if (!is.null(w)) {
+        n <- n[!n %in% w]
+      }
+      
+      return(n)
+    }
+    
+    n
+  }
 )
 
 #-------
 
-if (!isGeneric("sections")) {
-  setGeneric("sections", function(x,n)
-    standardGeneric("sections"))
-}
 
-
-setMethod('sections', signature(x='camReport'), 
-          function(x,n) {
-            if (missing(n)) n <- NULL
-            else if (!is.character(n)) {
-              n <- NULL
-              warning('`n` should be character...(it is ignored -> NULL)')
-            }
-            #---------
-            w <- sort(c(which(is.na(x$reportObjectElements$Modules_info$tested)),which(x$reportObjectElements$Modules_info$tested)))
-            nn <- x$reportObjectElements$Modules_info$name[w]
-            if (is.null(n)) {
-              return(nn)
-            }
-            #------
-            if (!all(n %in% nn)) {
-              if (all(n %in% x$reportObjectElements$Modules_info$name)) {
-                message('\nSome of the specified sections are excluded as their test results were problematic...!')
-              } else {
-                if (!any(n %in% nn)) stop('None of the specified section names are known... (use the `section_names` function to get the correct names of the available sections)!')
-                else message('\nSome of the specified section names are unknown and ignored... (use the `section_names` function to get the correct names of the available sections)!')
-              }
-            }
-            
-            n <- n[n %in% nn]
-            #------
-            .attach_modules(x,n = n)
-            
-            message('\nthe report sections are updated...')
-            
-          }
+#' Select report sections
+#'
+#' Updates the report sections attached to a `camReport` object.
+#'
+#' @param x A `camReport` object.
+#' @param n Optional character vector of section/module names to attach.
+#'
+#' @return Invisibly updates the `camReport` object.
+#'
+#' @export
+setGeneric(
+  "sections",
+  function(x, n)
+    standardGeneric("sections")
 )
 
+
+#' @rdname sections
+#' @export
+setMethod(
+  "sections",
+  signature(x = "camReport", n = "ANY"),
+  function(x, n) {
+    
+    if (missing(n)) {
+      n <- NULL
+    } else if (!is.character(n)) {
+      n <- NULL
+      warning("`n` should be character; it is ignored.")
+    }
+    
+    # Sections with successful or untested status, ordered by test result
+    w <- sort(
+      c(
+        which(is.na(x$reportObjectElements$Modules_info$tested)),
+        which(x$reportObjectElements$Modules_info$tested)
+      )
+    )
+    
+    nn <- x$reportObjectElements$Modules_info$name[w]
+    
+    if (is.null(n)) {
+      return(nn)
+    }
+    
+    if (!all(n %in% nn)) {
+      
+      if (all(n %in% x$reportObjectElements$Modules_info$name)) {
+        
+        message(
+          "\nSome of the specified sections are excluded because their test results were problematic."
+        )
+        
+      } else {
+        
+        if (!any(n %in% nn)) {
+          stop(
+            "None of the specified section names are known. Use section_names() to get the correct names of available sections."
+          )
+        } else {
+          message(
+            "\nSome of the specified section names are unknown and ignored. Use section_names() to get the correct names of available sections."
+          )
+        }
+      }
+    }
+    
+    n <- n[n %in% nn]
+    
+    .attach_modules(x, n = n)
+    
+    message("\nThe report sections are updated.")
+    
+    invisible(x)
+  }
+)
+
+#-------
