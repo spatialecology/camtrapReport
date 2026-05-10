@@ -1,99 +1,45 @@
 <p align="center">
-  <img src="man/figures/logo.png" width="240" alt="camtrapReport logo"/>
+  <img src="man/figures/logo.png" width="230" alt="camtrapReport logo"/>
 </p>
 
-<h1 align="center">camtrapReport</h1>
+# camtrapReport
 
-<p align="center">
-  <a href="https://www.r-project.org/"><img src="https://img.shields.io/badge/R-%3E%3D%204.1.0-blue.svg" alt="R >= 4.1.0"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3-green.svg" alt="GPL-3 license"></a>
-  <a href="https://doi.org/10.5281/zenodo.18405441"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18405441-blue.svg" alt="DOI"></a>
-</p>
+[![R >= 4.1.0](https://img.shields.io/badge/R-%3E%3D%204.1.0-blue.svg)](https://www.r-project.org/)
+[![License: GPL-3](https://img.shields.io/badge/license-GPL--3-green.svg)](LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18405441-blue.svg)](https://doi.org/10.5281/zenodo.18405441)
 
-<p align="center">
-  <strong>Automated, reproducible camera-trap reporting from Camtrap-DP data.</strong>
-</p>
+`camtrapReport` is a modular and extensible R package for automating camera-trap data reporting in wildlife monitoring. The package is designed for datasets provided in, or converted to, the [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/), and provides a reproducible workflow for transforming standardised camera-trap records into structured ecological outputs.
 
-`camtrapReport` is a modular R package for processing standardised camera-trap datasets and generating reproducible ecological reports. It is designed for datasets provided in, or converted to, the [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/) and combines data-quality diagnostics, preprocessing, ecological analysis, visualisation and report assembly in a single workflow.
-
-<div align="center">
-
-<table>
-<tr>
-<td align="center"><strong>1. Data Status Check</strong></td>
-<td align="center"><strong>2. Ecological Insight Report</strong></td>
-</tr>
-<tr>
-<td align="center">Checks completeness, consistency, annotation quality and readiness for analysis.</td>
-<td align="center">Generates modular ecological summaries, maps, figures and report-ready outputs.</td>
-</tr>
-</table>
-
-</div>
-
----
-
-## Why use camtrapReport?
-
-Camera-trap projects often require many repeated steps before ecological interpretation: checking metadata, identifying missing or inconsistent values, summarising deployments and observations, calculating sampling effort, producing maps and figures, and compiling outputs into a report. These steps are often scattered across separate scripts.
-
-`camtrapReport` brings them together in one reproducible workflow:
-
-<div align="center">
-
-<table>
-<tr>
-<td align="center">📦<br><strong>Import</strong><br>Camtrap-DP datasets</td>
-<td align="center">🔍<br><strong>Check</strong><br>spatial, temporal, taxonomic and annotation quality</td>
-<td align="center">📊<br><strong>Summarise</strong><br>deployments, observations, effort and species records</td>
-<td align="center">🗺️<br><strong>Visualise</strong><br>maps, trends, activity and habitat-use patterns</td>
-<td align="center">📄<br><strong>Report</strong><br>reproducible ecological outputs</td>
-</tr>
-</table>
-
-</div>
-
----
+The package addresses a common bottleneck in camera-trap projects: although data-management platforms and standards have improved the organisation and exchange of camera-trap data, ecological interpretation often still requires fragmented scripts, repeated manual checks and ad hoc report preparation. `camtrapReport` helps bridge this gap by connecting standardised inputs, data-quality diagnostics, ecological analysis, visualisation and automated report assembly within a single workflow.
 
 ## Main outputs
 
-<div align="center">
+`camtrapReport` currently produces two main outputs.
 
-<table>
-<tr>
-<th align="center">Report</th>
-<th align="center">Purpose</th>
-<th align="center">Typical content</th>
-</tr>
-<tr>
-<td><strong>Data Status Check</strong></td>
-<td>Pre-analysis quality control and dataset readiness assessment.</td>
-<td>Setup, spatial checks, temporal checks, essential field availability, species records, validation, annotation and observation types.</td>
-</tr>
-<tr>
-<td><strong>Ecological Insight Report</strong></td>
-<td>Ecological summaries and visualisations from the prepared <code>camReport</code> object.</td>
-<td>Sampling effort, species accumulation, richness maps, co-occurrence, spatial density, activity patterns, habitat use, abundance trends and REM-based density estimates.</td>
-</tr>
-</table>
+| Output | Purpose |
+|---|---|
+| **Data Status Check report** | Evaluates whether a Camtrap-DP dataset is complete, internally consistent and ready for ecological analysis. |
+| **Ecological Report** | Generates modular ecological summaries, figures, maps and report-ready outputs from a prepared `camReport` object. |
 
-</div>
+The **Data Status Check report** summarises key aspects of dataset quality, including spatial and temporal coverage, essential field availability, species records, validation status, annotation quality and observation types.
 
-The Data Status Check classifies dataset readiness as:
+The **Ecological Report** assembles selected analytical modules into a structured report. Outputs can include sampling effort, species records, richness, activity patterns, co-occurrence, habitat-use summaries, abundance trends, spatial summaries and density-related analyses, depending on the available data and selected modules.
 
-<div align="center">
+## Why use camtrapReport?
 
-<table>
-<tr>
-<td align="center">🟢 <strong>Perfect</strong><br>All key checks passed.</td>
-<td align="center">🟠 <strong>Acceptable</strong><br>Minor issues found; dataset remains usable.</td>
-<td align="center">🔴 <strong>Needs Improvement</strong><br>Major issues should be corrected before reporting.</td>
-</tr>
-</table>
+Camera-trap datasets are increasingly large, standardised and reusable, but converting them into interpretable ecological outputs can still require substantial manual effort. `camtrapReport` was developed to make this step more reproducible, transparent and efficient.
 
-</div>
+The workflow supports users by:
 
----
+- reading camera-trap datasets in Camtrap-DP format;
+- checking data completeness and consistency before analysis;
+- preparing a reusable `camReport` object;
+- generating automated data-status and ecological reports;
+- producing maps, tables, figures and narrative report text;
+- supporting modular report sections that can be updated, extended or replaced;
+- supporting privacy-aware reporting by enabling structured ecological reports to be shared even when raw images, precise locations or other sensitive data cannot be openly released.
+
+In this way, `camtrapReport` functions as a reporting layer within the broader camera-trap data ecosystem. It complements existing data-management, publication and analytical tools by focusing on the reproducible transformation of harmonised camera-trap records into shareable ecological knowledge.
 
 ## Installation
 
@@ -113,99 +59,59 @@ Load the package:
 library(camtrapReport)
 ```
 
-Optional/reporting dependencies can be installed with:
+Some report modules require additional packages. These can be installed with:
 
 ```r
 install_All()
 ```
 
-Check the installed version:
-
-```r
-packageVersion("camtrapReport")
-```
-
----
 
 ## Input data
 
-The main input is a single `.zip` file containing a dataset in [Camtrap-DP](https://camtrap-dp.tdwg.org/) format.
+The required input is a single `.zip` file containing a dataset in [Camtrap-DP](https://camtrap-dp.tdwg.org/) format. Optional inputs can be added to enrich the report:
 
-<div align="center">
+| Optional input | Purpose |
+|---|---|
+| Habitat table | Adds habitat information for each camera-trap location |
+| Study-area polygon | Supports mapping and spatial summaries |
 
-<table>
-<tr>
-<th align="center">Required files</th>
-<th align="center">Optional files</th>
-</tr>
-<tr>
-<td>
-<code>datapackage.json</code><br>
-<code>deployments.csv</code><br>
-<code>media.csv</code><br>
-<code>observations.csv</code>
-</td>
-<td>
-Habitat table<br>
-Study-area polygon<br>
-Additional spatial or metadata layers
-</td>
-</tr>
-</table>
-
-</div>
-
-A simple habitat table should contain at least:
-
-<div align="center">
-
-| locationName | Habitat |
-|:---:|:---:|
-| VEL-01 | Forest |
-| VEL-02 | Grassland |
-| VEL-03 | Wetland |
-
-</div>
-
----
+An example `habitat.csv` template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing). For your convenience, your input folder should look like [this](https://drive.google.com/file/d/1ykJA_aKsWuNsyiiTrUUyTo-7CdXA_UIy/view?usp=sharing). The Camtrap-DP ZIP file is the only mandatory input; all other files are optional.
 
 ## Example data
 
-You can test `camtrapReport` using the Leuven example dataset and optional spatial inputs.
+If you do not have access to a Camtrap-DP dataset, you can use Leuven dataset which is a open-source camera-trap datasets available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data) to test camtrapReport. 
 
-<div align="center">
+| Data | Habitat | Study area | 
+|---|---|---|---|
+| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download) | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) | [Leuven study-area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing) |
 
-| Data | Habitat | Study area | Smaller test subset |
-|:---:|:---:|:---:|:---:|
-| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download) | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) | [Leuven study-area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing) | [Small subset](https://drive.google.com/file/d/1N_dAABTlJVP1Fj655RqS3RsOclBTzOBw/view?usp=sharing) |
+**Note:** The habitat and study-area files were prepared for testing `camtrapReport` and are not official publications from the original dataset owners.
 
-</div>
+**Note:** The original Leuven dataset is relatively large because it covers several years and many camera-trap locations. Processing the full dataset may take some time. For a quick first test, use the [smaller subset](https://drive.google.com/file/d/1N_dAABTlJVP1Fj655RqS3RsOclBTzOBw/view?usp=sharing).
 
-**Notes:** The habitat and study-area files were prepared for testing `camtrapReport` and are not official publications from the original dataset owners. The full Leuven dataset is large, covers several years and includes many camera-trap locations, so processing may take some time.
-
----
-
-## Quick start
+## Get started
 
 ### 1. Create a `camReport` object
 
-```r
-library(camtrapReport)
+`camReport` is the main object used in the `camtrapReport` workflow. It stores the input data, settings, and results used to generate reports.
 
+Create it with `camData()`, which reads and prepares your camera-trap dataset.
+
+
+The only required input is a single `.zip` file containing the dataset in Camtrap-DP format.
+```r
 cm <- camData("path/to/camtrap-dp-dataset.zip")
 ```
 
-With optional habitat and study-area files:
+With optional habitat and study-area inputs:
 
 ```r
-library(camtrapReport)
-library(terra)
 
-habitat <- read.csv("path/to/Leuven_habitat.csv")
-study_area <- terra::vect("path/to/Leuven_study_area.shp")
+habitat <- read.csv("path/to/habitat.csv")
+study_area <- terra::vect("path/to/study_area.shp")
 
 cm <- camData(
-  data = "path/to/Leuven_dataset.zip",
+  data = "path/to/camtrap-dp-dataset.zip",
   habitat = habitat,
   study_area = study_area
 )
@@ -213,72 +119,58 @@ cm <- camData(
 cm
 ```
 
-### 2. Generate the Data Status Check
+### 2. Generate the Data Status Check report
 
 ```r
 status(cm, view = TRUE)
 ```
 
-### 3. Generate the Ecological Insight Report
+### 3. Generate the Ecological Report
 
 ```r
 report(cm, view = TRUE)
 ```
 
-Both reports are saved to the working directory. With `view = TRUE`, the report opens automatically after rendering.
+Reports are saved in the output directory associated with the `camReport` object. With `view = TRUE`, the generated HTML report opens automatically.
 
----
+## Typical workflow
 
-## Common workflow
+```r
+library(camtrapReport)
 
-<div align="center">
+cm <- camData("path/to/camtrap-dp-dataset.zip")
 
-<table>
-<tr>
-<th align="center">Task</th>
-<th align="center">Code</th>
-</tr>
-<tr>
-<td>Inspect metadata</td>
-<td><code>info(cm)</code></td>
-</tr>
-<tr>
-<td>Update authors</td>
-<td><code>info(cm, name = "authors") &lt;- c("First Author", "Second Author")</code></td>
-</tr>
-<tr>
-<td>Check focus group</td>
-<td><code>cm$setting$focus_groups</code></td>
-</tr>
-<tr>
-<td>Change focus group</td>
-<td><code>cm$set_focus_group("large_mammals"); cm$setup()</code></td>
-</tr>
-<tr>
-<td>Select years</td>
-<td><code>cm$years &lt;- 2021:2023; cm$setup()</code></td>
-</tr>
-<tr>
-<td>Change capture threshold</td>
-<td><code>cm$filterCount &lt;- 25; cm$setup()</code></td>
-</tr>
-<tr>
-<td>List report sections</td>
-<td><code>section_names(cm)</code></td>
-</tr>
-<tr>
-<td>Exclude sections</td>
-<td><code>sections(cm) &lt;- section_names(exclude = c("richness", "co_occurrence"))</code></td>
-</tr>
-</table>
+status(cm, view = TRUE)
 
-</div>
+report(cm, view = TRUE)
+```
 
----
+After the `camReport` object has been created, users can inspect and update report metadata:
+
+```r
+info(cm)
+
+info(cm, name = "authors") <- c("First Author", "Second Author")
+info(cm, name = "title") <- "Camera-Trap Report for Example Site"
+```
+
+Users can also adjust the focus group, year range and filters:
+
+```r
+names(cm$group_definition)
+
+cm$set_focus_group("large_mammals")
+
+cm$years <- 2021:2023
+
+cm$filterCount <- 25
+
+cm$setup()
+```
 
 ## Focus groups
 
-Reports can be generated for selected taxonomic or observation groups. The selected focus group determines which species and records are used in the Ecological Insight Report.
+The Ecological Report can be generated for selected taxonomic or observation groups. The selected focus group determines which records are used in the analyses.
 
 ```r
 names(cm$group_definition)
@@ -302,109 +194,63 @@ cm$set_focus_group("example_group")
 cm$setup()
 ```
 
----
+## Report sections
 
-## Modular reports
+`camtrapReport` is built around modular report sections. Sections can include text, code, tables, figures, maps, captions and package dependencies. This design allows the workflow to be adapted to different taxa, monitoring objectives, study designs and reporting needs.
 
-Report sections can be inspected, updated, included or excluded.
+List available or attached report sections:
 
 ```r
 listReportSections(cm)
-sections(cm)
-section_names(cm)
 
+sections(cm)
+
+section_names()
+```
+
+Update the text of an existing report section:
+
+```r
 updateReportSection(
   cm,
   section = "introduction",
   text = "This section was updated by the user.",
   append_text = FALSE
 )
-
-sections(cm) <- section_names(exclude = c("richness", "co_occurrence"))
-report(cm, view = TRUE)
-
-sections(cm) <- section_names()
 ```
 
-Modules can include text, code, tables, figures, maps, captions and dependencies. This makes the workflow adaptable to different monitoring objectives, study systems and reporting needs.
+Generate the report after editing:
 
----
+```r
+cm$setup()
+report(cm, view = TRUE)
+```
 
 ## Graphical user interface
 
-A graphical interface is available for interactive exploration and reporting.
+A graphical user interface is available for interactive exploration and reporting.
 
 ```r
 gui(cm)
 ```
 
----
+## Conclusion
 
-## Event-level captures
+This page introduced the basic workflow for setting up input data, 
+reviewing data quality, and generating reports with `camtrapReport`.
+To understand how the package is organised, see the [Package Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html). 
+To explore data quality checks in detail, see the [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html). 
+To customise the ecological report, see the [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html). 
+For more detail on the package's modular and extensible design, including how to add new report sections, see [Module Management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
 
-For ecological summaries, `camtrapReport` uses event-level observations where possible. In Camtrap-DP, `observationLevel = "event"` refers to observations summarising an event or sequence, while `observationLevel = "media"` refers to classifications directly associated with media files.
+## Contribute
 
-In the species records table, **captures** represent the number of unique event-level sequences in which each species was recorded. They should not be interpreted as the number of photos or the number of individual animals unless the dataset explicitly supports that interpretation.
-
----
-
-## Troubleshooting
-
-<div align="center">
-
-<table>
-<tr>
-<th align="center">Problem</th>
-<th align="center">Suggested solution</th>
-</tr>
-<tr>
-<td>GitHub installation fails</td>
-<td>Create a GitHub token with <code>usethis::create_github_token()</code> and set it with <code>gitcreds::gitcreds_set()</code>.</td>
-</tr>
-<tr>
-<td>Optional package missing</td>
-<td>Run <code>install_All()</code> or install the missing package manually.</td>
-</tr>
-<tr>
-<td>Report rendering stops</td>
-<td>Run <code>status(cm, view = TRUE, test = TRUE)</code> or <code>report(cm, view = TRUE, test = TRUE)</code>.</td>
-</tr>
-<tr>
-<td>Functions changed after update</td>
-<td>Restart R, reinstall the package and recreate the <code>camReport</code> object.</td>
-</tr>
-<tr>
-<td>Lazy-load database is corrupt</td>
-<td>Restart R, remove and reinstall the package.</td>
-</tr>
-</table>
-
-</div>
-
----
+Questions, suggestions, and ideas for improvement are always welcome. You can contribute to the development of the [camtrapReport R package](https://github.com/spatialecology/camtrapReport) by [opening an issue](https://github.com/spatialecology/camtrapReport/issues) or joining the conversation in [GitHub Discussions](https://github.com/spatialecology/camtrapReport/discussions).
 
 ## Citation
 
-If you use `camtrapReport`, please cite the package and the associated software note.
+As the official scientific publication for `camtrapReport` is still in preparation, please cite the package as:
 
-```r
-citation("camtrapReport")
-```
+[Ebrahimi, E., & Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. <https://zenodo.org/records/18405441>]{.citation-text}
 
-Suggested citation:
-
-> Ebrahimi, E., & Jansen, P. (2026). CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring. The International Biogeography Society - 12th Biennial Conference, Aarhus, Denmark. https://doi.org/10.5281/zenodo.18405441
-
----
-
-## Contributing
-
-Bug reports, feature requests and suggestions are welcome through the [issue tracker](https://github.com/spatialecology/camtrapReport/issues).
-
-When reporting a problem, please include the package version, R version, operating system, a minimal reproducible example, the error message and whether the issue occurred in `camData()`, `status()`, `report()` or `gui()`.
-
----
-
-## License
-
-`camtrapReport` is released under the GPL-3 licence to strongly support open science, transparency and reproducible research. Third-party assets, if included, retain their own licences and copyright notices. See `LICENSE` for details.
+For package citation details, please refer to the citation information available in the [GitHub repository](https://github.com/spatialecology/camtrapReport).
