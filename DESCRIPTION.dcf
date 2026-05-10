@@ -1,9 +1,17 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0-11
+Version: 1.0.12
 Date: 2026-05-10
-Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
+Authors@R: c(
+    person(
+        given = "Elham",
+        family = "Ebrahimi",
+        role = c("aut", "cre"),
+        email = "eebrahimi.bio@gmail.com",
+        comment = c(ORCID = "0000-0001-5191-9832")
+    )
+)
 Description: Provides an extensible workflow for processing camera-trap data
     in Camtrap-DP format and automatically generating reproducible data-status
     and ecological reports. The package supports data-quality checks, ecological
@@ -16,6 +24,7 @@ Depends:
     R (>= 4.1.0)
 Imports:
     data.table,
+    rlang,
     dplyr,
     glue,
     jsonlite,
@@ -60,3 +69,4 @@ Suggests:
 VignetteBuilder: knitr
 Encoding: UTF-8
 Config/testthat/edition: 3
+RoxygenNote: 7.3.3
