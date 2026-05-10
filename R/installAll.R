@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 1.1
+# Last Update : May 2026
+# Version 1.2
 # Licence GPL v3
 #--------
 
@@ -10,7 +10,8 @@
 
 # Check whether packages are installed
 .is.installed <- function(n) {
-  n <- as.character(n)
+  n <- unique(as.character(n))
+  n <- n[!is.na(n) & nzchar(n)]
   names(n) <- n
   
   sapply(n, function(x) {
@@ -63,43 +64,71 @@
   )
 }
 
-.getPackageList <- function() {
-  c(
-    "camtrapDensity",
-    "camtraptor",
+# Main package list used by camtrapReport workflows and report modules
+.getPackageList <- function(include_dev = FALSE) {
+  
+  pkgs <- c(
+    "activity",
+    "corrplot",
+    "curl",
+    "data.table",
+    "Distance",
+    "dplyr",
+    "DT",
+    "dygraphs",
+    "ggplot2",
+    "ggrepel",
+    "glue",
     "gridExtra",
+    "gt",
+    "htmltools",
+    "htmlwidgets",
+    "httr",
+    "iNEXT",
+    "jsonlite",
     "kableExtra",
     "knitr",
     "leaflet",
+    "leaflet.extras",
     "lubridate",
-    "purrr",
-    "tidyverse",
+    "lutz",
     "magick",
-    "sf",
-    "spatstat",
-    "terra",
-    "unmarked",
-    "devtools",
+    "plyr",
+    "purrr",
     "remotes",
     "rgbif",
-    "ggplot2",
-    "iNEXT",
-    "taxadb",
-    "corrplot",
-    "httr",
-    "jsonlite",
-    "suncalc",
-    "plyr",
-    "taxize",
-    "data.table",
-    "dplyr",
-    "stringr",
-    "xml2",
-    "curl",
-    "camtrapR",
+    "rmarkdown",
+    "scales",
+    "sf",
+    "shiny",
+    "spatstat",
     "spOccupancy",
-    "leaflet.extras"
+    "stringr",
+    "suncalc",
+    "taxadb",
+    "taxize",
+    "terra",
+    "tibble",
+    "tidyr",
+    "tidyverse",
+    "unmarked",
+    "xml2",
+    "camtrapR"
   )
+  
+  if (isTRUE(include_dev)) {
+    pkgs <- c(
+      pkgs,
+      "covr",
+      "devtools",
+      "gitcreds",
+      "pkgdown",
+      "testthat",
+      "usethis"
+    )
+  }
+  
+  unique(pkgs)
 }
 
 # Packages installed from GitHub
@@ -129,6 +158,9 @@
 }
 
 .install_cran_packages <- function(pkgs, ...) {
+  pkgs <- unique(as.character(pkgs))
+  pkgs <- pkgs[!is.na(pkgs) & nzchar(pkgs)]
+  
   if (length(pkgs) == 0) return(0)
   
   n_success <- 0
@@ -137,11 +169,11 @@
     message("Installing CRAN package: ", p)
     
     s <- try(
-      install.packages(p, ...),
+      install.packages(p, dependencies = TRUE, ...),
       silent = TRUE
     )
     
-    if (!inherits(s, "try-error")) {
+    if (!inherits(s, "try-error") && .is.installed(p)) {
       n_success <- n_success + 1
     }
   }
@@ -152,8 +184,14 @@
 .install_github_packages <- function(repos) {
   if (length(repos) == 0) return(0)
   
-  if (!requireNamespace("devtools", quietly = TRUE)) {
-    stop("The devtools package is required to install GitHub packages.")
+  # Use remotes instead of devtools because it is lighter
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    message("Installing CRAN package: remotes")
+    install.packages("remotes", dependencies = TRUE)
+  }
+  
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    stop("The remotes package is required to install GitHub packages.")
   }
   
   n_success <- 0
@@ -162,15 +200,18 @@
     message("Installing GitHub package: ", repo)
     
     s <- try(
-      devtools::install_github(
+      remotes::install_github(
         repo,
         quiet = TRUE,
+        upgrade = "never",
         force = TRUE
       ),
       silent = TRUE
     )
     
-    if (!inherits(s, "try-error")) {
+    pkg_name <- names(repos)[repos == repo]
+    
+    if (!inherits(s, "try-error") && length(pkg_name) > 0 && .is.installed(pkg_name)) {
       n_success <- n_success + 1
     }
   }
@@ -181,8 +222,13 @@
 .install_gitlab_packages <- function(repos) {
   if (length(repos) == 0) return(0)
   
-  if (!requireNamespace("devtools", quietly = TRUE)) {
-    stop("The devtools package is required to install GitLab packages.")
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    message("Installing CRAN package: remotes")
+    install.packages("remotes", dependencies = TRUE)
+  }
+  
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    stop("The remotes package is required to install GitLab packages.")
   }
   
   n_success <- 0
@@ -194,10 +240,11 @@
     message("Installing GitLab package: ", repo)
     
     s <- try(
-      devtools::install_gitlab(
+      remotes::install_gitlab(
         repo,
         host = host,
         quiet = TRUE,
+        upgrade = "never",
         force = TRUE
       ),
       silent = TRUE
@@ -212,25 +259,52 @@
 }
 
 if (!isGeneric("install_All")) {
-  setGeneric("install_All", function(pkgs, update, ...)
-    standardGeneric("install_All"))
+  setGeneric(
+    "install_All",
+    function(pkgs = NULL, update = FALSE, include_dev = FALSE, ...)
+      standardGeneric("install_All")
+  )
 }
 
 setMethod(
   "install_All",
   signature(pkgs = "ANY"),
-  function(pkgs, update = FALSE, ...) {
+  function(pkgs = NULL, update = FALSE, include_dev = FALSE, ...) {
     
     if (missing(update)) update <- FALSE
+    if (missing(include_dev)) include_dev <- FALSE
     
-    cran_pkgs <- .getPackageList()
-    github_pkgs <- .getPackageGitHubList()
-    gitlab_pkgs <- .getPackageGitLabList_safe()
+    # If user provides pkgs, install only those CRAN packages.
+    # Otherwise install the full camtrapReport package list.
+    if (is.null(pkgs) || missing(pkgs)) {
+      cran_pkgs <- .getPackageList(include_dev = include_dev)
+      github_pkgs <- .getPackageGitHubList()
+      gitlab_pkgs <- .getPackageGitLabList_safe()
+    } else {
+      cran_pkgs <- unique(as.character(pkgs))
+      github_pkgs <- character()
+      gitlab_pkgs <- list()
+    }
     
     github_names <- names(github_pkgs)
     gitlab_names <- names(gitlab_pkgs)
     
     n_success <- 0
+    
+    # Packages that should never be removed or updated by this helper
+    base_pkgs <- c(
+      "base",
+      "compiler",
+      "datasets",
+      "graphics",
+      "grDevices",
+      "grid",
+      "methods",
+      "parallel",
+      "stats",
+      "tools",
+      "utils"
+    )
     
     if (!update) {
       
@@ -265,27 +339,14 @@ setMethod(
           "\n",
           sep = ""
         )
+      } else {
+        cat("\nAll required packages are now installed.\n")
       }
       
       return(invisible(length(still_missing) == 0))
     }
     
     # update = TRUE
-    base_pkgs <- c(
-      "stats",
-      "utils",
-      "parallel",
-      "base",
-      "grDevice",
-      "tools",
-      "methods",
-      "graphics",
-      "compiler",
-      "datasets",
-      "profile",
-      "grid"
-    )
-    
     cran_to_update <- cran_pkgs[!cran_pkgs %in% base_pkgs]
     
     if (length(cran_to_update) > 0) {
@@ -334,6 +395,8 @@ setMethod(
       )
     } else if (n_success == 0) {
       cat("\nAll required packages are already installed. Nothing was updated.\n")
+    } else {
+      cat("\nAll required packages are now installed or updated.\n")
     }
     
     invisible(length(still_missing) == 0)

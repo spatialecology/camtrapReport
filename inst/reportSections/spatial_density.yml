@@ -4,7 +4,7 @@ title: "## Spatial Density {.tabset}"
 parent: "results"
 text: "Spatial density maps derived from point pattern analysis illustrate the spatial distribution of species detections across the study area. These visualizations highlight variation in detection intensity and help identify areas with relatively high or low concentrations of records. The following maps are presented for each species, either by survey year or across the full monitoring period. Warmer colors represent higher estimated detection density, whereas cooler colors indicate lower density. Together, these maps support comparison of spatial detection patterns among species and across survey years."
 code: |
-  #| name: code
+  #| name: spatial_density_
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
   #| packages: leaflet, terra, dplyr, htmltools
   

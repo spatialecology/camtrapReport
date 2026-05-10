@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update : May 2026
-# Version 2.3
+# Version 2.4
 # Licence GPL v3
 #--------
 
@@ -243,6 +243,121 @@
 }
 
 #------------
+#------------
+#------------
+# Safe module rendering helpers
+# These helpers are used when building report/status Rmd chunks from YML modules.
+# They print live progress messages for each module and allow failed modules to be skipped.
+
+.extract_chunk_name <- function(code, fallback = "module") {
+  
+  if (is.null(code) || length(code) == 0 || is.na(code[1])) {
+    fallback <- as.character(fallback)[1]
+    fallback <- gsub("[^A-Za-z0-9_]+", "_", fallback)
+    
+    if (is.na(fallback) || !nzchar(fallback)) {
+      fallback <- "module"
+    }
+    
+    return(fallback)
+  }
+  
+  code <- paste(as.character(code), collapse = "\n")
+  code_lines <- strsplit(code, "\n", fixed = TRUE)[[1]]
+  
+  hit <- grep("^\\s*#\\|\\s*name\\s*:", code_lines, value = TRUE)
+  
+  if (length(hit) > 0) {
+    out <- sub("^\\s*#\\|\\s*name\\s*:\\s*", "", hit[1])
+    out <- trimws(out)
+    out <- gsub("[^A-Za-z0-9_]+", "_", out)
+    
+    if (!is.na(out) && nzchar(out)) {
+      return(out)
+    }
+  }
+  
+  fallback <- as.character(fallback)[1]
+  fallback <- gsub("[^A-Za-z0-9_]+", "_", fallback)
+  
+  if (is.na(fallback) || !nzchar(fallback)) {
+    fallback <- "module"
+  }
+  
+  fallback
+}
+
+#------------
+
+.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
+  
+  if (is.null(code) || length(code) == 0 || is.na(code[1])) {
+    code <- ""
+  }
+  
+  code <- paste(as.character(code), collapse = "\n")
+  
+  if (
+    is.null(module_name) ||
+    length(module_name) == 0 ||
+    is.na(module_name[1]) ||
+    !nzchar(module_name[1])
+  ) {
+    module_name <- .extract_chunk_name(code)
+  }
+  
+  module_name <- as.character(module_name)[1]
+  module_name <- gsub("[^A-Za-z0-9_]+", "_", module_name)
+  
+  if (is.na(module_name) || !nzchar(module_name)) {
+    module_name <- "module"
+  }
+  
+  code_lines <- strsplit(code, "\n", fixed = TRUE)[[1]]
+  code_lines_dput <- paste(capture.output(dput(code_lines)), collapse = "\n")
+  
+  report_note_code <- ""
+  
+  if (isTRUE(show_note_in_report)) {
+    report_note_code <- paste0(
+      "  cat(paste0(\n",
+      "    '\\n\\n<div style=\"border-left:4px solid #d9534f; padding:10px 12px; margin:12px 0; background:#fff5f5; color:#7a1f1f;\">',\n",
+      "    '<strong>Module skipped:</strong> ', .__camtrap_module_name, '<br>',\n",
+      "    '<strong>Error:</strong> ', htmltools::htmlEscape(conditionMessage(e)),\n",
+      "    '</div>\\n\\n'\n",
+      "  ))\n"
+    )
+  }
+  
+  paste0(
+    ".__camtrap_module_name <- ", dQuote(module_name), "\n",
+    ".__camtrap_module_code <- ", code_lines_dput, "\n",
+    ".__camtrap_module_file <- tempfile(fileext = '.R')\n",
+    "writeLines(.__camtrap_module_code, .__camtrap_module_file, useBytes = TRUE)\n",
+    "\n",
+    "cat('\\n▶ Rendering module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
+    "\n",
+    "tryCatch({\n",
+    "  .__camtrap_exprs <- parse(file = .__camtrap_module_file)\n",
+    "  .__camtrap_eval_env <- environment()\n",
+    "  for (.__camtrap_i in seq_along(.__camtrap_exprs)) {\n",
+    "    .__camtrap_value <- withVisible(eval(.__camtrap_exprs[[.__camtrap_i]], envir = .__camtrap_eval_env))\n",
+    "    if (isTRUE(.__camtrap_value$visible)) {\n",
+    "      print(.__camtrap_value$value)\n",
+    "    }\n",
+    "  }\n",
+    "  cat('✓ Finished module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
+    "}, error = function(e) {\n",
+    "  cat('✖ Skipped module: ', .__camtrap_module_name, ' — ', conditionMessage(e), '\\n', sep = '', file = stderr())\n",
+    report_note_code,
+    "})\n",
+    "\n",
+    "unlink(.__camtrap_module_file)\n"
+  )
+}
+
+#------------
+#--------------
 
 .make_render_env <- function(object) {
   env <- new.env(parent = parent.frame())

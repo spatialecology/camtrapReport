@@ -9,17 +9,23 @@ text: |
   
 code: |
   #| name: intro
-  #| setting: echo=FALSE, results='asis', message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   
-  cat(object$reportTextElements$CT_Project$Intro_text,"\n")
+  cat(object$reportTextElements$CT_Project$Intro_text, "\n\n")
+  
+  focus_label <- .pretty_label(object$setting$focus_groups)
+  
+  if (is.null(focus_label) || length(focus_label) == 0 || is.na(focus_label) || !nzchar(focus_label)) {
+    focus_label <- "wildlife"
+  }
   
   cat(paste0(
-  "This report presents the results of camera-trap surveys conducted in **",
-  object$siteName,
-  "**, **",
-  object$data_status$Spatial$country,
-  "**. The aim is to estimate and monitor ",
-  .pretty (.paste_comma_and(object$setting$focus_groups)),
-  " over time and across deployments, and to provide insight into wildlife status at this site, including behaviour and changes in spatial and temporal patterns."
+    "This report presents the results of camera-trap surveys conducted in **",
+    object$siteName,
+    "**, **",
+    object$data_status$Spatial$country,
+    "**. The aim is to estimate and monitor **",
+    focus_label,
+    "** over time and across deployments, and to provide insight into wildlife status at this site, including behaviour and changes in spatial and temporal patterns."
   ))
 ---

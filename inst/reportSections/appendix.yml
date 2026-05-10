@@ -4,7 +4,7 @@ title: "Appendix {.tabset .unnumbered}"
 parent: null
 text: null
 code: |
-  #| name: code
+  #| name: appendix_
   #| setting: echo=FALSE,results="asis",warning=FALSE
   #| packages: dplyr, htmltools, magick
   

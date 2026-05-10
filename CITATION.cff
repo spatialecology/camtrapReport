@@ -1,7 +1,7 @@
-cff-version: 1.2.0
-title: "camtrapReport"
+cff-version: "1.2.0"
 message: "If you use this software, please cite it as below."
 type: software
+title: "camtrapReport"
 authors:
   - family-names: "Ebrahimi"
     given-names: "Elham"
@@ -9,6 +9,5 @@ authors:
     email: "eebrahimi.bio@gmail.com"
 repository-code: "https://github.com/spatialecology/camtrapReport"
 url: "https://github.com/spatialecology/camtrapReport"
-license: MIT
-version: "0.2.22"
-
+license: "GPL-3.0-or-later"
+version: "1.0.11"

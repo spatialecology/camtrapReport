@@ -8,7 +8,7 @@ text: |
   In this workflow, images recorded within 120 seconds of one another were grouped into sequences representing putative single events and annotated using a combination of AI-assisted classification and manual review; a subset was subsequently validated by experienced observers.
   Where relevant for density estimation, calibration images and species-specific movement paths were also annotated and analysed using the photogrammetric tools in the R package [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity) (*Rowcliffe, 2014*).
 code: |
-  #| name: intro
+  #| name: image_processes 
   #| setting: echo=FALSE, results='asis', message=FALSE, warning=FALSE
   
   cat("The images used in this report were processed and archived in ",

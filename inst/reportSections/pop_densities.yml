@@ -4,7 +4,7 @@ title: "### Population Density Estimates {.tabset}"
 parent: "population_density"
 text: "The plots below show annual population density estimates for each study species, together with 95% confidence intervals. These estimates allow comparison of temporal variation in density across survey years.\n\n"
 code: |
-  #| name: pop_densities
+  #| name: population_density
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
   #| packages: ggplot2, dplyr
   
