@@ -3,15 +3,7 @@ Type: Package
 Title: Camera-Trap Report Generator
 Version: 1.0.14
 Date: 2026-05-10
-Authors@R: c(
-    person(
-        given = "Elham",
-        family = "Ebrahimi",
-        role = c("aut", "cre"),
-        email = "eebrahimi.bio@gmail.com",
-        comment = c(ORCID = "0000-0001-5191-9832")
-    )
-)
+Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in Camtrap-DP format and automatically generating reproducible data-status
     and ecological reports. The package supports data-quality checks, ecological
@@ -26,6 +18,7 @@ Imports:
     data.table,
     dplyr,
     glue,
+    htmltools,
     jsonlite,
     knitr,
     lubridate,
@@ -35,7 +28,9 @@ Imports:
     sf,
     sp,
     taxize,
-    terra
+    terra,
+    tibble,
+    tidyr
 Suggests:
     activity,
     corrplot,
@@ -45,7 +40,6 @@ Suggests:
     ggrepel,
     gridExtra,
     gt,
-    htmltools,
     htmlwidgets,
     iNEXT,
     kableExtra,
@@ -63,7 +57,6 @@ Suggests:
     suncalc,
     taxadb,
     testthat (>= 3.0.0),
-    tidyr,
     unmarked,
     xml2
 VignetteBuilder: knitr
