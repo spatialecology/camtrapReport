@@ -45,11 +45,7 @@ cm <- camData("Leuven-data.zip")   # build the camReport object
 
 Optional input data can be used to improve maps, add spatial context, and support richer summaries and analyses. The two supported optional inputs are **habitat data** and a **study area polygon**.
 
-Habitat information can be provided as a two-column CSV file containing `locationName` and `Habitat`. An example `habitat.csv` template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
-
-A polygon shapefile representing the study area boundary can also be provided.
-
-When available, these optional inputs can be passed directly to `camData()`.
+Habitat information can be provided as a two-column CSV file containing `locationName` and `Habitat`. An example `habitat.csv` template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing). A polygon shapefile representing the study area boundary can also be provided. When available, these optional inputs can be passed directly to `camData()`.
 
 ```r
 habitat <- read.csv("C:/Users/Data/habitat.csv")
