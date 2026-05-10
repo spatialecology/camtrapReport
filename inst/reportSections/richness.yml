@@ -5,7 +5,7 @@ parent: "results"
 text: "Species richness refers to the number of unique species recorded at each camera-trap location. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type, if available. These features help identify biodiversity hotspots and potential detection gaps across the study area."
 code: |
   #| name: Richness
-  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.show="hold"
+  #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE,fig.show="hold"
   #| packages: leaflet, dplyr, terra, htmltools
   
   study_areaSHP <- NULL
@@ -15,9 +15,16 @@ code: |
     study_areaSHP <- terra::project(object$study_area$object, "epsg:4326")
   }
   
-  # -------------------------
-  # Function to plot richness
-  # -------------------------
+  .richness_caption <- function(label) {
+    cat(
+      "\n\n",
+      object$getFigureNumber(),
+      " *Species richness based on the species focus group in this report, across camera-trap locations for ",
+      label,
+      ".*\n\n",
+      sep = ""
+    )
+  }
   
   plot_richness <- function(data) {
     
@@ -40,7 +47,6 @@ code: |
       return(NULL)
     }
     
-    # Add missing optional columns if not available
     if (!"locationName" %in% names(data)) {
       data$locationName <- NA_character_
     }
@@ -64,7 +70,6 @@ code: |
         )
       )
     
-    # Force numeric ordering of richness values
     data$Richness_num <- suppressWarnings(as.numeric(as.character(data$Richness)))
     
     present_levels_num <- sort(unique(data$Richness_num[!is.na(data$Richness_num)]))
@@ -80,10 +85,8 @@ code: |
       full_palette <- grDevices::hcl.colors(length(present_levels), palette = "YlOrRd")
     }
     
-    # Recycle palette if richness has more levels than available colours
     richness_cols <- rep(full_palette, length.out = length(present_levels))
     
-    # Ordered factor keeps legend as 1, 2, 3, ..., 10, 11
     data$Richness <- factor(
       as.character(data$Richness_num),
       levels = present_levels,
@@ -134,7 +137,6 @@ code: |
         )
     }
     
-    # Fit map to camera locations
     lon_range <- range(data$longitude, na.rm = TRUE)
     lat_range <- range(data$latitude, na.rm = TRUE)
     
@@ -148,7 +150,7 @@ code: |
         )
     }
     
-    map |>
+    map <- map |>
       leaflet::addLegend(
         position = "bottomright",
         pal = richness_palette,
@@ -157,6 +159,8 @@ code: |
         opacity = 1,
         labFormat = leaflet::labelFormat(transform = function(x) as.character(x))
       )
+    
+    map
   }
   
   # -------------------------
@@ -178,7 +182,7 @@ code: |
       cat(paste0("\nNo richness map could be generated for ", .year, ".\n\n"))
     } else {
       print(htmltools::tagList(p))
-      cat("\n\n")
+      .richness_caption(paste0("survey year ", .year))
     }
   }
   
@@ -199,13 +203,6 @@ code: |
     cat("\nNo cumulative richness map could be generated.\n\n")
   } else {
     print(htmltools::tagList(p))
-    cat("\n\n")
+    .richness_caption("the cumulative dataset across all years")
   }
-  
-  cat(
-    "\n\n",
-    object$getFigureNumber(),
-    " *Species richness based on the species focus group in this report, across camera-trap locations for each survey year, as well as the cumulative richness across all years.*\n\n",
-    sep = ""
-  )
 ---
