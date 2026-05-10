@@ -753,7 +753,7 @@ camR <- setRefClass(
         .d <- .d |>
           group_by(locationID, scientificName) |>
           summarise(
-            total_observations = n_distinct(observationID),
+            total_observations = dplyr::n_distinct(observationID),
             total_count        = sum(count, na.rm = TRUE),
             .groups = "drop"
           ) |>
@@ -1295,8 +1295,8 @@ camR <- setRefClass(
         list(
           year = as.numeric(x),
           number_of_photos = nrow(.data_year$media),  # Total number of photos (media files)
-          number_of_observations = n_distinct(.data_year$observations$observationID),  # Unique observations
-          number_of_sequences = n_distinct(.data_year$observations$sequenceID),  # Unique sequences
+          number_of_observations = dplyr::n_distinct(.data_year$observations$observationID),  # Unique observations
+          number_of_sequences = dplyr::n_distinct(.data_year$observations$sequenceID),  # Unique sequences
           number_of_animals = sum(.data_year$observations$observationType == "animal", na.rm = TRUE)  # Animal observations
         )
       })
