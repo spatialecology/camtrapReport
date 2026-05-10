@@ -1,6 +1,6 @@
 ---
 name: "temporal"
-title: "## Temporal Data {.unnumbered}"
+title: "## Temporal Data {{.unnumbered}}"
 parent: null
 text: |
   This section summarizes the temporal patterns of the camera-trap dataset, including coverage over time, potential gaps, and any detected anomalies or outliers, which are presented in Table 2.

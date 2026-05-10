@@ -1,6 +1,6 @@
 ---
 name: "observation_type"
-title: "## Chapter 6: Observation Types by Capture Method {.tabset .unnumbered}"
+title: "## Chapter 6: Observation Types by Capture Method {{.tabset .unnumbered}"
 parent: null
 text: |
   
