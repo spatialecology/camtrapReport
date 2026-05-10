@@ -526,7 +526,7 @@ var Sizzle =
  * https://sizzlejs.com/
  *
  * Copyright JS Foundation and other contributors
- * Released under the GPL license
+ * Released under the MIT license
  * https://js.foundation/
  *
  * Date: 2021-02-16

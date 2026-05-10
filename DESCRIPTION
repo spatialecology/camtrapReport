@@ -9,7 +9,7 @@ Description: Provides an extensible workflow for processing camera-trap data
     and ecological reports. The package supports data-quality checks, ecological
     summaries, visualisations, maps, tables and modular report sections for
     wildlife-monitoring applications.
-License: GPL (>= 3)
+License: MIT
 URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
 Depends:
