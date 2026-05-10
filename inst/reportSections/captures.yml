@@ -4,7 +4,7 @@ title: "## Captures"
 parent: "results"
 text: null
 code: |
-  #| name: focus_text
+  #| name: Captures_&_focus_group
   #| setting: echo=FALSE,results="asis",warning=FALSE
   #| packages: dplyr, gt
   
