@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update : May 2026
 # Version 2.4
-# Licence GPL v3
+# Licence  MIT
 #--------
 
 .paste_comma_and <- function(x) {
