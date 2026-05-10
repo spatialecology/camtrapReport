@@ -53,7 +53,7 @@
   #Extract sequenceID to deploymentID mapping from sequences
   sequence_to_deployment <- cm$data$sequences |>
     dplyr::select(sequenceID, deploymentID) |>
-    distinct()  # Ensure unique mapping
+    dplyr::distinct()  # Ensure unique mapping
   
   
   # Merge deploymentID into observations using sequenceID
@@ -129,7 +129,7 @@
   # Step 3: Select relevant columns from 'dataNew$deployments' to map 'deploymentID' to 'locationID'
   deployment_to_location <- dep_loc |>
     dplyr::select(deploymentID, locationID) |>
-    distinct()  # Ensure unique mapping
+    dplyr::distinct()  # Ensure unique mapping
   
   # Step 4: Merge with scientific_names_with_deployment to get locationID
   species_per_location <- scientific_names_with_deployment |>

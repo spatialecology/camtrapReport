@@ -27,7 +27,7 @@ A set of S4 and Reference classes to manage camera-trap data and information.
 \section{Slots}{
 Slots for camReport objects:
 	\describe{
-\item{\code{title}}{a sdmdata object}
+\item{\code{title}}{a camReport object}
 
 \item{\code{subtitle}}{contains the species data}
 
