@@ -1,6 +1,6 @@
 ---
 name: "annotation"
-title: "## Chapter 4: Annotation {.unnumbered}"
+title: "## Chapter 5: Annotation {.unnumbered}"
 parent: null
 text: |
   
@@ -8,22 +8,32 @@ text: |
   
 code: |
   #| name: code
-  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
   machine_confidence <- object$data_status$Annotation$Machine_Summary
-
-  human_confidence <- object$data_status$Annotation$Human_Summary
+  human_confidence   <- object$data_status$Annotation$Human_Summary
   
-  machine_confidence$Statistic <- c("Minimum Confidence Score","Maximum Confidence Score","Mean Confidence Score",
-                               "Below Threshold (<0.8)","Total Annotations")
-
-  human_confidence$Statistic <- c("Minimum Confidence Score","Maximum Confidence Score","Mean Confidence Score",
-                               "Below Threshold (<1)","Total Annotations")
-
+  machine_confidence$Statistic <- c(
+    "Minimum Confidence Score",
+    "Maximum Confidence Score",
+    "Mean Confidence Score",
+    "Below Threshold (<0.8)",
+    "Total Annotations"
+  )
+  
+  human_confidence$Statistic <- c(
+    "Minimum Confidence Score",
+    "Maximum Confidence Score",
+    "Mean Confidence Score",
+    "Below Threshold (<1)",
+    "Total Annotations"
+  )
   
   # Escape HTML special characters
   escape_html <- function(x) {
+    x <- as.character(x)
+    x[is.na(x)] <- ""
     x <- gsub("&", "&amp;", x, fixed = TRUE)
     x <- gsub("<", "&lt;",  x, fixed = TRUE)
     x <- gsub(">", "&gt;",  x, fixed = TRUE)
@@ -33,46 +43,62 @@ code: |
   
   # Format values so confidence scores keep 2 decimals, counts stay integer-like
   format_value <- function(stat, value) {
+    
     value_num <- suppressWarnings(as.numeric(value))
-  
+    
     if (!is.na(value_num) && grepl("confidence score", stat, ignore.case = TRUE)) {
       return(formatC(value_num, format = "f", digits = 2))
     }
-  
+    
     if (!is.na(value_num) && abs(value_num - round(value_num)) < 1e-9) {
       return(format(round(value_num), trim = TRUE, scientific = FALSE))
     }
-  
+    
     if (!is.na(value_num)) {
       return(format(value_num, trim = TRUE, scientific = FALSE))
     }
-  
+    
     as.character(value)
   }
   
-  make_table_html <- function(df, title, header_bg) {
-    rows <- vapply(seq_len(nrow(df)), function(i) {
-      row_bg <- if (i %% 2 == 1) "#f9f9f9" else "#ffffff"
+  # Centered figure-style caption
+  .figure_caption <- function(number, text, width = "900px") {
+    cat(paste0(
+      "\n<div style='max-width:", width, "; margin:10px auto 24px auto; ",
+      "text-align:center; font-size:15px; color:#24384a; line-height:1.35;'>",
+      "<strong><em>Figure ", number, ".</em></strong> ",
+      text,
+      "</div>\n"
+    ))
+  }
   
+  make_table_html <- function(df, title, header_bg) {
+    
+    rows <- vapply(seq_len(nrow(df)), function(i) {
+      
+      row_bg <- if (i %% 2 == 1) "#f9f9f9" else "#ffffff"
+      
       stat  <- escape_html(as.character(df$Statistic[i]))
       value <- escape_html(format_value(df$Statistic[i], df$Value[i]))
-  
+      
       paste0(
         '<tr style="background:', row_bg, ';">',
-        '<td style="padding:6px 10px; border:1px solid #ddd; text-align:left;">', stat, '</td>',
-        '<td style="padding:6px 10px; border:1px solid #ddd; text-align:right;">', value, '</td>',
+        '<td style="padding:7px 10px; border:1px solid #ddd; text-align:left;">', stat, '</td>',
+        '<td style="padding:7px 10px; border:1px solid #ddd; text-align:right;">', value, '</td>',
         '</tr>'
       )
     }, character(1))
-  
+    
     paste0(
       '<div style="width:48%;">',
-        '<h4 style="text-align:center; margin-top:0;">', escape_html(title), '</h4>',
-        '<table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:14px;">',
+        '<h4 style="text-align:center; margin:0 0 8px 0; font-size:15px; color:#24384a;">',
+          escape_html(title),
+        '</h4>',
+        '<table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:13px; line-height:1.35;">',
           '<thead>',
             '<tr style="background:', header_bg, '; font-weight:bold;">',
-              '<th style="padding:6px 10px; border:1px solid #ddd; text-align:left;">Statistic</th>',
-              '<th style="padding:6px 10px; border:1px solid #ddd; text-align:right;">Value</th>',
+              '<th style="padding:7px 10px; border:1px solid #ddd; text-align:left;">Statistic</th>',
+              '<th style="padding:7px 10px; border:1px solid #ddd; text-align:right;">Value</th>',
             '</tr>',
           '</thead>',
           '<tbody>',
@@ -84,19 +110,26 @@ code: |
   }
   
   html_out <- paste0(
-    '<div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start;">',
-      make_table_html(
-        machine_confidence,
-        "Machine Classification Confidence",
-        "#d9edf7"
-      ),
-      make_table_html(
-        human_confidence,
-        "Human Classification Confidence",
-        "#f7e1d9"
-      ),
+    '<div style="max-width:900px; margin:16px auto 8px auto;">',
+      '<div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start;">',
+        make_table_html(
+          machine_confidence,
+          "Machine Classification Confidence",
+          "#d9edf7"
+        ),
+        make_table_html(
+          human_confidence,
+          "Human Classification Confidence",
+          "#f7e1d9"
+        ),
+      '</div>',
     '</div>'
   )
+  
   cat(html_out)
-
+  
+  .figure_caption(
+    number = 1,
+    text = "Summary of machine and human annotation confidence scores. The tables report minimum, maximum, and mean confidence values, the number of records below the selected confidence threshold, and the total number of annotations."
+  )
 ---

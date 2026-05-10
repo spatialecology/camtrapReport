@@ -1,6 +1,6 @@
 ---
 name: "observation_type"
-title: "## Chapter 5: Observation Types by Capture Method {.tabset .unnumbered}"
+title: "## Chapter 6: Observation Types by Capture Method {.tabset .unnumbered}"
 parent: null
 text: |
   
@@ -8,119 +8,146 @@ text: |
   
 code: |
   #| name: code
-  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: ggplot2, dplyr
-  
   
   observation_type_df <- object$data_status$Visuals$capt_method$Combined
   colnames(observation_type_df) <- c("Var1", "Freq", "CaptureMethod")
-  .pie_caption <- function(label, text) {
-  cat(paste0(
-    "\n\n<p style='font-size:13px; color:#24384a; text-align:center; ",
-    "margin-top:8px; margin-bottom:18px;'>",
-    "<strong><em>", label, ".</em></strong> ",
-    text,
-    "</p>\n\n"
-  ))
+  
+  .pie_caption <- function(number, text, width = "850px") {
+    cat(paste0(
+      "\n<div style='max-width:", width, "; margin:10px auto 24px auto; ",
+      "text-align:center; font-size:15px; color:#24384a; line-height:1.35;'>",
+      "<strong><em>Figure ", number, ".</em></strong> ",
+      text,
+      "</div>\n"
+    ))
   }
-  # Choose one method manually for preview
+  
+  # -------------------------
+  # Motion detection
+  # -------------------------
+  
   method <- "motionDetection"
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n## Motion {.unnumbered}\n")
+    cat("\n\n## Motion {.unnumbered}\n\n")
     
-    # Prepare pie data with updated labels for legend
     pie_data <- observation_type_df |>
-      dplyr::filter(CaptureMethod == method) |>
-      mutate(
-        Percent = round(100 * Freq / sum(Freq), 1),
-        Var1_label = paste0(Var1, " (", Percent, "%)"),
-        Label = ifelse(Percent < 3, "", Var1_label),
-        ypos = cumsum(Freq) - 0.5 * Freq
+      dplyr::filter(.data$CaptureMethod == method) |>
+      dplyr::mutate(
+        Percent = round(100 * .data$Freq / sum(.data$Freq, na.rm = TRUE), 1),
+        Var1_label = paste0(.data$Var1, " (", .data$Percent, "%)"),
+        Label = ifelse(.data$Percent < 3, "", .data$Var1_label),
+        ypos = cumsum(.data$Freq) - 0.5 * .data$Freq
       )
     
-    # Create plot
-    p <- ggplot(pie_data, aes(x = "", y = Freq, fill = Var1_label)) +
-      geom_col(width = 1, color = "white") +
-      coord_polar(theta = "y") +
-      geom_text(aes(label = Label), position = position_stack(vjust = 0.5), size = 3) +
-      theme_void() +
-      labs(title = paste("Observation Types -", method), fill = "Observation Type") +
-      scale_fill_brewer(palette = "Set3")
+    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+      ggplot2::geom_col(width = 1, color = "white") +
+      ggplot2::coord_polar(theta = "y") +
+      ggplot2::geom_text(
+        ggplot2::aes(label = .data$Label),
+        position = ggplot2::position_stack(vjust = 0.5),
+        size = 3
+      ) +
+      ggplot2::theme_void() +
+      ggplot2::labs(
+        title = "Observation Types - motionDetection",
+        fill = "Observation Type"
+      ) +
+      ggplot2::scale_fill_brewer(palette = "Set3")
     
     print(p)
-
-  .pie_caption(
-  "Figure 1a",
-  "Distribution of observation types for motion-detection records."
-  )
+    
+    .pie_caption(
+      number = 2,
+      text = "Distribution of observation types for motion-detection records. Slices show the percentage contribution of each observation type within this capture method."
+    )
   }
   
-  #-------
+  # -------------------------
+  # TimeLapse
+  # -------------------------
   
-
   method <- "timelapse"
   
   if (method %in% tolower(observation_type_df$CaptureMethod)) {
     
-    cat("\n\n## TimeLapse {.unnumbered}\n")
+    cat("\n\n## TimeLapse {.unnumbered}\n\n")
     
-    pie_data <- observation_type_df %>%
-      dplyr::filter(tolower(CaptureMethod) == "timelapse") %>%
-      group_by(Var1) %>%
-      summarise(Freq = sum(Freq, na.rm = TRUE), .groups = "drop") %>%
-      mutate(
-        Percent    = round(100 * Freq / sum(Freq, na.rm = TRUE), 1),
-        Var1_label = paste0(Var1, " (", Percent, "%)"),
-        Label      = dplyr::if_else(Percent < 3, "", Var1_label, missing = Var1_label)
+    pie_data <- observation_type_df |>
+      dplyr::filter(tolower(.data$CaptureMethod) == "timelapse") |>
+      dplyr::group_by(.data$Var1) |>
+      dplyr::summarise(Freq = sum(.data$Freq, na.rm = TRUE), .groups = "drop") |>
+      dplyr::mutate(
+        Percent = round(100 * .data$Freq / sum(.data$Freq, na.rm = TRUE), 1),
+        Var1_label = paste0(.data$Var1, " (", .data$Percent, "%)"),
+        Label = dplyr::if_else(.data$Percent < 3, "", .data$Var1_label, missing = .data$Var1_label)
       )
     
-    p <- ggplot(pie_data, aes(x = "", y = Freq, fill = Var1_label)) +
-      geom_col(width = 1, color = "white") +
-      coord_polar(theta = "y") +
-      geom_text(aes(label = Label), position = position_stack(vjust = 0.5), size = 3) +
-      theme_void() +
-      labs(title = "Observation Types - timeLapse", fill = "Observation Type") +
-      scale_fill_brewer(palette = "Set3", na.translate = FALSE)
-    print(p)
-
-  .pie_caption(
-  "Figure 1b",
-  "Distribution of observation types for time-lapse records."
-  )
+    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+      ggplot2::geom_col(width = 1, color = "white") +
+      ggplot2::coord_polar(theta = "y") +
+      ggplot2::geom_text(
+        ggplot2::aes(label = .data$Label),
+        position = ggplot2::position_stack(vjust = 0.5),
+        size = 3
+      ) +
+      ggplot2::theme_void() +
+      ggplot2::labs(
+        title = "Observation Types - timeLapse",
+        fill = "Observation Type"
+      ) +
+      ggplot2::scale_fill_brewer(palette = "Set3", na.translate = FALSE)
     
+    print(p)
+    
+    .pie_caption(
+      number = 3,
+      text = "Distribution of observation types for time-lapse records. Slices show the percentage contribution of each observation type within this capture method."
+    )
   }
+  
+  # -------------------------
+  # Total
+  # -------------------------
   
   method <- "TOTAL"
-
+  
   if (method %in% observation_type_df$CaptureMethod) {
-  
-  cat("\n\n## Total {.unnumbered}\n")
-  
-  pie_data <- observation_type_df %>%
-    dplyr::filter(CaptureMethod == method) %>%
-    dplyr::mutate(
-      Percent = round(100 * Freq / sum(Freq), 1),
-      Var1_label = paste0(Var1, " (", Percent, "%)"),
-      Label = ifelse(Percent < 3, "", Var1_label),
-      ypos = cumsum(Freq) - 0.5 * Freq
+    
+    cat("\n\n## Total {.unnumbered}\n\n")
+    
+    pie_data <- observation_type_df |>
+      dplyr::filter(.data$CaptureMethod == method) |>
+      dplyr::mutate(
+        Percent = round(100 * .data$Freq / sum(.data$Freq, na.rm = TRUE), 1),
+        Var1_label = paste0(.data$Var1, " (", .data$Percent, "%)"),
+        Label = ifelse(.data$Percent < 3, "", .data$Var1_label),
+        ypos = cumsum(.data$Freq) - 0.5 * .data$Freq
+      )
+    
+    p <- ggplot2::ggplot(pie_data, ggplot2::aes(x = "", y = .data$Freq, fill = .data$Var1_label)) +
+      ggplot2::geom_col(width = 1, color = "white") +
+      ggplot2::coord_polar(theta = "y") +
+      ggplot2::geom_text(
+        ggplot2::aes(label = .data$Label),
+        position = ggplot2::position_stack(vjust = 0.5),
+        size = 3
+      ) +
+      ggplot2::theme_void() +
+      ggplot2::labs(
+        title = "Observation Types - TOTAL",
+        fill = "Observation Type"
+      ) +
+      ggplot2::scale_fill_brewer(palette = "Set3")
+    
+    print(p)
+    
+    .pie_caption(
+      number = 4,
+      text = "Overall distribution of observation types across all capture methods. Slices show the percentage contribution of each observation type in the full dataset."
     )
-  
-  p <- ggplot(pie_data, aes(x = "", y = Freq, fill = Var1_label)) +
-    geom_col(width = 1, color = "white") +
-    coord_polar(theta = "y") +
-    geom_text(aes(label = Label), position = position_stack(vjust = 0.5), size = 3) +
-    theme_void() +
-    labs(title = paste("Observation Types -", method), fill = "Observation Type") +
-    scale_fill_brewer(palette = "Set3")
-  
-  print(p)
-
-  .pie_caption(
-  "Figure 1c",
-  "Overall distribution of observation types across all capture methods."
-  )
   }
-  
 ---

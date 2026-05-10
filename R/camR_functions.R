@@ -1695,8 +1695,17 @@
     
   }
   
-  out <- out[order(out$obs_records_count, decreasing = TRUE), , drop = FALSE]
-  cm$data_status$Species$Table  <- out
+  # Sort species by number of event-level captures
+  out <- out[order(out$n_sequences, decreasing = TRUE), , drop = FALSE]
+  
+  # Remove internal count column from the final displayed table
+  out$obs_records_count <- NULL
+  
+  # Rename n_sequences to captures
+  names(out)[names(out) == "n_sequences"] <- "captures"
+  
+  # Save final table
+  cm$data_status$Species$Table <- out
   
 }
 

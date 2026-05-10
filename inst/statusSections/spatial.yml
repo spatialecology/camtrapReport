@@ -11,28 +11,52 @@ text: |
   
 code: |
   #| name: camera_locations_leaflet
-  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
   ss <- object$data_status$Spatial
   
+  # -------------------------
+  # Helper functions
+  # -------------------------
+  
+  .table_caption <- function(number, text, width = "850px") {
+    cat(paste0(
+      "\n<div style='max-width:", width, "; margin:14px auto 8px auto; ",
+      "text-align:center; font-size:15px; color:#24384a;'>",
+      "<strong><em>Table ", number, ".</em></strong> ",
+      text,
+      "</div>\n"
+    ))
+  }
+  
+  .clean_html <- function(x) {
+    x <- as.character(x)
+    x[is.na(x)] <- ""
+    x <- gsub("\n", "<br>", x)
+    x
+  }
+  
+  # -------------------------
+  # Build spatial summary table
+  # -------------------------
+  
   outlier_summary <- paste(
-  paste("High risk outlier =", ss$num_highrisk_outliers),
-  paste("Medium risk outlier =", ss$num_mediumrisk_outliers),
-  paste("Low risk outlier =", ss$num_lowrisk_outliers),
-  paste("Non-Terrestrial =", ss$num_sea_outliers),
-  sep = "<br>"
+    paste("High risk outlier =", ss$num_highrisk_outliers),
+    paste("Medium risk outlier =", ss$num_mediumrisk_outliers),
+    paste("Low risk outlier =", ss$num_lowrisk_outliers),
+    paste("Non-Terrestrial =", ss$num_sea_outliers),
+    sep = "<br>"
   )
   
-  # 2) Build table (use ss$spatial_pattern and ss$status_spatial)
   spatial_table <- data.frame(
     Metric = c(
       "Number of locations",
-      "Number of Duplication in Coordinate",
-      "Number of Duplication in LocationID",
-      "Number of Duplication in LocationName",
+      "Number of duplication in coordinates",
+      "Number of duplication in LocationID",
+      "Number of duplication in LocationName",
       "Missing data",
-      "Total Distinct coordinates",
+      "Total distinct coordinates",
       "Mean distance between locations (m)",
       "Max distance between locations (m)",
       "Min distance between locations (m)",
@@ -49,7 +73,7 @@ code: |
       ss$mean_distance_cam,
       ss$max_distance_cam,
       ss$min_distance_cam,
-      ss$spatial_pattern,      # <- dp_json value or computed, as you intended
+      ss$spatial_pattern,
       outlier_summary
     ),
     Status = c(
@@ -62,35 +86,76 @@ code: |
       "Mean inter-location distance",
       ss$max_distance_camNames,
       ss$min_distance_camNames,
-      ss$status_spatial,       # <- show the actual status value, not a static label
+      ss$status_spatial,
       ss$outliers_status
     ),
     stringsAsFactors = FALSE
   )
   
-  # render (same as before) ...
-  spatial_table$Status <- gsub("\n", "<br>", spatial_table$Status)
+  spatial_table$Metric <- .clean_html(spatial_table$Metric)
+  spatial_table$Result <- .clean_html(spatial_table$Result)
+  spatial_table$Status <- .clean_html(spatial_table$Status)
+  
+  # -------------------------
+  # Render table
+  # -------------------------
+  
   blue_pastel <- c("#e6f0fa", "#f0f7fd", "#dceeff")
-  cat("<div style='max-width:850px; margin:14px auto 22px auto; text-align:center;'>")
-
-  cat("<div style='font-size:13px; color:#24384a; margin-bottom:6px; text-align:center;'>
-       <strong><em>Table 1.</em></strong> Spatial summary of camera-trap locations
-     </div>")
-
-  cat("<table style='margin:auto; width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:12.5px;'>") 
-  cat("<thead><tr style='background-color: #f2f2f2; font-weight: bold;'>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Metric</th>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Result</th>")
-  cat("<th style='border: 1px solid #ccc; padding: 4px;'>Status</th>")
-  cat("</tr></thead><tbody>")
+  
+  cat("<div style='max-width:850px; margin:14px auto 24px auto; text-align:center;'>")
+  
+  .table_caption(
+    number = 1,
+    text = "Spatial summary of camera-trap locations",
+    width = "850px"
+  )
+  
+  cat("
+  <table style='
+    margin:auto;
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-family:Arial, sans-serif;
+    font-size:13px;
+    line-height:1.35;'>
+  <thead>
+    <tr style='background-color:#f2f2f2; font-weight:bold;'>
+      <th style='border:1px solid #ccc; padding:6px; width:25%; text-align:center;'>Metric</th>
+      <th style='border:1px solid #ccc; padding:6px; width:28%; text-align:center;'>Result</th>
+      <th style='border:1px solid #ccc; padding:6px; width:47%; text-align:center;'>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+  ")
+  
   for (i in seq_len(nrow(spatial_table))) {
+    
     bg <- blue_pastel[(i - 1) %% length(blue_pastel) + 1]
+    
     cat(sprintf("<tr style='background-color:%s;'>", bg))
-    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Metric[i]))
-    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Result[i]))
-    cat(sprintf("<td style='border:1px solid #ddd; padding:4px;'>%s</td>", spatial_table$Status[i]))
+    
+    cat(sprintf(
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word;'>%s</td>",
+      spatial_table$Metric[i]
+    ))
+    
+    cat(sprintf(
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word;'>%s</td>",
+      spatial_table$Result[i]
+    ))
+    
+    cat(sprintf(
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; white-space:normal; word-break:break-word;'>%s</td>",
+      spatial_table$Status[i]
+    ))
+    
     cat("</tr>")
   }
-  cat("</tbody></table></div>")
-
+  
+  cat("
+  </tbody>
+  </table>
+  </div>
+  ")
 ---

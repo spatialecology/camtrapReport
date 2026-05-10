@@ -19,7 +19,7 @@ code: |
   "**, **",
   object$data_status$Spatial$country,
   "**. The aim is to estimate and monitor ",
-  .paste_comma_and(object$setting$focus_groups),
+  .pretty (.paste_comma_and(object$setting$focus_groups)),
   " over time and across deployments, and to provide insight into wildlife status at this site, including behaviour and changes in spatial and temporal patterns."
   ))
 ---

@@ -44,10 +44,11 @@ code: |
       cat("\n\n")
       
       #---------
-      if (!is.null(object$setting$focus_groups) && is.character(object$setting$focus_groups) && length(object$setting$focus_groups) > 0) {
-        cat(paste0(object$getFigureNumber()," _Capture rate distribution across habitat types based on the species focus group: ",.paste_comma_and(object$setting$focus_groups),". Each bar represents a species, with sections indicating the proportion of each habitat type_\n"))
-      } else cat(object$getFigureNumber()," _Capture rate distribution across habitat types for all species. Each bar represents a species, with sections indicating the proportion of each habitat type_\n")
-      
-    }
+      cat(
+  "\n\n",
+  object$getFigureNumber(),
+  " *Capture rate distribution across habitat types based on the species focus group. Each bar represents a species, with sections indicating the proportion of each habitat type.*\n\n",
+  sep = ""
+  )
     
 ---

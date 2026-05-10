@@ -4,143 +4,309 @@ title: "## Chapter 2: Data Availability {.unnumbered}"
 parent: null
 text: |
   
-  ### Review Essential Data Availability {{.unnumbered}}
+  ### Review Essential Data Availability {.unnumbered}
   
   In this chapter, we review all essential data components required for generating the report. These include both mandatory fields and necessary supporting fields or files that contribute to the completeness and overall quality of the final output. Table 3 provides a structured overview of the availability and completeness of these elements. While all fields listed in the table are important for generating a high-quality report, the **bolded** fields are mandatory. Their status must be marked as **Complete**; otherwise, any associated records with missing or partial values will be automatically excluded from the final output.
   
 code: |
   #| name: code
-  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
   x <- object$data_status$Essentials
-  c1 <- rep("Locations",length(x$loc))
-  c2 <- c("locationID","locationName","longitude","latitude")
-  c3 <- unlist(x$loc)
-  #======
-  .w <- x$dep[c("dep_interval","habitat","setupBy_status","baitUse","cameraHeight")]
-  names(.w) <- c("deployment_interval","habitat","setupBy","baitUse","cameraHeight")
-  c1 <- c(c1,rep("Deployment",length(.w)))
-  c2 <- c(c2,names(.w))
-  c3 <- c(c3,unlist(.w))
-  #----
-  .w <- x$obs[c("timestamp","classifiedBy_status")]
-  names(.w) <- c("timestamps","classifiedBy")
-  c1 <- c(c1,rep("Observations",length(.w)))
-  c2 <- c(c2,names(.w))
-  c3 <- c(c3,unlist(.w))
-  #--------
-  .w <- x$seq[c("nrphotos","captureMethod")]
-  #names(.w) <- c("timestamps","classifiedBy")
-  c1 <- c(c1,rep("Sequences",length(.w)))
-  c2 <- c(c2,names(.w))
-  c3 <- c(c3,unlist(.w))
-  #------
-  .w <- x$tax[c("scientificName","nld","eng")]
-  names(.w) <- c("scientificName","vernacularNames.nld","vernacularNames.eng")
-  c1 <- c(c1,rep("Taxonomy",length(.w)))
-  c2 <- c(c2,names(.w))
-  c3 <- c(c3,unlist(.w))
-  #------
-  c1 <- c(c1,c("Additional Files","Additional Files"))
-  c2 <- c(c2,c("habitat.csv","spatial boundary (e.g., shapefile)"))
-  if (nrow(object$habitat) == 0) {
+  
+  c1 <- character()
+  c2 <- character()
+  c3 <- character()
+  
+  # -------------------------
+  # Locations
+  # -------------------------
+  
+  c1 <- c(c1, rep("Locations", 4))
+  c2 <- c(c2, "locationID", "locationName", "longitude", "latitude")
+  c3 <- c(
+    c3,
+    x$loc$locID,
+    x$loc$locnName,
+    x$loc$long,
+    x$loc$lat
+  )
+  
+  # -------------------------
+  # Deployment
+  # -------------------------
+  
+  dep_fields <- c(
+    "deploymentID",
+    "locationID",
+    "deployment_interval",
+    "deploymentStart",
+    "deploymentEnd",
+    "habitat",
+    "setupBy",
+    "baitUse",
+    "cameraHeight"
+  )
+  
+  dep_values <- c(
+    x$dep$depID,
+    x$dep$locID,
+    x$dep$dep_interval,
+    x$dep$depStart,
+    x$dep$depEnd,
+    x$dep$habitat,
+    x$dep$setupBy_status,
+    x$dep$baitUse,
+    x$dep$cameraHeight
+  )
+  
+  c1 <- c(c1, rep("Deployment", length(dep_fields)))
+  c2 <- c(c2, dep_fields)
+  c3 <- c(c3, dep_values)
+  
+  # -------------------------
+  # Observations
+  # -------------------------
+  
+  obs_fields <- c(
+    "timestamps",
+    "observationType",
+    "count",
+    "classifiedBy",
+    "taxonID",
+    "behavior",
+    "sex",
+    "lifeStage",
+    "angle",
+    "radius",
+    "speed",
+    "individualID"
+  )
+  
+  obs_values <- c(
+    x$obs$timestamp,
+    x$obs$obsType_status,
+    x$obs$count,
+    x$obs$classifiedBy_status,
+    x$obs$taxonID,
+    x$obs$behavior,
+    x$obs$sex,
+    x$obs$lifeStage,
+    x$obs$angle,
+    x$obs$radius,
+    x$obs$speed,
+    x$obs$individualID
+  )
+  
+  c1 <- c(c1, rep("Observations", length(obs_fields)))
+  c2 <- c(c2, obs_fields)
+  c3 <- c(c3, obs_values)
+  
+  # -------------------------
+  # Media
+  # -------------------------
+  
+  media_fields <- c(
+    "media timestamp",
+    "file.path",
+    "comments",
+    "favourite"
+  )
+  
+  media_values <- c(
+    x$media$timestamp,
+    x$media$file.path,
+    x$media$comments,
+    x$media$favourite
+  )
+  
+  c1 <- c(c1, rep("Media", length(media_fields)))
+  c2 <- c(c2, media_fields)
+  c3 <- c(c3, media_values)
+  
+  # -------------------------
+  # Sequences
+  # -------------------------
+  
+  seq_fields <- c(
+    "nrphotos",
+    "captureMethod"
+  )
+  
+  seq_values <- c(
+    x$seq$nrphotos,
+    x$seq$captureMethod
+  )
+  
+  c1 <- c(c1, rep("Sequences", length(seq_fields)))
+  c2 <- c(c2, seq_fields)
+  c3 <- c(c3, seq_values)
+  
+  # -------------------------
+  # Taxonomy
+  # -------------------------
+  
+  tax_fields <- c(
+    "taxonID",
+    "scientificName",
+    "vernacularNames.nld",
+    "vernacularNames.eng"
+  )
+  
+  tax_values <- c(
+    x$tax$taxonID,
+    x$tax$scientificName,
+    x$tax$nld,
+    x$tax$eng
+  )
+  
+  c1 <- c(c1, rep("Taxonomy", length(tax_fields)))
+  c2 <- c(c2, tax_fields)
+  c3 <- c(c3, tax_values)
+  
+  # -------------------------
+  # Additional files
+  # -------------------------
+  
+  c1 <- c(c1, c("Additional Files", "Additional Files"))
+  c2 <- c(c2, c("habitat.csv", "spatial boundary (e.g., shapefile)"))
+  
+  if (is.null(object$habitat) || nrow(object$habitat) == 0) {
     .w <- c("🔴 Missing")
-  } else .w <- "🟢 Complete"
+  } else {
+    .w <- "🟢 Complete"
+  }
   
   if (is.null(object$study_area)) {
-    .w <- c(.w,"🔴 Missing")
-  } else .w <- c(.w,"🟢 Complete")
+    .w <- c(.w, "🔴 Missing")
+  } else {
+    .w <- c(.w, "🟢 Complete")
+  }
   
-  c3 <- c(c3,.w)
-  data_summary <- data.frame(Category=c1,Field=c2,Status=c3)
-
-
+  c3 <- c(c3, .w)
+  
+  data_summary <- data.frame(
+    Category = c1,
+    Field = c2,
+    Status = c3,
+    stringsAsFactors = FALSE
+  )
+  
+  # Clean line breaks
+  data_summary$Category <- gsub("\n", "<br>", as.character(data_summary$Category))
+  data_summary$Field <- gsub("\n", "<br>", as.character(data_summary$Field))
+  data_summary$Status <- gsub("\n", "<br>", as.character(data_summary$Status))
   
   # Fields to highlight in bold
-  bold_fields <- c("deployment_interval", "locationID", "locationName", 
-                   "longitude", "latitude", "timestamps", 
-                   "scientificName", "vernacularNames.eng")
+  bold_fields <- c(
+    "locationID",
+    "locationName",
+    "longitude",
+    "latitude",
+    "deploymentID",
+    "deployment_interval",
+    "deploymentStart",
+    "deploymentEnd",
+    "timestamps",
+    "observationType",
+    "classifiedBy",
+    "taxonID",
+    "media timestamp",
+    "file.path",
+    "nrphotos",
+    "captureMethod",
+    "scientificName",
+    "vernacularNames.eng"
+  )
   
   # Pastel color setup
   pastel_colors <- c("#f0f4f8", "#f7f9fc", "#eef2f6")
-
-  # Wrapper + table title + table start
+  
+  # Wrapper, centered caption, and table start
   cat("
-  <div style='max-width:800px; margin:14px auto 22px auto; text-align:center;'>
-
-  <div style='font-size:12.5px; color:#24384a; margin-bottom:6px; text-align:center;'>
+  <div style='max-width:900px; margin:16px auto 26px auto; text-align:center;'>
+  
+  <div style='
+    width:100%;
+    text-align:center;
+    font-size:15px;
+    color:#24384a;
+    margin:0 auto 10px auto;
+    line-height:1.35;'>
     <strong><em>Table 3.</em></strong> Essential data availability and completeness
   </div>
-
+  
   <table style='
-    margin:auto;
+    margin:0 auto;
     border-collapse:collapse;
     table-layout:fixed;
     width:100%;
     font-family:Arial, sans-serif;
-    font-size:12px;
-    line-height:1.35;'>
+    font-size:13px;
+    line-height:1.35;
+    text-align:center;'>
     
     <thead>
       <tr style='background-color:#f2f2f2; font-weight:bold;'>
-        <th style='border:1px solid #ccc; padding:5px; width:20%; text-align:center;'>Category</th>
-        <th style='border:1px solid #ccc; padding:5px; width:32%; text-align:center;'>Field</th>
-        <th style='border:1px solid #ccc; padding:5px; width:48%; text-align:center;'>Status</th>
+        <th style='border:1px solid #ccc; padding:6px; width:20%; text-align:center;'>Category</th>
+        <th style='border:1px solid #ccc; padding:6px; width:30%; text-align:center;'>Field</th>
+        <th style='border:1px solid #ccc; padding:6px; width:50%; text-align:center;'>Status</th>
       </tr>
     </thead>
     
     <tbody>
   ")
-
+  
   # Setup for merged Category cells
   row_spans <- rle(data_summary$Category)
   start_indices <- cumsum(c(1, head(row_spans$lengths, -1)))
   current_group <- 1
-
+  
   # Loop for table rows
   for (i in seq_len(nrow(data_summary))) {
-  
-  if (i %in% start_indices) {
-    current_group <- which(start_indices == i)
-  }
-  
-  bg_color <- pastel_colors[(current_group - 1) %% length(pastel_colors) + 1]
-  
-  cat(sprintf("<tr style='background-color:%s;'>", bg_color))
-  
-  # Render category cell only once per group
-  if (i %in% start_indices) {
-    rowspan <- row_spans$lengths[which(start_indices == i)]
+    
+    if (i %in% start_indices) {
+      current_group <- which(start_indices == i)
+    }
+    
+    bg_color <- pastel_colors[(current_group - 1) %% length(pastel_colors) + 1]
+    
+    cat(sprintf("<tr style='background-color:%s;'>", bg_color))
+    
+    # Render category cell only once per group
+    if (i %in% start_indices) {
+      rowspan <- row_spans$lengths[which(start_indices == i)]
+      
+      cat(sprintf(
+        "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word;' rowspan='%d'>%s</td>",
+        rowspan,
+        data_summary$Category[i]
+      ))
+    }
+    
+    # Apply bold if mandatory
+    field_val <- data_summary$Field[i]
+    
+    field_html <- if (field_val %in% bold_fields) {
+      sprintf("<strong>%s</strong>", field_val)
+    } else {
+      field_val
+    }
     
     cat(sprintf(
-      "<td style='border:1px solid #ddd; padding:5px; vertical-align:middle; text-align:center; word-break:break-word;' rowspan='%d'>%s</td>",
-      rowspan,
-      data_summary$Category[i]
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:top; text-align:left; word-break:break-word;'>%s</td>",
+      field_html
     ))
+    
+    cat(sprintf(
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:top; text-align:left; color:black; white-space:normal; word-break:break-word;'>%s</td>",
+      data_summary$Status[i]
+    ))
+    
+    cat("</tr>")
   }
   
-  # Apply bold if in list
-  field_val <- data_summary$Field[i]
-  field_html <- if (field_val %in% bold_fields) {
-    sprintf("<strong>%s</strong>", field_val)
-  } else {
-    field_val
-  }
-  
-  cat(sprintf(
-    "<td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:left; word-break:break-word;'>%s</td>",
-    field_html
-  ))
-  
-  cat(sprintf(
-    "<td style='border:1px solid #ddd; padding:5px; vertical-align:top; text-align:left; color:black; white-space:normal; word-break:break-word;'>%s</td>",
-    data_summary$Status[i]
-  ))
-  
-  cat("</tr>")
-  }
-
   cat("
     </tbody>
   </table>

@@ -40,7 +40,14 @@ code: |
   }
   
   .make_species_colors <- function(species) {
+    species <- unique(as.character(species))
+    species <- species[!is.na(species) & nzchar(species)]
+    
     n <- length(species)
+    
+    if (n == 0) {
+      return(stats::setNames(character(0), character(0)))
+    }
     
     if (n <= 6 && length(object$reportObjectElements$color_palette) >= n) {
       cols <- object$reportObjectElements$color_palette[seq_len(n)]
@@ -99,14 +106,23 @@ code: |
   }
   
   .log10_labels <- function(x) {
-    out <- ifelse(
-      x >= 1,
-      formatC(x, format = "f", digits = 0),
-      formatC(x, format = "f", digits = 2)
-    )
+  vapply(x, function(z) {
+    
+    if (!is.finite(z)) return("")
+    
+    if (z >= 1) {
+      return(formatC(z, format = "f", digits = 0))
+    }
+    
+    digits <- max(1, ceiling(-log10(z)))
+    
+    out <- formatC(z, format = "f", digits = digits)
     out <- sub("0+$", "", out)
     out <- sub("\\.$", "", out)
+    
     out
+    
+  }, character(1))
   }
   
   .caption_html <- function(fig_no, text) {
@@ -191,11 +207,12 @@ code: |
     
   } else {
     
-    species_list <- sort(unique(capture_base$scientificName))
+    species_list <- sort(unique(as.character(capture_base$scientificName)))
     years_all <- sort(unique(capture_base$Year_numeric))
     n_species <- length(species_list)
     many_species <- n_species > 8
     
+    # Important: this colour map is the master map used in all tabs
     species_colors <- .make_species_colors(species_list)
     
     capture_plot_base <- .complete_species_years(
@@ -227,7 +244,7 @@ code: |
         ggplot2::geom_point(size = 2.8, shape = 21, fill = "white", stroke = 0.9, na.rm = TRUE, show.legend = FALSE) +
         ggplot2::facet_wrap(~ scientificName, scales = "free_y", ncol = 3) +
         ggplot2::scale_x_continuous(breaks = years_all) +
-        ggplot2::scale_color_manual(values = species_colors) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE) +
         ggplot2::labs(
           x = "Survey Year",
           y = "Number of Captures"
@@ -279,7 +296,7 @@ code: |
           breaks = years_all,
           expand = ggplot2::expansion(mult = c(0.02, 0.30))
         ) +
-        ggplot2::scale_color_manual(values = species_colors) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE) +
         ggplot2::labs(
           x = "Survey Year",
           y = "Number of Captures"
@@ -360,7 +377,7 @@ code: |
             labels = .log10_labels,
             limits = c(y_lower, y_upper)
           ) +
-          ggplot2::scale_color_manual(values = species_colors) +
+          ggplot2::scale_color_manual(values = species_colors, drop = FALSE) +
           ggplot2::labs(
             x = "Survey Year",
             y = "Capture Rate per 100 trap-days"
@@ -417,7 +434,7 @@ code: |
             labels = .log10_labels,
             limits = c(y_lower, y_upper)
           ) +
-          ggplot2::scale_color_manual(values = species_colors) +
+          ggplot2::scale_color_manual(values = species_colors, drop = FALSE) +
           ggplot2::labs(
             x = "Survey Year",
             y = "Capture Rate per 100 trap-days"
@@ -545,7 +562,7 @@ code: |
           limits = c(0, max(y_breaks, na.rm = TRUE)),
           expand = ggplot2::expansion(mult = c(0, 0.05))
         ) +
-        ggplot2::scale_color_manual(values = species_colors) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE) +
         ggplot2::labs(
           x = "Survey Year",
           y = "Number of Locations"
@@ -618,9 +635,25 @@ code: |
         
       } else {
         
-        rem_species <- sort(unique(density_data$scientificName))
+        rem_species <- sort(unique(as.character(density_data$scientificName)))
         rem_years <- sort(unique(density_data$Year_numeric))
-        rem_colors <- .make_species_colors(rem_species)
+        
+        # Use the master colour map from the capture/location tabs.
+        # This keeps each species the same colour across all tabs.
+        rem_colors <- species_colors[rem_species]
+        
+        missing_cols <- is.na(rem_colors)
+        
+        if (any(missing_cols)) {
+  missing_species <- rem_species[missing_cols]
+  extra_cols <- grDevices::hcl.colors(
+    length(species_colors) + length(missing_species),
+    palette = "Dark 3"
+  )
+  rem_colors[missing_species] <- tail(extra_cols, length(missing_species))
+  }
+        
+        rem_colors <- rem_colors[rem_species]
         
         density_plot <- .complete_species_years(
           density_data,
@@ -645,7 +678,7 @@ code: |
             ggplot2::geom_point(shape = 21, size = 2.8, fill = "white", stroke = 0.9, na.rm = TRUE, show.legend = FALSE) +
             ggplot2::facet_wrap(~ scientificName, scales = "free_y", ncol = 3) +
             ggplot2::scale_x_continuous(breaks = rem_years) +
-            ggplot2::scale_color_manual(values = rem_colors) +
+            ggplot2::scale_color_manual(values = rem_colors, drop = FALSE) +
             ggplot2::labs(
               x = "Survey Year",
               y = expression("Density (individuals / km"^2*")")
@@ -697,7 +730,7 @@ code: |
               breaks = rem_years,
               expand = ggplot2::expansion(mult = c(0.02, 0.30))
             ) +
-            ggplot2::scale_color_manual(values = rem_colors) +
+            ggplot2::scale_color_manual(values = rem_colors, drop = FALSE) +
             ggplot2::labs(
               x = "Survey Year",
               y = expression("Density (individuals / km"^2*")")
