@@ -4,10 +4,10 @@ title: "## Chapter 5: Annotation {.unnumbered}"
 parent: null
 text: |
   
-  In this chapter, we provide an overview of the classification confidence and observation types captured by camera traps. We distinguish between machine and human annotation results and highlight the variation in confidence scores across methods. The pie charts summarize the distribution of observation categories—such as animal, blank, human, and unclassified—across different capture methods (motion, timelapse, and total). This section helps assess annotation reliability and the representativeness of each observation type in the dataset.
-  
+  In this chapter, we provide an overview of annotation confidence in the camera-trap observations. The summary distinguishes between machine-generated and human-generated classifications and highlights the variation in confidence scores across annotation methods. This section helps assess annotation reliability, identify records below selected confidence thresholds, and evaluate whether additional quality control or review may be needed before ecological reporting.
+
 code: |
-  #| name: code
+  #| name: annotation_confidence_table
   #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
@@ -30,7 +30,10 @@ code: |
     "Total Annotations"
   )
   
-  # Escape HTML special characters
+  # -------------------------
+  # Helper functions
+  # -------------------------
+  
   escape_html <- function(x) {
     x <- as.character(x)
     x[is.na(x)] <- ""
@@ -41,7 +44,6 @@ code: |
     x
   }
   
-  # Format values so confidence scores keep 2 decimals, counts stay integer-like
   format_value <- function(stat, value) {
     
     value_num <- suppressWarnings(as.numeric(value))
@@ -61,12 +63,11 @@ code: |
     as.character(value)
   }
   
-  # Centered figure-style caption
-  .figure_caption <- function(number, text, width = "900px") {
+  .table_caption <- function(number, text, width = "900px") {
     cat(paste0(
-      "\n<div style='max-width:", width, "; margin:10px auto 24px auto; ",
+      "\n<div style='max-width:", width, "; margin:14px auto 8px auto; ",
       "text-align:center; font-size:15px; color:#24384a; line-height:1.35;'>",
-      "<strong><em>Figure ", number, ".</em></strong> ",
+      "<strong><em>Table ", number, ".</em></strong> ",
       text,
       "</div>\n"
     ))
@@ -109,8 +110,18 @@ code: |
     )
   }
   
+  # -------------------------
+  # Render caption above table
+  # -------------------------
+  
+  .table_caption(
+    number = 5,
+    text = "Summary of machine and human annotation confidence scores",
+    width = "900px"
+  )
+  
   html_out <- paste0(
-    '<div style="max-width:900px; margin:16px auto 8px auto;">',
+    '<div style="max-width:900px; margin:8px auto 26px auto; text-align:center;">',
       '<div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start;">',
         make_table_html(
           machine_confidence,
@@ -127,9 +138,4 @@ code: |
   )
   
   cat(html_out)
-  
-  .figure_caption(
-    number = 1,
-    text = "Summary of machine and human annotation confidence scores. The tables report minimum, maximum, and mean confidence values, the number of records below the selected confidence threshold, and the total number of annotations."
-  )
 ---
