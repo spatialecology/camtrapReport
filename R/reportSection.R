@@ -1,17 +1,31 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 1.3
-# Licence  MIT
+# Last Update : May 2026
+# Version 1.4
+# Licence MIT
 #--------
 
-
-.getTextObj <- function(name = NULL, title = NULL, parent = NULL, headLevel = 1, txt = NULL) {
-  new(".textSection", name = name, title = title, parent = parent, headLevel = headLevel, txt = txt)
+.getTextObj <- function(name = NULL,
+                        title = NULL,
+                        parent = NULL,
+                        headLevel = 1,
+                        txt = NULL) {
+  new(
+    ".textSection",
+    name = name,
+    title = title,
+    parent = parent,
+    headLevel = headLevel,
+    txt = txt
+  )
 }
-#---
 
+#--------
 
-.getRchunk <- function(parent = NULL, name = NULL, setting = NULL, packages = NULL, code) {
+.getRchunk <- function(parent = NULL,
+                       name = NULL,
+                       setting = NULL,
+                       packages = NULL,
+                       code) {
   
   if (!is.null(setting) && as.character(substitute(setting))[1] == "{") {
     setting <- substitute(setting)
@@ -20,7 +34,6 @@
     setting <- .rmChar(setting, rm = c(1, 2), rmLast = TRUE)
   }
   
-  #----
   code <- substitute(code)
   
   if (as.character(code)[1] != "{") {
@@ -29,122 +42,262 @@
   
   code <- paste(as.character(code)[-1], collapse = "\n")
   
-  new(".Rchunk", parent = parent, name = name, setting = setting, packages = packages, code = code)
+  new(
+    ".Rchunk",
+    parent = parent,
+    name = name,
+    setting = setting,
+    packages = packages,
+    code = code
+  )
 }
 
+#--------
 
-#----
+.protect_pandoc_attrs <- function(txt) {
+  if (is.null(txt) || length(txt) == 0) return(txt)
+  
+  txt <- as.character(txt)
+  
+  txt <- gsub("\\{\\.unnumbered\\}", "___CAMTRAP_ATTR_UNNUMBERED___", txt)
+  txt <- gsub("\\{\\.tabset\\}", "___CAMTRAP_ATTR_TABSET___", txt)
+  txt <- gsub("\\{\\.tabset-fade\\}", "___CAMTRAP_ATTR_TABSET_FADE___", txt)
+  txt <- gsub("\\{\\.tabset-pills\\}", "___CAMTRAP_ATTR_TABSET_PILLS___", txt)
+  
+  txt
+}
+
+#--------
+
+.restore_pandoc_attrs <- function(txt) {
+  if (is.null(txt) || length(txt) == 0) return(txt)
+  
+  txt <- as.character(txt)
+  
+  txt <- gsub("___CAMTRAP_ATTR_UNNUMBERED___", "{.unnumbered}", txt, fixed = TRUE)
+  txt <- gsub("___CAMTRAP_ATTR_TABSET___", "{.tabset}", txt, fixed = TRUE)
+  txt <- gsub("___CAMTRAP_ATTR_TABSET_FADE___", "{.tabset-fade}", txt, fixed = TRUE)
+  txt <- gsub("___CAMTRAP_ATTR_TABSET_PILLS___", "{.tabset-pills}", txt, fixed = TRUE)
+  
+  txt
+}
+
+#--------
+
+.safe_glue_text <- function(txt, .envir, section_name = "unknown") {
+  if (is.null(txt) || length(txt) == 0) return("")
+  
+  txt <- paste(as.character(txt), collapse = "\n")
+  txt <- .protect_pandoc_attrs(txt)
+  
+  out <- try(
+    glue::glue(txt, .envir = .envir),
+    silent = TRUE
+  )
+  
+  if (inherits(out, "try-error")) {
+    stop(
+      "Failed to evaluate text in report section '",
+      section_name,
+      "'. Original error: ",
+      conditionMessage(attr(out, "condition")),
+      call. = FALSE
+    )
+  }
+  
+  out <- as.character(out)
+  .restore_pandoc_attrs(out)
+}
+
+#--------
+
+.clean_chunk_name <- function(x, fallback = "module") {
+  x <- as.character(x)[1]
+  
+  if (is.na(x) || !nzchar(x)) {
+    x <- fallback
+  }
+  
+  x <- gsub("[^A-Za-z0-9_]+", "_", x)
+  x <- gsub("_+", "_", x)
+  x <- gsub("^_|_$", "", x)
+  
+  if (is.na(x) || !nzchar(x)) {
+    x <- "module"
+  }
+  
+  x
+}
+
+#--------
+
+.glueRchunk <- function(x, .envir = parent.frame()) {
+  
+  if (is.null(x) || !inherits(x, ".Rchunk")) {
+    return("")
+  }
+  
+  chunk_name <- .clean_chunk_name(x@name)
+  
+  setting <- x@setting
+  
+  if (is.null(setting) || length(setting) == 0 || all(is.na(setting))) {
+    chunk_header <- paste0("```{r ", chunk_name, "}")
+  } else {
+    setting <- as.character(setting)
+    setting <- setting[!is.na(setting)]
+    setting <- trimws(setting)
+    setting <- setting[nzchar(setting)]
+    
+    if (length(setting) == 0) {
+      chunk_header <- paste0("```{r ", chunk_name, "}")
+    } else {
+      chunk_header <- paste0(
+        "```{r ",
+        chunk_name,
+        ", ",
+        paste(setting, collapse = ", "),
+        "}"
+      )
+    }
+  }
+  
+  code <- x@code
+  
+  if (is.null(code) || length(code) == 0 || all(is.na(code))) {
+    code <- ""
+  } else {
+    code <- paste(as.character(code), collapse = "\n")
+  }
+  
+  paste0(
+    chunk_header,
+    "\n",
+    code,
+    "\n",
+    "```"
+  )
+}
+
+#--------
 
 .glueTextSection <- function(x, .envir) {
   
-  # -------------------------
-  # Title and text
-  # -------------------------
+  if (is.null(x) || !inherits(x, ".textSection")) {
+    return("")
+  }
   
-  .title <- paste0(
-    paste(rep("#", x@headLevel), collapse = ""),
-    " ",
-    x@title
-  )
+  if (missing(.envir) || is.null(.envir)) {
+    .envir <- parent.frame()
+  }
   
-  if (!is.null(x@txt)) {
-    .out <- paste0(
-      c(
-        .title,
-        sapply(x@txt, glue::glue, .envir = .envir)
-      ),
-      collapse = "\n\n"
-    )
-  } else {
-    .out <- paste0(.title, "\n\n")
+  section_name <- x@name
+  if (is.null(section_name) || length(section_name) == 0 || is.na(section_name[1])) {
+    section_name <- "unknown"
   }
   
   # -------------------------
-  # Helper to build one safe Rmd chunk
+  # Section title
   # -------------------------
   
-  .build_chunk <- function(.chunk) {
+  out <- character()
+  
+  title <- x@title
+  
+  if (!is.null(title) && length(title) > 0 && !is.na(title[1]) && nzchar(title[1])) {
     
-    # Name shown in live console messages
-    .module_name <- .extract_chunk_name(
-      code = .chunk@code,
-      fallback = .chunk@name
+    head_level <- x@headLevel
+    
+    if (is.null(head_level) || length(head_level) == 0 || is.na(head_level[1])) {
+      head_level <- 1
+    }
+    
+    head_level <- suppressWarnings(as.integer(head_level[1]))
+    
+    if (is.na(head_level) || head_level < 1) {
+      head_level <- 1
+    }
+    
+    title <- .safe_glue_text(
+      txt = title,
+      .envir = .envir,
+      section_name = section_name
     )
     
-    # Real R Markdown chunk label.
-    # Use .chunk@name here because it is usually unique.
-    .chunk_header_name <- as.character(.chunk@name)[1]
-    .chunk_header_name <- gsub("[^A-Za-z0-9_]+", "_", .chunk_header_name)
-    
-    if (is.na(.chunk_header_name) || !nzchar(.chunk_header_name)) {
-      .chunk_header_name <- .module_name
-    }
-    
-    .chunk_header_name <- gsub("[^A-Za-z0-9_]+", "_", .chunk_header_name)
-    
-    if (is.na(.chunk_header_name) || !nzchar(.chunk_header_name)) {
-      .chunk_header_name <- "module"
-    }
-    
-    # Wrap original code so errors are caught and the report can continue
-    .safe_code <- .make_safe_module_code(
-      code = .chunk@code,
-      module_name = .module_name,
-      show_note_in_report = TRUE
-    )
-    
-    # Build chunk header
-    if (is.null(.chunk@setting)) {
-      
-      .p1 <- paste0(
-        "```{r ",
-        .chunk_header_name,
-        "}"
+    out <- c(
+      out,
+      paste0(
+        paste(rep("#", head_level), collapse = ""),
+        " ",
+        title
       )
-      
-    } else {
-      
-      .p1 <- paste0(
-        "```{r ",
-        .chunk_header_name,
-        ",",
-        paste(.chunk@setting, collapse = ","),
-        "}"
-      )
-    }
-    
-    paste0(
-      .p1,
-      "\n",
-      .safe_code,
-      "\n",
-      "```"
     )
   }
   
   # -------------------------
-  # Add R chunks
+  # Section text
+  # -------------------------
+  
+  if (!is.null(x@txt) && length(x@txt) > 0) {
+    txt <- vapply(
+      x@txt,
+      FUN = function(z) {
+        .safe_glue_text(
+          txt = z,
+          .envir = .envir,
+          section_name = section_name
+        )
+      },
+      FUN.VALUE = character(1),
+      USE.NAMES = FALSE
+    )
+    
+    txt <- txt[nzchar(txt)]
+    
+    if (length(txt) > 0) {
+      out <- c(out, txt)
+    }
+  }
+  
+  # -------------------------
+  # R chunks
   # -------------------------
   
   if (!is.null(x@Rchunk)) {
     
     if (is.list(x@Rchunk)) {
       
-      for (i in seq_along(x@Rchunk)) {
-        .p1 <- .build_chunk(x@Rchunk[[i]])
-        .out <- paste0(.out, "\n\n", .p1, "\n\n")
+      chunk_text <- vapply(
+        x@Rchunk,
+        FUN = function(z) {
+          if (inherits(z, ".Rchunk")) {
+            .glueRchunk(z, .envir = .envir)
+          } else {
+            ""
+          }
+        },
+        FUN.VALUE = character(1),
+        USE.NAMES = FALSE
+      )
+      
+      chunk_text <- chunk_text[nzchar(chunk_text)]
+      
+      if (length(chunk_text) > 0) {
+        out <- c(out, chunk_text)
       }
       
-    } else {
+    } else if (inherits(x@Rchunk, ".Rchunk")) {
       
-      .p1 <- .build_chunk(x@Rchunk)
-      .out <- paste0(.out, "\n\n", .p1, "\n\n")
+      chunk_text <- .glueRchunk(x@Rchunk, .envir = .envir)
+      
+      if (nzchar(chunk_text)) {
+        out <- c(out, chunk_text)
+      }
     }
   }
   
-  .out
+  paste(out, collapse = "\n\n")
 }
-
 
 #--------
 
@@ -174,19 +327,18 @@ setGeneric(
 setMethod(
   "reportSection",
   signature(name = "character"),
-  function(name, title, parent, txt, code_setting, packages, code) {
+  function(name,
+           title,
+           parent,
+           txt,
+           code_setting,
+           packages,
+           code) {
     
     if (missing(title)) title <- ""
     if (missing(parent)) parent <- NULL
     if (missing(txt)) txt <- NULL
     if (missing(code_setting)) code_setting <- NULL
-    
-    if (missing(code)) {
-      code <- NULL
-    } else {
-      code <- substitute(code)
-    }
-    
     if (missing(packages)) packages <- NULL
     
     .x <- .getTextObj(
@@ -196,21 +348,24 @@ setMethod(
       txt = txt
     )
     
-    if (!is.null(code)) {
+    if (!missing(code)) {
+      
+      code_expr <- substitute(code)
       
       if (!is.null(code_setting) &&
           as.character(substitute(code_setting))[1] == "{") {
+        
         code_setting <- substitute(code_setting)
         code_setting <- as.character(code_setting)[-1]
         code_setting <- .trim(code_setting)
         code_setting <- .rmChar(code_setting, rm = c(1, 2), rmLast = TRUE)
       }
       
-      if (as.character(code)[1] != "{") {
+      if (as.character(code_expr)[1] != "{") {
         stop("code should be placed within { } ")
       }
       
-      code <- paste(as.character(code)[-1], collapse = "\n")
+      code_txt <- paste(as.character(code_expr)[-1], collapse = "\n")
       
       .xc <- new(
         ".Rchunk",
@@ -218,7 +373,7 @@ setMethod(
         name = paste0(name, "_code"),
         setting = code_setting,
         packages = packages,
-        code = code
+        code = code_txt
       )
       
       .x@Rchunk <- .xc
@@ -228,4 +383,4 @@ setMethod(
   }
 )
 
-#===========
+#--------
