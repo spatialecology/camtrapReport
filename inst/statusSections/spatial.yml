@@ -1,6 +1,6 @@
 ---
 name: "spatial"
-title: "## Spatial Data {{.unnumbered}}"
+title: "## Spatial Data {.unnumbered}"
 parent: null
 text: |
   This section summarizes the spatial quality of the camera-trap data extracted from the dataset files. It focuses specifically on location data, assessing issues such as missing values, duplicate entries, spatial outliers, and overall spatial structure. The complete results are presented in Table 1. If any issues are identified, we strongly recommend correcting the data before proceeding with report generation for your study site.

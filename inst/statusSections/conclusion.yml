@@ -1,6 +1,6 @@
 ---
 name: "conclusion"
-title: "# Conclusion {{.unnumbered}}"
+title: "# Conclusion {.unnumbered}"
 parent: null
 text: null
 code: |
