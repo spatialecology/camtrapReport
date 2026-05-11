@@ -32,7 +32,7 @@ code: |
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n## Motion {{.unnumbered}}\n\n")
+    cat("\n\n## Motion {.unnumbered}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(.data$CaptureMethod == method) |>
@@ -77,7 +77,7 @@ code: |
   
   if (method %in% tolower(observation_type_df$CaptureMethod)) {
     
-    cat("\n\n## TimeLapse {{.unnumbered}}\n\n")
+    cat("\n\n## TimeLapse {.unnumbered}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(tolower(.data$CaptureMethod) == "timelapse") |>
@@ -128,7 +128,7 @@ code: |
   
   if (method %in% observation_type_df$CaptureMethod) {
     
-    cat("\n\n## Total {{.unnumbered}}\n\n")
+    cat("\n\n## Total {.unnumbered}\n\n")
     
     pie_data <- observation_type_df |>
       dplyr::filter(.data$CaptureMethod == method) |>
