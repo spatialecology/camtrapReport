@@ -64,7 +64,7 @@ code: |
     print(p)
     
     .pie_caption(
-      number = 2,
+      number = 1,
       text = "Distribution of observation types for motion-detection records. Slices show the percentage contribution of each observation type within this capture method."
     )
   }
@@ -115,7 +115,7 @@ code: |
     print(p)
     
     .pie_caption(
-      number = 3,
+      number = 2,
       text = "Distribution of observation types for time-lapse records. Slices show the percentage contribution of each observation type within this capture method."
     )
   }
@@ -160,7 +160,7 @@ code: |
     print(p)
     
     .pie_caption(
-      number = 4,
+      number = 3,
       text = "Overall distribution of observation types across all capture methods. Slices show the percentage contribution of each observation type in the full dataset."
     )
   }

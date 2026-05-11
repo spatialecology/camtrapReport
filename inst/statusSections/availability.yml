@@ -7,8 +7,9 @@ text: |
   ### Review Essential Data Availability {.unnumbered}
   
   In this chapter, we review all essential data components required for generating the report. These include both mandatory fields and necessary supporting fields or files that contribute to the completeness and overall quality of the final output. Table 3 provides a structured overview of the availability and completeness of these elements. While all fields listed in the table are important for generating a high-quality report, the **bolded** fields are mandatory. Their status must be marked as **Complete**; otherwise, any associated records with missing or partial values will be automatically excluded from the final output.
+
 code: |
-  #| name: code
+  #| name: data_availability_table
   #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
   #| packages: base
   
@@ -169,21 +170,25 @@ code: |
   # -------------------------
   
   c1 <- c(c1, c("Additional Files", "Additional Files"))
-  c2 <- c(c2, c("habitat.csv", "spatial boundary (e.g., shapefile)"))
+  c2 <- c(c2, c("habitat.csv", "spatial boundary file"))
   
   if (is.null(object$habitat) || nrow(object$habitat) == 0) {
-    .w <- c("🔴 Missing")
+    .w <- c("Missing")
   } else {
-    .w <- "🟢 Complete"
+    .w <- "Complete"
   }
   
   if (is.null(object$study_area)) {
-    .w <- c(.w, "🔴 Missing")
+    .w <- c(.w, "Missing")
   } else {
-    .w <- c(.w, "🟢 Complete")
+    .w <- c(.w, "Complete")
   }
   
   c3 <- c(c3, .w)
+  
+  # -------------------------
+  # Build table
+  # -------------------------
   
   data_summary <- data.frame(
     Category = c1,
@@ -197,7 +202,7 @@ code: |
   data_summary$Field <- gsub("\n", "<br>", as.character(data_summary$Field))
   data_summary$Status <- gsub("\n", "<br>", as.character(data_summary$Status))
   
-  # Fields to highlight in bold
+  # Mandatory fields to highlight in bold
   bold_fields <- c(
     "locationID",
     "locationName",
@@ -222,20 +227,49 @@ code: |
   # Pastel color setup
   pastel_colors <- c("#f0f4f8", "#f7f9fc", "#eef2f6")
   
-  # Wrapper, centered caption, and table start
+  # -------------------------
+  # Helper functions
+  # -------------------------
+  
+  .table_caption <- function(number, text, width = "900px") {
+    cat(paste0(
+      "\n<div style='max-width:", width, "; margin:14px auto 8px auto; ",
+      "text-align:center; font-size:15px; color:#24384a; line-height:1.35;'>",
+      "<strong><em>Table ", number, ".</em></strong> ",
+      text,
+      "</div>\n"
+    ))
+  }
+  
+  .status_style <- function(status) {
+    status <- as.character(status)
+    
+    if (grepl("Complete", status, ignore.case = TRUE)) {
+      return("color:#1b6e1b; font-weight:600;")
+    }
+    
+    if (grepl("Missing|Incomplete|Not available|NA", status, ignore.case = TRUE)) {
+      return("color:#9f1d1d; font-weight:600;")
+    }
+    
+    "color:#24384a;"
+  }
+  
+  # -------------------------
+  # Render table
+  # -------------------------
+  
   cat("
   <div style='max-width:900px; margin:16px auto 26px auto; text-align:center;'>
+  ")
   
-  <div style='
-    width:100%;
-    text-align:center;
-    font-size:15px;
-    color:#24384a;
-    margin:0 auto 10px auto;
-    line-height:1.35;'>
-    <strong><em>Table 3.</em></strong> Essential data availability and completeness
-  </div>
+  .table_caption(
+    number = 3,
+    text = "Essential data availability and completeness",
+    width = "900px"
+  )
   
+  cat("
   <table style='
     margin:0 auto;
     border-collapse:collapse;
@@ -262,7 +296,7 @@ code: |
   start_indices <- cumsum(c(1, head(row_spans$lengths, -1)))
   current_group <- 1
   
-  # Loop for table rows
+  # Loop through rows
   for (i in seq_len(nrow(data_summary))) {
     
     if (i %in% start_indices) {
@@ -278,13 +312,12 @@ code: |
       rowspan <- row_spans$lengths[which(start_indices == i)]
       
       cat(sprintf(
-        "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word;' rowspan='%d'>%s</td>",
-        rowspan,
+        "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word; font-weight:600;'>%s</td>",
         data_summary$Category[i]
       ))
     }
     
-    # Apply bold if mandatory
+    # Apply bold to mandatory fields
     field_val <- data_summary$Field[i]
     
     field_html <- if (field_val %in% bold_fields) {
@@ -293,13 +326,16 @@ code: |
       field_val
     }
     
+    status_css <- .status_style(data_summary$Status[i])
+    
     cat(sprintf(
-      "<td style='border:1px solid #ddd; padding:6px; vertical-align:top; text-align:left; word-break:break-word;'>%s</td>",
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; word-break:break-word;'>%s</td>",
       field_html
     ))
     
     cat(sprintf(
-      "<td style='border:1px solid #ddd; padding:6px; vertical-align:top; text-align:left; color:black; white-space:normal; word-break:break-word;'>%s</td>",
+      "<td style='border:1px solid #ddd; padding:6px; vertical-align:middle; text-align:center; white-space:normal; word-break:break-word; %s'>%s</td>",
+      status_css,
       data_summary$Status[i]
     ))
     
