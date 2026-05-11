@@ -3,9 +3,8 @@ ID,name,parent
 2,spatial,.root
 3,temporal,.root
 4,availability,.root
-5,species,.root
-6,validation,.root
-7,annotation,.root
-8,observation_type,.root
-9,conclusion,.root
-10,acknowledge,.root
+5,validation,.root
+6,annotation,.root
+7,observation_type,.root
+8,conclusion,.root
+9,acknowledge,.root
