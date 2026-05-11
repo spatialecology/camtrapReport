@@ -54,6 +54,7 @@ Suggests:
     spOccupancy,
     spatstat,
     stringr,
+    stats,
     suncalc,
     taxadb,
     testthat (>= 3.0.0),
