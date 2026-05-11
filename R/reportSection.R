@@ -4,6 +4,7 @@
 # Licence MIT
 #--------
 
+
 .getTextObj <- function(name = NULL,
                         title = NULL,
                         parent = NULL,
