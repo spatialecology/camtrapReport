@@ -46,7 +46,6 @@
     dplyr::select(-start, -end)",environment())
   
   as.data.frame(sequences)
-}
 
 
 
