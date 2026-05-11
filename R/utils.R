@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : May 2026
-# Version 2.5
+# Last Update: May 2026
+# Version 2.6
 # Licence MIT
 #--------
 
@@ -26,13 +26,18 @@
   )
 }
 
-#-----------
+#--------
 
 .trim <- function(x, squish = TRUE) {
-  if (missing(x) || is.null(x) || length(x) == 0) return("")
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return("")
+  }
   
   x <- as.character(x[1])
-  if (is.na(x)) return("")
+  
+  if (is.na(x)) {
+    return("")
+  }
   
   x <- trimws(x)
   
@@ -43,7 +48,7 @@
   x
 }
 
-#------------
+#--------
 
 .trim_chr <- function(x) {
   if (missing(x) || is.null(x) || length(x) == 0) {
@@ -55,12 +60,14 @@
   trimws(x)
 }
 
-#------------
+#--------
 
 .require <- function(x) {
   x <- as.character(x)[1]
   
-  if (is.na(x) || !nzchar(x)) return(FALSE)
+  if (is.na(x) || !nzchar(x)) {
+    return(FALSE)
+  }
   
   if (!requireNamespace(x, quietly = TRUE)) {
     return(FALSE)
@@ -82,7 +89,7 @@
   isTRUE(ok)
 }
 
-#------------
+#--------
 
 .suppress_startup <- function(expr) {
   suppressPackageStartupMessages(
@@ -92,7 +99,7 @@
   )
 }
 
-#------------
+#--------
 
 .format_duration <- function(seconds) {
   seconds <- suppressWarnings(as.numeric(seconds))
@@ -119,10 +126,12 @@
   paste0(hours, " h ", minutes, " min")
 }
 
-#------------
+#--------
 
 .format_file_size <- function(bytes) {
-  if (is.null(bytes) || length(bytes) == 0) return("unknown size")
+  if (is.null(bytes) || length(bytes) == 0) {
+    return("unknown size")
+  }
   
   bytes <- suppressWarnings(as.numeric(bytes[1]))
   
@@ -145,7 +154,7 @@
   paste0(round(bytes / 1024^3, 2), " GB")
 }
 
-#------------
+#--------
 
 .estimate_camdata_size <- function(data) {
   if (is.null(data) || length(data) == 0 || is.na(data[1]) || !file.exists(data[1])) {
@@ -213,7 +222,7 @@
   )
 }
 
-#------------
+#--------
 
 .camdata_start_message <- function(data) {
   size_info <- .estimate_camdata_size(data)
@@ -247,7 +256,7 @@
   invisible(size_info)
 }
 
-#------------
+#--------
 
 .camdata_done_message <- function(start_time, site_name = NULL) {
   elapsed <- difftime(Sys.time(), start_time, units = "secs")
@@ -262,7 +271,7 @@
   invisible(TRUE)
 }
 
-#------------
+#--------
 
 .eval <- function(x, env) {
   if (missing(x) || is.null(x) || length(x) == 0) {
@@ -276,9 +285,9 @@
   eval(parse(text = x), envir = env)
 }
 
-#------------
+#--------
 # Safe module rendering helpers
-#------------
+#--------
 
 .extract_chunk_name <- function(code, fallback = "module") {
   fallback <- as.character(fallback)[1]
@@ -311,7 +320,7 @@
   fallback
 }
 
-#------------
+#--------
 
 .html_escape_base <- function(x) {
   if (missing(x) || is.null(x) || length(x) == 0) {
@@ -319,7 +328,10 @@
   }
   
   x <- as.character(x[1])
-  if (is.na(x)) x <- ""
+  
+  if (is.na(x)) {
+    x <- ""
+  }
   
   x <- gsub("&", "&amp;", x, fixed = TRUE)
   x <- gsub("<", "&lt;", x, fixed = TRUE)
@@ -330,93 +342,20 @@
   x
 }
 
-#------------
+# Keep old helper name used elsewhere in the package.
+.html_attr_escape <- .html_escape_base
+
+#--------
 
 .make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
-    code <- ""
+    return("")
   }
   
-  code <- paste(as.character(code), collapse = "\n")
-  
-  if (
-    is.null(module_name) ||
-    length(module_name) == 0 ||
-    is.na(module_name[1]) ||
-    !nzchar(module_name[1])
-  ) {
-    module_name <- .extract_chunk_name(code)
-  }
-  
-  module_name <- as.character(module_name)[1]
-  module_name <- gsub("[^A-Za-z0-9_]+", "_", module_name)
-  
-  if (is.na(module_name) || !nzchar(module_name)) {
-    module_name <- "module"
-  }
-  
-  code_lines <- strsplit(code, "\n", fixed = TRUE)[[1]]
-  code_lines_dput <- paste(capture.output(dput(code_lines)), collapse = "\n")
-  
-  module_name_code <- encodeString(module_name, quote = "\"")
-  
-  report_note_code <- ""
-  
-  if (isTRUE(show_note_in_report)) {
-    report_note_code <- paste0(
-      "  .__camtrap_error_text <- conditionMessage(e)\n",
-      "  .__camtrap_escape <- function(x) {\n",
-      "    x <- as.character(x)[1]\n",
-      "    if (is.na(x)) x <- ''\n",
-      "    x <- gsub('&', '&amp;', x, fixed = TRUE)\n",
-      "    x <- gsub('<', '&lt;', x, fixed = TRUE)\n",
-      "    x <- gsub('>', '&gt;', x, fixed = TRUE)\n",
-      "    x <- gsub('\"', '&quot;', x, fixed = TRUE)\n",
-      "    x <- gsub(\"'\", '&#39;', x, fixed = TRUE)\n",
-      "    x\n",
-      "  }\n",
-      "  cat(paste0(\n",
-      "    '\\n\\n<div style=\"border-left:4px solid #d9534f; padding:10px 12px; margin:12px 0; background:#fff5f5; color:#7a1f1f;\">',\n",
-      "    '<strong>Module skipped:</strong> ', .__camtrap_escape(.__camtrap_module_name), '<br>',\n",
-      "    '<strong>Error:</strong> ', .__camtrap_escape(.__camtrap_error_text),\n",
-      "    '</div>\\n\\n'\n",
-      "  ))\n"
-    )
-  }
-  
-  out <- paste0(
-    ".__camtrap_module_name <- ", module_name_code, "\n",
-    ".__camtrap_module_code <- ", code_lines_dput, "\n",
-    ".__camtrap_module_file <- tempfile(fileext = '.R')\n",
-    "writeLines(.__camtrap_module_code, .__camtrap_module_file, useBytes = TRUE)\n",
-    "\n",
-    "cat('\\n[START] Rendering module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
-    "\n",
-    "tryCatch({\n",
-    "  .__camtrap_exprs <- parse(file = .__camtrap_module_file)\n",
-    "  .__camtrap_eval_env <- environment()\n",
-    "  for (.__camtrap_i in seq_along(.__camtrap_exprs)) {\n",
-    "    .__camtrap_value <- withVisible(eval(.__camtrap_exprs[[.__camtrap_i]], envir = .__camtrap_eval_env))\n",
-    "    if (isTRUE(.__camtrap_value$visible)) {\n",
-    "      print(.__camtrap_value$value)\n",
-    "    }\n",
-    "  }\n",
-    "  cat('[OK] Finished module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
-    "}, error = function(e) {\n",
-    "  cat('[SKIP] Module: ', .__camtrap_module_name, ' -- ', conditionMessage(e), '\\n', sep = '', file = stderr())\n",
-    report_note_code,
-    "}, finally = {\n",
-    "  if (exists('.__camtrap_module_file', inherits = FALSE) && file.exists(.__camtrap_module_file)) {\n",
-    "    unlink(.__camtrap_module_file)\n",
-    "  }\n",
-    "})\n"
-  )
-  
-  invisible(parse(text = out))
-  out
+  paste(as.character(code), collapse = "\n")
 }
 
-#------------
+#--------
 
 .make_render_env <- function(object) {
   env <- new.env(parent = parent.frame())
@@ -436,7 +375,8 @@
     ".getYear",
     ".get_Time_length",
     ".get_hour",
-    ".html_escape_base"
+    ".html_escape_base",
+    ".html_attr_escape"
   )
   
   for (nm in helper_names) {
@@ -472,12 +412,14 @@
   env
 }
 
-#------------
+#--------
 
 .rmChar <- function(x, rm, rmLast = FALSE) {
   x <- strsplit(as.character(x), "")[[1]]
   
-  if (length(x) == 0) return("")
+  if (length(x) == 0) {
+    return("")
+  }
   
   rm <- rm[rm >= 1 & rm <= length(x)]
   
@@ -492,10 +434,12 @@
   paste(x, collapse = "")
 }
 
-#------------
+#--------
 
 .findParent <- function(x, n) {
-  if (length(x) == 0) return(NA)
+  if (length(x) == 0) {
+    return(NA)
+  }
   
   for (i in seq_along(x)) {
     if (is.list(x[[i]])) {
@@ -514,11 +458,14 @@
   NA
 }
 
-#------------
+#--------
 
 .getYear <- function(x, .interval = FALSE) {
   if (missing(x) || is.null(x) || length(x) == 0) {
-    if (isTRUE(.interval)) return(list())
+    if (isTRUE(.interval)) {
+      return(list())
+    }
+    
     return(numeric())
   }
   
@@ -526,7 +473,10 @@
     x <- as.character(x)
     
     lapply(x, function(z) {
-      if (is.na(z) || !nzchar(z)) return(numeric())
+      if (is.na(z) || !nzchar(z)) {
+        return(numeric())
+      }
+      
       yrs <- regmatches(z, gregexpr("\\b[0-9]{4}\\b", z))[[1]]
       unique(suppressWarnings(as.numeric(yrs)))
     })
@@ -535,7 +485,7 @@
   }
 }
 
-#------------
+#--------
 
 .getMissingTaxon_GBIF <- function(x) {
   x <- unique(as.character(x))
@@ -616,7 +566,7 @@
   }
 }
 
-#------------
+#--------
 
 .getMissingTaxon_NCBI <- function(x) {
   x <- unique(as.character(x))
@@ -686,24 +636,21 @@
   }
 }
 
-#------------
+#--------
 
 .get_hour <- function(x, tz = "UTC") {
-  
   if (is.null(x) || length(x) == 0) {
     return(numeric())
   }
   
-  if (inherits(x, "POSIXlt")) {
-    px <- x
-  } else if (inherits(x, "POSIXct")) {
-    px <- as.POSIXlt(x, tz = tz)
+  if (inherits(x, "POSIXct")) {
+    pxct <- x
+  } else if (inherits(x, "POSIXlt")) {
+    pxct <- as.POSIXct(x, tz = tz)
   } else {
-    
     x <- as.character(x)
     x[!nzchar(trimws(x))] <- NA_character_
     
-    # Try common date-time formats safely
     formats <- c(
       "%Y-%m-%d %H:%M:%OS",
       "%Y-%m-%dT%H:%M:%OS",
@@ -717,27 +664,31 @@
       "%Y/%m/%d"
     )
     
-    pxct <- rep(as.POSIXct(NA), length(x))
+    pxct <- as.POSIXct(rep(NA_real_, length(x)), origin = "1970-01-01", tz = tz)
     
     for (fmt in formats) {
-      missing <- is.na(pxct) & !is.na(x)
-      if (!any(missing)) break
+      missing_i <- is.na(pxct) & !is.na(x)
+      
+      if (!any(missing_i)) {
+        break
+      }
       
       parsed <- suppressWarnings(
-        as.POSIXct(x[missing], format = fmt, tz = tz)
+        as.POSIXct(x[missing_i], format = fmt, tz = tz)
       )
       
-      pxct[missing] <- parsed
+      ok <- !is.na(parsed)
+      pxct[which(missing_i)[ok]] <- parsed[ok]
     }
-    
-    px <- as.POSIXlt(pxct, tz = tz)
   }
   
+  px <- as.POSIXlt(pxct, tz = tz)
   out <- px$hour + px$min / 60 + px$sec / 3600
-  out[is.na(px)] <- NA_real_
+  out[is.na(pxct)] <- NA_real_
   out
 }
-#------------
+
+#--------
 
 .basic_corrplot <- function(x, main = "Species Co-occurrence") {
   x[upper.tri(x, diag = TRUE)] <- NA
@@ -788,10 +739,12 @@
   )
 }
 
-#------------
+#--------
 
 .get_projected_sf <- function(x) {
-  if (!.require("sf")) return(NULL)
+  if (!.require("sf")) {
+    return(NULL)
+  }
   
   if (is.null(sf::st_crs(x))) {
     warning("Input sf object has no CRS; assuming EPSG:4326.")
@@ -826,7 +779,7 @@
   }
 }
 
-#------------
+#--------
 
 .is.projected <- function(x) {
   if (!requireNamespace("terra", quietly = TRUE)) {
@@ -842,7 +795,7 @@
   !all(e[1:2] >= -180 & e[1:2] <= 180 & e[3:4] >= -90 & e[3:4] <= 90)
 }
 
-#------------
+#--------
 
 .get_projected_vect <- function(x) {
   if (!requireNamespace("terra", quietly = TRUE)) {
@@ -873,7 +826,7 @@
   }
 }
 
-#------------
+#--------
 
 .get_Time_length <- function(x, y = NULL, unit = "days") {
   if (missing(x) || is.null(x) || length(x) == 0) {
@@ -881,35 +834,65 @@
   }
   
   if (is.null(y)) {
-    .s <- sapply(as.character(x), function(z) strsplit(z, "--", fixed = TRUE)[[1]][1])
-    .e <- sapply(as.character(x), function(z) strsplit(z, "--", fixed = TRUE)[[1]][2])
+    x <- as.character(x)
     
-    names(.s) <- names(.e) <- NULL
+    out <- sapply(x, function(z) {
+      if (is.na(z) || !nzchar(z) || !grepl("--", z, fixed = TRUE)) {
+        return(NA_real_)
+      }
+      
+      parts <- strsplit(z, "--", fixed = TRUE)[[1]]
+      
+      if (length(parts) < 2) {
+        return(NA_real_)
+      }
+      
+      start <- suppressWarnings(as.POSIXct(parts[1]))
+      end <- suppressWarnings(as.POSIXct(parts[2]))
+      
+      if (is.na(start) || is.na(end)) {
+        return(NA_real_)
+      }
+      
+      as.numeric(difftime(end, start, units = unit))
+    })
     
-    as.numeric(difftime(as.POSIXct(.e), as.POSIXct(.s), units = unit))
+    names(out) <- NULL
+    out
   } else {
-    as.numeric(difftime(as.POSIXct(x), as.POSIXct(y), units = unit))
+    start <- suppressWarnings(as.POSIXct(x))
+    end <- suppressWarnings(as.POSIXct(y))
+    
+    as.numeric(difftime(start, end, units = unit))
   }
 }
 
-#------------
+#--------
 
 .isZip <- function(x) {
-  if (is.null(x) || length(x) == 0 || is.na(x[1])) return(FALSE)
+  if (is.null(x) || length(x) == 0 || is.na(x[1])) {
+    return(FALSE)
+  }
+  
   grepl("\\.[Zz][Ii][Pp]$", basename(x[1]))
 }
 
-#------------
+#--------
 
 .isJson <- function(x) {
-  if (is.null(x) || length(x) == 0 || is.na(x[1])) return(FALSE)
+  if (is.null(x) || length(x) == 0 || is.na(x[1])) {
+    return(FALSE)
+  }
+  
   grepl("\\.[Jj][Ss][Oo][Nn]$", basename(x[1]))
 }
 
-#------------
+#--------
 
 .firstUpper <- function(x) {
-  if (missing(x) || is.null(x) || length(x) == 0) return(character())
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return(character())
+  }
   
   x <- as.character(x)
   x[is.na(x)] <- ""
@@ -917,7 +900,7 @@
   paste0(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))))
 }
 
-#------------
+#--------
 
 .loadPKG <- function(pkgs) {
   old_warn <- getOption("warn")
@@ -931,7 +914,7 @@
   all(unlist(lapply(pkgs, function(p) .require(p))))
 }
 
-#------------
+#--------
 
 .getFormat <- function(x) {
   .dtFormats <- c(
@@ -948,7 +931,9 @@
   x <- x[!is.na(x)]
   x <- x[nzchar(as.character(x))]
   
-  if (length(x) == 0) return(NA_character_)
+  if (length(x) == 0) {
+    return(NA_character_)
+  }
   
   o <- logical(length(.dtFormats))
   
@@ -957,17 +942,25 @@
     o[i] <- all(!is.na(parsed))
   }
   
-  if (any(o)) .dtFormats[which(o)[1]] else NA_character_
+  if (any(o)) {
+    .dtFormats[which(o)[1]]
+  } else {
+    NA_character_
+  }
 }
 
-#------------
+#--------
 
 .bind_rows <- function(x) {
-  if (is.null(x) || length(x) == 0) return(data.frame())
+  if (is.null(x) || length(x) == 0) {
+    return(data.frame())
+  }
   
   x <- x[!vapply(x, is.null, logical(1))]
   
-  if (length(x) == 0) return(data.frame())
+  if (length(x) == 0) {
+    return(data.frame())
+  }
   
   if (requireNamespace("dplyr", quietly = TRUE)) {
     return(as.data.frame(dplyr::bind_rows(x)))
@@ -989,13 +982,13 @@
   do.call(rbind, x)
 }
 
-#------------
+#--------
 
 .is.POSIXct <- function(x) {
   inherits(x, "POSIXct")
 }
 
-#------------
+#--------
 
 .get_match <- function(x, y, several = TRUE, case_sensitive = FALSE) {
   if (missing(x) || missing(y) || is.null(x) || is.null(y)) {
@@ -1023,11 +1016,15 @@
   } else {
     xx <- try(match.arg(x, y, several.ok = several), silent = TRUE)
     
-    if (!inherits(xx, "try-error")) xx else NA
+    if (!inherits(xx, "try-error")) {
+      xx
+    } else {
+      NA
+    }
   }
 }
 
-#------------
+#--------
 
 .file_info <- function(x) {
   if (is.null(x) || length(x) == 0 || is.na(x[1])) {
@@ -1040,7 +1037,10 @@
     .dir <- "."
   } else {
     .dir <- dirname(x)
-    if (.dir == getwd()) .dir <- "."
+    
+    if (.dir == getwd()) {
+      .dir <- "."
+    }
   }
   
   w <- strsplit(basename(x), "\\.")[[1]]
@@ -1056,20 +1056,28 @@
   list(path = .dir, filename = .filename, extension = .extension)
 }
 
-#------------
+#--------
 
 .pick_col <- function(df, candidates) {
-  if (is.null(df) || !is.data.frame(df)) return(NA_character_)
+  if (is.null(df) || !is.data.frame(df)) {
+    return(NA_character_)
+  }
   
   hit <- candidates[candidates %in% names(df)]
   
-  if (length(hit)) hit[1] else NA_character_
+  if (length(hit)) {
+    hit[1]
+  } else {
+    NA_character_
+  }
 }
 
-#------------
+#--------
 
 .charN <- function(x, space = TRUE) {
-  if (missing(x) || is.null(x)) return(NULL)
+  if (missing(x) || is.null(x)) {
+    return(NULL)
+  }
   
   x <- as.character(x)
   
@@ -1077,18 +1085,26 @@
     return(sapply(x, .charN, space = space))
   }
   
-  if (is.na(x) || !nzchar(trimws(x))) return(0)
+  if (is.na(x) || !nzchar(trimws(x))) {
+    return(0)
+  }
   
   x <- .trim(x)
   x <- strsplit(x, "")[[1]]
   
-  if (space) length(x) else length(x[x != " "])
+  if (space) {
+    length(x)
+  } else {
+    length(x[x != " "])
+  }
 }
 
-#------------
+#--------
 
 .wordN <- function(x) {
-  if (missing(x) || is.null(x)) return(NULL)
+  if (missing(x) || is.null(x)) {
+    return(NULL)
+  }
   
   x <- as.character(x)
   
@@ -1096,15 +1112,19 @@
     return(sapply(x, .wordN))
   }
   
-  if (is.na(x) || !nzchar(trimws(x))) return(0)
+  if (is.na(x) || !nzchar(trimws(x))) {
+    return(0)
+  }
   
   length(strsplit(.trim(x), "\\s+")[[1]])
 }
 
-#------------
+#--------
 
 .word <- function(x, start = NULL, end = NULL) {
-  if (missing(x) || is.null(x)) return(NULL)
+  if (missing(x) || is.null(x)) {
+    return(NULL)
+  }
   
   x <- as.character(x)
   
@@ -1116,12 +1136,18 @@
   .w <- unlist(strsplit(x, "[ ,;:.]+"))
   .w <- .w[nzchar(.w)]
   
-  if (length(.w) == 0) return(.w)
+  if (length(.w) == 0) {
+    return(.w)
+  }
   
   if (!is.null(start) && is.numeric(start) && start != 0) {
     if (start < 0) {
       start <- abs(as.integer(start))
-      if (start > length(.w)) start <- length(.w)
+      
+      if (start > length(.w)) {
+        start <- length(.w)
+      }
+      
       end <- length(.w)
       start <- length(.w) - start + 1
     } else {
@@ -1147,7 +1173,7 @@
   .w[start:end]
 }
 
-#------------
+#--------
 
 .pretty_label <- function(x) {
   if (missing(x) || is.null(x) || length(x) == 0) {
