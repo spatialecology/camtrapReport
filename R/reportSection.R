@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update : May 2026
-# Version 1.4
+# Version 1.5
 # Licence MIT
 #--------
 
@@ -54,63 +54,6 @@
 
 #--------
 
-.protect_pandoc_attrs <- function(txt) {
-  if (is.null(txt) || length(txt) == 0) return(txt)
-  
-  txt <- as.character(txt)
-  
-  txt <- gsub("\\{\\.unnumbered\\}", "___CAMTRAP_ATTR_UNNUMBERED___", txt)
-  txt <- gsub("\\{\\.tabset\\}", "___CAMTRAP_ATTR_TABSET___", txt)
-  txt <- gsub("\\{\\.tabset-fade\\}", "___CAMTRAP_ATTR_TABSET_FADE___", txt)
-  txt <- gsub("\\{\\.tabset-pills\\}", "___CAMTRAP_ATTR_TABSET_PILLS___", txt)
-  
-  txt
-}
-
-#--------
-
-.restore_pandoc_attrs <- function(txt) {
-  if (is.null(txt) || length(txt) == 0) return(txt)
-  
-  txt <- as.character(txt)
-  
-  txt <- gsub("___CAMTRAP_ATTR_UNNUMBERED___", "{.unnumbered}", txt, fixed = TRUE)
-  txt <- gsub("___CAMTRAP_ATTR_TABSET___", "{.tabset}", txt, fixed = TRUE)
-  txt <- gsub("___CAMTRAP_ATTR_TABSET_FADE___", "{.tabset-fade}", txt, fixed = TRUE)
-  txt <- gsub("___CAMTRAP_ATTR_TABSET_PILLS___", "{.tabset-pills}", txt, fixed = TRUE)
-  
-  txt
-}
-
-#--------
-
-.safe_glue_text <- function(txt, .envir, section_name = "unknown") {
-  if (is.null(txt) || length(txt) == 0) return("")
-  
-  txt <- paste(as.character(txt), collapse = "\n")
-  txt <- .protect_pandoc_attrs(txt)
-  
-  out <- try(
-    glue::glue(txt, .envir = .envir),
-    silent = TRUE
-  )
-  
-  if (inherits(out, "try-error")) {
-    stop(
-      "Failed to evaluate text in report section '",
-      section_name,
-      "'. Original error: ",
-      conditionMessage(attr(out, "condition")),
-      call. = FALSE
-    )
-  }
-  
-  out <- as.character(out)
-  .restore_pandoc_attrs(out)
-}
-
-#--------
-
 .clean_chunk_name <- function(x, fallback = "module") {
   x <- as.character(x)[1]
   
@@ -127,6 +70,97 @@
   }
   
   x
+}
+
+#--------
+
+.protect_pandoc_attrs_one <- function(z) {
+  if (is.na(z) || !nzchar(z)) {
+    return(list(text = z, keys = character(), vals = character()))
+  }
+  
+  # Protect Pandoc heading attributes from glue(), for example:
+  # {.unnumbered}
+  # {.tabset}
+  # {.tabset .unnumbered}
+  # {#id .class}
+  # {#id .tabset .unnumbered}
+  m <- gregexpr("\\{[[:space:]]*[#\\.][^\\{\\}\\n]*\\}", z, perl = TRUE)
+  vals <- regmatches(z, m)[[1]]
+  
+  if (length(vals) == 0 || identical(vals, character(0))) {
+    return(list(text = z, keys = character(), vals = character()))
+  }
+  
+  keys <- paste0("___CAMTRAP_PANDOC_ATTR_", seq_along(vals), "___")
+  
+  for (i in seq_along(vals)) {
+    z <- sub(vals[i], keys[i], z, fixed = TRUE)
+  }
+  
+  list(text = z, keys = keys, vals = vals)
+}
+
+#--------
+
+.restore_pandoc_attrs_one <- function(z, keys, vals) {
+  if (length(keys) == 0) {
+    return(z)
+  }
+  
+  for (i in seq_along(keys)) {
+    z <- gsub(keys[i], vals[i], z, fixed = TRUE)
+  }
+  
+  z
+}
+
+#--------
+
+.safe_glue_text <- function(txt, .envir, section_name = "unknown") {
+  if (missing(txt) || is.null(txt) || length(txt) == 0) {
+    return(character())
+  }
+  
+  if (missing(.envir) || is.null(.envir)) {
+    .envir <- parent.frame()
+  }
+  
+  txt <- as.character(txt)
+  
+  out <- vapply(
+    txt,
+    FUN = function(z) {
+      
+      if (is.na(z)) {
+        return("")
+      }
+      
+      protected <- .protect_pandoc_attrs_one(z)
+      
+      glued <- try(
+        glue::glue(protected$text, .envir = .envir),
+        silent = TRUE
+      )
+      
+      if (inherits(glued, "try-error")) {
+        stop(
+          "Failed to evaluate text in report section '",
+          section_name,
+          "'. Original error: ",
+          conditionMessage(attr(glued, "condition")),
+          call. = FALSE
+        )
+      }
+      
+      glued <- as.character(glued)
+      .restore_pandoc_attrs_one(glued, protected$keys, protected$vals)
+    },
+    FUN.VALUE = character(1),
+    USE.NAMES = FALSE
+  )
+  
+  out
 }
 
 #--------
@@ -192,15 +226,16 @@
   }
   
   section_name <- x@name
+  
   if (is.null(section_name) || length(section_name) == 0 || is.na(section_name[1])) {
     section_name <- "unknown"
   }
   
+  out <- character()
+  
   # -------------------------
   # Section title
   # -------------------------
-  
-  out <- character()
   
   title <- x@title
   
@@ -239,17 +274,11 @@
   # -------------------------
   
   if (!is.null(x@txt) && length(x@txt) > 0) {
-    txt <- vapply(
-      x@txt,
-      FUN = function(z) {
-        .safe_glue_text(
-          txt = z,
-          .envir = .envir,
-          section_name = section_name
-        )
-      },
-      FUN.VALUE = character(1),
-      USE.NAMES = FALSE
+    
+    txt <- .safe_glue_text(
+      txt = x@txt,
+      .envir = .envir,
+      section_name = section_name
     )
     
     txt <- txt[nzchar(txt)]
