@@ -174,7 +174,7 @@
     "/* Wider report body */\n",
     ".main-container {\n",
     "  max-width: 1150px !important;\n",
-    "  width: calc(100% - 40px) !important;\n",
+    "  width: calc(100% - 20px) !important;\n",
     "  margin-left: auto !important;\n",
     "  margin-right: auto !important;\n",
     "}\n",
