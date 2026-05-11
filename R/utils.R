@@ -1,7 +1,7 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update : May 2026
-# Version 2.4
-# Licence  MIT
+# Version 2.5
+# Licence MIT
 #--------
 
 .paste_comma_and <- function(x) {
@@ -45,10 +45,18 @@
 
 #------------
 
-# Quiet package loader.
-# Returns TRUE if the package is available and attached; FALSE otherwise.
-# It hides startup/conflict messages such as:
-# "Loading required package...", "Attaching package...", and "masked from ...".
+.trim_chr <- function(x) {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return(character())
+  }
+  
+  x <- as.character(x)
+  x[is.na(x)] <- ""
+  trimws(x)
+}
+
+#------------
+
 .require <- function(x) {
   x <- as.character(x)[1]
   
@@ -74,7 +82,8 @@
   isTRUE(ok)
 }
 
-# Run an expression while hiding package startup chatter.
+#------------
+
 .suppress_startup <- function(expr) {
   suppressPackageStartupMessages(
     suppressMessages(
@@ -106,6 +115,7 @@
   
   hours <- floor(seconds / 3600)
   minutes <- floor((seconds %% 3600) / 60)
+  
   paste0(hours, " h ", minutes, " min")
 }
 
@@ -175,7 +185,10 @@
   }
   
   effective_size <- suppressWarnings(max(c(file_size, zip_uncompressed_size), na.rm = TRUE))
-  if (!is.finite(effective_size)) effective_size <- NA_real_
+  
+  if (!is.finite(effective_size)) {
+    effective_size <- NA_real_
+  }
   
   size_class <- if (is.na(effective_size)) {
     "unknown"
@@ -201,10 +214,11 @@
 }
 
 #------------
+
 .camdata_start_message <- function(data) {
   size_info <- .estimate_camdata_size(data)
   
-  message("⏳ The camReport object is being created...")
+  message("The camReport object is being created...")
   
   if (!is.na(size_info$zip_uncompressed_size)) {
     message(
@@ -223,15 +237,16 @@
   } else if (identical(size_info$size_class, "medium")) {
     message("This may take several minutes. Progress updates will be shown below.")
   } else if (identical(size_info$size_class, "large")) {
-    message("This is a large dataset. You may want to grab a coffee while the camReport object is being created ☕. Progress updates will be shown below.")
+    message("This is a large dataset. Object creation may take some time. Progress updates will be shown below.")
   } else if (identical(size_info$size_class, "very_large")) {
-    message("This is a very large dataset. Please keep R running; creating the camReport object may take some time ⏳. Progress updates will be shown below.")
+    message("This is a very large dataset. Please keep R running; creating the camReport object may take some time. Progress updates will be shown below.")
   } else {
     message("Creating the camReport object may take some time, depending on file size, number of records, and enabled analyses. Progress updates will be shown below.")
   }
   
   invisible(size_info)
 }
+
 #------------
 
 .camdata_done_message <- function(start_time, site_name = NULL) {
@@ -241,8 +256,8 @@
     site_name <- "your study site"
   }
   
-  message("✅ Data loaded successfully in ", .format_duration(elapsed), ".")
-  message("🦌 camReport object is ready for ", site_name, ".")
+  message("Data loaded successfully in ", .format_duration(elapsed), ".")
+  message("camReport object is ready for ", site_name, ".")
   
   invisible(TRUE)
 }
@@ -250,26 +265,31 @@
 #------------
 
 .eval <- function(x, env) {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return(NULL)
+  }
+  
+  if (missing(env) || is.null(env)) {
+    env <- parent.frame()
+  }
+  
   eval(parse(text = x), envir = env)
 }
 
 #------------
-#------------
-#------------
 # Safe module rendering helpers
-# These helpers are used when building report/status Rmd chunks from YML modules.
-# They print live progress messages for each module and allow failed modules to be skipped.
+#------------
 
 .extract_chunk_name <- function(code, fallback = "module") {
+  fallback <- as.character(fallback)[1]
+  
+  if (is.na(fallback) || !nzchar(fallback)) {
+    fallback <- "module"
+  }
+  
+  fallback <- gsub("[^A-Za-z0-9_]+", "_", fallback)
   
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
-    fallback <- as.character(fallback)[1]
-    fallback <- gsub("[^A-Za-z0-9_]+", "_", fallback)
-    
-    if (is.na(fallback) || !nzchar(fallback)) {
-      fallback <- "module"
-    }
-    
     return(fallback)
   }
   
@@ -288,20 +308,31 @@
     }
   }
   
-  fallback <- as.character(fallback)[1]
-  fallback <- gsub("[^A-Za-z0-9_]+", "_", fallback)
-  
-  if (is.na(fallback) || !nzchar(fallback)) {
-    fallback <- "module"
-  }
-  
   fallback
 }
 
 #------------
 
-.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
+.html_escape_base <- function(x) {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return("")
+  }
   
+  x <- as.character(x[1])
+  if (is.na(x)) x <- ""
+  
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub('"', "&quot;", x, fixed = TRUE)
+  x <- gsub("'", "&#39;", x, fixed = TRUE)
+  
+  x
+}
+
+#------------
+
+.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
     code <- ""
   }
@@ -327,26 +358,39 @@
   code_lines <- strsplit(code, "\n", fixed = TRUE)[[1]]
   code_lines_dput <- paste(capture.output(dput(code_lines)), collapse = "\n")
   
+  module_name_code <- encodeString(module_name, quote = "\"")
+  
   report_note_code <- ""
   
   if (isTRUE(show_note_in_report)) {
     report_note_code <- paste0(
+      "  .__camtrap_error_text <- conditionMessage(e)\n",
+      "  .__camtrap_escape <- function(x) {\n",
+      "    x <- as.character(x)[1]\n",
+      "    if (is.na(x)) x <- ''\n",
+      "    x <- gsub('&', '&amp;', x, fixed = TRUE)\n",
+      "    x <- gsub('<', '&lt;', x, fixed = TRUE)\n",
+      "    x <- gsub('>', '&gt;', x, fixed = TRUE)\n",
+      "    x <- gsub('\"', '&quot;', x, fixed = TRUE)\n",
+      "    x <- gsub(\"'\", '&#39;', x, fixed = TRUE)\n",
+      "    x\n",
+      "  }\n",
       "  cat(paste0(\n",
       "    '\\n\\n<div style=\"border-left:4px solid #d9534f; padding:10px 12px; margin:12px 0; background:#fff5f5; color:#7a1f1f;\">',\n",
-      "    '<strong>Module skipped:</strong> ', .__camtrap_module_name, '<br>',\n",
-      "    '<strong>Error:</strong> ', htmltools::htmlEscape(conditionMessage(e)),\n",
+      "    '<strong>Module skipped:</strong> ', .__camtrap_escape(.__camtrap_module_name), '<br>',\n",
+      "    '<strong>Error:</strong> ', .__camtrap_escape(.__camtrap_error_text),\n",
       "    '</div>\\n\\n'\n",
       "  ))\n"
     )
   }
   
-  paste0(
-    ".__camtrap_module_name <- ", dQuote(module_name), "\n",
+  out <- paste0(
+    ".__camtrap_module_name <- ", module_name_code, "\n",
     ".__camtrap_module_code <- ", code_lines_dput, "\n",
     ".__camtrap_module_file <- tempfile(fileext = '.R')\n",
     "writeLines(.__camtrap_module_code, .__camtrap_module_file, useBytes = TRUE)\n",
     "\n",
-    "cat('\\n▶ Rendering module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
+    "cat('\\n[START] Rendering module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
     "\n",
     "tryCatch({\n",
     "  .__camtrap_exprs <- parse(file = .__camtrap_module_file)\n",
@@ -357,18 +401,22 @@
     "      print(.__camtrap_value$value)\n",
     "    }\n",
     "  }\n",
-    "  cat('✓ Finished module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
+    "  cat('[OK] Finished module: ', .__camtrap_module_name, '\\n', sep = '', file = stderr())\n",
     "}, error = function(e) {\n",
-    "  cat('✖ Skipped module: ', .__camtrap_module_name, ' — ', conditionMessage(e), '\\n', sep = '', file = stderr())\n",
+    "  cat('[SKIP] Module: ', .__camtrap_module_name, ' -- ', conditionMessage(e), '\\n', sep = '', file = stderr())\n",
     report_note_code,
-    "})\n",
-    "\n",
-    "unlink(.__camtrap_module_file)\n"
+    "}, finally = {\n",
+    "  if (exists('.__camtrap_module_file', inherits = FALSE) && file.exists(.__camtrap_module_file)) {\n",
+    "    unlink(.__camtrap_module_file)\n",
+    "  }\n",
+    "})\n"
   )
+  
+  invisible(parse(text = out))
+  out
 }
 
 #------------
-#--------------
 
 .make_render_env <- function(object) {
   env <- new.env(parent = parent.frame())
@@ -377,6 +425,26 @@
   env$cm <- object
   env$.self <- object
   
+  helper_names <- c(
+    ".paste_comma_and",
+    ".trim",
+    ".trim_chr",
+    ".pretty_label",
+    ".firstUpper",
+    ".format_duration",
+    ".format_file_size",
+    ".getYear",
+    ".get_Time_length",
+    ".get_hour",
+    ".html_escape_base"
+  )
+  
+  for (nm in helper_names) {
+    if (exists(nm, mode = "function", inherits = TRUE)) {
+      assign(nm, get(nm, mode = "function", inherits = TRUE), envir = env)
+    }
+  }
+  
   field_names <- character()
   
   field_names <- tryCatch(
@@ -384,7 +452,7 @@
     error = function(e) character()
   )
   
-  if (length(field_names) == 0 && exists("camR")) {
+  if (length(field_names) == 0 && exists("camR", inherits = TRUE)) {
     field_names <- tryCatch(
       names(camR$fields()),
       error = function(e) character()
@@ -412,7 +480,10 @@
   if (length(x) == 0) return("")
   
   rm <- rm[rm >= 1 & rm <= length(x)]
-  if (length(rm) > 0) x <- x[-rm]
+  
+  if (length(rm) > 0) {
+    x <- x[-rm]
+  }
   
   if (isTRUE(rmLast) && length(x) > 0) {
     x <- x[-length(x)]
@@ -429,7 +500,10 @@
   for (i in seq_along(x)) {
     if (is.list(x[[i]])) {
       out <- .findParent(x[[i]], n)
-      if (!all(is.na(out))) return(out)
+      
+      if (!all(is.na(out))) {
+        return(out)
+      }
     } else {
       if (inherits(x[[i]], ".textSection") && identical(x[[i]]@parent, n)) {
         return(c(index = i, name = x[[i]]@name, parent = x[[i]]@parent))
@@ -443,12 +517,18 @@
 #------------
 
 .getYear <- function(x, .interval = FALSE) {
-  if (.interval) {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    if (isTRUE(.interval)) return(list())
+    return(numeric())
+  }
+  
+  if (isTRUE(.interval)) {
     x <- as.character(x)
     
     lapply(x, function(z) {
+      if (is.na(z) || !nzchar(z)) return(numeric())
       yrs <- regmatches(z, gregexpr("\\b[0-9]{4}\\b", z))[[1]]
-      unique(as.numeric(yrs))
+      unique(suppressWarnings(as.numeric(yrs)))
     })
   } else {
     suppressWarnings(as.numeric(substr(as.character(x), 1, 4)))
@@ -462,7 +542,12 @@
   x <- x[!is.na(x) & nzchar(x)]
   
   if (length(x) == 0) {
-    return(data.frame(scientificName = character(), class = character(), order = character()))
+    return(data.frame(
+      scientificName = character(),
+      class = character(),
+      order = character(),
+      stringsAsFactors = FALSE
+    ))
   }
   
   if (.require("taxize")) {
@@ -472,13 +557,23 @@
     )
     
     if (inherits(.id, "try-error") || !"ids" %in% names(.id)) {
-      return(data.frame(scientificName = x, class = NA_character_, order = NA_character_))
+      return(data.frame(
+        scientificName = x,
+        class = NA_character_,
+        order = NA_character_,
+        stringsAsFactors = FALSE
+      ))
     }
     
     .x <- try(taxize::classification(.id$ids, db = "gbif"), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
-      return(data.frame(scientificName = x, class = NA_character_, order = NA_character_))
+      return(data.frame(
+        scientificName = x,
+        class = NA_character_,
+        order = NA_character_,
+        stringsAsFactors = FALSE
+      ))
     }
     
     w <- which(is.na(names(.x)))
@@ -517,7 +612,7 @@
       stringsAsFactors = FALSE
     )
   } else {
-    stop("You need to install the taxize package before executing this function.")
+    stop("The taxize package is required for GBIF taxonomic lookup.")
   }
 }
 
@@ -528,7 +623,12 @@
   x <- x[!is.na(x) & nzchar(x)]
   
   if (length(x) == 0) {
-    return(data.frame(scientificName = character(), class = character(), order = character()))
+    return(data.frame(
+      scientificName = character(),
+      class = character(),
+      order = character(),
+      stringsAsFactors = FALSE
+    ))
   }
   
   if (.require("taxize")) {
@@ -538,13 +638,23 @@
     )
     
     if (inherits(.id, "try-error") || !"ids" %in% names(.id)) {
-      return(data.frame(scientificName = x, class = NA_character_, order = NA_character_))
+      return(data.frame(
+        scientificName = x,
+        class = NA_character_,
+        order = NA_character_,
+        stringsAsFactors = FALSE
+      ))
     }
     
     .x <- try(taxize::classification(.id$ids, db = "ncbi"), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
-      return(data.frame(scientificName = x, class = NA_character_, order = NA_character_))
+      return(data.frame(
+        scientificName = x,
+        class = NA_character_,
+        order = NA_character_,
+        stringsAsFactors = FALSE
+      ))
     }
     
     .class <- sapply(.x, function(z) {
@@ -572,19 +682,61 @@
       stringsAsFactors = FALSE
     )
   } else {
-    stop("You need to install the taxize package before executing this function.")
+    stop("The taxize package is required for NCBI taxonomic lookup.")
   }
 }
 
 #------------
 
-.get_hour <- function(x) {
-  if (is.null(x) || length(x) == 0) return(numeric())
+.get_hour <- function(x, tz = "UTC") {
   
-  x <- as.POSIXlt(x)
-  x$hour + x$min / 60 + x$sec / 3600
+  if (is.null(x) || length(x) == 0) {
+    return(numeric())
+  }
+  
+  if (inherits(x, "POSIXlt")) {
+    px <- x
+  } else if (inherits(x, "POSIXct")) {
+    px <- as.POSIXlt(x, tz = tz)
+  } else {
+    
+    x <- as.character(x)
+    x[!nzchar(trimws(x))] <- NA_character_
+    
+    # Try common date-time formats safely
+    formats <- c(
+      "%Y-%m-%d %H:%M:%OS",
+      "%Y-%m-%dT%H:%M:%OS",
+      "%Y-%m-%d %H:%M:%S",
+      "%Y-%m-%dT%H:%M:%S",
+      "%Y/%m/%d %H:%M:%OS",
+      "%Y/%m/%dT%H:%M:%OS",
+      "%Y/%m/%d %H:%M:%S",
+      "%Y/%m/%dT%H:%M:%S",
+      "%Y-%m-%d",
+      "%Y/%m/%d"
+    )
+    
+    pxct <- rep(as.POSIXct(NA), length(x))
+    
+    for (fmt in formats) {
+      missing <- is.na(pxct) & !is.na(x)
+      if (!any(missing)) break
+      
+      parsed <- suppressWarnings(
+        as.POSIXct(x[missing], format = fmt, tz = tz)
+      )
+      
+      pxct[missing] <- parsed
+    }
+    
+    px <- as.POSIXlt(pxct, tz = tz)
+  }
+  
+  out <- px$hour + px$min / 60 + px$sec / 3600
+  out[is.na(px)] <- NA_real_
+  out
 }
-
 #------------
 
 .basic_corrplot <- function(x, main = "Species Co-occurrence") {
@@ -677,6 +829,10 @@
 #------------
 
 .is.projected <- function(x) {
+  if (!requireNamespace("terra", quietly = TRUE)) {
+    return(FALSE)
+  }
+  
   e <- try(as.vector(terra::ext(x)), silent = TRUE)
   
   if (inherits(e, "try-error") || length(e) != 4) {
@@ -720,6 +876,10 @@
 #------------
 
 .get_Time_length <- function(x, y = NULL, unit = "days") {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return(numeric())
+  }
+  
   if (is.null(y)) {
     .s <- sapply(as.character(x), function(z) strsplit(z, "--", fixed = TRUE)[[1]][1])
     .e <- sapply(as.character(x), function(z) strsplit(z, "--", fixed = TRUE)[[1]][2])
@@ -749,7 +909,11 @@
 #------------
 
 .firstUpper <- function(x) {
+  if (missing(x) || is.null(x) || length(x) == 0) return(character())
+  
   x <- as.character(x)
+  x[is.na(x)] <- ""
+  
   paste0(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))))
 }
 
@@ -760,6 +924,10 @@
   on.exit(options(warn = old_warn), add = TRUE)
   
   options(warn = -1)
+  
+  pkgs <- as.character(pkgs)
+  pkgs <- pkgs[!is.na(pkgs) & nzchar(pkgs)]
+  
   all(unlist(lapply(pkgs, function(p) .require(p))))
 }
 
@@ -830,6 +998,10 @@
 #------------
 
 .get_match <- function(x, y, several = TRUE, case_sensitive = FALSE) {
+  if (missing(x) || missing(y) || is.null(x) || is.null(y)) {
+    return(NA)
+  }
+  
   if (!case_sensitive) {
     .x <- tolower(x)
     .y <- tolower(y)
@@ -882,12 +1054,6 @@
   }
   
   list(path = .dir, filename = .filename, extension = .extension)
-}
-
-#------------
-
-.trim_chr <- function(x) {
-  trimws(as.character(x))
 }
 
 #------------
@@ -965,7 +1131,7 @@
         } else if (!is.numeric(end) || end > length(.w)) {
           end <- start
         } else if (end < start) {
-          warning('The "end" argument cannot be lower than "start".')
+          warning("The 'end' argument cannot be lower than 'start'.")
           end <- start
         }
       } else {
@@ -984,11 +1150,15 @@
 #------------
 
 .pretty_label <- function(x) {
+  if (missing(x) || is.null(x) || length(x) == 0) {
+    return("")
+  }
+  
   x <- as.character(x)
   x <- gsub("_", " ", x)
   x <- gsub("\\s+", " ", x)
   x <- trimws(x)
-  x <- x[nzchar(x)]
+  x <- x[!is.na(x) & nzchar(x)]
   
   if (length(x) == 0) return("")
   if (length(x) == 1) return(x)

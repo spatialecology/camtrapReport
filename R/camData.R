@@ -5,26 +5,38 @@
 #--------
 
 
-# get the sequences data.frame from media (the code copied from the ctdp package):
 .getSequences <- function(media) {
   if (!.require('data.table')) stop('The data.table package is not installed...!')
   
-  sequences <- .eval('media |> 
-    dplyr::distinct() |> 
-    dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |> 
-    data.table::data.table(key = "sequenceID")',environment())
+  # ← belt-and-braces: re-parse in case upstream silently dropped POSIXct class
+  if (!inherits(media$timestamp, "POSIXct")) {
+    media$timestamp <- .parse_cam_datetime(media$timestamp, tz = "UTC")
+  }
   
-  sequences <- sequences[!is.na(sequences$sequenceID),]
+  sequences <- .eval('media |>
+    dplyr::distinct() |>
+    dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |>
+    data.table::data.table(key = "sequenceID")', environment())
   
-  # summarize per key
-  sequences <- sequences[, list(deploymentID = unique(deploymentID),
-                                captureMethod = unique(captureMethod),
-                                start = min(timestamp),
-                                end = max(timestamp),
-                                nrphotos = length(timestamp)),
-                         by = sequenceID]
+  sequences <- sequences[!is.na(sequences$sequenceID), ]
   
+  sequences <- sequences[, list(
+    deploymentID  = unique(deploymentID),
+    captureMethod = unique(captureMethod),
+    start = as.POSIXct(min(timestamp, na.rm = TRUE), tz = "UTC"),   # ← wrap to keep class
+    end   = as.POSIXct(max(timestamp, na.rm = TRUE), tz = "UTC"),   # ← wrap to keep class
+    nrphotos = length(timestamp)
+  ), by = sequenceID]
   
+  sequences <- .eval("sequences |>
+    dplyr::as_tibble() |>
+    dplyr::arrange(deploymentID, sequenceID) |>
+    dplyr::mutate(sequence_interval = lubridate::interval(start, end)) |>
+    dplyr::relocate(sequence_interval, .before = start) |>
+    dplyr::select(-start, -end)", environment())
+  
+  as.data.frame(sequences)
+}
   # convert to tibble, arrange, and convert start/end to interval object
   sequences <- .eval("sequences |>
     dplyr::as_tibble() |>
