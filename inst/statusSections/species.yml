@@ -1,8 +1,9 @@
 ---
-name: "species_records"
+name: "species"
 title: "Chapter 3: Species Records {.unnumbered}"
 parent: null
 text: |
+
   This chapter summarizes the species detected in the camera-trap dataset. The table presents the taxonomic identity of each species and the number of event-level captures recorded for each species.
 
 code: |
