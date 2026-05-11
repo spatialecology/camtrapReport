@@ -171,6 +171,14 @@
     "  font-size: 17px;\n",
     "}\n",
     
+    "/* Wider report body */\n",
+    ".main-container {\n",
+    "  max-width: 1150px !important;\n",
+    "  width: 1150px !important;\n",
+    "  margin-left: auto !important;\n",
+    "  margin-right: auto !important;\n",
+    "}\n",
+    
     "/* Word-like justified report text */\n",
     ".main-container p,\n",
     ".main-container .section p,\n",
