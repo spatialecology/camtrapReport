@@ -7,6 +7,7 @@ text: |
   ### Review Essential Data Availability {.unnumbered}
   
   In this chapter, we review all essential data components required for generating the report. These include both mandatory fields and necessary supporting fields or files that contribute to the completeness and overall quality of the final output. Table 3 provides a structured overview of the availability and completeness of these elements. While all fields listed in the table are important for generating a high-quality report, the **bolded** fields are mandatory. Their status must be marked as **Complete**; otherwise, any associated records with missing or partial values will be automatically excluded from the final output.
+
 code: |
   #| name: code
   #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
@@ -235,29 +236,31 @@ code: |
       text-align:center !important;
       font-size:15px;
       color:#24384a;
-      line-height:1.35;'>
-      <strong><em>Table 3.</em></strong> Essential data availability and completeness
+      line-height:1.35;
+      font-weight:bold;
+      font-style:italic;'>
+      Table 3. Essential data availability and completeness
     </div>
   
-  <table style='
-    margin:0 auto;
-    border-collapse:collapse;
-    table-layout:fixed;
-    width:100%;
-    font-family:Arial, sans-serif;
-    font-size:13px;
-    line-height:1.35;
-    text-align:center;'>
-    
-    <thead>
-      <tr style='background-color:#f2f2f2; font-weight:bold;'>
-        <th style='border:1px solid #ccc; padding:6px; width:20%; text-align:center;'>Category</th>
-        <th style='border:1px solid #ccc; padding:6px; width:30%; text-align:center;'>Field</th>
-        <th style='border:1px solid #ccc; padding:6px; width:50%; text-align:center;'>Status</th>
-      </tr>
-    </thead>
-    
-    <tbody>
+    <table style='
+      margin:0 auto;
+      border-collapse:collapse;
+      table-layout:fixed;
+      width:100%;
+      font-family:Arial, sans-serif;
+      font-size:13px;
+      line-height:1.35;
+      text-align:center;'>
+      
+      <thead>
+        <tr style='background-color:#f2f2f2; font-weight:bold;'>
+          <th style='border:1px solid #ccc; padding:6px; width:20%; text-align:center;'>Category</th>
+          <th style='border:1px solid #ccc; padding:6px; width:30%; text-align:center;'>Field</th>
+          <th style='border:1px solid #ccc; padding:6px; width:50%; text-align:center;'>Status</th>
+        </tr>
+      </thead>
+      
+      <tbody>
   ")
   
   # Setup for merged Category cells
@@ -310,8 +313,8 @@ code: |
   }
   
   cat("
-    </tbody>
-  </table>
+      </tbody>
+    </table>
   </div>
   ")
 ---

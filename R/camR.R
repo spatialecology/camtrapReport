@@ -168,13 +168,13 @@
     
     "body, .main-container {\n",
     "  color: #24384a;\n",
-    "  font-size: 17px;\n",
+    "  font-size: 16px;\n",
     "}\n",
     
     "/* Wider report body */\n",
     ".main-container {\n",
     "  max-width: 1150px !important;\n",
-    "  width: 1150px !important;\n",
+    "  width: calc(100% - 40px) !important;\n",
     "  margin-left: auto !important;\n",
     "  margin-right: auto !important;\n",
     "}\n",
