@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
 # Last Update: May 2026
-# Licence MIT
+# Licence: MIT
 
 # Package-level imports used internally by camtrapReport.
 #
@@ -20,6 +20,8 @@
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr across
+#' @importFrom dplyr all_of
+#' @importFrom dplyr any_of
 #' @importFrom dplyr arrange
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr bind_rows
@@ -28,6 +30,7 @@
 #' @importFrom dplyr count
 #' @importFrom dplyr desc
 #' @importFrom dplyr distinct
+#' @importFrom dplyr everything
 #' @importFrom dplyr filter
 #' @importFrom dplyr full_join
 #' @importFrom dplyr group_by
@@ -38,6 +41,7 @@
 #' @importFrom dplyr n
 #' @importFrom dplyr n_distinct
 #' @importFrom dplyr pull
+#' @importFrom dplyr relocate
 #' @importFrom dplyr rename
 #' @importFrom dplyr right_join
 #' @importFrom dplyr select
@@ -77,10 +81,13 @@
 #' @importFrom utils capture.output
 #' @importFrom utils data
 #' @importFrom utils download.file
+#' @importFrom utils head
 #' @importFrom utils install.packages
 #' @importFrom utils packageVersion
 #' @importFrom utils read.csv
 #' @importFrom utils remove.packages
+#' @importFrom utils tail
+#' @importFrom utils timestamp
 #' @importFrom utils unzip
 #' @importFrom utils write.csv
 #' @importFrom graphics abline
@@ -109,6 +116,7 @@
 #' @importFrom terra crop
 #' @importFrom terra crds
 #' @importFrom terra crs
+#' @importFrom terra expanse
 #' @importFrom terra ext
 #' @importFrom terra extract
 #' @importFrom terra mask
