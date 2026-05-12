@@ -157,266 +157,357 @@
 
 .report_css_block <- function() {
   paste0(
-    "```{=html}\n",
-    "<style>\n",
-    
-    "html {\n",
-    "  hyphens: auto;\n",
-    "  -webkit-hyphens: auto;\n",
-    "  -ms-hyphens: auto;\n",
-    "}\n",
-    
-    "body, .main-container {\n",
-    "  color: #24384a;\n",
-    "  font-size: 16px;\n",
-    "}\n",
-    
-    "/* Wider report body */\n",
-    ".main-container {\n",
-    "  max-width: 1150px !important;\n",
-    "  width: calc(100% - 20px) !important;\n",
-    "  margin-left: auto !important;\n",
-    "  margin-right: auto !important;\n",
-    "}\n",
-    
-    "/* Word-like justified report text */\n",
-    ".main-container p,\n",
-    ".main-container .section p,\n",
-    ".main-container div.section p,\n",
-    ".main-container blockquote,\n",
-    ".main-container dd {\n",
-    "  font-size: 17px;\n",
-    "  text-align: justify !important;\n",
-    "  text-align-last: left !important;\n",
-    "  text-justify: inter-word !important;\n",
-    "  hyphens: auto;\n",
-    "  -webkit-hyphens: auto;\n",
-    "  -ms-hyphens: auto;\n",
-    "  line-height: 1.58;\n",
-    "}\n",
-    
-    "/* Lists: same size as body text */\n",
-    ".main-container ul:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li,\n",
-    ".main-container ol:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li {\n",
-    "  font-size: 17px;\n",
-    "  text-align: justify !important;\n",
-    "  text-align-last: left !important;\n",
-    "  text-justify: inter-word !important;\n",
-    "  hyphens: auto;\n",
-    "}\n",
-    
-    "/* Headings: larger than body text */\n",
-    ".main-container h1 {\n",
-    "  font-size: 42px !important;\n",
-    "  line-height: 1.20;\n",
-    "  margin-top: 34px;\n",
-    "  margin-bottom: 18px;\n",
-    "  text-align: left !important;\n",
-    "  text-align-last: left !important;\n",
-    "}\n",
-    
-    ".main-container h2 {\n",
-    "  font-size: 34px !important;\n",
-    "  line-height: 1.25;\n",
-    "  margin-top: 30px;\n",
-    "  margin-bottom: 16px;\n",
-    "  text-align: left !important;\n",
-    "  text-align-last: left !important;\n",
-    "}\n",
-    
-    ".main-container h3 {\n",
-    "  font-size: 28px !important;\n",
-    "  line-height: 1.30;\n",
-    "  margin-top: 24px;\n",
-    "  margin-bottom: 12px;\n",
-    "  text-align: left !important;\n",
-    "  text-align-last: left !important;\n",
-    "}\n",
-    
-    ".main-container h4,\n",
-    ".main-container h5,\n",
-    ".main-container h6,\n",
-    ".title,\n",
-    ".subtitle,\n",
-    ".author,\n",
-    ".date {\n",
-    "  text-align: left !important;\n",
-    "  text-align-last: left !important;\n",
-    "}\n",
-    
-    ".title {\n",
-    "  margin-bottom: 0.15em !important;\n",
-    "}\n",
-    
-    ".subtitle,\n",
-    ".author,\n",
-    ".date {\n",
-    "  margin-bottom: 0.30em !important;\n",
-    "}\n",
-    
-    "/* Real hyperlinks in report content */\n",
-    ".main-container p a,\n",
-    ".main-container dd a,\n",
-    ".main-container td a,\n",
-    ".main-container th a,\n",
-    ".main-container figcaption a,\n",
-    ".main-container caption a,\n",
-    ".main-container li:not(.tocify-item) > a {\n",
-    "  color: #1F6FAE !important;\n",
-    "  text-decoration: none !important;\n",
-    "}\n",
-    
-    ".main-container p a:hover,\n",
-    ".main-container dd a:hover,\n",
-    ".main-container td a:hover,\n",
-    ".main-container th a:hover,\n",
-    ".main-container figcaption a:hover,\n",
-    ".main-container caption a:hover,\n",
-    ".main-container li:not(.tocify-item) > a:hover {\n",
-    "  color: #15517F !important;\n",
-    "  text-decoration: none !important;\n",
-    "}\n",
-    
-    "/* Report tab links: blue, clean, professional */\n",
-    ".nav-tabs > li > a,\n",
-    ".nav-tabs > li > a:visited,\n",
-    ".nav-tabs > li > a:hover,\n",
-    ".nav-tabs > li > a:focus,\n",
-    ".nav-pills > li > a,\n",
-    ".nav-pills > li > a:visited,\n",
-    ".nav-pills > li > a:hover,\n",
-    ".nav-pills > li > a:focus,\n",
-    ".tabset .nav-tabs > li > a,\n",
-    ".tabset .nav-tabs > li > a:visited,\n",
-    ".tabset .nav-tabs > li > a:hover,\n",
-    ".tabset .nav-tabs > li > a:focus {\n",
-    "  color: #1F6FAE !important;\n",
-    "  text-decoration: none !important;\n",
-    "  background-color: transparent !important;\n",
-    "}\n",
-    
-    ".nav-tabs > li.active > a,\n",
-    ".nav-tabs > li.active > a:visited,\n",
-    ".nav-tabs > li.active > a:hover,\n",
-    ".nav-tabs > li.active > a:focus,\n",
-    ".tabset .nav-tabs > li.active > a,\n",
-    ".tabset .nav-tabs > li.active > a:visited,\n",
-    ".tabset .nav-tabs > li.active > a:hover,\n",
-    ".tabset .nav-tabs > li.active > a:focus {\n",
-    "  color: #1F6FAE !important;\n",
-    "  background-color: #ffffff !important;\n",
-    "  border-color: #d9e2ec #d9e2ec #ffffff !important;\n",
-    "  font-weight: 600 !important;\n",
-    "}\n",
-    
-    ".nav-tabs {\n",
-    "  border-bottom: 1px solid #d9e2ec !important;\n",
-    "}\n",
-    
-    "/* Floating TOC: simple dark style, not blue */\n",
-    ".tocify {\n",
-    "  border: 1px solid #d8dde3 !important;\n",
-    "  border-radius: 7px !important;\n",
-    "  background: #ffffff !important;\n",
-    "  box-shadow: none !important;\n",
-    "  overflow: hidden !important;\n",
-    "}\n",
-    
-    ".tocify .list-group-item,\n",
-    ".tocify .tocify-item a,\n",
-    ".tocify a {\n",
-    "  color: #24384a !important;\n",
-    "  background: #ffffff !important;\n",
-    "  border: none !important;\n",
-    "  text-decoration: none !important;\n",
-    "  font-weight: 400 !important;\n",
-    "}\n",
-    
-    ".tocify .list-group-item:hover,\n",
-    ".tocify .tocify-item a:hover,\n",
-    ".tocify a:hover {\n",
-    "  color: #24384a !important;\n",
-    "  background: #f6f8fa !important;\n",
-    "  text-decoration: none !important;\n",
-    "}\n",
-    
-    ".tocify .list-group-item.active,\n",
-    ".tocify .list-group-item.active:hover,\n",
-    ".tocify .list-group-item.active:focus,\n",
-    ".tocify .tocify-item.active,\n",
-    ".tocify .tocify-item.active a {\n",
-    "  color: #ffffff !important;\n",
-    "  background-color: #2E4053 !important;\n",
-    "  border-color: #2E4053 !important;\n",
-    "  font-weight: 600 !important;\n",
-    "}\n",
-    
-    ".tocify .tocify-subheader .tocify-item,\n",
-    ".tocify .tocify-subheader .list-group-item,\n",
-    ".tocify .tocify-subheader a {\n",
-    "  font-size: 0.92em !important;\n",
-    "  padding-left: 26px !important;\n",
-    "}\n",
-    
-    "/* Logo block: centered and clear */\n",
-    ".report-logo-placeholder {\n",
-    "  margin: 14px auto 22px auto;\n",
-    "  text-align: center !important;\n",
-    "  width: 100%;\n",
-    "}\n",
-    
-    ".report-logo-placeholder img {\n",
-    "  width: 160px;\n",
-    "  max-width: 160px;\n",
-    "  height: auto;\n",
-    "  display: inline-block;\n",
-    "}\n",
-    
-    ".report-logo-placeholder .logo-empty {\n",
-    "  width: 160px;\n",
-    "  height: 90px;\n",
-    "  margin: 0 auto;\n",
-    "  border: 1px dashed #b9c2cc;\n",
-    "  border-radius: 8px;\n",
-    "  display: inline-flex;\n",
-    "  align-items: center;\n",
-    "  justify-content: center;\n",
-    "  color: #6c757d;\n",
-    "  font-size: 12px;\n",
-    "  line-height: 1.25;\n",
-    "  background: #f8f9fa;\n",
-    "  text-align: center;\n",
-    "}\n",
-    
-    "/* Tables: keep package/table default alignment */\n",
-    "table,\n",
-    ".table,\n",
-    ".dataTables_wrapper,\n",
-    "thead,\n",
-    "tbody,\n",
-    "tr,\n",
-    "th,\n",
-    "td {\n",
-    "  text-align: inherit;\n",
-    "  text-align-last: inherit;\n",
-    "}\n",
-    
-    "/* Table captions / titles centered */\n",
-    "table caption,\n",
-    ".table caption,\n",
-    ".caption,\n",
-    "caption {\n",
-    "  text-align: center !important;\n",
-    "  text-align-last: center !important;\n",
-    "  margin-top: 0.2em;\n",
-    "  margin-bottom: 0.45em;\n",
-    "}\n",
-    
-    "</style>\n",
-    "<script>\n",
-    "document.documentElement.setAttribute('lang', 'en');\n",
-    "</script>\n",
-    "```\n"
+    '```{=html}
+<style>
+
+html {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+body,
+.main-container {
+  color: #24384a;
+  font-size: 16px;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Wider report body: fixed permanently for floating TOC layout */
+.main-container {
+  max-width: 1650px !important;
+  width: calc(100% - 90px) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.main-container > .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Main text column when toc_float is used */
+.main-container .toc-content {
+  padding-left: 38px !important;
+  padding-right: 28px !important;
+}
+
+/* Keep TOC properly sized inside its left column */
+#TOC,
+.tocify {
+  width: 100% !important;
+}
+
+/* Prevent unwanted extra bottom space sometimes created by tocify */
+.tocify-extend-page {
+  display: none !important;
+}
+
+/* Word-like justified report text */
+.main-container p,
+.main-container .section p,
+.main-container div.section p,
+.main-container blockquote,
+.main-container dd {
+  font-size: 17px;
+  text-align: justify !important;
+  text-align-last: left !important;
+  text-justify: inter-word !important;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  line-height: 1.58;
+}
+
+/* Lists: same size as body text */
+.main-container ul:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li,
+.main-container ol:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li {
+  font-size: 17px;
+  text-align: justify !important;
+  text-align-last: left !important;
+  text-justify: inter-word !important;
+  hyphens: auto;
+}
+
+/* Headings: larger than body text */
+.main-container h1 {
+  font-size: 42px !important;
+  line-height: 1.20;
+  margin-top: 34px;
+  margin-bottom: 18px;
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+.main-container h2 {
+  font-size: 34px !important;
+  line-height: 1.25;
+  margin-top: 30px;
+  margin-bottom: 16px;
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+.main-container h3 {
+  font-size: 28px !important;
+  line-height: 1.30;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+.main-container h4,
+.main-container h5,
+.main-container h6,
+.title,
+.subtitle,
+.author,
+.date {
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+.title {
+  margin-bottom: 0.15em !important;
+}
+
+.subtitle,
+.author,
+.date {
+  margin-bottom: 0.30em !important;
+}
+
+/* Real hyperlinks in report content */
+.main-container p a,
+.main-container dd a,
+.main-container td a,
+.main-container th a,
+.main-container figcaption a,
+.main-container caption a,
+.main-container li:not(.tocify-item) > a {
+  color: #1F6FAE !important;
+  text-decoration: none !important;
+}
+
+.main-container p a:hover,
+.main-container dd a:hover,
+.main-container td a:hover,
+.main-container th a:hover,
+.main-container figcaption a:hover,
+.main-container caption a:hover,
+.main-container li:not(.tocify-item) > a:hover {
+  color: #15517F !important;
+  text-decoration: none !important;
+}
+
+/* Report tab links: blue, clean, professional */
+.nav-tabs > li > a,
+.nav-tabs > li > a:visited,
+.nav-tabs > li > a:hover,
+.nav-tabs > li > a:focus,
+.nav-pills > li > a,
+.nav-pills > li > a:visited,
+.nav-pills > li > a:hover,
+.nav-pills > li > a:focus,
+.tabset .nav-tabs > li > a,
+.tabset .nav-tabs > li > a:visited,
+.tabset .nav-tabs > li > a:hover,
+.tabset .nav-tabs > li > a:focus {
+  color: #1F6FAE !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:visited,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus,
+.tabset .nav-tabs > li.active > a,
+.tabset .nav-tabs > li.active > a:visited,
+.tabset .nav-tabs > li.active > a:hover,
+.tabset .nav-tabs > li.active > a:focus {
+  color: #1F6FAE !important;
+  background-color: #ffffff !important;
+  border-color: #d9e2ec #d9e2ec #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #d9e2ec !important;
+}
+
+/* Floating TOC: simple dark style, not blue */
+.tocify {
+  border: 1px solid #d8dde3 !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.tocify .list-group-item,
+.tocify .tocify-item a,
+.tocify a {
+  color: #24384a !important;
+  background: #ffffff !important;
+  border: none !important;
+  text-decoration: none !important;
+  font-weight: 400 !important;
+}
+
+.tocify .list-group-item:hover,
+.tocify .tocify-item a:hover,
+.tocify a:hover {
+  color: #24384a !important;
+  background: #f6f8fa !important;
+  text-decoration: none !important;
+}
+
+.tocify .list-group-item.active,
+.tocify .list-group-item.active:hover,
+.tocify .list-group-item.active:focus,
+.tocify .tocify-item.active,
+.tocify .tocify-item.active a {
+  color: #ffffff !important;
+  background-color: #2E4053 !important;
+  border-color: #2E4053 !important;
+  font-weight: 600 !important;
+}
+
+.tocify .tocify-subheader .tocify-item,
+.tocify .tocify-subheader .list-group-item,
+.tocify .tocify-subheader a {
+  font-size: 0.92em !important;
+  padding-left: 26px !important;
+}
+
+/* Logo block: centered and larger */
+.report-logo-placeholder {
+  margin: 18px auto 34px auto;
+  text-align: center !important;
+  width: 100%;
+}
+
+.report-logo-placeholder img {
+  width: 230px;
+  max-width: 230px;
+  max-height: 170px;
+  height: auto;
+  display: inline-block;
+  object-fit: contain;
+}
+
+.report-logo-placeholder .logo-empty {
+  width: 230px;
+  height: 130px;
+  margin: 0 auto;
+  border: 1px dashed #b9c2cc;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 12px;
+  line-height: 1.25;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+/* Tables: keep package/table default alignment */
+table,
+.table,
+.dataTables_wrapper,
+thead,
+tbody,
+tr,
+th,
+td {
+  text-align: inherit;
+  text-align-last: inherit;
+}
+
+/* Table captions / titles centered */
+table caption,
+.table caption,
+.caption,
+caption {
+  text-align: center !important;
+  text-align-last: center !important;
+  margin-top: 0.2em;
+  margin-bottom: 0.45em;
+}
+
+/* Figure captions: prevent ugly justified captions */
+figcaption,
+.figure .caption,
+.figure p.caption,
+p.caption {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  color: #4b5f73 !important;
+  margin-top: 0.35em !important;
+  margin-bottom: 1em !important;
+}
+
+/* Medium screens */
+@media (max-width: 1199px) {
+  .main-container {
+    width: calc(100% - 40px) !important;
+  }
+
+  .main-container .toc-content {
+    padding-left: 24px !important;
+    padding-right: 20px !important;
+  }
+
+  .report-logo-placeholder img {
+    width: 210px;
+    max-width: 210px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 767px) {
+  .main-container {
+    width: calc(100% - 20px) !important;
+  }
+
+  .main-container .toc-content {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .main-container h1 {
+    font-size: 34px !important;
+  }
+
+  .main-container h2 {
+    font-size: 28px !important;
+  }
+
+  .main-container h3 {
+    font-size: 24px !important;
+  }
+
+  .report-logo-placeholder img {
+    width: 180px;
+    max-width: 180px;
+  }
+}
+
+</style>
+<script>
+document.documentElement.setAttribute("lang", "en");
+</script>
+```'
   )
 }
 #-------------
