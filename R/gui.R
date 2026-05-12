@@ -710,8 +710,10 @@ gui <- function(object = NULL,
     }
     
     session$onFlushed(function() {
-      if (!is.null(rv$cm)) {
-        refresh_inputs(rv$cm)
+      cm0 <- shiny::isolate(rv$cm)
+      
+      if (!is.null(cm0)) {
+        refresh_inputs(cm0)
       }
     }, once = TRUE)
     
