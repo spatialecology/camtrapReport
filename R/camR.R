@@ -169,43 +169,55 @@ html {
 body,
 .main-container {
   color: #24384a;
-  font-size: 16px;
+  font-size: 17px;
 }
 
 body {
   overflow-x: hidden;
 }
 
-/* Standard report width:
-   total page-like width = 30 cm
-   comfortable left/right spacing preserved */
+/* Overall report container */
 .main-container {
-  max-width: 30cm !important;
-  width: calc(100% - 6cm) !important;
+  max-width: 1500px !important;
+  width: calc(100% - 80px) !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
+/* Remove Bootstrap row side gaps */
 .main-container > .row {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
 
-/* Main text column when toc_float is used */
-.main-container .toc-content {
-  padding-left: 1.1cm !important;
-  padding-right: 0.8cm !important;
+/* Fix floating TOC layout on normal/large screens */
+@media (min-width: 768px) {
+
+  .main-container > .row > .col-sm-4.col-md-3 {
+    width: 280px !important;
+    max-width: 280px !important;
+    padding-left: 0 !important;
+    padding-right: 24px !important;
+  }
+
+  .main-container > .row > .col-sm-8.col-md-9 {
+    width: calc(100% - 280px) !important;
+    max-width: calc(100% - 280px) !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
 }
 
-/* Keep TOC properly sized inside its left column */
+/* Keep TOC properly sized */
 #TOC,
 .tocify {
   width: 100% !important;
 }
 
-/* Prevent unwanted extra bottom space sometimes created by tocify */
+/* Remove unwanted extra bottom page created by tocify */
 .tocify-extend-page {
   display: none !important;
 }
@@ -308,7 +320,7 @@ body {
   text-decoration: none !important;
 }
 
-/* Report tab links: blue, clean, professional */
+/* Report tab links */
 .nav-tabs > li > a,
 .nav-tabs > li > a:visited,
 .nav-tabs > li > a:hover,
@@ -344,7 +356,7 @@ body {
   border-bottom: 1px solid #d9e2ec !important;
 }
 
-/* Floating TOC: simple dark style, not blue */
+/* Floating TOC */
 .tocify {
   border: 1px solid #d8dde3 !important;
   border-radius: 7px !important;
@@ -389,7 +401,7 @@ body {
   padding-left: 26px !important;
 }
 
-/* Logo block: centered and larger */
+/* Logo block */
 .report-logo-placeholder {
   margin: 18px auto 34px auto;
   text-align: center !important;
@@ -445,7 +457,7 @@ caption {
   margin-bottom: 0.45em;
 }
 
-/* Figure captions: prevent ugly justified captions */
+/* Figure captions */
 figcaption,
 .figure .caption,
 .figure p.caption,
@@ -462,12 +474,20 @@ p.caption {
 /* Medium screens */
 @media (max-width: 1199px) {
   .main-container {
-    width: calc(100% - 2.4cm) !important;
+    width: calc(100% - 40px) !important;
   }
 
-  .main-container .toc-content {
-    padding-left: 0.8cm !important;
-    padding-right: 0.5cm !important;
+  .main-container > .row > .col-sm-4.col-md-3 {
+    width: 240px !important;
+    max-width: 240px !important;
+    padding-right: 18px !important;
+  }
+
+  .main-container > .row > .col-sm-8.col-md-9 {
+    width: calc(100% - 240px) !important;
+    max-width: calc(100% - 240px) !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
   }
 
   .report-logo-placeholder img {
@@ -482,7 +502,10 @@ p.caption {
     width: calc(100% - 20px) !important;
   }
 
-  .main-container .toc-content {
+  .main-container > .row > .col-sm-4.col-md-3,
+  .main-container > .row > .col-sm-8.col-md-9 {
+    width: 100% !important;
+    max-width: 100% !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
@@ -512,7 +535,7 @@ document.documentElement.setAttribute("lang", "en");
 ```'
   )
 }
-#-------------
+#----------
 
 # in group_definition, the groups like large_mammals, wild_mammals can be defined
 # each group can be specified based on data columns (e.g., order, class, scientificNames)
