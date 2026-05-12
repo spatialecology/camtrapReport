@@ -1,4 +1,5 @@
 url: https://spatialecology.github.io/camtrapReport/
+
 template:
   bootstrap: 5
   bootswatch: flatly
@@ -18,7 +19,7 @@ home:
 
 navbar:
   structure:
-    left: [home, tutorials, reference, news]
+    left: [home, tutorials, gallery, updates, reference, changelog]
     right: [search, report-bug, discussion, github]
 
   components:
@@ -38,11 +39,19 @@ navbar:
         - text: Module Management
           href: articles/modules.html
 
+    gallery:
+      text: Gallery
+      href: articles/gallery.html
+
+    updates:
+      text: NEWS
+      href: articles/updates.html
+
     reference:
       text: Reference
       href: reference/index.html
 
-    news:
+    changelog:
       text: Changelog
       href: news/index.html
 
@@ -71,6 +80,8 @@ articles:
       - ecological-report
       - data-status-report
       - modules
+      - gallery
+      - updates
 
 reference:
   - title: Data input and setup
@@ -92,3 +103,4 @@ reference:
       - reportSection
       - testSection
       - add_Module
+      
