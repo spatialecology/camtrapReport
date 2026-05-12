@@ -1624,7 +1624,7 @@ camR <- setRefClass(
       cat('Total number of sequences       : ' ,sum(.self$observation_stats$number_of_sequences,na.rm=TRUE), '\n')
       cat('Total number of observations    : ' ,sum(.self$observation_stats$number_of_observations,na.rm=TRUE), '\n')
       cat('Total number of animals         : ' ,sum(.self$observation_stats$number_of_animals,na.rm=TRUE), '\n')
-      cat('Total number of detected species: ' ,max(.self$species_stats$total_species,na.rm=TRUE), '\n')
+      cat('Total number of detected species: ' , .self$data_status$Species$Keep_sp_n, '\n')
       cat('Date/time (years) with data     : ' ,.paste_comma_and(.self$observation_stats$year),'\n')
       cat('-----------------------------------------------------\n')
     },

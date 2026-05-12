@@ -1875,24 +1875,30 @@
   }
   
   #-------- Extract 5 most observed species
-  if (is.null(cm$data_status$Species$Table)) .Species(cm)
+  
+  if (is.null(cm$data_status$Species$Table)) {
+    .Species(cm)
+  }
   
   sp_table <- cm$data_status$Species$Table
   
   if (is.data.frame(sp_table) &&
-      all(c("scientificName", "obs_records_count") %in% names(sp_table))) {
+      all(c("scientificName", "captures") %in% names(sp_table))) {
     
     sp_table <- sp_table[
-      !is.na(sp_table$scientificName) & trimws(sp_table$scientificName) != "",
+      !is.na(sp_table$scientificName) &
+        trimws(sp_table$scientificName) != "" &
+        !is.na(sp_table$captures),
       ,
       drop = FALSE
     ]
     
-    top5_names <- sp_table$scientificName[
-      order(sp_table$obs_records_count, decreasing = TRUE)
-    ][1:min(5, nrow(sp_table))]
+    sp_table <- sp_table[order(sp_table$captures, decreasing = TRUE), , drop = FALSE]
+    
+    top5_names <- head(sp_table$scientificName, 5)
     
     cm$data_status$Species$most_observed_sp <- top5_names
+    
     top5_names_italic <- paste0("*", top5_names, "*")
     cm$reportTextElements$most_observed_sp_text <- .paste_comma_and(top5_names_italic)
     
@@ -1900,7 +1906,6 @@
     cm$data_status$Species$most_observed_sp <- character(0)
     cm$reportTextElements$most_observed_sp_text <- ""
   }
-  
   #-------- Image processing source
   if (!is.null(cm$info$json$sources) &&
       length(cm$info$json$sources) > 0 && !is.null(cm$info$json$sources[[1]]$title)) {
