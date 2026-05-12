@@ -173,15 +173,15 @@ code: |
   c2 <- c(c2, c("habitat.csv", "spatial boundary (e.g., shapefile)"))
   
   if (is.null(object$habitat) || nrow(object$habitat) == 0) {
-    .w <- c("Missing")
+    .w <- c("🔴 Missing")
   } else {
-    .w <- "Complete"
+    .w <- "🟢 Complete"
   }
   
   if (is.null(object$study_area)) {
-    .w <- c(.w, "Missing")
+    .w <- c(.w, "🔴 Missing")
   } else {
-    .w <- c(.w, "Complete")
+    .w <- c(.w, "🟢 Complete")
   }
   
   c3 <- c(c3, .w)
@@ -224,43 +224,45 @@ code: |
   pastel_colors <- c("#f0f4f8", "#f7f9fc", "#eef2f6")
   
   # -------------------------
-  # Wrapper, centred caption, and table start
+  # Wrapper, caption, and table start
   # -------------------------
   
   cat("
-  <div style='max-width:900px; margin:16px auto 26px auto; text-align:center;'>
+  <div style='max-width:900px; margin:16px auto 26px auto;'>
   
-    <div style='
-      width:100%;
-      margin:14px auto 8px auto;
+  <table style='
+    margin:0 auto;
+    border-collapse:collapse;
+    table-layout:fixed;
+    width:100%;
+    font-family:Arial, sans-serif;
+    font-size:13px;
+    line-height:1.35;
+    text-align:center;'>
+    
+    <caption style='
+      caption-side:top;
       text-align:center !important;
+      text-align-last:center !important;
       font-size:15px;
       color:#24384a;
       line-height:1.35;
-      font-weight:bold;
-      font-style:italic;'>
-      Table 3. Essential data availability and completeness
-    </div>
-  
-    <table style='
-      margin:0 auto;
-      border-collapse:collapse;
-      table-layout:fixed;
-      width:100%;
-      font-family:Arial, sans-serif;
-      font-size:13px;
-      line-height:1.35;
-      text-align:center;'>
-      
-      <thead>
-        <tr style='background-color:#f2f2f2; font-weight:bold;'>
-          <th style='border:1px solid #ccc; padding:6px; width:20%; text-align:center;'>Category</th>
-          <th style='border:1px solid #ccc; padding:6px; width:30%; text-align:center;'>Field</th>
-          <th style='border:1px solid #ccc; padding:6px; width:50%; text-align:center;'>Status</th>
-        </tr>
-      </thead>
-      
-      <tbody>
+      margin:0 auto 10px auto;
+      padding:0;
+      border:none;
+      background:transparent;'>
+      <strong><em>Table 3.</em></strong> Essential data availability and completeness
+    </caption>
+    
+    <thead>
+      <tr style='background-color:#f2f2f2; font-weight:bold;'>
+        <th style='border:1px solid #ccc; padding:6px; width:20%; text-align:center;'>Category</th>
+        <th style='border:1px solid #ccc; padding:6px; width:30%; text-align:center;'>Field</th>
+        <th style='border:1px solid #ccc; padding:6px; width:50%; text-align:center;'>Status</th>
+      </tr>
+    </thead>
+    
+    <tbody>
   ")
   
   # Setup for merged Category cells
@@ -313,8 +315,8 @@ code: |
   }
   
   cat("
-      </tbody>
-    </table>
+    </tbody>
+  </table>
   </div>
   ")
 ---

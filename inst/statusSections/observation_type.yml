@@ -17,7 +17,8 @@ code: |
   .pie_caption <- function(number, text, width = "850px") {
     cat(paste0(
       "\n<div style='max-width:", width, "; margin:10px auto 24px auto; ",
-      "text-align:center; font-size:15px; color:#24384a; line-height:1.35;'>",
+      "text-align:center !important; text-align-last:center !important; ",
+      "font-size:15px; color:#24384a; line-height:1.35;'>",
       "<strong><em>Figure ", number, ".</em></strong> ",
       text,
       "</div>\n"
