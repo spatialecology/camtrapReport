@@ -1,13 +1,16 @@
-#' Launch the camtrapReport graphical user interface
+#' Launch the camtrapReport GUI
 #'
-#' @param object Optional camReport object created by [camData()]. If supplied,
-#'   the GUI opens with this object already loaded.
-#' @param launch.browser Logical. Should the app open in the browser?
-#' @param max_upload_mb Maximum upload size in MB for files uploaded through
-#'   the GUI. The default is 2000 MB.
+#' Opens an interactive Shiny interface for configuring and generating
+#' camtrapReport outputs from an existing `camReport` object.
+#'
+#' @param object A `camReport` object, usually created with [camData()].
+#' @param launch.browser Logical. If `TRUE`, the application is opened in the
+#'   default web browser.
+#' @param max_upload_mb Numeric. Maximum file-upload size in megabytes.
+#'   The default is 2000.
 #' @param ... Additional arguments passed to [shiny::runApp()].
 #'
-#' @return Invisibly launches the Shiny application.
+#' @return The supplied `camReport` object, invisibly.
 #'
 #' @examples
 #' \dontrun{
@@ -16,10 +19,17 @@
 #' }
 #'
 #' @export
-gui <- function(object = NULL,
+gui <- function(object,
                 launch.browser = TRUE,
                 max_upload_mb = 2000,
                 ...) {
+  
+  if (missing(object) || is.null(object)) {
+    stop(
+      "Please provide a camReport object, for example: gui(cm).",
+      call. = FALSE
+    )
+  }
   
   if (!requireNamespace("shiny", quietly = TRUE)) {
     stop(
@@ -43,15 +53,19 @@ gui <- function(object = NULL,
     launch.browser = launch.browser,
     ...
   )
+  
+  invisible(object)
 }
 
 
-.camtrapReport_gui_app <- function(object = NULL) {
+.camtrapReport_gui_app <- function(object) {
   
   `%||%` <- function(x, y) {
-    if (is.null(x) ||
-        length(x) == 0 ||
-        (length(x) == 1 && is.na(x))) {
+    if (
+      is.null(x) ||
+      length(x) == 0 ||
+      (length(x) == 1 && is.na(x))
+    ) {
       y
     } else {
       x
@@ -778,7 +792,10 @@ gui <- function(object = NULL,
       )
       
       shiny::validate(
-        shiny::need(!is.null(zip_path), "Please provide a Camtrap-DP zip file or local path.")
+        shiny::need(
+          !is.null(zip_path),
+          "Please provide a Camtrap-DP zip file or local path."
+        )
       )
       
       shiny::showModal(shiny::modalDialog(
