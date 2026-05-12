@@ -176,10 +176,12 @@ body {
   overflow-x: hidden;
 }
 
-/* Wider report body: fixed permanently for floating TOC layout */
+/* Standard report width:
+   total page-like width = 30 cm
+   comfortable left/right spacing preserved */
 .main-container {
-  max-width: 1650px !important;
-  width: calc(100% - 90px) !important;
+  max-width: 30cm !important;
+  width: calc(100% - 6cm) !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 0 !important;
@@ -193,8 +195,8 @@ body {
 
 /* Main text column when toc_float is used */
 .main-container .toc-content {
-  padding-left: 38px !important;
-  padding-right: 28px !important;
+  padding-left: 1.1cm !important;
+  padding-right: 0.8cm !important;
 }
 
 /* Keep TOC properly sized inside its left column */
@@ -460,12 +462,12 @@ p.caption {
 /* Medium screens */
 @media (max-width: 1199px) {
   .main-container {
-    width: calc(100% - 40px) !important;
+    width: calc(100% - 2.4cm) !important;
   }
 
   .main-container .toc-content {
-    padding-left: 24px !important;
-    padding-right: 20px !important;
+    padding-left: 0.8cm !important;
+    padding-right: 0.5cm !important;
   }
 
   .report-logo-placeholder img {
