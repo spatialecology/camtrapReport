@@ -263,7 +263,9 @@ Reports can be shared even when raw images or precise locations cannot — broad
 
 ## Example data
 
-Try the workflow on the open [Leuven Camtrap-DP dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download), with optional [habitat table](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) and [study-area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing). For a quick first run, use the [smaller subset](https://drive.google.com/file/d/1N_dAABTlJVP1Fj655RqS3RsOclBTzOBw/view?usp=sharing).
+Try the workflow using the open [Leuven Camtrap-DP dataset](https://drive.google.com/file/d/1l-nSJKopM9agJgtTCzTx3tQiP8aTYH5c/view?usp=sharing). This example includes camera-trap data files based on the original Camtrap-DP dataset, which is available from [GBIF](https://doi.org/10.15468/4u3wm4), together with optional supporting files such as `habitat.csv` and a study-area boundary shapefile.
+
+This is a relatively large dataset, covering multiple years and more than 300 camera locations, so preprocessing and report generation may take some time.
 
 ## Learn more
 
