@@ -169,89 +169,89 @@ html {
 body,
 .main-container {
   color: #24384a;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 body {
   overflow-x: hidden;
 }
 
-/* Overall report container */
+/* Main report width */
 .main-container {
-  max-width: 1500px !important;
-  width: calc(100% - 80px) !important;
+  max-width: 1450px !important;
+  width: calc(100% - 110px) !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
-/* Remove Bootstrap row side gaps */
+/* Remove bootstrap row side gaps */
 .main-container > .row {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
 
-/* Fix floating TOC layout on normal/large screens */
+/* Floating TOC layout */
 @media (min-width: 768px) {
 
   .main-container > .row > .col-sm-4.col-md-3 {
-    width: 280px !important;
-    max-width: 280px !important;
+    width: 300px !important;
+    max-width: 300px !important;
     padding-left: 0 !important;
-    padding-right: 24px !important;
+    padding-right: 26px !important;
   }
 
   .main-container > .row > .col-sm-8.col-md-9 {
-    width: calc(100% - 280px) !important;
-    max-width: calc(100% - 280px) !important;
-    padding-left: 24px !important;
-    padding-right: 24px !important;
+    width: calc(100% - 300px) !important;
+    max-width: calc(100% - 300px) !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
   }
-
 }
 
-/* Keep TOC properly sized */
+/* TOC width */
 #TOC,
 .tocify {
   width: 100% !important;
 }
 
-/* Remove unwanted extra bottom page created by tocify */
+/* Prevent useless extra page extension */
 .tocify-extend-page {
   display: none !important;
 }
 
-/* Word-like justified report text */
+/* Paragraph text */
 .main-container p,
 .main-container .section p,
 .main-container div.section p,
 .main-container blockquote,
 .main-container dd {
-  font-size: 17px;
+  font-size: 18px;
   text-align: justify !important;
   text-align-last: left !important;
   text-justify: inter-word !important;
   hyphens: auto;
   -webkit-hyphens: auto;
   -ms-hyphens: auto;
-  line-height: 1.58;
+  line-height: 1.62;
 }
 
-/* Lists: same size as body text */
+/* Lists */
 .main-container ul:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li,
 .main-container ol:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li {
-  font-size: 17px;
+  font-size: 18px;
   text-align: justify !important;
   text-align-last: left !important;
   text-justify: inter-word !important;
   hyphens: auto;
+  line-height: 1.62;
 }
 
-/* Headings: larger than body text */
+/* Headings */
 .main-container h1 {
-  font-size: 42px !important;
-  line-height: 1.20;
+  font-size: 48px !important;
+  line-height: 1.18;
   margin-top: 34px;
   margin-bottom: 18px;
   text-align: left !important;
@@ -259,8 +259,8 @@ body {
 }
 
 .main-container h2 {
-  font-size: 34px !important;
-  line-height: 1.25;
+  font-size: 38px !important;
+  line-height: 1.22;
   margin-top: 30px;
   margin-bottom: 16px;
   text-align: left !important;
@@ -268,8 +268,8 @@ body {
 }
 
 .main-container h3 {
-  font-size: 28px !important;
-  line-height: 1.30;
+  font-size: 30px !important;
+  line-height: 1.28;
   margin-top: 24px;
   margin-bottom: 12px;
   text-align: left !important;
@@ -288,16 +288,16 @@ body {
 }
 
 .title {
-  margin-bottom: 0.15em !important;
+  margin-bottom: 0.18em !important;
 }
 
 .subtitle,
 .author,
 .date {
-  margin-bottom: 0.30em !important;
+  margin-bottom: 0.32em !important;
 }
 
-/* Real hyperlinks in report content */
+/* Links */
 .main-container p a,
 .main-container dd a,
 .main-container td a,
@@ -320,7 +320,7 @@ body {
   text-decoration: none !important;
 }
 
-/* Report tab links */
+/* Tabs */
 .nav-tabs > li > a,
 .nav-tabs > li > a:visited,
 .nav-tabs > li > a:hover,
@@ -356,7 +356,7 @@ body {
   border-bottom: 1px solid #d9e2ec !important;
 }
 
-/* Floating TOC */
+/* TOC style */
 .tocify {
   border: 1px solid #d8dde3 !important;
   border-radius: 7px !important;
@@ -401,7 +401,7 @@ body {
   padding-left: 26px !important;
 }
 
-/* Logo block */
+/* Logo */
 .report-logo-placeholder {
   margin: 18px auto 34px auto;
   text-align: center !important;
@@ -433,7 +433,7 @@ body {
   text-align: center;
 }
 
-/* Tables: keep package/table default alignment */
+/* Tables */
 table,
 .table,
 .dataTables_wrapper,
@@ -446,7 +446,7 @@ td {
   text-align-last: inherit;
 }
 
-/* Table captions / titles centered */
+/* Table captions */
 table caption,
 .table caption,
 .caption,
@@ -474,20 +474,20 @@ p.caption {
 /* Medium screens */
 @media (max-width: 1199px) {
   .main-container {
-    width: calc(100% - 40px) !important;
+    width: calc(100% - 50px) !important;
   }
 
   .main-container > .row > .col-sm-4.col-md-3 {
-    width: 240px !important;
-    max-width: 240px !important;
+    width: 260px !important;
+    max-width: 260px !important;
     padding-right: 18px !important;
   }
 
   .main-container > .row > .col-sm-8.col-md-9 {
-    width: calc(100% - 240px) !important;
-    max-width: calc(100% - 240px) !important;
-    padding-left: 18px !important;
-    padding-right: 18px !important;
+    width: calc(100% - 260px) !important;
+    max-width: calc(100% - 260px) !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
   }
 
   .report-logo-placeholder img {
@@ -511,15 +511,25 @@ p.caption {
   }
 
   .main-container h1 {
-    font-size: 34px !important;
+    font-size: 36px !important;
   }
 
   .main-container h2 {
-    font-size: 28px !important;
+    font-size: 30px !important;
   }
 
   .main-container h3 {
     font-size: 24px !important;
+  }
+
+  .main-container p,
+  .main-container .section p,
+  .main-container div.section p,
+  .main-container blockquote,
+  .main-container dd,
+  .main-container ul:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li,
+  .main-container ol:not(.nav):not(.nav-tabs):not(.nav-pills):not(.tocify-header):not(.tocify-subheader) > li {
+    font-size: 16px !important;
   }
 
   .report-logo-placeholder img {
