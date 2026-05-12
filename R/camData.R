@@ -841,11 +841,11 @@ setMethod(
     site_Name <- cm$siteName
     
     cm$title <- .pretty_label(as.character(glue::glue(
-      "Camera-Trap Report: {fg} at {site_Name}, {country}"
+      "Camera-Trap Monitoring Report for {site_Name}, {country}"
     )))
     
     cm$subtitle <- .pretty_label(
-      "Ecological Report based on Camera Trap Data for Wildlife Monitoring"
+      "Ecological insights from camera-trap data for wildlife monitoring"
     )
     
     rm(.d)

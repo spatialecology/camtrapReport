@@ -401,25 +401,25 @@ body {
   padding-left: 26px !important;
 }
 
-/* Logo */
+/* Logo: maximum width 5 cm, maximum height 3 cm */
 .report-logo-placeholder {
-  margin: 18px auto 34px auto;
+  margin: 16px auto 30px auto;
   text-align: center !important;
   width: 100%;
 }
 
 .report-logo-placeholder img {
-  width: 230px;
-  max-width: 230px;
-  max-height: 170px;
-  height: auto;
+  width: auto !important;
+  height: 3cm !important;
+  max-width: 5cm !important;
+  max-height: 3cm !important;
   display: inline-block;
   object-fit: contain;
 }
 
 .report-logo-placeholder .logo-empty {
-  width: 230px;
-  height: 130px;
+  width: 5cm;
+  height: 3cm;
   margin: 0 auto;
   border: 1px dashed #b9c2cc;
   border-radius: 8px;
@@ -491,8 +491,9 @@ p.caption {
   }
 
   .report-logo-placeholder img {
-    width: 210px;
-    max-width: 210px;
+    height: 2.8cm !important;
+    max-height: 2.8cm !important;
+    max-width: 4.7cm !important;
   }
 }
 
@@ -533,8 +534,9 @@ p.caption {
   }
 
   .report-logo-placeholder img {
-    width: 180px;
-    max-width: 180px;
+    height: 2.4cm !important;
+    max-height: 2.4cm !important;
+    max-width: 4cm !important;
   }
 }
 
@@ -545,7 +547,7 @@ document.documentElement.setAttribute("lang", "en");
 ```'
   )
 }
-#----------
+#---------
 
 # in group_definition, the groups like large_mammals, wild_mammals can be defined
 # each group can be specified based on data columns (e.g., order, class, scientificNames)
@@ -2408,8 +2410,10 @@ camR <- setRefClass(
       rmd_template <- glue::glue("
 ---
 title: \"{.self$title}\"
-subtitle: \"{.self$institute}\"
-author: \"{.self$authors}\"
+subtitle: \"{.self$subtitle}\"
+author:
+  - \"{.self$authors}\"
+  - \"{.self$institute}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
   html_document:
