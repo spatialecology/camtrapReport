@@ -390,7 +390,7 @@
     
     # Pairwise distance matrix (in meters)
     
-    dist_matrix <- as.matrix(distance(coords_mat,lonlat=TRUE))
+    dist_matrix <- as.matrix(terra::distance(coords_mat, lonlat = TRUE))
     diag(dist_matrix) <- NA
     
     
