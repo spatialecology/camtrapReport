@@ -737,7 +737,7 @@ setMethod(
       study_area_file <- file.path(cm$info$directory, "study_area.map")
       
       if (is.character(study_area)) {
-        if (file.exists(study_area)) {
+        if (file.exists(study_area)) {      
           .v <- try(terra::vect(study_area), silent = TRUE)
           
           if (!inherits(.v, "try-error")) {
@@ -865,7 +865,7 @@ setMethod(
       "The site is geographically defined by the coordinates ",
       cm$data_status$Spatial$coordinate_range,
       " and covers an area of approximately ",
-      round(cm$data_status$Spatial$MCArea, 2), " km2. ",
+      cm$data_status$Spatial$MCArea_text, ". ",
       cm$reportObjectElements$habitat_text, " ",
       cm$reportObjectElements$message, " ",
       "The site supports a diverse range of wildlife, with approximately ",

@@ -475,226 +475,107 @@
   
   out$outliers_status <- paste(distance_outlier_summary, sea_outlier_status, sep = " | ")
   #-----
-  # 7. Minimum Convex Polygon (MCP) & area
-
-  buffer_m <- 500
+  # 7. Study-area size: MCP area or 1 km buffer estimate
   
-  # Helper function: clean area text for reports
+  buffer_m <- 1000
+  
   .format_area <- function(area_km2) {
-    
-    if (is.na(area_km2) || !is.finite(area_km2)) {
-      return("not available")
-    }
-    
-    if (area_km2 < 0.0001) {
-      return(paste0(round(area_km2 * 1e6, 0), " m²"))
-    }
-    
-    if (area_km2 < 0.01) {
-      return(paste0(
-        round(area_km2 * 100, 2), " ha",
-        " (", signif(area_km2, 2), " km²)"
-      ))
-    }
-    
-    if (area_km2 < 1) {
-      return(paste0(round(area_km2, 3), " km²"))
-    }
-    
+    if (is.na(area_km2) || !is.finite(area_km2)) return("not estimated")
     paste0(round(area_km2, 2), " km²")
   }
   
-  # Helper function: calculate buffer-based area
-  .buffer_area_km2 <- function(v, buffer_m = 500) {
-    
-    buffered_locations <- terra::buffer(v, width = buffer_m)
-    
-    # Dissolve overlapping buffers
-    buffered_area <- terra::aggregate(buffered_locations)
-    
-    as.numeric(sum(terra::expanse(buffered_area, unit = "km"), na.rm = TRUE))
-  }
-  
-  # Helper function: calculate MCP area
-  .mcp_area_km2 <- function(v) {
-    
-    mcp_poly <- tryCatch(
-      terra::convHull(v),
-      error = function(e) {
-        tryCatch(
-          hull(v),
-          error = function(e2) NULL
-        )
-      }
-    )
-    
-    if (is.null(mcp_poly)) {
-      return(NA_real_)
-    }
-    
-    as.numeric(sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE))
-  }
-  
-  # Helper function: distance between two projected points, in km
-  .two_point_distance_km <- function(v) {
-    
-    xy <- terra::crds(v)
-    
-    dist_m <- sqrt(
-      (xy[1, 1] - xy[2, 1])^2 +
-        (xy[1, 2] - xy[2, 2])^2
-    )
-    
-    as.numeric(dist_m / 1000)
-  }
-  
-  # Keep only valid and unique camera coordinates
   unique_locations_area <- total_unique_locations_df |>
-    dplyr::filter(
-      !is.na(longitude),
-      !is.na(latitude)
-    ) |>
+    dplyr::filter(!is.na(longitude), !is.na(latitude)) |>
     dplyr::distinct(longitude, latitude, .keep_all = TRUE)
   
   n_area_locations <- nrow(unique_locations_area)
   
-  # Default outputs
   out$MCArea <- NA_real_
-  out$MCArea_text <- "not available"
+  out$MCArea_text <- "not estimated"
   out$MCArea_method <- "Not estimated"
   
-  # ------------------------------------------------------------------
-  # Case 0: no valid coordinates
-  # ------------------------------------------------------------------
+  if (n_area_locations > 0) {
+    
+    loc_area <- terra::vect(
+      unique_locations_area,
+      geom = c("longitude", "latitude"),
+      crs = "EPSG:4326"
+    )
+    
+    loc_area_projected <- .get_projected_vect(loc_area)
+  }
   
+  # Case 0: no valid coordinates
   if (n_area_locations == 0) {
     
     out$MCArea <- NA_real_
-    out$MCArea_text <- "not available"
+    out$MCArea_text <- "not estimated"
     out$MCArea_method <- "Not estimated"
     
-    out$status_MCArea <- paste0(
-      "No valid camera-location coordinates were available, so study-area size could not be estimated from camera locations."
-    )
+    out$status_MCArea <- "No valid camera-location coordinates were available."
   }
   
-  # ------------------------------------------------------------------
-  # Case 1: one unique camera location
-  # ------------------------------------------------------------------
-  
+  # Case 1: one camera location
   if (n_area_locations == 1) {
     
-    loc_area <- terra::vect(
-      unique_locations_area,
-      geom = c("longitude", "latitude"),
-      crs = "EPSG:4326"
-    )
+    buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
     
-    loc_area_projected <- .get_projected_vect(loc_area)
-    
-    area_km2 <- .buffer_area_km2(
-      loc_area_projected,
-      buffer_m = buffer_m
+    area_km2 <- as.numeric(
+      sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
     )
     
     out$MCArea <- area_km2
-    out$MCArea_text <- .format_area(area_km2)
-    out$MCArea_method <- paste0("Buffered camera-location area (", buffer_m, " m)")
+    out$MCArea_method <- "1 km buffer around one camera location"
+    out$MCArea_text <- paste0(
+      .format_area(area_km2),
+      " (estimated from a 1 km buffer around one camera location)"
+    )
     
     out$status_MCArea <- paste0(
-      "The dataset contains only 1 distinct camera location. ",
-      "Because a minimum convex polygon cannot be calculated from a single location, ",
-      "the study-area size was approximated using a ",
-      buffer_m, " m buffer around the camera location, resulting in an estimated area of ",
-      out$MCArea_text, "."
+      "The dataset contains one distinct camera location. Study-area size was estimated from a 1 km buffer around the camera location."
     )
   }
   
-  # ------------------------------------------------------------------
-  # Case 2: two unique camera locations
-  # ------------------------------------------------------------------
-  
+  # Case 2: two camera locations
   if (n_area_locations == 2) {
     
-    loc_area <- terra::vect(
-      unique_locations_area,
-      geom = c("longitude", "latitude"),
-      crs = "EPSG:4326"
-    )
+    buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
+    buffer_poly <- terra::aggregate(buffer_poly)
     
-    loc_area_projected <- .get_projected_vect(loc_area)
-    
-    dist_km <- .two_point_distance_km(loc_area_projected)
-    
-    area_km2 <- .buffer_area_km2(
-      loc_area_projected,
-      buffer_m = buffer_m
+    area_km2 <- as.numeric(
+      sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
     )
     
     out$MCArea <- area_km2
-    out$MCArea_text <- .format_area(area_km2)
-    out$MCArea_method <- paste0("Buffered camera-location area (", buffer_m, " m)")
+    out$MCArea_method <- "1 km buffers around two camera locations"
+    out$MCArea_text <- paste0(
+      .format_area(area_km2),
+      " (estimated from 1 km buffers around two camera locations)"
+    )
     
     out$status_MCArea <- paste0(
-      "The dataset contains 2 distinct camera locations separated by approximately ",
-      round(dist_km, 2), " km. ",
-      "Because fewer than three locations are available, a minimum convex polygon could not be calculated. ",
-      "The study-area size was therefore approximated using a ",
-      buffer_m, " m buffer around the two camera locations, resulting in an estimated area of ",
-      out$MCArea_text, "."
+      "The dataset contains two distinct camera locations. Study-area size was estimated from 1 km buffers around the two camera locations."
     )
   }
   
-  # ------------------------------------------------------------------
-  # Case 3: three or more unique camera locations
-  # ------------------------------------------------------------------
-  
+  # Case 3: three or more camera locations
   if (n_area_locations >= 3) {
     
-    loc_area <- terra::vect(
-      unique_locations_area,
-      geom = c("longitude", "latitude"),
-      crs = "EPSG:4326"
+    mcp_poly <- terra::hull(loc_area_projected)
+    
+    area_km2 <- as.numeric(
+      sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE)
     )
     
-    loc_area_projected <- .get_projected_vect(loc_area)
+    out$MCArea <- area_km2
+    out$MCArea_method <- "Minimum convex polygon"
+    out$MCArea_text <- .format_area(area_km2)
     
-    area_km2 <- .mcp_area_km2(loc_area_projected)
-    
-    # If MCP fails or gives zero because points are collinear/overlapping,
-    # fall back to buffer-based estimate.
-    if (is.na(area_km2) || !is.finite(area_km2) || area_km2 <= 0) {
-      
-      area_km2 <- .buffer_area_km2(
-        loc_area_projected,
-        buffer_m = buffer_m
-      )
-      
-      out$MCArea <- area_km2
-      out$MCArea_text <- .format_area(area_km2)
-      out$MCArea_method <- paste0("Buffered camera-location area (", buffer_m, " m)")
-      
-      out$status_MCArea <- paste0(
-        "The ", n_area_locations,
-        " distinct camera locations did not produce a valid minimum convex polygon area, ",
-        "which can occur when locations are overlapping or nearly collinear. ",
-        "The study-area size was therefore approximated using a ",
-        buffer_m, " m buffer around the camera locations, resulting in an estimated area of ",
-        out$MCArea_text, "."
-      )
-      
-    } else {
-      
-      out$MCArea <- area_km2
-      out$MCArea_text <- .format_area(area_km2)
-      out$MCArea_method <- "Minimum convex polygon"
-      
-      out$status_MCArea <- paste0(
-        "The ", n_area_locations,
-        " distinct camera locations are distributed within a minimum convex polygon (MCP) of ",
-        out$MCArea_text, "."
-      )
-    }
+    out$status_MCArea <- paste0(
+      "The ", n_area_locations,
+      " distinct camera locations are distributed within a minimum convex polygon (MCP) of ",
+      out$MCArea_text, "."
+    )
   }
   
   
