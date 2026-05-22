@@ -474,8 +474,44 @@
   }
   
   out$outliers_status <- paste(distance_outlier_summary, sea_outlier_status, sep = " | ")
+  
+  
+  
   #-----
-  # 7. Study-area size: MCP area or 1 km buffer estimate
+  # ============================================================
+  # Helper function: format area for report text
+  # Keep MCArea numeric, use MCArea_text for writing
+  # ============================================================
+  
+  .format_area <- function(area_km2) {
+    
+    area_km2 <- suppressWarnings(as.numeric(area_km2))
+    
+    if (is.na(area_km2) || !is.finite(area_km2)) {
+      return("not available")
+    }
+    
+    if (area_km2 < 0.0001) {
+      return(paste0(round(area_km2 * 1e6, 0), " m²"))
+    }
+    
+    if (area_km2 < 0.01) {
+      return(paste0(
+        round(area_km2 * 100, 2), " ha",
+        " (", signif(area_km2, 2), " km²)"
+      ))
+    }
+    
+    if (area_km2 < 1) {
+      return(paste0(round(area_km2, 3), " km²"))
+    }
+    
+    paste0(round(area_km2, 2), " km²")
+  }
+  
+  # ============================================================
+  # 7. Study-area estimate: MCP or buffer
+  # ============================================================
   
   buffer_m <- 1000
   
