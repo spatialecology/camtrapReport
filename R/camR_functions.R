@@ -245,7 +245,31 @@
   env
 }
 #------
-
+.format_area <- function(area_km2) {
+  
+  area_km2 <- suppressWarnings(as.numeric(area_km2))
+  
+  if (is.na(area_km2) || !is.finite(area_km2)) {
+    return("not estimated")
+  }
+  
+  if (area_km2 < 0.0001) {
+    return(paste0(round(area_km2 * 1e6, 0), " m²"))
+  }
+  
+  if (area_km2 < 0.01) {
+    return(paste0(
+      round(area_km2 * 100, 2), " ha",
+      " (", signif(area_km2, 2), " km²)"
+    ))
+  }
+  
+  if (area_km2 < 1) {
+    return(paste0(round(area_km2, 3), " km²"))
+  }
+  
+  paste0(round(area_km2, 2), " km²")
+}
 
 #####################*************############################
 #       *********Data_status : Spatial********* 
@@ -282,6 +306,8 @@
     spatial_pattern = NA_character_,
     status_spatial = "Not computed",
     MCArea = NA_real_,
+    MCArea_text = "not estimated",
+    MCArea_method = "Not estimated",
     status_MCArea = "Not computed",
     country = NA_character_,
     Region_Top = NA_character_,
@@ -377,8 +403,7 @@
   out$total_unique_locations <- nrow(total_unique_locations_df)
   
   if (out$total_unique_locations <= 1) {
-    out$note <- paste0(y, " Only one unique location — spatial analysis skipped.")
-    return(out)
+    out$note <- paste0(y, " Only one unique location — distance-based spatial analyses skipped.")
   }
   
   # 5) nearest-neighbour outliers
@@ -424,42 +449,76 @@
     )
   }
   
-  outlier_res <- .getOutlier(total_unique_locations_df, minD = 2, prob = 0.99)
-  
-  out$mean_distance_cam <- round(outlier_res$mean_distance, 2)
-  out$min_distance_cam <- round(outlier_res$min_distance, 2)
-  out$max_distance_cam <- round(outlier_res$max_distance, 2)
-  out$min_distance_camNames <- outlier_res$min_distance_names
-  out$max_distance_camNames <- outlier_res$max_distance_names
-  
-  out$num_lowrisk_outliers <- length(outlier_res$low_prob)
-  out$num_mediumrisk_outliers <- length(outlier_res$medium)
-  out$num_highrisk_outliers <- length(outlier_res$high_prob)
-  
-  safe_names <- function(idxs) {
-    if (!length(idxs)) return(character(0))
-    sort(unique(na.omit(total_unique_locations_df$locationName[idxs])))
+  if (out$total_unique_locations < 2) {
+    
+    out$mean_distance_cam <- NA_real_
+    out$min_distance_cam <- NA_real_
+    out$max_distance_cam <- NA_real_
+    out$min_distance_camNames <- NA_character_
+    out$max_distance_camNames <- NA_character_
+    
+    out$num_lowrisk_outliers <- 0L
+    out$num_mediumrisk_outliers <- 0L
+    out$num_highrisk_outliers <- 0L
+    
+    distance_outlier_summary <- paste0(
+      y, " Only one unique location — distance-based spatial outlier analysis skipped"
+    )
+    
+  } else {
+    
+    outlier_res <- .getOutlier(total_unique_locations_df, minD = 2, prob = 0.99)
+    
+    out$mean_distance_cam <- round(outlier_res$mean_distance, 2)
+    out$min_distance_cam <- round(outlier_res$min_distance, 2)
+    out$max_distance_cam <- round(outlier_res$max_distance, 2)
+    out$min_distance_camNames <- outlier_res$min_distance_names
+    out$max_distance_camNames <- outlier_res$max_distance_names
+    
+    out$num_lowrisk_outliers <- length(outlier_res$low_prob)
+    out$num_mediumrisk_outliers <- length(outlier_res$medium)
+    out$num_highrisk_outliers <- length(outlier_res$high_prob)
+    
+    safe_names <- function(idxs) {
+      if (!length(idxs)) return(character(0))
+      sort(unique(na.omit(total_unique_locations_df$locationName[idxs])))
+    }
+    
+    low_names  <- safe_names(outlier_res$low_prob)
+    med_names  <- safe_names(outlier_res$medium)
+    high_names <- safe_names(outlier_res$high_prob)
+    
+    distance_outlier_summary <- ""
+    
+    if (out$num_highrisk_outliers > 0) {
+      distance_outlier_summary <- paste0(
+        distance_outlier_summary, r, " High-risk (",
+        out$num_highrisk_outliers, "): ", paste(high_names, collapse = ", ")
+      )
+    }
+    
+    if (out$num_mediumrisk_outliers > 0) {
+      distance_outlier_summary <- paste0(
+        distance_outlier_summary,
+        if (nzchar(distance_outlier_summary)) " | " else "",
+        o, " Medium-risk (", out$num_mediumrisk_outliers, "): ",
+        paste(med_names, collapse = ", ")
+      )
+    }
+    
+    if (out$num_lowrisk_outliers > 0) {
+      distance_outlier_summary <- paste0(
+        distance_outlier_summary,
+        if (nzchar(distance_outlier_summary)) " | " else "",
+        y, " Low-risk (", out$num_lowrisk_outliers, "): ",
+        paste(low_names, collapse = ", ")
+      )
+    }
+    
+    if (!nzchar(distance_outlier_summary)) {
+      distance_outlier_summary <- paste0(g, " No spatial outliers detected")
+    }
   }
-  low_names  <- safe_names(outlier_res$low_prob)
-  med_names  <- safe_names(outlier_res$medium)
-  high_names <- safe_names(outlier_res$high_prob)
-  
-  distance_outlier_summary <- ""
-  if (out$num_highrisk_outliers > 0)
-    distance_outlier_summary <- paste0(distance_outlier_summary, r, " High-risk (",
-                                       out$num_highrisk_outliers, "): ", paste(high_names, collapse = ", "))
-  if (out$num_mediumrisk_outliers > 0)
-    distance_outlier_summary <- paste0(distance_outlier_summary,
-                                       if (nzchar(distance_outlier_summary)) " | " else "",
-                                       o, " Medium-risk (", out$num_mediumrisk_outliers, "): ",
-                                       paste(med_names, collapse = ", "))
-  if (out$num_lowrisk_outliers > 0)
-    distance_outlier_summary <- paste0(distance_outlier_summary,
-                                       if (nzchar(distance_outlier_summary)) " | " else "",
-                                       y, " Low-risk (", out$num_lowrisk_outliers, "): ",
-                                       paste(low_names, collapse = ", "))
-  if (!nzchar(distance_outlier_summary))
-    distance_outlier_summary <- paste0(g, " No spatial outliers detected")
   
   # 6) sea vs land
   loc   <- vect(total_unique_locations_df, geom = c("longitude", "latitude"), crs = "epsg:4326")
@@ -477,48 +536,11 @@
   
   
   
-  #-----
-  # ============================================================
-  # Helper function: format area for report text
-  # Keep MCArea numeric, use MCArea_text for writing
-  # ============================================================
-  
-  .format_area <- function(area_km2) {
-    
-    area_km2 <- suppressWarnings(as.numeric(area_km2))
-    
-    if (is.na(area_km2) || !is.finite(area_km2)) {
-      return("not available")
-    }
-    
-    if (area_km2 < 0.0001) {
-      return(paste0(round(area_km2 * 1e6, 0), " m²"))
-    }
-    
-    if (area_km2 < 0.01) {
-      return(paste0(
-        round(area_km2 * 100, 2), " ha",
-        " (", signif(area_km2, 2), " km²)"
-      ))
-    }
-    
-    if (area_km2 < 1) {
-      return(paste0(round(area_km2, 3), " km²"))
-    }
-    
-    paste0(round(area_km2, 2), " km²")
-  }
-  
-  # ============================================================
-  # 7. Study-area estimate: MCP or buffer
-  # ============================================================
+
+  # 7. Study-area estimate
+  # --------------
   
   buffer_m <- 1000
-  
-  .format_area <- function(area_km2) {
-    if (is.na(area_km2) || !is.finite(area_km2)) return("not estimated")
-    paste0(round(area_km2, 2), " km²")
-  }
   
   unique_locations_area <- total_unique_locations_df |>
     dplyr::filter(!is.na(longitude), !is.na(latitude)) |>
@@ -529,6 +551,7 @@
   out$MCArea <- NA_real_
   out$MCArea_text <- "not estimated"
   out$MCArea_method <- "Not estimated"
+  out$status_MCArea <- "Study-area size was not estimated."
   
   if (n_area_locations > 0) {
     
@@ -548,7 +571,9 @@
     out$MCArea_text <- "not estimated"
     out$MCArea_method <- "Not estimated"
     
-    out$status_MCArea <- "No valid camera-location coordinates were available."
+    out$status_MCArea <- paste0(
+      "No valid camera-location coordinates were available, so study-area size could not be estimated."
+    )
   }
   
   # Case 1: one camera location
@@ -561,14 +586,20 @@
     )
     
     out$MCArea <- area_km2
-    out$MCArea_method <- "1 km buffer around one camera location"
+    out$MCArea_method <- paste0(buffer_m / 1000, " km buffer around one camera location")
+    
     out$MCArea_text <- paste0(
       .format_area(area_km2),
-      " (estimated from a 1 km buffer around one camera location)"
+      " (estimated from a ", buffer_m / 1000,
+      " km buffer around one camera location)"
     )
     
     out$status_MCArea <- paste0(
-      "The dataset contains one distinct camera location. Study-area size was estimated from a 1 km buffer around the camera location."
+      "The dataset contains one distinct camera location. ",
+      "Because a minimum convex polygon cannot be calculated from a single point, ",
+      "study-area size was estimated using a ", buffer_m / 1000,
+      " km buffer around the camera location, resulting in an estimated area of ",
+      .format_area(area_km2), "."
     )
   }
   
@@ -583,35 +614,73 @@
     )
     
     out$MCArea <- area_km2
-    out$MCArea_method <- "1 km buffers around two camera locations"
+    out$MCArea_method <- paste0(buffer_m / 1000, " km buffers around two camera locations")
+    
     out$MCArea_text <- paste0(
       .format_area(area_km2),
-      " (estimated from 1 km buffers around two camera locations)"
+      " (estimated from ", buffer_m / 1000,
+      " km buffers around two camera locations)"
     )
     
     out$status_MCArea <- paste0(
-      "The dataset contains two distinct camera locations. Study-area size was estimated from 1 km buffers around the two camera locations."
+      "The dataset contains two distinct camera locations. ",
+      "Because a minimum convex polygon cannot be calculated from two points, ",
+      "study-area size was estimated using ", buffer_m / 1000,
+      " km buffers around the two camera locations, resulting in an estimated area of ",
+      .format_area(area_km2), "."
     )
   }
   
   # Case 3: three or more camera locations
   if (n_area_locations >= 3) {
     
-    mcp_poly <- terra::hull(loc_area_projected)
+    area_km2 <- tryCatch({
+      mcp_poly <- terra::hull(loc_area_projected)
+      as.numeric(sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE))
+    }, error = function(e) {
+      NA_real_
+    })
     
-    area_km2 <- as.numeric(
-      sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE)
-    )
-    
-    out$MCArea <- area_km2
-    out$MCArea_method <- "Minimum convex polygon"
-    out$MCArea_text <- .format_area(area_km2)
-    
-    out$status_MCArea <- paste0(
-      "The ", n_area_locations,
-      " distinct camera locations are distributed within a minimum convex polygon (MCP) of ",
-      out$MCArea_text, "."
-    )
+    # If MCP fails or returns zero/invalid area, use buffer fallback
+    if (is.na(area_km2) || !is.finite(area_km2) || area_km2 <= 0) {
+      
+      buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
+      buffer_poly <- terra::aggregate(buffer_poly)
+      
+      area_km2 <- as.numeric(
+        sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
+      )
+      
+      out$MCArea <- area_km2
+      out$MCArea_method <- paste0(buffer_m / 1000, " km buffered camera-location area")
+      
+      out$MCArea_text <- paste0(
+        .format_area(area_km2),
+        " (estimated from ", buffer_m / 1000,
+        " km buffers around camera locations)"
+      )
+      
+      out$status_MCArea <- paste0(
+        "The ", n_area_locations,
+        " distinct camera locations did not produce a valid minimum convex polygon area, ",
+        "for example because locations were overlapping or nearly collinear. ",
+        "Study-area size was therefore estimated using ", buffer_m / 1000,
+        " km buffers around the camera locations, resulting in an estimated area of ",
+        .format_area(area_km2), "."
+      )
+      
+    } else {
+      
+      out$MCArea <- area_km2
+      out$MCArea_method <- "Minimum convex polygon"
+      out$MCArea_text <- .format_area(area_km2)
+      
+      out$status_MCArea <- paste0(
+        "The ", n_area_locations,
+        " distinct camera locations are distributed within a minimum convex polygon (MCP) of ",
+        out$MCArea_text, "."
+      )
+    }
   }
   
   
