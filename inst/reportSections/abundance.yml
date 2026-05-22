@@ -210,7 +210,7 @@ code: |
     species_list <- sort(unique(as.character(capture_base$scientificName)))
     years_all <- sort(unique(capture_base$Year_numeric))
     n_species <- length(species_list)
-    many_species <- n_species > 8
+    many_species <- n_species > 100
     
     # Important: this colour map is the master map used in all tabs
     species_colors <- .make_species_colors(species_list)
@@ -663,7 +663,7 @@ code: |
         
         density_plot <- .add_line_segments(density_plot, "estimate")
         
-        if (length(rem_species) > 8) {
+        if (length(rem_species) > 100) {
           
           p <- ggplot2::ggplot(
             density_plot,
