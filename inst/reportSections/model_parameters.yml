@@ -172,7 +172,7 @@ code: |
     .plot_parameter(
       active_speed_data,
       y_label = "Active speed (km/h)",
-      caption_text = "Estimated active movement speeds (km/h) across study species. Error bars show 95% confidence intervals truncated at zero because movement speed cannot be negative."
+      caption_text = " *Estimated active movement speeds (km/h) across study species. Error bars show 95% confidence intervals.* " 
     )
     
     cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
@@ -187,7 +187,7 @@ code: |
     .plot_parameter(
       activity_data,
       y_label = "Proportion of Time Active",
-      caption_text = "Estimated activity levels, expressed as the proportion of the day active, for each study species. Whiskers represent 95% confidence intervals constrained to the biologically valid range from 0 to 1.",
+      caption_text = " *Estimated activity levels, expressed as the proportion of the day active, for each study species. Whiskers represent 95% confidence intervals. *",
       upper_bound = 1
     )
     
@@ -202,7 +202,7 @@ code: |
     .plot_parameter(
       overall_speed_data,
       y_label = "Day Range (km)",
-      caption_text = "Estimated day ranges for each study species, calculated as the product of movement speed and activity level scaled to a 24-hour period. Whiskers indicate 95% confidence intervals truncated at zero because day range cannot be negative."
+      caption_text = " *Estimated day ranges for each study species, calculated as the product of movement speed and activity level scaled to a 24-hour period. Whiskers indicate 95% confidence intervals. *"
     )
     
   } else {
