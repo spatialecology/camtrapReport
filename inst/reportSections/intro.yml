@@ -7,6 +7,15 @@ text: |
   
   To better understand and monitor these responses, camera trapping has become a cost-effective, reliable, and non-invasive method for monitoring wildlife populations. By automatically capturing images or videos when animals move through the detection zone of infrared sensors, camera traps generate robust information on species occurrence, habitat use, activity patterns, and relative abundance while minimizing observer-related disturbance. Consequently, camera-trap data have become an important source of biodiversity information and are widely applied in ecological research, biodiversity monitoring, and adaptive conservation management (*Kays et al., 2009*). These data are valuable to both scientists and practitioners, as they support ecological analyses, advance understanding of species ecology, and provide critical insights into population status and trends (*O’Connell et al., 2011*).
   
+---
+name: "introduction"
+title: "Introduction"
+parent: null
+text: |
+  Terrestrial wildlife populations play a fundamental role in ecosystem structure and function. Across taxonomic groups, wildlife contributes to key ecological processes such as nutrient cycling, energy flow, seed dispersal, trophic interactions, and habitat modification, thereby supporting biodiversity and strengthening ecosystem resilience (*Dirzo et al., 2014*). However, these populations are increasingly exposed to anthropogenic pressures, especially habitat alteration and land-use change, which may affect their distribution and abundance across space and time (*Newbold et al., 2015*). Understanding and monitoring these responses is therefore crucial for conservation planning, effective protected-area management, and evidence-based decision-making (*Coad et al., 2015*).
+  
+  To better understand and monitor these responses, camera trapping has become a cost-effective, reliable, and non-invasive method for monitoring wildlife populations. By automatically capturing images or videos when animals move through the detection zone of infrared sensors, camera traps generate robust information on species occurrence, habitat use, activity patterns, and relative abundance while minimizing observer-related disturbance. Consequently, camera-trap data have become an important source of biodiversity information and are widely applied in ecological research, biodiversity monitoring, and adaptive conservation management (*Kays et al., 2009*). These data are valuable to both scientists and practitioners, as they support ecological analyses, advance understanding of species ecology, and provide critical insights into population status and trends (*O’Connell et al., 2011*).
+  
 code: |
   #| name: intro
   #| setting: echo=FALSE, results="asis", message=FALSE, warning=FALSE
@@ -17,6 +26,25 @@ code: |
   
   if (is.null(focus_label) || length(focus_label) == 0 || is.na(focus_label) || !nzchar(focus_label)) {
     focus_label <- "wildlife"
+  }
+  
+  # Add EOW-specific paragraph only for EOW datasets
+  if (isTRUE(object$info$is.EOW)) {
+    
+    cat(paste0(
+      "The [European Observatory of Wildlife (EOW)](https://wildlifeobservatory.org/) ",
+      "is a standardised camera-trapping network operating across more than 100 study areas in Europe. ",
+      "It is coordinated by the [ENETWILD](https://enetwild.com/) consortium and funded by the ",
+      "[European Food Safety Authority (EFSA)](https://www.efsa.europa.eu/en). ",
+      "Images collected by camera traps within this network are processed and archived in Agouti, ",
+      "exported in the [Camtrap-DP](https://camtrap-dp.tdwg.org/) standard format, and included in annual monitoring reports submitted to ",
+      "[EFSA](https://www.efsa.europa.eu/en). ",
+      "A key feature of the EOW protocol is the use of the ",
+      "[Random Encounter Model (REM)](https://github.com/MarcusRowcliffe/camtrapDensity) ",
+      "to estimate population density from camera-trap detections (*Rowcliffe et al., 2014*). ",
+      "As a result, the entire workflow follows an established and standardised framework.",
+      "\n\n"
+    ))
   }
   
   cat(paste0(
