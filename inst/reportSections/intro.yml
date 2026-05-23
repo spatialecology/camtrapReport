@@ -27,26 +27,7 @@ code: |
   if (is.null(focus_label) || length(focus_label) == 0 || is.na(focus_label) || !nzchar(focus_label)) {
     focus_label <- "wildlife"
   }
-  
-  # Add EOW-specific paragraph only for EOW datasets
-  if (isTRUE(object$info$is.EOW)) {
-    
-    cat(paste0(
-      "The [European Observatory of Wildlife (EOW)](https://wildlifeobservatory.org/) ",
-      "is a standardised camera-trapping network operating across more than 100 study areas in Europe. ",
-      "It is coordinated by the [ENETWILD](https://enetwild.com/) consortium and funded by the ",
-      "[European Food Safety Authority (EFSA)](https://www.efsa.europa.eu/en). ",
-      "Images collected by camera traps within this network are processed and archived in Agouti, ",
-      "exported in the [Camtrap-DP](https://camtrap-dp.tdwg.org/) standard format, and included in annual monitoring reports submitted to ",
-      "[EFSA](https://www.efsa.europa.eu/en). ",
-      "A key feature of the EOW protocol is the use of the ",
-      "[Random Encounter Model (REM)](https://github.com/MarcusRowcliffe/camtrapDensity) ",
-      "to estimate population density from camera-trap detections (*Rowcliffe et al., 2014*). ",
-      "As a result, the entire workflow follows an established and standardised framework.",
-      "\n\n"
-    ))
-  }
-  
+
   cat(paste0(
     "This report presents the results of camera-trap surveys conducted in **",
     object$siteName,
