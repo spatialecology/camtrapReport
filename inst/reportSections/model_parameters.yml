@@ -2,14 +2,18 @@
 name: "model_parameters"
 title: "### REM Model Parameters {.tabset}"
 parent: "population_density"
-text: "The REM relies on three key parameters: movement speed, activity level, and day range. Movement speed represents the average distance traveled by an individual over time, whereas activity level reflects the proportion of time individuals are active and therefore available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is derived from movement speed and activity level (*Rowcliffe et al., 2008; Rowcliffe et al., 2016*). Together, these parameters underpin the REM density estimates presented in this section. The tabs below show species-specific estimates for each parameter.\n\n"
+text: |
+  The REM relies on three key parameters: movement speed, activity level, and day range. Movement speed represents the average distance travelled by an individual over time, whereas activity level reflects the proportion of time individuals are active and therefore available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is derived from movement speed and activity level (Rowcliffe et al., 2008; Rowcliffe et al., 2016). Together, these parameters underpin the REM density estimates presented in this section. The tabs below show species-specific estimates for each parameter.
+
 code: |
   #| name: REM_parameters 
-  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=11, fig.height=6.5, out.width="100%", fig.align="center", dpi=150
   #| packages: ggplot2, dplyr
   
-  # REM estimates
 
+  # Get REM estimates
+
+  
   if (!exists("estimates_rem") || !is.data.frame(estimates_rem)) {
     
     spn <- object$get_speciesNames(object$setting$focus_groups)
@@ -35,9 +39,9 @@ code: |
     estimates_rem <- dplyr::bind_rows(rem_list)
   }
   
-  # 
-  # Helper
-
+  # -------------------------
+  # Helper functions
+  # -------------------------
   
   .make_species_colors <- function(species) {
     
@@ -60,7 +64,20 @@ code: |
     stats::setNames(cols, species)
   }
   
+  .caption_html <- function(fig_no, text) {
+    cat(paste0(
+      '\n\n<p style="font-size:16px; color:black; font-weight:normal; margin-top:10px;">',
+      '<b>Figure ', fig_no, '.</b> ',
+      '<i>', text, '</i>',
+      '</p>\n\n'
+    ))
+  }
+  
   .prepare_parameter_data <- function(data, metric_name, lower_bound = 0, upper_bound = NULL) {
+    
+    if (!is.data.frame(data) || nrow(data) == 0 || !"Metric" %in% names(data)) {
+      return(data.frame())
+    }
     
     out <- data |>
       dplyr::filter(.data$Metric == metric_name) |>
@@ -84,28 +101,29 @@ code: |
       return(out)
     }
     
-    # Keep estimates and confidence intervals inside biologically valid bounds.
     out$estimate_plot <- pmax(lower_bound, out$estimate)
     out$lcl95_plot <- ifelse(is.finite(out$lcl95), pmax(lower_bound, out$lcl95), NA_real_)
     out$ucl95_plot <- ifelse(is.finite(out$ucl95), out$ucl95, NA_real_)
     
     if (!is.null(upper_bound)) {
       out$estimate_plot <- pmin(upper_bound, out$estimate_plot)
-      out$ucl95_plot <- pmin(upper_bound, out$ucl95_plot)
+      out$ucl95_plot <- ifelse(is.finite(out$ucl95_plot), pmin(upper_bound, out$ucl95_plot), NA_real_)
     }
     
-    out
+    out |>
+      dplyr::arrange(.data$scientificName)
   }
   
   .plot_parameter <- function(data, y_label, caption_text, upper_bound = NULL) {
     
-    if (nrow(data) == 0) {
+    if (!is.data.frame(data) || nrow(data) == 0) {
       cat("\n\nNo data are available for this REM parameter.\n\n")
       return(invisible(NULL))
     }
     
-    unique_species <- unique(data$scientificName)
-    species_colors <- .make_species_colors(unique_species)
+    data$scientificName <- factor(data$scientificName, levels = data$scientificName)
+    
+    species_colors <- .make_species_colors(data$scientificName)
     
     p <- ggplot2::ggplot(
       data,
@@ -115,13 +133,14 @@ code: |
         fill = .data$scientificName
       )
     ) +
-      ggplot2::geom_col() +
+      ggplot2::geom_col(width = 0.75) +
       ggplot2::geom_errorbar(
         ggplot2::aes(
           ymin = .data$lcl95_plot,
           ymax = .data$ucl95_plot
         ),
         width = 0.2,
+        linewidth = 0.6,
         na.rm = TRUE
       ) +
       ggplot2::labs(
@@ -134,8 +153,8 @@ code: |
         axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
         axis.title.x = ggplot2::element_text(face = "bold", color = "black"),
         axis.title.y = ggplot2::element_text(face = "bold", color = "black"),
-        plot.title = ggplot2::element_text(face = "bold"),
-        legend.position = "none"
+        legend.position = "none",
+        panel.grid.minor = ggplot2::element_blank()
       )
     
     if (is.null(upper_bound)) {
@@ -154,14 +173,19 @@ code: |
     
     print(p)
     
-    cat("\n\n", object$getFigureNumber(), " *", caption_text, "*\n")
+    .caption_html(
+      object$getFigureNumber(text = FALSE),
+      caption_text
+    )
   }
   
-  # Plot REM model
-
-  if (nrow(estimates_rem) > 0) {
+  # -------------------------
+  # Plot REM model parameters
+  # -------------------------
+  
+  if (is.data.frame(estimates_rem) && nrow(estimates_rem) > 0) {
     
-    cat('\n#### Movement Speed {.tabset .unnumbered}\n\n')
+    cat('\n#### Movement Speed {.unnumbered}\n\n')
     
     active_speed_data <- .prepare_parameter_data(
       estimates_rem,
@@ -172,10 +196,10 @@ code: |
     .plot_parameter(
       active_speed_data,
       y_label = "Active speed (km/h)",
-      caption_text = " *Estimated active movement speeds (km/h) across study species. Error bars show 95% confidence intervals.* " 
+      caption_text = "Estimated active movement speeds (km/h) across study species. Error bars show 95% confidence intervals."
     )
     
-    cat('\n#### Activity Level {.tabset .unnumbered}\n\n')
+    cat('\n#### Activity Level {.unnumbered}\n\n')
     
     activity_data <- .prepare_parameter_data(
       estimates_rem,
@@ -186,12 +210,12 @@ code: |
     
     .plot_parameter(
       activity_data,
-      y_label = "Proportion of Time Active",
-      caption_text = " *Estimated activity levels, expressed as the proportion of the day active, for each study species. Whiskers represent 95% confidence intervals. *",
+      y_label = "Proportion of time active",
+      caption_text = "Estimated activity levels, expressed as the proportion of the day active, for each study species. Error bars show 95% confidence intervals.",
       upper_bound = 1
     )
     
-    cat('\n#### Day range {.tabset .unnumbered}\n\n')
+    cat('\n#### Day Range {.unnumbered}\n\n')
     
     overall_speed_data <- .prepare_parameter_data(
       estimates_rem,
@@ -201,8 +225,8 @@ code: |
     
     .plot_parameter(
       overall_speed_data,
-      y_label = "Day Range (km)",
-      caption_text = " *Estimated day ranges for each study species, calculated as the product of movement speed and activity level scaled to a 24-hour period. Whiskers indicate 95% confidence intervals. *"
+      y_label = "Day range (km)",
+      caption_text = "Estimated day ranges for each study species, calculated as the product of movement speed and activity level scaled to a 24-hour period. Error bars show 95% confidence intervals."
     )
     
   } else {
