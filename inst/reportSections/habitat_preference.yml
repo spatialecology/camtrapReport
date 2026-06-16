@@ -7,8 +7,7 @@ code: |
   #| name: habitat_selection
   #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE
   #| packages: ggplot2, dplyr, scales
-  #| fig-width: 12
-  #| fig-height: 6
+
   
   .spn <- object$get_speciesNames(object$setting$focus_groups)
   
