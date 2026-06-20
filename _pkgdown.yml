@@ -4,10 +4,10 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: "#2F7D5C"
-    secondary: "#6B7280"
-    light: "#FFFFFF"
-    dark: "#1F2937"
+    primary: '#2F7D5C'
+    secondary: '#6B7280'
+    light: '#FFFFFF'
+    dark: '#1F2937'
 
 home:
   title: camtrapReport
@@ -19,7 +19,7 @@ home:
 
 navbar:
   structure:
-    left: [home, tutorials, gallery, updates, reference, changelog]
+    left: [home, tutorials, reference, changelog]
     right: [search, report-bug, discussion, github]
 
   components:
@@ -28,7 +28,7 @@ navbar:
       href: index.html
 
     tutorials:
-      text: Tutorials
+      text: Articles
       menu:
         - text: Package Overview
           href: articles/Package-Overview.html
@@ -36,16 +36,8 @@ navbar:
           href: articles/ecological-report.html
         - text: Data Status Report
           href: articles/data-status-report.html
-        - text: Module Management
+        - text: How to add new modules?
           href: articles/modules.html
-
-    gallery:
-      text: Gallery
-      href: articles/gallery.html
-
-    updates:
-      text: NEWS
-      href: articles/updates.html
 
     reference:
       text: Reference
@@ -72,7 +64,7 @@ navbar:
       aria-label: GitHub repository
 
 articles:
-  - title: Tutorials
+  - title: Articles
     desc: >
       Step-by-step guides for using camtrapReport.
     contents:
@@ -80,14 +72,14 @@ articles:
       - ecological-report
       - data-status-report
       - modules
-      - gallery
-      - updates
 
 reference:
   - title: Data input and setup
     contents:
       - camData
       - info
+      - install_All
+      - status
 
   - title: Core classes
     contents:
@@ -103,4 +95,14 @@ reference:
       - reportSection
       - testSection
       - add_Module
-      
+      - listReportSections
+      - section_names
+      - list_Modules
+      - move_Module
+      - remove_Module
+      - restore_Module
+
+  - title: Utilities
+    contents:
+      - empty_trash
+
