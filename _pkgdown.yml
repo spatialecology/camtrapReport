@@ -4,9 +4,9 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: '#2F7D5C'
-    secondary: '#6B7280'
-    light: '#FFFFFF'
+    primary: '#1F6F54'
+    secondary: '#4B5563'
+    light: '#F8FAF7'
     dark: '#1F2937'
 
 home:
@@ -19,7 +19,7 @@ home:
 
 navbar:
   structure:
-    left: [home, tutorials, reference, changelog]
+    left: [home, articles, reference, changelog, resources]
     right: [search, report-bug, discussion, github]
 
   components:
@@ -27,7 +27,7 @@ navbar:
       text: Get started
       href: index.html
 
-    tutorials:
+    articles:
       text: Articles
       menu:
         - text: Package Overview
@@ -46,6 +46,10 @@ navbar:
     changelog:
       text: Changelog
       href: news/index.html
+
+    resources:
+      text: Resources
+      href: resources.html
 
     report-bug:
       icon: fa-bug
@@ -66,7 +70,7 @@ navbar:
 articles:
   - title: Articles
     desc: >
-      Step-by-step guides for using camtrapReport.
+      Guides and documentation for using camtrapReport.
     contents:
       - Package-Overview
       - ecological-report
@@ -105,4 +109,3 @@ reference:
   - title: Utilities
     contents:
       - empty_trash
-

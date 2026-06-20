@@ -180,9 +180,6 @@ of the input data, use:
 status (cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
 
-***Example:** [Data Status Report
-output](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view)*
-
 ## Ecological report
 
 Once the input data have been prepared, a full ecological report can be
@@ -192,9 +189,6 @@ generated using
 ``` r
 report(cm, view = TRUE)  
 ```
-
-***Example:** [Ecological Report
-output](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view)*
 
 ## Conclusion
 
@@ -327,7 +321,7 @@ through the [Big Picture project](https://wildlifecamera.eu/).
 
 ### Articles
 
-Step-by-step guides for using camtrapReport.
+Guides and documentation for using camtrapReport.
 
 - [Package
   Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.md):
