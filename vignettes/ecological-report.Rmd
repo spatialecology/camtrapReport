@@ -11,13 +11,27 @@ vignette: >
 
 ## Purpose of the Ecological Report 
 
-The Ecological Report is the main interpretive output of `camtrapReport`. It brings processed camera-trap data together into a clear, scientific-style report with narrative text, tables, figures, and maps. The report summarises key information such as study context, sampling effort, species detections, activity patterns, spatial patterns, and ecological trends. It is designed to help researchers, conservation practitioners, and camera-trap users interpret, communicate, and share results in a reproducible way.
+The Ecological Report is the main interpretive output of `camtrapReport`. It brings processed camera-trap data together into a clear, scientific-style report with narrative text, tables, figures, and maps. The report summarises key information on study context, sampling effort, species detections, activity patterns, spatial patterns, and ecological trends. It provides a reproducible and modular workflow that automates much of the reporting process, helping researchers, conservation practitioners, and camera-trap users analyse, interpret, and communicate camera-trap data efficiently for conservation planning and decision-making.
 
-```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.cap="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
+
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
+
+```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
 knitr::include_graphics("figures/ecological-report/wf.png")
 ```
 
-The workflow starts with camera-trap input data, which are loaded using `camData()`. The `report()` function then generates a complete HTML Ecological Report with the selected narrative text, tables, figures, maps, and ecological summaries.
+
+Figure 1 summarises the main workflow for generating an Ecological Report with `camtrapReport`. Camera-trap data are first loaded with `camData()`, creating an object that supports data preprocessing, manipulation, analysis, summarisation, and visualisation. This processed object is then passed to the `report()` function, which generates a complete HTML Ecological Report.
+
 
 ```{r ecological-report-basic-code, eval=FALSE}
 library(camtrapReport)
@@ -29,125 +43,426 @@ cm <- camData("cameratrap.zip")
 report(cm, view = TRUE)
 ```
 
+<hr class="section-divider">
+
+
 ## Example Ecological Reports
 
 Below are example Ecological Reports generated with `camtrapReport` for different camera-trap monitoring projects. Click on an image to open the full HTML report.
 
+
 <style>
+
 .eco-gallery {
+
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 1.5rem;
+
   max-width: 1050px;
+
   margin: 1.8rem auto 2.8rem auto;
+
 }
+
+
 
 .eco-card {
+
   position: relative;
+
   display: block;
+
   overflow: hidden;
+
   border-radius: 18px;
+
   background: #003b32;
+
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+
   text-decoration: none;
-  color: #ffffff;
+
+  color: #ffffff !important;
+
 }
+
+
 
 .eco-card img {
+
   width: 100%;
+
   height: 320px;
+
   object-fit: cover;
+
   display: block;
+
   transition: transform 0.25s ease, filter 0.25s ease;
+
 }
+
+
 
 .eco-card:hover img {
+
   transform: scale(1.05);
+
   filter: brightness(1.06);
+
 }
+
+
 
 .eco-card-overlay {
+
   position: absolute;
+
   inset: 0;
+
   background: linear-gradient(
+
     to top,
-    rgba(0, 0, 0, 0.82),
-    rgba(0, 0, 0, 0.30),
-    rgba(0, 0, 0, 0.04)
+
+    rgba(0, 0, 0, 0.88),
+
+    rgba(0, 0, 0, 0.42),
+
+    rgba(0, 0, 0, 0.06)
+
   );
+
   display: flex;
+
   flex-direction: column;
+
   justify-content: flex-end;
-  padding: 1.15rem;
+
+  padding: 1.25rem;
+
 }
 
-.eco-card-title {
+
+
+.eco-card .eco-card-title {
+
   margin: 0 0 0.25rem 0;
-  color: #ffffff;
-  font-size: 1.25rem;
+
+  color: #ffffff !important;
+
+  font-size: 1.35rem;
+
   line-height: 1.25;
-  font-weight: 700;
+
+  font-weight: 800 !important;
+
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+
 }
 
-.eco-card-text {
+
+
+.eco-card .eco-card-text {
+
   margin: 0;
-  color: #eef7f1;
-  font-size: 0.95rem;
+
+  color: #ffffff !important;
+
+  font-size: 1rem;
+
   line-height: 1.35;
+
+  font-weight: 700 !important;
+
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+
 }
 
-.eco-card-badge {
+
+
+.eco-card .eco-card-badge {
+
   display: inline-block;
+
   width: fit-content;
+
   margin-top: 0.75rem;
-  padding: 0.25rem 0.70rem;
+
+  padding: 0.30rem 0.80rem;
+
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  color: #ffffff;
-  font-size: 0.82rem;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  border: 1px solid rgba(255, 255, 255, 0.75);
+
+  color: #ffffff !important;
+
+  font-size: 0.88rem;
+
+  font-weight: 700 !important;
+
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.85);
+
 }
+
+
 
 .eco-card:hover,
-.eco-card:focus {
-  color: #ffffff;
+
+.eco-card:focus,
+
+.eco-card:hover .eco-card-title,
+
+.eco-card:hover .eco-card-text,
+
+.eco-card:hover .eco-card-badge {
+
+  color: #ffffff !important;
+
   text-decoration: none;
+
 }
+
+
 
 .eco-card:last-child {
+
   grid-column: 1 / -1;
+
   width: calc(50% - 0.75rem);
+
   justify-self: center;
+
 }
+
+
 
 @media (max-width: 800px) {
+
   .eco-gallery {
+
     grid-template-columns: 1fr;
+
     max-width: 560px;
+
   }
+
+
 
   .eco-card:last-child {
+
     grid-column: auto;
+
     width: 100%;
+
   }
 
+
+
   .eco-card img {
+
     height: 300px;
+
   }
+
 }
+
 </style>
+
+
 
 <div class="eco-gallery">
 
+
+
 <a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report"><div class="eco-card-overlay"><div class="eco-card-title">Leuven</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
+
+
 
 <a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report"><div class="eco-card-overlay"><div class="eco-card-title">Antwerp</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
 
+
+
 <a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
+
+
 
 <a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Luxembourg.png" alt="Luxembourg Ecological Report"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
 
+
+
 <a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
 
+
+
 </div>
+
+<hr class="section-divider">
+
+## Customising the Ecological Report
+
+After the camera-trap data have been loaded with `camData()`, the resulting `camReport` object can be customised before generating the final Ecological Report. Users can adjust the report metadata, select the focal species group, define the monitoring period, apply filters, and control which report modules are included. These options allow the report to be tailored to different monitoring projects, study designs, and research aims.
+
+
+### Viewing and changing metadata
+
+The contents of the `camReport` object are extracted or inferred from the main camera-trap dataset. These metadata can be viewed and modified using the `info()` function.
+
+Use `info(cm)` to see all available metadata fields. Specific fields, such as the report title, subtitle, authors, institute, site name, or logo path, can also be retrieved individually. If needed, these fields can be updated before generating the final report using the following steps:
+
+
+```{r ecological-report-custom-metadata, eval=FALSE}
+# View all available metadata fields
+info(cm)
+
+# Retrieve specific metadata fields
+info(cm, name = "title")
+info(cm, name = "subtitle")
+info(cm, name = "authors")
+info(cm, name = "institute")
+info(cm, name = "siteName")
+info(cm, name = "logoPath")
+
+# Update metadata fields
+info(cm, name = "title") <- "Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"
+info(cm, name = "subtitle") <- "Ecological insights from long-term camera-trap data"
+info(cm, name = "authors") <- c("Elham Ebrahimi", "Patrick Jansen")
+info(cm, name = "institute") <- "Utrecht University, the Netherlands"
+info(cm, name = "siteName") <- "Hoge Veluwe National Park"
+
+# Optional: add an institute or project logo
+info(cm, name = "logoPath") <- "path_to_logo/UU_logo.png"
+
+# Check the updated metadata
+info(cm)
 ```
+
+
+### Adjusting the focus group
+
+The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, or a custom-defined group.
+
+Users can also define a new group by assigning records based on one or more fields, including `scientificName`, `class`, `order`, and `observationType`.
+
+```{r ecological-report-focus-group, eval=FALSE}
+# Check the current focus group
+cm$setting$focus_groups
+
+# View available group definitions
+names(cm$group_definition)
+
+# Change the focus group
+cm$set_focus_group(x = "birds")
+
+# Re-run setup after changing the focus group
+cm$setup()
+
+# Inspect the rules used to define existing groups
+cm$get_group("large_mammals")
+cm$get_group("wild_mammals")
+cm$get_group("wild_animals")
+cm$get_group("birds")
+cm$get_group("amphibians")
+```
+
+A custom focus group can also be created when users want to focus on a specific set of species or records. Before defining a new group, it is useful to check the species table to see which species are available in the dataset.
+
+```{r ecological-report-custom-group, eval=FALSE}
+# Check the list of species available in the dataset
+cm$data_status$Species$Table
+
+# Add a new custom group
+cm$add_group(
+  name = "target_species",
+  x = list(
+    scientificName = c(
+      "Vulpes vulpes",
+      "Capreolus capreolus",
+      "Sus scrofa"
+    )
+  )
+)
+
+# Use the new group as the focus group
+cm$set_focus_group(x = "target_species")
+
+# Re-run setup after changing group definitions and focus group
+cm$setup()
+
+# Check the updated focus group
+cm$setting$focus_groups
+```
+
+
+### Selecting years and adjusting filters
+
+Reports can be generated for all available years in the dataset or for a selected monitoring period. This is useful when users want to focus on a specific time window, such as a single monitoring year or a multi-year period. The count filter can also be adjusted to control the minimum number of observations required for a species to be included in the report.
+
+```{r ecological-report-years-filters, eval=FALSE}
+# Check which years are available in the dataset
+cm$extractYears()
+
+# Select a specific monitoring period
+cm$years <- 2023:2024
+
+# Re-run setup after changing the selected years
+cm$setup()
+
+# Check the current count filter
+cm$filterCount
+
+# Change the minimum number of observations required
+cm$filterCount <- 10
+
+# Generate the report using the selected years and filter settings
+report(cm, view = TRUE)
+```
+
+
+
+### Selecting which sections are included
+
+Users can also control which sections are included in the final report. This is useful when a shorter report is needed, or when some analyses are not relevant for a particular dataset.
+
+```{r ecological-report-select-sections, eval=FALSE}
+# View the sections currently available
+listReportSections(cm)
+
+# Show all section names
+section_names()
+
+# Exclude one section
+section_names(exclude = "introduction")
+
+# Exclude multiple sections
+section_names(exclude = c("acknowledgements", "appendix"))
+
+# Keep only selected sections
+section_names(
+  keep = c("introduction", "methods", "study_area")
+)
+
+# Example: include all sections except richness and co-occurrence
+selected_sections <- section_names(
+  exclude = c("richness", "co_occurrence")
+)
+
+# Check the selected section names
+selected_sections
+
+# Apply selected sections to the camReport object
+sections(cm, selected_sections)
+
+# Generate the customised report
+report(cm, view = TRUE)
+
+# Restore all available sections
+sections(cm, n = section_names())
+```
+
+Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
+
