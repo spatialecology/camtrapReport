@@ -2,7 +2,7 @@
 
 ### Articles
 
-Step-by-step guides for using camtrapReport.
+Guides and documentation for using camtrapReport.
 
 - [Package
   Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.md):
