@@ -11,11 +11,16 @@
 
   Get or set field values in a `camReport` object
 
+- [`install_All()`](https://spatialecology.github.io/camtrapReport/reference/install_All.md)
+  : Install packages required by camtrapReport
+
+- [`status()`](https://spatialecology.github.io/camtrapReport/reference/status.md)
+  : Generate a Data Status Check Report
+
 ## Core classes
 
 - [`camReport-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`camInfo-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
-  [`sdmFormula-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`listORcharacter-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`listORnull-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
   [`characterORlist-class`](https://spatialecology.github.io/camtrapReport/reference/classes.md)
@@ -34,9 +39,8 @@
 
   Generating automated reports based on a `camReport` object
 
-- [`updateReportSection()`](https://spatialecology.github.io/camtrapReport/reference/update.md)
-  [`listReportSections()`](https://spatialecology.github.io/camtrapReport/reference/update.md)
-  : Updating content of report sections
+- [`updateReportSection()`](https://spatialecology.github.io/camtrapReport/reference/updateReportSection.md)
+  : Update a report section
 
 ## Report sections and modules
 
@@ -54,3 +58,28 @@
   [`empty_trash()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
   [`list_Modules()`](https://spatialecology.github.io/camtrapReport/reference/modules.md)
   : Managing modules
+
+- [`listReportSections()`](https://spatialecology.github.io/camtrapReport/reference/listReportSections.md)
+  : List report sections
+
+- [`section_names()`](https://spatialecology.github.io/camtrapReport/reference/sections.md)
+  [`sections()`](https://spatialecology.github.io/camtrapReport/reference/sections.md)
+  : Return the name of available report sections or update/specify the
+  report sections
+
+- [`list_Modules()`](https://spatialecology.github.io/camtrapReport/reference/list_Modules.md)
+  : List available report modules
+
+- [`move_Module()`](https://spatialecology.github.io/camtrapReport/reference/move_Module.md)
+  : Move a report module
+
+- [`remove_Module()`](https://spatialecology.github.io/camtrapReport/reference/remove_Module.md)
+  : Remove a report module
+
+- [`restore_Module()`](https://spatialecology.github.io/camtrapReport/reference/restore_Module.md)
+  : Restore a deleted report module
+
+## Utilities
+
+- [`empty_trash()`](https://spatialecology.github.io/camtrapReport/reference/empty_trash.md)
+  : Empty the module trash

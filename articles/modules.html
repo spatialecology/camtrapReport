@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Module Management">
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.36</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,16 +40,17 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../index.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module Management</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="../resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -75,123 +76,156 @@
 Ebrahimi</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/main/vignettes/modules.Rmd" class="external-link"><code>vignettes/modules.Rmd</code></a></small>
       <div class="d-none name"><code>modules.Rmd</code></div>
     </div>
 
     
     
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="how-to-add-new-modules">How to add new modules?<a class="anchor" aria-label="anchor" href="#how-to-add-new-modules"></a>
 </h2>
+<p>The Ecological Report is built from separate report sections, here
+referred to as modules. Each module is a small report component that can
+contain explanatory text, R code, or both. This modular structure allows
+users to extend the report by adding new sections, modifying existing
+ones, or changing the order in which sections appear.</p>
+<p>A new module is defined in a YAML file and then registered with
+<code>camtrapReport</code> using <code><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module()</a></code>. After the
+module has been added, it is useful to test it before generating the
+full report.</p>
+<p>The modular structure of <code>camtrapReport</code> allows users to
+extend the Ecological Report by defining new report sections,
+registering them as modules, selecting which modules should be included,
+and then generating the final report.</p>
+<div class="figure" style="text-align: center">
+<img src="figures/Modular.png" class="r-plt" alt="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*." width="85%"><p class="caption">
+Figure 1. Modular workflow for defining, registering, selecting, and
+running report modules in <em>camtrapReport</em>.
+</p>
 </div>
-<div class="section level2">
-<h2 id="what-modules-are-in-camtrapreport">What modules are in <em>camtrapReport</em><a class="anchor" aria-label="anchor" href="#what-modules-are-in-camtrapreport"></a>
-</h2>
-</div>
-<div class="section level2">
-<h2 id="how-modules-relate-to-the-ecological-report">How modules relate to the Ecological Report<a class="anchor" aria-label="anchor" href="#how-modules-relate-to-the-ecological-report"></a>
-</h2>
+<p>Figure 1 summarises how new modules are added to the report workflow.
+A module can be defined using R code or a YAML file, registered in the
+module library, added to the main <code>camReport</code> object, tested
+separately, and then included when generating the final Ecological
+Report.</p>
 <div class="section level3">
-<h3 id="report-sections-and-modules">Report sections and modules<a class="anchor" aria-label="anchor" href="#report-sections-and-modules"></a>
+<h3 id="list-existing-modules">1. List existing modules<a class="anchor" aria-label="anchor" href="#list-existing-modules"></a>
 </h3>
-</div>
-<div class="section level3">
-<h3 id="execution-order-in-the-report-workflow">Execution order in the report workflow<a class="anchor" aria-label="anchor" href="#execution-order-in-the-report-workflow"></a>
-</h3>
-</div>
-</div>
-<div class="section level2">
-<h2 id="managing-existing-modules">Managing existing modules<a class="anchor" aria-label="anchor" href="#managing-existing-modules"></a>
-</h2>
-<div class="section level3">
-<h3 id="inspecting-available-modules">Inspecting available modules<a class="anchor" aria-label="anchor" href="#inspecting-available-modules"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="including-modules-in-the-report">Including modules in the report<a class="anchor" aria-label="anchor" href="#including-modules-in-the-report"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="removing-modules-from-the-report">Removing modules from the report<a class="anchor" aria-label="anchor" href="#removing-modules-from-the-report"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="reordering-modules">Reordering modules<a class="anchor" aria-label="anchor" href="#reordering-modules"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="updating-module-settings-and-content">Updating module settings and content<a class="anchor" aria-label="anchor" href="#updating-module-settings-and-content"></a>
-</h3>
-</div>
-</div>
-<div class="section level2">
-<h2 id="working-with-report-sections">Working with report sections<a class="anchor" aria-label="anchor" href="#working-with-report-sections"></a>
-</h2>
-<div class="section level3">
-<h3 id="section-structure">Section structure<a class="anchor" aria-label="anchor" href="#section-structure"></a>
-</h3>
+<p>Before adding a new module, check which modules are already available
+in the package.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># List all available modules</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/list_Modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Show all section names used in the report</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="section-dependencies">Section dependencies<a class="anchor" aria-label="anchor" href="#section-dependencies"></a>
+<h3 id="create-a-new-module-yaml-file">2. Create a new module YAML file<a class="anchor" aria-label="anchor" href="#create-a-new-module-yaml-file"></a>
 </h3>
+<p>A module can be written as a YAML file. The example below defines a
+simple module called <code>species_table</code>, which adds a species
+summary table to the Ecological Report.</p>
+<p>Create a file called <code>species_table.yml</code> and save it in
+your working directory.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> species_table</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Species summary table"</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">parent</span><span class="kw">:</span><span class="at"> </span><span class="st">"results"</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">"This section provides a summary of the species detected in the camera-trap dataset, including their taxonomy and total number of captures."</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">code</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  #| echo: false</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  #| message: false</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  #| warning: false</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  </span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  species_table &lt;- object$data_status$Species$Table</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  if (!is.null(species_table) &amp;&amp; nrow(species_table) &gt; 0) {</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    knitr::kable(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>      species_table,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>      caption = "Species detected in the camera-trap dataset."</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    )</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  } else {</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    cat("No species table is available for this dataset.")</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  }</span></code></pre></div>
+<p>The <code>name</code> field defines the internal module name. The
+<code>title</code> field controls the section title shown in the report.
+The <code>parent</code> field defines where the module belongs in the
+report structure, for example under <code>methods</code> or
+<code>results</code>. The <code>text</code> field adds explanatory text,
+and the <code>code</code> field contains the R code used to generate the
+module output.</p>
 </div>
 <div class="section level3">
-<h3 id="testing-section-behaviour">Testing section behaviour<a class="anchor" aria-label="anchor" href="#testing-section-behaviour"></a>
+<h3 id="add-the-new-module">3. Add the new module<a class="anchor" aria-label="anchor" href="#add-the-new-module"></a>
 </h3>
-</div>
-</div>
-<div class="section level2">
-<h2 id="creating-new-modules">Creating new modules<a class="anchor" aria-label="anchor" href="#creating-new-modules"></a>
-</h2>
-<div class="section level3">
-<h3 id="designing-a-new-module">Designing a new module<a class="anchor" aria-label="anchor" href="#designing-a-new-module"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="required-inputs-and-outputs">Required inputs and outputs<a class="anchor" aria-label="anchor" href="#required-inputs-and-outputs"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="writing-a-report-section">Writing a report section<a class="anchor" aria-label="anchor" href="#writing-a-report-section"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="registering-a-new-module">Registering a new module<a class="anchor" aria-label="anchor" href="#registering-a-new-module"></a>
-</h3>
+<p>After creating the YAML file, add the module using
+<code><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module()</a></code>. In this example, the new
+<code>species_table</code> module is placed before the
+<code>richness</code> section.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add a new module from a YAML file</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="st">"species_table.yml"</span>,</span>
+<span>  before <span class="op">=</span> <span class="st">"richness"</span>,</span>
+<span>  test <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  object <span class="op">=</span> <span class="va">cm</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check whether the module has been added</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/list_Modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>You can change <code>before = "richness"</code> to another section
+name if you want the new module to appear elsewhere in the report.</p>
 </div>
 <div class="section level3">
-<h3 id="testing-the-module">Testing the module<a class="anchor" aria-label="anchor" href="#testing-the-module"></a>
+<h3 id="update-the-current-camreport-object">4. Update the current camReport object<a class="anchor" aria-label="anchor" href="#update-the-current-camreport-object"></a>
 </h3>
+<p>If the <code>camReport</code> object was already loaded before adding
+the module, run <code>setup()</code> again and update the report
+sections.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Re-run setup after adding the new module</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get all available section names, including the new module</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply the updated section list to the camReport object</span></span>
+<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check included sections</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/listReportSections.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="integrating-a-new-module-into-the-ecological-report">Integrating a new module into the Ecological Report<a class="anchor" aria-label="anchor" href="#integrating-a-new-module-into-the-ecological-report"></a>
-</h2>
 <div class="section level3">
-<h3 id="adding-the-module-to-the-report-workflow">Adding the module to the report workflow<a class="anchor" aria-label="anchor" href="#adding-the-module-to-the-report-workflow"></a>
+<h3 id="test-the-new-module">5. Test the new module<a class="anchor" aria-label="anchor" href="#test-the-new-module"></a>
 </h3>
+<p>Before generating the full report, test only the new module. This is
+useful for checking whether the YAML structure, text, and R code work
+correctly.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Test the new module only</span></span>
+<span><span class="fu"><a href="../reference/testSection.html">testSection</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span><span class="op">$</span><span class="va">reportObjectElements</span><span class="op">$</span><span class="va">Modules</span><span class="op">$</span><span class="va">species_table</span>,</span>
+<span>  object <span class="op">=</span> <span class="va">cm</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>If the module opens correctly in the browser, it can be included in
+the full report.</p>
 </div>
 <div class="section level3">
-<h3 id="controlling-order-and-placement">Controlling order and placement<a class="anchor" aria-label="anchor" href="#controlling-order-and-placement"></a>
+<h3 id="generate-the-full-report">6. Generate the full report<a class="anchor" aria-label="anchor" href="#generate-the-full-report"></a>
 </h3>
+<p>After testing, generate the full Ecological Report with the new
+module included.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Generate the full report</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>This workflow allows users to extend the Ecological Report with
+project-specific outputs, additional summaries, new figures, or custom
+interpretation sections.</p>
 </div>
-<div class="section level3">
-<h3 id="ensuring-compatibility-with-existing-sections">Ensuring compatibility with existing sections<a class="anchor" aria-label="anchor" href="#ensuring-compatibility-with-existing-sections"></a>
-</h3>
-</div>
-</div>
-<div class="section level2">
-<h2 id="best-practices-for-module-development">Best practices for module development<a class="anchor" aria-label="anchor" href="#best-practices-for-module-development"></a>
-</h2>
-</div>
-<div class="section level2">
-<h2 id="example-extension-workflow">Example extension workflow<a class="anchor" aria-label="anchor" href="#example-extension-workflow"></a>
-</h2>
-</div>
-<div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
-</h2>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

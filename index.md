@@ -45,11 +45,11 @@ datasets, available through
 [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data),
 follow the Camtrap-DP standard and can be used to test `camtrapReport`.
 
-|                                               Dataset                                               |                                             Habitat data                                              |                                                    Study area                                                     |
-|:---------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|
-| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download)  | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing)  | [Leuven study area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing)  |
+| Dataset | Habitat data | Study area |
+|:--:|:--:|:--:|
+| [Leuven dataset](https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download) | [Leuven habitat](https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing) | [Leuven study area boundary](https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing) |
 | [Antwerp dataset](https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download) | [Antwerp habitat](https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing) | [Antwerp study area boundary](https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing) |
-|  [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download)   |  [MICA habitat](https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing)   |  [MICA study area boundary](https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing)   |
+| [MICA dataset](https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download) | [MICA habitat](https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing) | [MICA study area boundary](https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing) |
 
 ***Note:** The [habitat
 data](https://doi.org/10.1038/s41597-025-06235-7) and study area files
@@ -62,6 +62,7 @@ owners.*
 Install `camtrapReport` with the standard `remotes` workflow:
 
 ``` r
+
 # install using the "remotes" package
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
@@ -80,6 +81,7 @@ required. To ensure full functionality, run the helper function,
 `install_All`, that installs all package dependencies:
 
 ``` r
+
 library(camtrapReport)
 install_All()
 ```
@@ -90,10 +92,13 @@ connection.*
 
 ### Troubleshooting installation
 
-If `remotes::install_github()` fails, a common cause is a missing GitHub
-personal access token (PAT). To set one up, run:
+If
+[`remotes::install_github()`](https://remotes.r-lib.org/reference/install_github.html)
+fails, a common cause is a missing GitHub personal access token (PAT).
+To set one up, run:
 
 ``` r
+
 install.packages(c("remotes", "usethis", "gitcreds"))
 usethis::create_github_token()  # Opens GitHub in your browser — create and copy the token
 gitcreds::gitcreds_set()        # Paste the token when prompted in R
@@ -105,7 +110,7 @@ issue](https://github.com/spatialecology/camtrapReport/issues) and
 include the full error message, the output of
 [`sessionInfo()`](https://rdrr.io/r/utils/sessionInfo.html), and
 information on whether the error occurred during `install_github()` or
-`install_All()`.
+[`install_All()`](https://spatialecology.github.io/camtrapReport/reference/install_All.md).
 
 ## Create the camReport object
 
@@ -125,6 +130,7 @@ To keep the workflow simple and reproducible, the only required input is
 a single `.zip` file containing the dataset in Camtrap-DP format.
 
 ``` r
+
 cm <- camData("path/to/your/dataset.zip")
 ```
 
@@ -141,6 +147,7 @@ downloaded
 [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
 
 ``` r
+
 habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")
 head(habitat)
 #   locationName      Habitat
@@ -155,6 +162,7 @@ A polygon shapefile of the site boundary can be provided to improve maps
 and add spatial context to the report.
 
 ``` r
+
 study_area <- vect("C:/Users/ebrah010/Data/studyarea_nl.shp")
 ```
 
@@ -162,6 +170,7 @@ When optional input data are available, they can be supplied directly to
 [`camData()`](https://spatialecology.github.io/camtrapReport/reference/camData.md):
 
 ``` r
+
 cm <- camData(
   "path/to/your/dataset.zip",
   habitat = habitat,
@@ -175,6 +184,7 @@ To generate a data status report and review the quality and completeness
 of the input data, use:
 
 ``` r
+
 status (cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
 
@@ -188,6 +198,7 @@ generated using
 [`report()`](https://spatialecology.github.io/camtrapReport/reference/report.md):
 
 ``` r
+
 report(cm, view = TRUE)  
 ```
 

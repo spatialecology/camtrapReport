@@ -1,51 +1,138 @@
 # Data Status Report
 
-## Introduction
+## Data Status Report
 
-## Purpose of the Data Status Report
+The Data Status Report provides an overview of the quality,
+completeness, and readiness of a camera-trap dataset before generating
+the final Ecological Report. It helps users check whether the main input
+files, metadata fields, deployment information, observation records,
+taxonomy, timestamps, annotation information, and spatial data are
+complete and internally consistent.
 
-## When to run the Data Status Report
+This report is especially useful as a first quality-control step. It
+allows users to identify missing values, duplicated records, invalid
+timestamps, incomplete metadata, spatial issues, and inconsistencies
+between deployments and observations. Based on these checks, users can
+decide whether the dataset is ready for reporting or whether further
+correction is needed before ecological analyses are performed.
 
-## Input data used by the report
+![Figure 1. Workflow for generating a Data Status Report from
+camera-trap data using camtrapReport.](figures/data-status/WF_DS.png)
 
-### Required dataset components
+Figure 1. Workflow for generating a Data Status Report from camera-trap
+data using camtrapReport.
 
-### Optional supporting inputs
+Figure 1 summarises how `camtrapReport` checks the readiness of a
+camera-trap dataset before ecological reporting. After the data are
+loaded with
+[`camData()`](https://spatialecology.github.io/camtrapReport/reference/camData.md),
+the
+[`status()`](https://spatialecology.github.io/camtrapReport/reference/report.html)
+function runs automated checks on the main input files, metadata,
+deployments, observations, timestamps, taxonomy, spatial information,
+and annotation records. The output helps users identify potential issues
+and decide whether the dataset is ready for generating the final
+Ecological Report.
 
-## Generating the Data Status Report
+``` r
 
-## What the report checks
+library(camtrapReport)
 
-### Dataset structure and required files
+# Load camera-trap data
+cm <- camData("cameratrap.zip")
 
-### Key column availability
+# Generate and view the Data Status Report
+status(cm, view = TRUE)
+```
 
-### Spatial information
+When `view = TRUE`, the generated report is opened in the browser. This
+provides a quick, human-readable overview of dataset quality,
+completeness, and consistency.
 
-### Temporal information
+------------------------------------------------------------------------
 
-### Taxonomic and annotation fields
+## Example Data Status Reports
 
-### Validation status
+Below are example Data Status Reports generated with `camtrapReport` for
+different camera-trap monitoring projects. These examples show how the
+report can be used to assess dataset completeness, detect possible
+issues, and evaluate whether the data are ready for ecological
+reporting. Click on an image to open the full HTML report.
 
-### Observation and capture types
+[![Leuven Data Status
+Report](figures/data-status/ct.png)](https://spatialecology.github.io/camtrapReport/reports/data_status_Leuven.md)
 
-### Missing, inconsistent, and unusual values
+Leuven
 
-## Understanding the outputs
+Data Status Report
 
-### Summary tables
+Open report
 
-### Diagnostic messages
+[![Amsterdam Data Status
+Report](figures/data-status/dq.png)](https://spatialecology.github.io/camtrapReport/reports/data_status_Amsterdam.md)
 
-### Warnings and potential issues
+Amsterdam Water Supply Dunes
 
-## Using the results for data cleaning
+Data Status Report
 
-### Common problems and how to fix them
+Open report
 
-### Preparing the dataset for ecological reporting
+[![Luxembourg Data Status
+Report](figures/data-status/ct1.png)](https://spatialecology.github.io/camtrapReport/reports/data_status_Lux.md)
 
-## Example workflow
+Lux National Monitoring
 
-## Conclusion
+Data Status Report
+
+Open report
+
+[![MICA Data Status
+Report](figures/data-status/dq1.png)](https://spatialecology.github.io/camtrapReport/reports/data_status_MICA.md)
+
+MICA Monitoring Project
+
+Data Status Report
+
+Open report
+
+------------------------------------------------------------------------
+
+## Exploring data-status results in R
+
+The results of the data-status checks are also stored inside the
+`camReport` object. Users can explore these results directly in R
+through the `data_status` slot. This is useful when users want to
+inspect the underlying tables, extract summaries, or use the
+quality-control outputs in another workflow.
+
+``` r
+
+# Explore all data-status outputs stored in the camReport object
+cm$data_status
+
+# Show the available data-status components
+names(cm$data_status)
+
+cm$data_status$Spatial
+cm$data_status$Temporal
+cm$data_status$Essentials
+cm$data_status$Annotation
+cm$data_status$Validation
+cm$data_status$Species
+cm$data_status$Visuals
+```
+
+For example, the species table can be inspected to check which species
+were detected and how many captures were recorded for each species.
+
+``` r
+
+# View species summary table
+cm$data_status$Species$Table
+```
+
+Together, `status(cm, view = TRUE)` and `cm$data_status` provide both a
+human-readable HTML report and direct access to the underlying
+data-quality summaries in R. This makes the Data Status Report useful
+for documenting data readiness, identifying issues, and improving the
+dataset before generating the final Ecological Report.

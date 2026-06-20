@@ -1,8 +1,8 @@
 # Articles
 
-### Tutorials
+### Articles
 
-Step-by-step guides for using camtrapReport.
+Guides and documentation for using camtrapReport.
 
 - [Package
   Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.md):
@@ -14,8 +14,9 @@ Step-by-step guides for using camtrapReport.
 - [Ecological
   Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.md):
 
-  An overview of the Ecological Report, its main components, workflow
-  steps, and outputs.
+  A guide to the Ecological Report produced by camtrapReport, including
+  its structure, main modules, interpretation, and customisation
+  options.
 
 - [Data Status
   Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.md):

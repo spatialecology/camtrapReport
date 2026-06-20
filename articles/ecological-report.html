@@ -12,13 +12,13 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Ecological Report">
-<meta name="description" content="An overview of the Ecological Report, its main components, workflow steps, and outputs.">
-<meta property="og:description" content="An overview of the Ecological Report, its main components, workflow steps, and outputs.">
+<meta name="description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
+<meta property="og:description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
 <meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.36</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,16 +40,17 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../index.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module Management</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="../resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -75,270 +76,518 @@
 Ebrahimi</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/main/vignettes/ecological-report.Rmd" class="external-link"><code>vignettes/ecological-report.Rmd</code></a></small>
       <div class="d-none name"><code>ecological-report.Rmd</code></div>
     </div>
 
     
     
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="purpose-of-the-ecological-report">Purpose of the Ecological Report<a class="anchor" aria-label="anchor" href="#purpose-of-the-ecological-report"></a>
 </h2>
 <p>The Ecological Report is the main interpretive output of
-<code>camtrapReport</code>. It assembles processed camera-trap data into
-an article-style document that combines narrative text, tables, figures,
-and maps. This tutorial explains how the report is organised, what each
-section is designed to show, and how the main outputs can be
-interpreted.</p>
-<p>For a practical introduction to input data preparation and first use,
-see the <a href="../index.html">Get started</a> page.</p>
+<code>camtrapReport</code>. It brings processed camera-trap data
+together into a clear, scientific-style report with narrative text,
+tables, figures, and maps. The report summarises key information on
+study context, sampling effort, species detections, activity patterns,
+spatial patterns, and ecological trends. It provides a reproducible and
+modular workflow that automates much of the reporting process, helping
+researchers, conservation practitioners, and camera-trap users analyse,
+interpret, and communicate camera-trap data efficiently for conservation
+planning and decision-making.</p>
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
+<div class="figure">
+<img src="figures/ecological-report/wf.png" class="r-plt" alt="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
+Figure 1. Workflow for generating an Ecological Report from camera-trap
+data using camtrapReport.
+</p>
+</div>
+<p>Figure 1 summarises the main workflow for generating an Ecological
+Report with <code>camtrapReport</code>. Camera-trap data are first
+loaded with <code><a href="../reference/camData.html">camData()</a></code>, creating an object that supports
+data preprocessing, manipulation, analysis, summarisation, and
+visualisation. This processed object is then passed to the
+<code><a href="../reference/report.html">report()</a></code> function, which generates a complete HTML
+Ecological Report.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load camera-trap data</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"cameratrap.zip"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the Ecological Report</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<hr class="section-divider">
 </div>
 <div class="section level2">
-<h2 id="how-the-ecological-report-is-organised">How the Ecological Report is organised<a class="anchor" aria-label="anchor" href="#how-the-ecological-report-is-organised"></a>
+<h2 id="example-ecological-reports">Example Ecological Reports<a class="anchor" aria-label="anchor" href="#example-ecological-reports"></a>
 </h2>
-<p>The Ecological Report is structured as a standard scientific-style
-document. It typically includes an introduction, methods, results,
-acknowledgements, an appendix, and references. Within these sections,
-<code>camtrapReport</code> inserts outputs generated by selected
-analysis modules.</p>
-<p>The exact contents of the report depend on the modules included in
-the workflow. Some sections provide study context and methodological
-information, whereas others present ecological summaries, figures, and
-maps.</p>
+<p>Below are example Ecological Reports generated with
+<code>camtrapReport</code> for different camera-trap monitoring
+projects. Click on an image to open the full HTML report.</p>
+<style>
+
+.eco-gallery {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 1.5rem;
+
+  max-width: 1050px;
+
+  margin: 1.8rem auto 2.8rem auto;
+
+}
+
+
+
+.eco-card {
+
+  position: relative;
+
+  display: block;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  background: #003b32;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+
+  text-decoration: none;
+
+  color: #ffffff !important;
+
+}
+
+
+
+.eco-card img {
+
+  width: 100%;
+
+  height: 320px;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition: transform 0.25s ease, filter 0.25s ease;
+
+}
+
+
+
+.eco-card:hover img {
+
+  transform: scale(1.05);
+
+  filter: brightness(1.06);
+
+}
+
+
+
+.eco-card-overlay {
+
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+
+    to top,
+
+    rgba(0, 0, 0, 0.88),
+
+    rgba(0, 0, 0, 0.42),
+
+    rgba(0, 0, 0, 0.06)
+
+  );
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: flex-end;
+
+  padding: 1.25rem;
+
+}
+
+
+
+.eco-card .eco-card-title {
+
+  margin: 0 0 0.25rem 0;
+
+  color: #ffffff !important;
+
+  font-size: 1.35rem;
+
+  line-height: 1.25;
+
+  font-weight: 800 !important;
+
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+
+}
+
+
+
+.eco-card .eco-card-text {
+
+  margin: 0;
+
+  color: #ffffff !important;
+
+  font-size: 1rem;
+
+  line-height: 1.35;
+
+  font-weight: 700 !important;
+
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+
+}
+
+
+
+.eco-card .eco-card-badge {
+
+  display: inline-block;
+
+  width: fit-content;
+
+  margin-top: 0.75rem;
+
+  padding: 0.30rem 0.80rem;
+
+  border-radius: 999px;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  border: 1px solid rgba(255, 255, 255, 0.75);
+
+  color: #ffffff !important;
+
+  font-size: 0.88rem;
+
+  font-weight: 700 !important;
+
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.85);
+
+}
+
+
+
+.eco-card:hover,
+
+.eco-card:focus,
+
+.eco-card:hover .eco-card-title,
+
+.eco-card:hover .eco-card-text,
+
+.eco-card:hover .eco-card-badge {
+
+  color: #ffffff !important;
+
+  text-decoration: none;
+
+}
+
+
+
+.eco-card:last-child {
+
+  grid-column: 1 / -1;
+
+  width: calc(50% - 0.75rem);
+
+  justify-self: center;
+
+}
+
+
+
+@media (max-width: 800px) {
+
+  .eco-gallery {
+
+    grid-template-columns: 1fr;
+
+    max-width: 560px;
+
+  }
+
+
+
+  .eco-card:last-child {
+
+    grid-column: auto;
+
+    width: 100%;
+
+  }
+
+
+
+  .eco-card img {
+
+    height: 300px;
+
+  }
+
+}
+
+</style>
+<div class="eco-gallery">
+<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report"><div class="eco-card-overlay">
+<div class="eco-card-title">
+Leuven
+</div>
+<div class="eco-card-text">
+Belgium
+</div>
+<span class="eco-card-badge">Open report</span>
+</div>
+<p></p></a>
+<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report"><div class="eco-card-overlay">
+<div class="eco-card-title">
+Antwerp
+</div>
+<div class="eco-card-text">
+Belgium
+</div>
+<span class="eco-card-badge">Open report</span>
+</div>
+<p></p></a>
+<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report"><div class="eco-card-overlay">
+<div class="eco-card-title">
+MICA Monitoring Project
+</div>
+<div class="eco-card-text">
+Europe
+</div>
+<span class="eco-card-badge">Open report</span>
+</div>
+<p></p></a>
+<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Luxembourg.png" alt="Luxembourg Ecological Report"><div class="eco-card-overlay">
+<div class="eco-card-title">
+Lux National Monitoring
+</div>
+<div class="eco-card-text">
+Luxembourg
+</div>
+<span class="eco-card-badge">Open report</span>
+</div>
+<p></p></a>
+<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report"><div class="eco-card-overlay">
+<div class="eco-card-title">
+Amsterdam Water Supply Dunes
+</div>
+<div class="eco-card-text">
+Netherlands
+</div>
+<span class="eco-card-badge">Open report</span>
+</div>
+<p></p></a>
+</div>
+<hr class="section-divider">
 </div>
 <div class="section level2">
-<h2 id="report-level-sections">Report-level sections<a class="anchor" aria-label="anchor" href="#report-level-sections"></a>
+<h2 id="customising-the-ecological-report">Customising the Ecological Report<a class="anchor" aria-label="anchor" href="#customising-the-ecological-report"></a>
 </h2>
+<p>After the camera-trap data have been loaded with
+<code><a href="../reference/camData.html">camData()</a></code>, the resulting <code>camReport</code> object can
+be customised before generating the final Ecological Report. Users can
+adjust the report metadata, select the focal species group, define the
+monitoring period, apply filters, and control which report modules are
+included. These options allow the report to be tailored to different
+monitoring projects, study designs, and research aims.</p>
 <div class="section level3">
-<h3 id="introduction-1">Introduction<a class="anchor" aria-label="anchor" href="#introduction-1"></a>
+<h3 id="viewing-and-changing-metadata">Viewing and changing metadata<a class="anchor" aria-label="anchor" href="#viewing-and-changing-metadata"></a>
 </h3>
-<p>The Introduction provides the ecological and monitoring context of
-the report. It briefly explains why the study was conducted, what taxa
-or groups are being monitored, and which ecological questions the report
-is intended to address.</p>
-</div>
-<div class="section level3">
-<h3 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
-</h3>
-<p>The Methods section explains how the data were collected and
-processed. It describes the study area, camera deployment, sampling
-effort, image handling, and the main steps used to prepare the data for
-analysis.</p>
-</div>
-<div class="section level3">
-<h3 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
-</h3>
-<p>The Results section contains the main ecological outputs generated by
-the selected modules. Depending on the report settings, this section may
-include summaries of captures, temporal activity patterns, species
-richness, spatial density, habitat use, species co-occurrence, species
-accumulation, and abundance-related trends.</p>
-</div>
-<div class="section level3">
-<h3 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
-</h3>
-<p>This section records package attribution, project support, and other
-acknowledgements linked to the report.</p>
-</div>
-<div class="section level3">
-<h3 id="appendix">Appendix<a class="anchor" aria-label="anchor" href="#appendix"></a>
-</h3>
-<p>The Appendix can include supplementary material, such as optional
-image outputs or additional supporting content.</p>
-</div>
-<div class="section level3">
-<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
-<p>The References section lists the main literature sources cited in the
-report text and methods.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="methods-modules">Methods modules<a class="anchor" aria-label="anchor" href="#methods-modules"></a>
-</h2>
-<div class="section level3">
-<h3 id="study-area">Study Area<a class="anchor" aria-label="anchor" href="#study-area"></a>
-</h3>
-<p>The Study Area section introduces the site and provides the spatial
-context of the report. It usually includes the location of the study
-site, its approximate extent, and a short description of the monitoring
-area.</p>
-<p>This section helps readers understand where the survey took place
-before moving to the analytical outputs.</p>
+<p>The contents of the <code>camReport</code> object are extracted or
+inferred from the main camera-trap dataset. These metadata can be viewed
+and modified using the <code><a href="../reference/info.html">info()</a></code> function.</p>
+<p>Use <code>info(cm)</code> to see all available metadata fields.
+Specific fields, such as the report title, subtitle, authors, institute,
+site name, or logo path, can also be retrieved individually. If needed,
+these fields can be updated before generating the final report using the
+following steps:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># View all available metadata fields</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Retrieve specific metadata fields</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"subtitle"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Update metadata fields</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"subtitle"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Ecological insights from long-term camera-trap data"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Elham Ebrahimi"</span>, <span class="st">"Patrick Jansen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Utrecht University, the Netherlands"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Hoge Veluwe National Park"</span></span>
+<span></span>
+<span><span class="co"># Optional: add an institute or project logo</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"path_to_logo/UU_logo.png"</span></span>
+<span></span>
+<span><span class="co"># Check the updated metadata</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="camera-locations">Camera Locations<a class="anchor" aria-label="anchor" href="#camera-locations"></a>
+<h3 id="adjusting-the-focus-group">Adjusting the focus group<a class="anchor" aria-label="anchor" href="#adjusting-the-focus-group"></a>
 </h3>
-<p>The Camera Locations section shows where the camera traps were
-deployed. In the current report format, this is presented as an
-interactive map with camera positions displayed by survey year and for
-the full monitoring period.</p>
-<p>This output helps users: - inspect the spatial distribution of
-deployments, - compare yearly coverage, - review camera metadata linked
-to map points, - understand how habitat or spatial coverage may
-influence later results.</p>
+<p>The Ecological Report can be generated for a selected group of
+species, referred to as the <code>focus_group</code>. This allows users
+to focus the report on a particular taxonomic or ecological group, such
+as <code>large_mammals</code>, <code>wild_mammals</code>,
+<code>wild_animals</code>, <code>birds</code>, <code>amphibians</code>,
+<code>domestic</code>, or a custom-defined group.</p>
+<p>Users can also define a new group by assigning records based on one
+or more fields, including <code>scientificName</code>,
+<code>class</code>, <code>order</code>, and
+<code>observationType</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Check the current focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">focus_groups</span></span>
+<span></span>
+<span><span class="co"># View available group definitions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">$</span><span class="va">group_definition</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Change the focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">set_focus_group</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"birds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Re-run setup after changing the focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Inspect the rules used to define existing groups</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"large_mammals"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"wild_mammals"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"wild_animals"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"birds"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"amphibians"</span><span class="op">)</span></span></code></pre></div>
+<p>A custom focus group can also be created when users want to focus on
+a specific set of species or records. Before defining a new group, it is
+useful to check the species table to see which species are available in
+the dataset.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Check the list of species available in the dataset</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span><span class="op">$</span><span class="va">Table</span></span>
+<span></span>
+<span><span class="co"># Add a new custom group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">add_group</span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"target_species"</span>,</span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    scientificName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Vulpes vulpes"</span>,</span>
+<span>      <span class="st">"Capreolus capreolus"</span>,</span>
+<span>      <span class="st">"Sus scrofa"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Use the new group as the focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">set_focus_group</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"target_species"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Re-run setup after changing group definitions and focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the updated focus group</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">focus_groups</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="sampling-effort">Sampling Effort<a class="anchor" aria-label="anchor" href="#sampling-effort"></a>
+<h3 id="selecting-years-and-adjusting-filters">Selecting years and adjusting filters<a class="anchor" aria-label="anchor" href="#selecting-years-and-adjusting-filters"></a>
 </h3>
-<p>Sampling effort describes how much survey effort was invested across
-the monitoring period. In the report, this section summarises the number
-of active cameras, their deployment duration, and the total effort
-across years.</p>
-<p>This section is important because many ecological outputs depend on
-effort. Differences in capture numbers or species detections should be
-interpreted in the context of how much sampling was conducted.</p>
+<p>Reports can be generated for all available years in the dataset or
+for a selected monitoring period. This is useful when users want to
+focus on a specific time window, such as a single monitoring year or a
+multi-year period. The count filter can also be adjusted to control the
+minimum number of observations required for a species to be included in
+the report.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Check which years are available in the dataset</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">extractYears</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Select a specific monitoring period</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2023</span><span class="op">:</span><span class="fl">2024</span></span>
+<span></span>
+<span><span class="co"># Re-run setup after changing the selected years</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the current count filter</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">filterCount</span></span>
+<span></span>
+<span><span class="co"># Change the minimum number of observations required</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">filterCount</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span></span>
+<span><span class="co"># Generate the report using the selected years and filter settings</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="image-processing">Image Processing<a class="anchor" aria-label="anchor" href="#image-processing"></a>
+<h3 id="selecting-which-sections-are-included">Selecting which sections are included<a class="anchor" aria-label="anchor" href="#selecting-which-sections-are-included"></a>
 </h3>
-<p>The Image Processing section explains how the images were classified,
-grouped, validated, and archived. It provides context for how raw media
-were transformed into analysis-ready observations.</p>
-<p>This section helps users understand the data provenance behind the
-report outputs.</p>
+<p>Users can also control which sections are included in the final
+report. This is useful when a shorter report is needed, or when some
+analyses are not relevant for a particular dataset.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># View the sections currently available</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/listReportSections.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Show all section names</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Exclude one section</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="st">"introduction"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Exclude multiple sections</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acknowledgements"</span>, <span class="st">"appendix"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Keep only selected sections</span></span>
+<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"methods"</span>, <span class="st">"study_area"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Example: include all sections except richness and co-occurrence</span></span>
+<span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<span>  exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"richness"</span>, <span class="st">"co_occurrence"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the selected section names</span></span>
+<span><span class="va">selected_sections</span></span>
+<span></span>
+<span><span class="co"># Apply selected sections to the camReport object</span></span>
+<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected_sections</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the customised report</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Restore all available sections</span></span>
+<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, n <span class="op">=</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Together, these options allow users to generate Ecological Reports
+that are reproducible, flexible, and tailored to the aims of each
+camera-trap monitoring project.</p>
 </div>
-<div class="section level3">
-<h3 id="data-processing">Data Processing<a class="anchor" aria-label="anchor" href="#data-processing"></a>
-</h3>
-<p>The Data Processing section explains how the input data were cleaned,
-harmonised, summarised, and prepared for ecological analysis. It links
-the original camera-trap data to the final report outputs.</p>
-<p>This section is especially useful for documenting reproducibility and
-making the analytical workflow transparent.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="results-modules">Results modules<a class="anchor" aria-label="anchor" href="#results-modules"></a>
-</h2>
-<div class="section level3">
-<h3 id="captures">Captures<a class="anchor" aria-label="anchor" href="#captures"></a>
-</h3>
-<p>The Captures section provides an overview of the observed taxa and
-summarises key capture-based metrics. In the example report, this
-includes a table of frequently detected species with values such as
-number of captures, relative abundance index, number of capture
-locations, and total number of photos.</p>
-<p>This section gives readers a first summary of which species dominate
-the dataset and how frequently they were recorded.</p>
-</div>
-<div class="section level3">
-<h3 id="activity-patterns">Activity Patterns<a class="anchor" aria-label="anchor" href="#activity-patterns"></a>
-</h3>
-<p>The Activity Patterns section describes how detections are
-distributed across the 24-hour day. The output is typically shown as a
-smoothed activity curve for each species, often with confidence
-intervals and sunrise/sunset reference lines.</p>
-<p>These outputs help users interpret whether species are mainly
-diurnal, nocturnal, or crepuscular, and can also reveal differences
-among species in daily timing of activity.</p>
-</div>
-<div class="section level3">
-<h3 id="richness">Richness<a class="anchor" aria-label="anchor" href="#richness"></a>
-</h3>
-<p>The Richness section summarises how many species were detected across
-camera locations. In the current report style, richness is visualised on
-an interactive map in which point size and colour reflect the number of
-species recorded at each location.</p>
-<p>This section helps identify biodiversity hotspots, uneven sampling
-outcomes, and variation in local species diversity across the study
-area.</p>
-</div>
-<div class="section level3">
-<h3 id="species-co-occurrence">Species Co-occurrence<a class="anchor" aria-label="anchor" href="#species-co-occurrence"></a>
-</h3>
-<p>The Species Co-occurrence section summarises pairwise associations
-among species recorded across camera locations. In the current report,
-this is shown as a correlation-style matrix.</p>
-<p>These outputs help users explore whether species tend to be recorded
-together or apart across sites. They are useful for descriptive
-comparison, but should be interpreted cautiously because co-occurrence
-does not by itself imply ecological interaction.</p>
-</div>
-<div class="section level3">
-<h3 id="spatial-density">Spatial Density<a class="anchor" aria-label="anchor" href="#spatial-density"></a>
-</h3>
-<p>The Spatial Density section visualises the spatial concentration of
-detections across the study area. In the current report format, this is
-presented as an interactive density surface overlaid on the map.</p>
-<p>This module helps users identify areas of relatively high and low
-detection intensity and compare spatial patterns among species or across
-survey years.</p>
-</div>
-<div class="section level3">
-<h3 id="habitat-preferences">Habitat Preferences<a class="anchor" aria-label="anchor" href="#habitat-preferences"></a>
-</h3>
-<p>The Habitat Preferences section compares capture-rate distributions
-across habitat types. In the current example, the output is shown as a
-stacked bar chart summarising the relative contribution of each habitat
-type for each species.</p>
-<p>This section helps users assess broad differences in habitat
-association and provides an accessible summary of how detections are
-distributed across available habitat categories.</p>
-</div>
-<div class="section level3">
-<h3 id="species-accumulation-curves">Species Accumulation Curves<a class="anchor" aria-label="anchor" href="#species-accumulation-curves"></a>
-</h3>
-<p>Species accumulation curves show how recorded richness changes with
-increasing sampling effort. In the report, these curves are presented by
-survey year and in a comparison view.</p>
-<p>These outputs help users assess whether the survey captured most of
-the detectable species pool or whether additional sampling would likely
-reveal more species.</p>
-</div>
-<div class="section level3">
-<h3 id="capture-based-and-abundance-trends">Capture-Based and Abundance Trends<a class="anchor" aria-label="anchor" href="#capture-based-and-abundance-trends"></a>
-</h3>
-<p>This section summarises temporal trends in species records across
-survey years. Depending on the selected output, it may include the
-number of captures, capture rate, number of locations, and REM-based
-density estimates.</p>
-<p>These outputs are useful for comparing change over time, but they
-should always be interpreted with sampling effort and detection
-conditions in mind.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="how-to-read-the-report">How to read the report<a class="anchor" aria-label="anchor" href="#how-to-read-the-report"></a>
-</h2>
-<p>A useful way to read the Ecological Report is to move from context to
-interpretation:</p>
-<ol style="list-style-type: decimal">
-<li>Read the Introduction and Methods to understand the study
-design.</li>
-<li>Review Camera Locations and Sampling Effort to assess survey
-coverage.</li>
-<li>Use Captures as the first summary of the observed species.</li>
-<li>Interpret Activity Patterns, Richness, Co-occurrence, Spatial
-Density, Habitat Preferences, and Accumulation Curves as complementary
-views of the same dataset.</li>
-<li>Read abundance-related trends in the context of both effort and
-species detectability.</li>
-</ol>
-<p>In this way, the report functions not as a collection of separate
-figures, but as a connected set of outputs that support ecological
-interpretation.</p>
-</div>
-<div class="section level2">
-<h2 id="customising-the-report">Customising the report<a class="anchor" aria-label="anchor" href="#customising-the-report"></a>
-</h2>
-<p>The Ecological Report is modular. Users can include selected
-sections, omit others, and adapt the structure of the final report to
-match their monitoring objective.</p>
-<p>This means that the report can be used both as a standard reporting
-format and as a flexible framework for customised ecological
-summaries.</p>
-</div>
-<div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
-</h2>
-<p>The Ecological Report is designed to turn processed camera-trap data
-into a structured, interpretable, and reproducible document. Its
-article-style format combines context, methods, ecological outputs, and
-narrative explanation in a single report.</p>
-<p>By understanding the purpose of each module and how the outputs
-relate to one another, users can read the report more effectively and
-adapt it more easily to different study goals.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
