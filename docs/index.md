@@ -107,7 +107,7 @@ issue](https://github.com/spatialecology/camtrapReport/issues) and
 include the full error message, the output of
 [`sessionInfo()`](https://rdrr.io/r/utils/sessionInfo.html), and
 information on whether the error occurred during `install_github()` or
-`install_All()`.
+[`install_All()`](https://spatialecology.github.io/camtrapReport/reference/install_All.md).
 
 ## Create the camReport object
 

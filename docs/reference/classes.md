@@ -9,7 +9,7 @@ Slots for camReport objects:
 
 - `title`:
 
-  a sdmdata object
+  a camReport object
 
 - `subtitle`:
 
