@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : May 2026
-# Version 1.3
+# Last Update : June 2026
+# Version 1.4
 # Licence  MIT
 #--------
 
@@ -348,40 +348,15 @@
 
 #--------
 
-
-#' Update a report section
-#'
-#' Updates the title, text, code chunk, code settings or package list of an
-#' existing report section in a `camReport` object.
-#'
-#' @param x A `camReport` object.
-#' @param section A single character string identifying the section by name or title.
-#' @param text Optional replacement text.
-#' @param title Optional replacement title.
-#' @param code Optional replacement or appended R code. Code can be supplied as
-#'   a character string or inside braces.
-#' @param code_name Optional code chunk name. Required if a section contains
-#'   multiple chunks and a specific chunk should be updated.
-#' @param code_setting Optional R Markdown chunk settings.
-#' @param packages Optional character vector of packages required by the chunk.
-#' @param append_text Logical. If `TRUE`, append text to the existing section text.
-#' @param append_code Logical. If `TRUE`, append code to the existing code chunk.
-#'
-#' @return Invisibly returns the updated `camReport` object.
-#'
-#' @export
-setGeneric(
-  "updateReportSection",
-  function(x, section, text, title, code, code_name,
-           code_setting, packages, append_text, append_code)
+if (!isGeneric("updateReportSection")) {
+  setGeneric("updateReportSection",function(x, section, text, title, code, code_name,
+                                            code_setting, packages, append_text, append_code)
     standardGeneric("updateReportSection")
-)
+  )
+}
 
-#' @rdname updateReportSection
-#' @export
-setMethod(
-  "updateReportSection",
-  signature(x = "camReport"),
+
+setMethod("updateReportSection",signature(x = "camReport"),
   function(x, section, text, title, code, code_name,
            code_setting, packages, append_text, append_code) {
     
@@ -497,26 +472,14 @@ setMethod(
 #--------
 
 
-#' List report sections
-#'
-#' Lists report sections currently stored in a `camReport` object.
-#'
-#' @param x A `camReport` object.
-#'
-#' @return A data frame describing report section names, titles, parents and paths.
-#'
-#' @export
-setGeneric(
-  "listReportSections",
-  function(x)
+if (!isGeneric("listReportSections")) {
+  setGeneric("listReportSections",function(x)
     standardGeneric("listReportSections")
-)
+  )
+}
 
-#' @rdname listReportSections
-#' @export
-setMethod(
-  "listReportSections",
-  signature(x = "camReport"),
+
+setMethod("listReportSections",signature(x = "camReport"),
   function(x) {
     .reportSection_catalog(x$reportObjects)
   }

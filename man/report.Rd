@@ -6,11 +6,11 @@
 
 
 \title{
-Generating automated reports based on a \code{camReport} object 
+Generates an ecological or a data status report
 }
 
 \description{
-These functions facilitate generating two reports (data quality status, and ecological insights) automatically. Each report is an HTML rendered by creating an RMarkdown file based on the modules added to the \code{camReport} object.
+These functions facilitate generating automated reports (data quality status, and ecological insights). Each report is an HTML rendered by creating an RMarkdown file based on the modules added to the \code{camReport} object.
 }
 \usage{
 report(object,filename,view, test)
@@ -19,10 +19,10 @@ status(object,filename,view)
 }
 
 \arguments{
-  \item{object}{The camReport object created by the \code{camData} function}
+  \item{object}{`camReport` object created by the \code{camData} function}
   \item{filename}{optional (default is "report"); a character specifying filename or path/filename to write the report and rmarkdown files. The default location to write the files is the data folder}
-  \item{view}{logical (default = TRUE); specifies whether the renderred html file should be displayed!}
-  \item{test}{logical (default = FALSE); specifies whether the sections should be tested!}
+  \item{view}{Logical. If `TRUE`, the generated HTML report is opened after rendering.}
+  \item{test}{Logical. If `TRUE`, modules are tested if report generation fails.}
   
 }
 \details{
@@ -32,7 +32,7 @@ If `test = TRUE` is used, in case any error is caused in the report generation p
 
 }
 \references{
-Ebrahimi et al. (2025) xxx
+Ebrahimi et al. (2026) xxx
 }
 \author{
 Elham Ebrahimi

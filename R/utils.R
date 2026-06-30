@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update: May 2026
-# Version 2.6
+# Last Update: June 2026
+# Version 2.7
 # Licence MIT
 #--------
 
@@ -502,7 +502,7 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)),
+      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
       silent = TRUE
     )
     
@@ -515,7 +515,7 @@
       ))
     }
     
-    .x <- try(taxize::classification(.id$ids, db = "gbif"), silent = TRUE)
+    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -583,7 +583,7 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)),
+      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
       silent = TRUE
     )
     
@@ -596,7 +596,7 @@
       ))
     }
     
-    .x <- try(taxize::classification(.id$ids, db = "ncbi"), silent = TRUE)
+    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
       return(data.frame(

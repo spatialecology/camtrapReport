@@ -1,18 +1,33 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 1.8
+# Last Update :  June 2026
+# Version 1.9
 # Licence  MIT
 #--------
 
-.ct_icons <- function() {
+.ct_icons <- function(use_icons = getOption("camtrapReport.icons", TRUE)) {
+  
+  ascii <- list(
+    green  = "[OK]",
+    yellow = "[WARN]",
+    orange = "[WARN]",
+    red    = "[ERROR]",
+    alarm  = "[ALARM]",
+    warn   = "[WARN]",
+    sea    = "[SEA]"
+  )
+  
+  if (!isTRUE(use_icons)) {
+    return(ascii)
+  }
+  
   list(
-    green  = "🟢",
-    yellow = "🟡",
-    orange = "🟠",
-    red    = "🔴",
-    alarm  = "🚨",
-    warn   = "⚠️",
-    sea    = "🌊"
+    green  = "\U0001F7E2",      # green circle
+    yellow = "\U0001F7E1",      # yellow circle
+    orange = "\U0001F7E0",      # orange circle
+    red    = "\U0001F534",      # red circle
+    alarm  = "\U0001F6A8",      # police car light
+    warn   = "\u26A0\uFE0F",    # warning sign + emoji variation
+    sea    = "\U0001F30A"       # water wave
   )
 }
 
@@ -254,21 +269,21 @@
   }
   
   if (area_km2 < 0.0001) {
-    return(paste0(round(area_km2 * 1e6, 0), " m²"))
+    return(paste0(round(area_km2 * 1e6, 0), " m\u00B2"))
   }
   
   if (area_km2 < 0.01) {
     return(paste0(
       round(area_km2 * 100, 2), " ha",
-      " (", signif(area_km2, 2), " km²)"
+      " (", signif(area_km2, 2), " km\u00B2)"
     ))
   }
   
   if (area_km2 < 1) {
-    return(paste0(round(area_km2, 3), " km²"))
+    return(paste0(round(area_km2, 3), " km\u00B2"))
   }
   
-  paste0(round(area_km2, 2), " km²")
+  paste0(round(area_km2, 2), " km\u00B2")
 }
 
 #####################*************############################
@@ -335,11 +350,11 @@
   
   location_df2 <- cm$data$locations |>
     dplyr::mutate(
-      row          = dplyr::row_number(),
-      locationID   = dplyr::na_if(trimws(as.character(locationID)), ""),
+      row  = dplyr::row_number(),
+      locationID = dplyr::na_if(trimws(as.character(locationID)), ""),
       locationName = dplyr::na_if(trimws(as.character(locationName)), ""),
-      longitude    = suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(longitude))))),
-      latitude     = suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(latitude)))))
+      longitude = suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(longitude))))),
+      latitude  = suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(latitude)))))
     )
   location_cleaned <- location_df2 |>
     dplyr::filter(stats::complete.cases(locationID, locationName, longitude, latitude))
@@ -356,7 +371,7 @@
   
   if (nrow(location_cleaned) > 0) {
     out$coordinate_range <- sprintf(
-      "%.3f°–%.3f°N and %.3f°–%.3f°E",
+      "%.3f\u00B0\u2013%.3f\u00B0N and %.3f\u00B0\u2013%.3f\u00B0E",
       min(location_cleaned$latitude), max(location_cleaned$latitude),
       min(location_cleaned$longitude), max(location_cleaned$longitude)
     )
@@ -403,7 +418,7 @@
   out$total_unique_locations <- nrow(total_unique_locations_df)
   
   if (out$total_unique_locations <= 1) {
-    out$note <- paste0(y, " Only one unique location — distance-based spatial analyses skipped.")
+    out$note <- paste0(y, " Only one unique location - distance-based spatial analyses skipped.")
   }
   
   # 5) nearest-neighbour outliers
@@ -427,9 +442,9 @@
     mean_within <- mean(nn_dist[nn_dist < q_threshold], na.rm = TRUE)
     
     # Identify outlier tiers
-    w3 <- which(nn_dist > q_threshold + ((minD + 2) * mean_within))  # high‐risk
-    w2 <- setdiff(which(nn_dist > q_threshold + ((minD + 1) * mean_within)), w3)  # med‐risk
-    w1 <- setdiff(which(nn_dist > q_threshold + (minD * mean_within)), c(w2, w3))  # low‐risk
+    w3 <- which(nn_dist > q_threshold + ((minD + 2) * mean_within))  # high-risk
+    w2 <- setdiff(which(nn_dist > q_threshold + ((minD + 1) * mean_within)), w3)  # med-risk
+    w1 <- setdiff(which(nn_dist > q_threshold + (minD * mean_within)), c(w2, w3))  # low-risk
     
     # Closest and farthest overall pairs
     min_idx <- which(dist_matrix == min(dist_matrix, na.rm = TRUE), arr.ind = TRUE)[1, ]
@@ -462,7 +477,7 @@
     out$num_highrisk_outliers <- 0L
     
     distance_outlier_summary <- paste0(
-      y, " Only one unique location — distance-based spatial outlier analysis skipped"
+      y, " Only one unique location - distance-based spatial outlier analysis skipped"
     )
     
   } else {
@@ -527,9 +542,9 @@
   num_sea_outliers <- sum(!loc$on_land)
   
   sea_outlier_status <- if (num_sea_outliers > 0) {
-    paste0("🌊 ", num_sea_outliers, " location(s) fall in the sea.")
+    paste0(sea, " ", num_sea_outliers, " location(s) fall in the sea.")
   } else {
-    "🟢 All locations are on land."
+    paste0(g, " All locations are on land.")
   }
   
   out$outliers_status <- paste(distance_outlier_summary, sea_outlier_status, sep = " | ")
@@ -718,7 +733,7 @@
     "Dataset spans <b>{out$country}</b> with time zone <b>{tz_label}</b>."
   )
   #----
-  # 9. Spatial Pattern Detection (Clark‐Evans/K‐function)
+  # 9. Spatial Pattern Detection (Clark-Evans/K-function)
   coords_xy <- total_unique_locations_df |> dplyr::distinct(longitude, latitude) |> na.omit()
   
   if (nrow(coords_xy) >= 9) {
@@ -761,7 +776,7 @@
       "Ambiguous / Inconclusive (using point-pattern analysis)"
     }
   } else {
-    out$status_spatial <- "⚠️ Too few locations to detect a spatial pattern"
+    out$status_spatial <- paste0(w, " Too few locations to detect a spatial pattern")
   }
   #--------
   cm$data_status$Spatial <- out
@@ -834,7 +849,7 @@
   
   .calendar_coverage <- function(days) {
     days <- unique(days[!is.na(days)])
-    if (!length(days)) return(paste0("— ", ic$red))
+    if (!length(days)) return(paste0("- ", ic$red))
     span_days <- as.integer(max(days) - min(days)) + 1L
     covered <- length(days)
     pct <- round(covered / span_days * 100, 1)
@@ -926,27 +941,27 @@
     if (n_zero == 0) paste("None", ic$green) else paste0(n_zero, " zero-length interval(s) ", ic$yellow)
   }
   
-  # ---- missing years label compressor: "2000–2021, 2023, 2025"
+  # ---- missing years label compressor: "2000-2021, 2023, 2025"
   .missing_years_label <- function(miss_years_int) {
     y <- sort(unique(as.integer(miss_years_int)))
     y <- y[!is.na(y)]
     if (!length(y)) return("")
     runs <- split(y, cumsum(c(1, diff(y) != 1)))
     parts <- vapply(runs, function(r) {
-      if (length(r) == 1) as.character(r[1]) else paste0(r[1], "–", r[length(r)])
+      if (length(r) == 1) as.character(r[1]) else paste0(r[1], "-", r[length(r)])
     }, character(1))
     paste(parts, collapse = ", ")
   }
   
   .years_message <- function(years_chr) {
     years_chr <- sort(unique(years_chr[grepl("^[0-9]{4}$", years_chr)]))
-    if (!length(years_chr)) return(paste0("— ", ic$red))
+    if (!length(years_chr)) return(paste0("- ", ic$red))
     
     yrs <- sort(unique(as.integer(years_chr)))
     rng <- seq(min(yrs), max(yrs), by = 1L)
     missing <- setdiff(rng, yrs)
     
-    range_label <- paste0(min(yrs), " – ", max(yrs))
+    range_label <- paste0(min(yrs), " - ", max(yrs))
     
     if (!length(missing)) {
       paste0(range_label, " (", ic$green, " complete)")
@@ -961,12 +976,12 @@
   .months_to_label <- function(months_int) {
     months_int <- sort(unique(months_int))
     months_int <- months_int[!is.na(months_int) & months_int >= 1 & months_int <= 12]
-    if (!length(months_int)) return("—")
+    if (!length(months_int)) return("-")
     
     runs <- split(months_int, cumsum(c(1, diff(months_int) != 1)))
     parts <- vapply(runs, function(r) {
       if (length(r) == 1) .month_abb(r[1])
-      else paste0(.month_abb(r[1]), "–", .month_abb(r[length(r)]))
+      else paste0(.month_abb(r[1]), "-", .month_abb(r[length(r)]))
     }, character(1))
     
     paste(parts, collapse = ", ")
@@ -998,13 +1013,13 @@
       return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
     }
     
-    out <- data.frame(Year = years_keep_chr, MonthSpan = "—", stringsAsFactors = FALSE)
+    out <- data.frame(Year = years_keep_chr, MonthSpan = "-", stringsAsFactors = FALSE)
     for (yy in years_keep_chr) {
       m <- all_mon[all_year == yy]
       if (length(m)) out$MonthSpan[out$Year == yy] <- .months_to_label(m)
     }
     
-    out[out$MonthSpan != "—", , drop = FALSE]
+    out[out$MonthSpan != "-", , drop = FALSE]
   }
   
   
@@ -1064,8 +1079,8 @@
   obs_max <- fix_inf(obs_max)
   
   cm$data_status$Temporal$dep_end_last <- dep_end_last
-  cm$data_status$Temporal$dep_first_last_setup <- paste(dep_min, dep_max, sep = " – ")
-  cm$data_status$Temporal$obs_first_last <- paste(obs_min, obs_max, sep = " – ")
+  cm$data_status$Temporal$dep_first_last_setup <- paste(dep_min, dep_max, sep = " - ")
+  cm$data_status$Temporal$obs_first_last <- paste(obs_min, obs_max, sep = " - ")
   
   
   if (is.finite(dep_min) && is.finite(obs_min) && obs_min < dep_min) {

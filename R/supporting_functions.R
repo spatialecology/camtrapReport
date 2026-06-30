@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 1.6
+# Last Update :  June 2026
+# Version 1.7
 # Licence  MIT
 #--------
 
@@ -1025,3 +1025,22 @@
 }
 #-------
 
+.get_module_packages <- function() {
+  .module_dir <- .section_dir("camtrapReport")
+  
+  mods <- .read_modules(
+    level0 = c("introduction", "methods", "results",
+               "acknowledgements", "appendix"),
+    package = "camtrapReport",
+    dir = .module_dir,
+    write_info = TRUE
+  )
+  
+  unique(unlist(lapply(mods,function(x) {
+    if (!is.null(x@Rchunk)) {
+      if (is.list(x@Rchunk)) {
+        unique(unlist(lapply(x@Rchunk,function(y) y@packages)))
+      } else x@Rchunk@packages
+    }
+  })))
+}
