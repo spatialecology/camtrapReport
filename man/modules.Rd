@@ -20,7 +20,7 @@ Managing modules
 A list of functions are available to manage modules in the package including listing the existing modules, adding a new one or deleting an existing one, or moving the position of a module in a report
 }
 \usage{
-add_Module(x,before,after,test)
+add_Module(x,before,after,test,object)
 
 move_Module(name,before,after,parent,level0)
 
@@ -36,6 +36,7 @@ list_Modules(tree,brief,include_trash,validate)
   \item{before}{The name of module before which the new module should be added}
   \item{after}{The name of module after which the new module should be added}
   \item{test}{logical; specifying whether the module should be tested}
+  \item{object}{`camReport` object}
   \item{name}{The module name}
   \item{parent}{The parent name of module (modules are organised hierarchically as parent and childs)}
   \item{level0}{Optional; names of the modules in root: c("introduction", "methods", "results", "acknowledgement", "appendix")}

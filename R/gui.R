@@ -1,61 +1,53 @@
-#' Launch the camtrapReport GUI
-#'
-#' Opens an interactive Shiny interface for configuring and generating
-#' camtrapReport outputs from an existing `camReport` object.
-#'
-#' @param object A `camReport` object, usually created with [camData()].
-#' @param launch.browser Logical. If `TRUE`, the application is opened in the
-#'   default web browser.
-#' @param max_upload_mb Numeric. Maximum file-upload size in megabytes.
-#'   The default is 2000.
-#' @param ... Additional arguments passed to [shiny::runApp()].
-#'
-#' @return The supplied `camReport` object, invisibly.
-#'
-#' @examples
-#' \dontrun{
-#' cm <- camData("Leuven-data.zip")
-#' gui(cm)
-#' }
-#'
-#' @export
-gui <- function(object,
-                launch.browser = TRUE,
-                max_upload_mb = 2000,
-                ...) {
-  
-  if (missing(object) || is.null(object)) {
-    stop(
-      "Please provide a camReport object, for example: gui(cm).",
-      call. = FALSE
-    )
-  }
-  
-  if (!requireNamespace("shiny", quietly = TRUE)) {
-    stop(
-      "The 'shiny' package is required to use gui().\n",
-      "Please install it with install.packages('shiny').",
-      call. = FALSE
-    )
-  }
-  
-  old_limit <- getOption("shiny.maxRequestSize")
-  options(shiny.maxRequestSize = max_upload_mb * 1024^2)
-  
-  on.exit({
-    options(shiny.maxRequestSize = old_limit)
-  }, add = TRUE)
-  
-  app <- .camtrapReport_gui_app(object = object)
-  
-  shiny::runApp(
-    app,
-    launch.browser = launch.browser,
-    ...
-  )
-  
-  invisible(object)
+# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
+# Last Update : June 2026
+# Version 1.1
+# Licence MIT
+#--------
+
+if (!isGeneric("gui")) {
+  setGeneric("gui", function(object,launch.browser,max_upload_mb,...)
+    standardGeneric("gui"))
 }
+
+setMethod("gui",signature(object = "camReport"),
+          function(object, launch.browser = TRUE,
+                   max_upload_mb = 2000,
+                   ...) {
+            if (missing(object) || is.null(object)) {
+              stop(
+                "Please provide a camReport object, for example: gui(cm).",
+                call. = FALSE
+              )
+            }
+            
+            if (!requireNamespace("shiny", quietly = TRUE)) {
+              stop(
+                "The 'shiny' package is required to use gui().\n",
+                "Please install it with install.packages('shiny').",
+                call. = FALSE
+              )
+            }
+            
+            old_limit <- getOption("shiny.maxRequestSize")
+            options(shiny.maxRequestSize = max_upload_mb * 1024^2)
+            
+            on.exit({
+              options(shiny.maxRequestSize = old_limit)
+            }, add = TRUE)
+            
+            app <- .camtrapReport_gui_app(object = object)
+            
+            shiny::runApp(
+              app,
+              launch.browser = launch.browser,
+              ...
+            )
+            
+            invisible(object)
+            
+          }
+)
+
 
 
 .camtrapReport_gui_app <- function(object) {
