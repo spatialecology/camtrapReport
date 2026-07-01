@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 3.3
+# Last Update : May 2026
+# Version 3.2
 # Licence MIT
 #--------
 
@@ -60,7 +60,7 @@
   
   if (any(missing_i) && requireNamespace("lubridate", quietly = TRUE)) {
     parsed <- suppressWarnings(
-      .eval('lubridate::parse_date_time(
+      lubridate::parse_date_time(
         x_chr[missing_i],
         orders = c(
           "ymd HMS z", "ymd HMS",
@@ -72,7 +72,7 @@
         ),
         tz = tz,
         quiet = TRUE
-      )',environment())
+      )
     )
     
     ok <- !is.na(parsed)
@@ -120,10 +120,10 @@
   if (is.null(media) || !is.data.frame(media) || nrow(media) == 0) {
     return(data.frame(
       sequenceID = character(),
-      sequence_interval = .eval("lubridate::interval(
+      sequence_interval = lubridate::interval(
         as.POSIXct(character()),
         as.POSIXct(character())
-      )",environment()),
+      ),
       deploymentID = character(),
       captureMethod = character(),
       nrphotos = integer(),
@@ -153,10 +153,10 @@
   if (nrow(sequences) == 0) {
     return(data.frame(
       sequenceID = character(),
-      sequence_interval = .eval("lubridate::interval(
+      sequence_interval = lubridate::interval(
         as.POSIXct(character()),
         as.POSIXct(character())
-      )",environment()),
+      ),
       deploymentID = character(),
       captureMethod = character(),
       nrphotos = integer(),
@@ -178,7 +178,7 @@
     dplyr::as_tibble() |>
     dplyr::arrange(.data$deploymentID, .data$sequenceID) |>
     dplyr::mutate(
-      sequence_interval = .eval("lubridate::interval(.data$start, .data$end)",environment())
+      sequence_interval = lubridate::interval(.data$start, .data$end)
     ) |>
     dplyr::relocate(.data$sequence_interval, .before = .data$start) |>
     dplyr::select(-dplyr::all_of(c("start", "end")))
@@ -409,8 +409,8 @@
   
   .d$deployments <- .d$deployments |>
     dplyr::mutate(
-      deployment_interval = .eval("lubridate::interval(.data$deploymentStart, .data$deploymentEnd)",environment()),
-      deployment_interval = .eval("lubridate::int_standardize(.data$deployment_interval)",environment())
+      deployment_interval = lubridate::interval(.data$deploymentStart, .data$deploymentEnd),
+      deployment_interval = lubridate::int_standardize(.data$deployment_interval)
     ) |>
     dplyr::relocate(.data$deployment_interval, .before = .data$deploymentStart)
   
@@ -684,14 +684,29 @@
 
 #--------
 
+#' Read Camera-Trap Data in Camtrap-DP Format
+#'
+#' Creates a `camReport` object from a Camtrap-DP dataset.
+#'
+#' @param data Path to a Camtrap-DP `.zip` file or an unzipped Camtrap-DP folder.
+#' @param habitat Optional data frame containing habitat information.
+#' @param study_area Optional study-area polygon, either as a file path, `SpatVector` or `sf` object.
+#' @param ... Additional arguments.
+#'
+#' @return A `camReport` object.
+#'
+#' @export
+setGeneric(
+  "camData",
+  function(data, habitat, study_area, ...)
+    standardGeneric("camData")
+)
 
-if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,...)
-    standardGeneric("camData"))
-}
-
-
-setMethod("camData",signature(data = "character"),
+#' @rdname camData
+#' @export
+setMethod(
+  "camData",
+  signature(data = "character"),
   function(data, habitat, study_area = NULL, ...) {
     
     .camdata_start_time <- Sys.time()

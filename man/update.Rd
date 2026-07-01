@@ -13,8 +13,7 @@ Updating content of report sections
 This function can be used to update the content (text, code) of a section (module) within a \code{camReport} object.
 }
 \usage{
-  updateReportSection(x,section,text,title,code,code_name,code_setting,
-                      packages,append_text,append_code)
+  updateReportSection(x,section,text,title,code,code_name,code_setting,packages,append_text,append_code)
   
   listReportSections(x)
 

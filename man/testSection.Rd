@@ -4,11 +4,11 @@
 
 
 \title{
-Test a report section (\code{.textSection} class) 
+Test a sub-section object (\code{.textSection} class) 
 }
 
 \description{
-Renders a `.textSection` object as a temporary HTML report to check whether the section text and code can be rendered successfully.
+If a sub-section object is created using the \code{reportSection} function, it can be tested to see how it looks like in a report.
 }
 \usage{
 testSection(x,object,view)
@@ -37,8 +37,7 @@ Elham Ebrahimi
 camData
 }
 \examples{
-tx <- reportSection(name='introduction',title='Introduction',parent=NULL,
-                    txt="This is introduction section...",
+tx <- reportSection(name='introduction',title='Introduction',parent=NULL,txt="This is introduction section...",
                   code = { 
                   
                   # R code:

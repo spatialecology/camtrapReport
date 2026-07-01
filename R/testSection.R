@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.5
+# Last Update : May 2026
+# Version 1.4
 # Licence  MIT
 #--------
 
@@ -165,14 +165,30 @@ output:
 
 #---------
 
-if (!isGeneric("testSection")) {
-  setGeneric("testSection",function(x, object, view)
+
+#' Test a report section
+#'
+#' Renders a `.textSection` object as a temporary HTML report to check whether
+#' the section text and code can be rendered successfully.
+#'
+#' @param x A `.textSection` object.
+#' @param object Optional `camReport` object used as the rendering environment.
+#' @param view Logical. If `TRUE`, open the rendered test report.
+#'
+#' @return Invisibly returns the path to the rendered HTML report.
+#'
+#' @export
+setGeneric(
+  "testSection",
+  function(x, object, view)
     standardGeneric("testSection")
-  )
-}
+)
 
-
-setMethod("testSection",signature(x = ".textSection"),
+#' @rdname testSection
+#' @export
+setMethod(
+  "testSection",
+  signature(x = ".textSection"),
   function(x, object, view) {
     
     if (missing(object)) {

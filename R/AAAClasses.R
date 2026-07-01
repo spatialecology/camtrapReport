@@ -8,6 +8,7 @@
 
 
 #setOldClass("ctdp")
+setOldClass("datapackage")
 setOldClass("camInfo")
 #setOldClass("difftime")
 

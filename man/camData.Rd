@@ -1,13 +1,13 @@
 \name{camData}
 \alias{camData}
 \alias{camData,character-method}
+\alias{camData,datapackage-method}
 
-
-\title{Read camera-trap Data in Camtrap-DP Format}
+\title{Create camera trap data object}
 
 
 \description{
-Creates a `camReport` object from a Camtrap-DP dataset.
+The camera-trap data, read as camtraptor data package, is the input.
 }
 
 \usage{
@@ -17,8 +17,8 @@ camData(data,habitat,study_area,...)
 
 \arguments{
   \item{data}{either character which is the filename of the cameratrap data (as ZIP or Json file), or a datapackage object read through camtraptor (the \code{read_camtrap_dp} function) }
-  \item{habitat}{Optional data frame containing habitat information.}
-  \item{study_area}{Optional either name of a shapefile or a SpatVector object defining spatial boundary of a study site. }
+  \item{habitat}{data.frame of habitat types}
+  \item{study_area}{either name of a shapefile or a SpatVector object defining spatial boundary of a study site. }
   \item{...}{additional arguments}
   }
 
