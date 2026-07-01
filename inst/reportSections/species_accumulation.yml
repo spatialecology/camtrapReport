@@ -4,7 +4,6 @@ title: "## Species Accumulation Curves {.tabset}"
 parent: "results"
 text: "Species accumulation curves show how recorded species richness changes with sampling effort, measured here as the number of camera-trap deployments. For each year available for this site, curves were derived from species presence–absence across deployments using the [iNEXT](https://cran.r-project.org/web/packages/iNEXT/index.html) R package. The tabs below show yearly curves with 95% confidence intervals. When a valid multi-year estimate can be produced, an additional Comparison tab overlays years with sufficient data."
 code: |
-  #| name: species_accumulation
   #| setting: echo=FALSE,results="asis",message=FALSE,warning=FALSE,fig.width=10,fig.height=6
   #| packages: dplyr,iNEXT,ggplot2,tidyr
 
