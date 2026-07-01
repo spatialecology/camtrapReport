@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.6
+# Last Update : May 2026
+# Version 1.5
 # Licence MIT
 #--------
 
@@ -330,13 +330,33 @@
 }
 
 #--------
-if (!isGeneric("reportSection")) {
-  setGeneric("reportSection",function(name, title, parent, txt, code_setting, packages, code)
-    standardGeneric("reportSection")
-  )
-}
 
-setMethod("reportSection",signature(name = "character"),
+#' Create a report section
+#'
+#' Creates a text section object used by camtrapReport report modules.
+#'
+#' @param name Character. Internal name of the report section.
+#' @param title Character. Section title shown in the report.
+#' @param parent Character or NULL. Parent section name.
+#' @param txt Character vector or NULL. Text content of the section.
+#' @param code_setting Optional R Markdown chunk settings.
+#' @param packages Optional character vector of packages required by the code chunk.
+#' @param code Optional R code placed inside braces.
+#'
+#' @return A `.textSection` object.
+#'
+#' @export
+setGeneric(
+  "reportSection",
+  function(name, title, parent, txt, code_setting, packages, code)
+    standardGeneric("reportSection")
+)
+
+#' @rdname reportSection
+#' @export
+setMethod(
+  "reportSection",
+  signature(name = "character"),
   function(name,
            title,
            parent,

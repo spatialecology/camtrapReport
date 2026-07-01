@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.2
+# Last Update : May 2026
+# Version 1.1
 # Licence  MIT
 #--------
 
@@ -13,16 +13,30 @@
   "logoPath"
 )
 
-
-
-if (!isGeneric("info")) {
-  setGeneric("info",function(x, name)
+#' View information stored in a camReport object
+#'
+#' This function returns selected metadata fields stored in a `camReport`
+#' object, such as the report title, subtitle, authors, institute, site name
+#' and logo path.
+#'
+#' @param x A `camReport` object.
+#' @param name Optional character vector with the names of fields to retrieve.
+#'   If missing, default report information fields are returned.
+#'
+#' @return A list of class `camInfo` containing the selected fields.
+#'
+#' @export
+setGeneric(
+  "info",
+  function(x, name)
     standardGeneric("info")
-  )
-}
+)
 
-
-setMethod("info", signature(x = "camReport"),
+#' @rdname info
+#' @export
+setMethod(
+  "info",
+  signature(x = "camReport"),
   function(x, name) {
     
     if (missing(name)) name <- NULL
@@ -54,14 +68,26 @@ setMethod("info", signature(x = "camReport"),
   }
 )
 
-if (!isGeneric("info<-")) {
-  setGeneric("info<-",function(x, name, value)
-      standardGeneric("info<-")
-  )
-}
+#' Update information stored in a camReport object
+#'
+#' This replacement method updates selected metadata fields or selected report
+#' text sections in a `camReport` object.
+#'
+#' @param value Replacement value.
+#'
+#' @rdname info
+#' @export
+setGeneric(
+  "info<-",
+  function(x, name, value)
+    standardGeneric("info<-")
+)
 
-
-setReplaceMethod("info",signature(x = "camReport"),
+#' @rdname info
+#' @export
+setReplaceMethod(
+  "info",
+  signature(x = "camReport", name = "character"),
   function(x, name, value) {
     
     if (length(name) > 1) {

@@ -3,7 +3,6 @@
 \alias{info<-}
 \alias{info,camReport-method}
 \alias{info<-,camReport,character-method}
-\alias{info<-,camReport-method}
 
 \title{
 Get or set field values in a \code{camReport} object 

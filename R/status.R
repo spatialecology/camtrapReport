@@ -1,18 +1,37 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.2
+# Last Update : May 2026
+# Version 1.1
 # Licence  MIT
 #--------
-if (!isGeneric("status")) {
-  setGeneric("status",function(object, filename, view)
+
+
+#' Generate a Data Status Check Report
+#'
+#' Generates an automated data-status report from a `camReport` object.
+#' The report summarises key information about data completeness, spatial and
+#' temporal coverage, annotation quality and validation status.
+#'
+#' @param object A `camReport` object.
+#' @param filename Output filename or file path without extension. Defaults to
+#'   `"data_status"`.
+#' @param view Logical. If `TRUE`, the generated HTML report is opened after
+#'   rendering.
+#'
+#' @return Invisibly returns the path to the generated HTML report.
+#'
+#' @export
+setGeneric(
+  "status",
+  function(object, filename, view)
     standardGeneric("status")
 )
 
-}
 
-
-
-setMethod("status",signature(object = "camReport"),
+#' @rdname status
+#' @export
+setMethod(
+  "status",
+  signature(object = "camReport"),
   function(object, filename = "data_status", view) {
     
     if (missing(view)) view <- FALSE

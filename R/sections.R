@@ -1,19 +1,33 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.3
+# Last Update : May 2026
+# Version 1.2
 # Licence  MIT
 #--------
 
-if (!isGeneric("section_names")) {
-  setGeneric("section_names",function(keep, exclude)
+
+#' Get available report section names
+#'
+#' Returns the names of available report sections/modules. Users can optionally
+#' keep only selected sections or exclude selected sections.
+#'
+#' @param keep Optional character vector of section/module names to keep.
+#' @param exclude Optional character vector of section/module names to exclude.
+#'
+#' @return A character vector of section/module names.
+#'
+#' @export
+setGeneric(
+  "section_names",
+  function(keep, exclude)
     standardGeneric("section_names")
-  )
-}
+)
 
 
-
-
-setMethod("section_names",signature(keep = "ANY", exclude = "ANY"),
+#' @rdname section_names
+#' @export
+setMethod(
+  "section_names",
+  signature(keep = "ANY", exclude = "ANY"),
   function(keep, exclude) {
     
     if (missing(keep)) keep <- NULL
@@ -89,14 +103,29 @@ setMethod("section_names",signature(keep = "ANY", exclude = "ANY"),
 
 #-------
 
-if (!isGeneric("sections")) {
-  setGeneric("sections",function(x, n)
+
+#' Select report sections
+#'
+#' Updates the report sections attached to a `camReport` object.
+#'
+#' @param x A `camReport` object.
+#' @param n Optional character vector of section/module names to attach.
+#'
+#' @return Invisibly updates the `camReport` object.
+#'
+#' @export
+setGeneric(
+  "sections",
+  function(x, n)
     standardGeneric("sections")
-  )
-}
+)
 
 
-setMethod("sections",signature(x = "camReport", n = "ANY"),
+#' @rdname sections
+#' @export
+setMethod(
+  "sections",
+  signature(x = "camReport", n = "ANY"),
   function(x, n) {
     
     if (missing(n)) {

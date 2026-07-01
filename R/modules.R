@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  June 2026
-# Version 1.2
+# Last Update :  May 2026
+# Version 1.1
 # Licence  MIT
 #--------
 
@@ -1246,14 +1246,31 @@
 #################################
 #################################
 #################################
-if (!isGeneric("add_Module")) {
-  setGeneric("add_Module",function(x, before, after, test, object)
-               standardGeneric("add_Module")
-  )
-}
 
+#' Add a report module
+#'
+#' Add a new YAML report module to the camtrapReport module library.
+#'
+#' @param x Path to a YAML module file.
+#' @param before Optional module name before which the new module should be inserted.
+#' @param after Optional module name after which the new module should be inserted.
+#' @param test Logical. If TRUE, test the module before adding it.
+#' @param object Optional camReport object used for testing the module.
+#'
+#' @return Invisibly returns information about the added module.
+#'
+#' @export
+setGeneric(
+  "add_Module",
+  function(x, before, after, test, object)
+    standardGeneric("add_Module")
+)
 
-setMethod("add_Module",signature(x = "character"),
+#' @rdname add_Module
+#' @export
+setMethod(
+  "add_Module",
+  signature(x = "character"),
   function(x, before, after, test, object) {
     
     if (missing(before)) before <- NULL
@@ -1297,14 +1314,31 @@ setMethod("add_Module",signature(x = "character"),
 )
 
 #--------
-if (!isGeneric("move_Module")) {
-  setGeneric("move_Module",function(name, before, after, parent, level0)
-      standardGeneric("move_Module")
-  )
-}
 
+#' Move a report module
+#'
+#' Move an existing module before or after another module, or under a new parent.
+#'
+#' @param name Name of the module to move.
+#' @param before Optional module name before which to move the module.
+#' @param after Optional module name after which to move the module.
+#' @param parent Optional new parent module.
+#' @param level0 Character vector defining the root-level module order.
+#'
+#' @return Invisibly returns the updated module information table.
+#'
+#' @export
+setGeneric(
+  "move_Module",
+  function(name, before, after, parent, level0)
+    standardGeneric("move_Module")
+)
 
-setMethod("move_Module",signature(name = "character"),
+#' @rdname move_Module
+#' @export
+setMethod(
+  "move_Module",
+  signature(name = "character"),
   function(name, before, after, parent, level0) {
     
     if (missing(before)) before <- NULL
@@ -1351,14 +1385,27 @@ setMethod("move_Module",signature(name = "character"),
 
 #--------
 
-if (!isGeneric("remove_Module")) {
-  setGeneric("remove_Module",function(name, recursive)
+#' Remove a report module
+#'
+#' Move a module, and optionally its child modules, to the module trash folder.
+#'
+#' @param name Name of the module to remove.
+#' @param recursive Logical. If TRUE, remove child modules as well.
+#'
+#' @return Invisibly returns information about the deleted module batch.
+#'
+#' @export
+setGeneric(
+  "remove_Module",
+  function(name, recursive)
     standardGeneric("remove_Module")
-  )
-}
+)
 
-
-setMethod("remove_Module",signature(name = "character"),
+#' @rdname remove_Module
+#' @export
+setMethod(
+  "remove_Module",
+  signature(name = "character"),
   function(name, recursive) {
     
     if (missing(recursive)) recursive <- TRUE
@@ -1376,14 +1423,27 @@ setMethod("remove_Module",signature(name = "character"),
 
 #--------
 
-if (!isGeneric("empty_trash")) {
-  setGeneric("empty_trash",function(name, id)
+#' Empty the module trash
+#'
+#' Permanently remove deleted modules from the trash folder.
+#'
+#' @param name Optional module name to purge.
+#' @param id Optional deletion batch ID to purge.
+#'
+#' @return Invisibly returns the updated trash index.
+#'
+#' @export
+setGeneric(
+  "empty_trash",
+  function(name, id)
     standardGeneric("empty_trash")
-  )
-}
+)
 
-
-setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
+#' @rdname empty_trash
+#' @export
+setMethod(
+  "empty_trash",
+  signature(name = "ANY", id = "ANY"),
   function(name, id) {
     
     if (missing(name)) name <- NULL
@@ -1403,14 +1463,29 @@ setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
 
 #--------
 
-if (!isGeneric("list_Modules")) {
-  setGeneric("list_Modules",function(tree, brief, include_trash, validate)
+#' List available report modules
+#'
+#' List modules available in the camtrapReport module library.
+#'
+#' @param tree Logical. If TRUE, return modules as a tree table.
+#' @param brief Logical. If TRUE, return a brief table.
+#' @param include_trash Logical. If TRUE, include active trash records.
+#' @param validate Logical. If TRUE, validate module YAML files.
+#'
+#' @return A data frame, or a list containing modules and trash records.
+#'
+#' @export
+setGeneric(
+  "list_Modules",
+  function(tree, brief, include_trash, validate)
     standardGeneric("list_Modules")
-  )
-  
-}
+)
 
-setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
+#' @rdname list_Modules
+#' @export
+setMethod(
+  "list_Modules",
+  signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
   function(tree, brief, include_trash, validate) {
     
     if (missing(tree)) tree <- TRUE
@@ -1456,14 +1531,29 @@ setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = 
 )
 
 #--------
-if (!isGeneric("restore_Module")) {
-  setGeneric("restore_Module",function(name, batch_id, test)
+
+#' Restore a deleted report module
+#'
+#' Restore a module from the module trash folder.
+#'
+#' @param name Name of the module to restore.
+#' @param batch_id Optional deletion batch ID.
+#' @param test Logical. If TRUE, test the restored module.
+#'
+#' @return Invisibly returns information about restored modules.
+#'
+#' @export
+setGeneric(
+  "restore_Module",
+  function(name, batch_id, test)
     standardGeneric("restore_Module")
-  )
-}
+)
 
-
-setMethod("restore_Module",signature(name = "character"),
+#' @rdname restore_Module
+#' @export
+setMethod(
+  "restore_Module",
+  signature(name = "character"),
   function(name, batch_id, test) {
     
     if (missing(batch_id)) batch_id <- NULL
