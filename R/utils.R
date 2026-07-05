@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update: May 2026
-# Version 2.6
+# Last Update: June 2026
+# Version 2.8
 # Licence MIT
 #--------
 
@@ -502,7 +502,7 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)),
+      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
       silent = TRUE
     )
     
@@ -515,7 +515,7 @@
       ))
     }
     
-    .x <- try(taxize::classification(.id$ids, db = "gbif"), silent = TRUE)
+    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -583,7 +583,7 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)),
+      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
       silent = TRUE
     )
     
@@ -596,7 +596,7 @@
       ))
     }
     
-    .x <- try(taxize::classification(.id$ids, db = "ncbi"), silent = TRUE)
+    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -746,20 +746,20 @@
     return(NULL)
   }
   
-  if (is.null(sf::st_crs(x))) {
+  if (is.null(.eval('sf::st_crs(x)',environment()))) {
     warning("Input sf object has no CRS; assuming EPSG:4326.")
-    sf::st_crs(x) <- 4326
+    .eval('sf::st_crs(x) <- 4326',environment())
   }
   
-  if (!identical(sf::st_crs(x)$epsg, 4326L)) {
-    x <- sf::st_transform(x, 4326)
+  if (!identical(.eval('sf::st_crs(x)$epsg',environment()), 4326L)) {
+    x <- .eval('sf::st_transform(x, 4326)',environment())
   }
   
-  cen <- sf::st_coordinates(
+  cen <- .eval('sf::st_coordinates(
     sf::st_centroid(
       sf::st_union(sf::st_geometry(x))
     )
-  )
+  )',environment())
   
   lon <- cen[1]
   lat <- cen[2]
@@ -767,7 +767,7 @@
   if (abs(lat) <= 84) {
     .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
     .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-    sf::st_transform(x, .epsg)
+    .eval('sf::st_transform(x, .epsg)',environment())
   } else {
     proj4 <- sprintf(
       "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
@@ -775,7 +775,7 @@
       lon
     )
     
-    sf::st_transform(x, proj4)
+    .eval('sf::st_transform(x, proj4)',environment())
   }
 }
 

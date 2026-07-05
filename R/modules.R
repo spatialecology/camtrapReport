@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 1.1
+# Last Update :  June 2026
+# Version 1.3
 # Licence  MIT
 #--------
 
@@ -1241,36 +1241,78 @@
   )
 }
 #------
+#' Validate a single report module
+
+.validate_module <- function(path,
+                            object = NULL,
+                            render = c("parse", "render"),
+                            view = FALSE) {
+  render <- match.arg(render)
+  
+  if (!file.exists(path)) {
+    stop("File not found: ", path)
+  }
+  
+  out <- list(
+    file = normalizePath(path, winslash = "/", mustWork = FALSE),
+    module_name = NA_character_,
+    parent = NA_character_,
+    parse_ok = FALSE,
+    valid_s4 = FALSE,
+    render_ok = NA,
+    messages = character()
+  )
+  
+  m <- try(.read_yml(path), silent = TRUE)
+  if (inherits(m, "try-error")) {
+    out$messages <- c(out$messages, paste0("parse error: ", as.character(m)))
+    class(out) <- "camtrap_module_validation"
+    return(out)
+  }
+  
+  out$parse_ok <- TRUE
+  out$module_name <- m@name
+  out$parent <- .norm_parent(m@parent)
+  
+  vv <- methods::validObject(m, test = TRUE)
+  if (!isTRUE(vv)) {
+    out$messages <- c(out$messages, paste(vv, collapse = "; "))
+    class(out) <- "camtrap_module_validation"
+    return(out)
+  }
+  
+  out$valid_s4 <- TRUE
+  
+  if (identical(render, "render")) {
+    rr <- try({
+      testSection(m, object = object, view = view)
+      TRUE
+    }, silent = TRUE)
+    
+    if (inherits(rr, "try-error")) {
+      out$render_ok <- FALSE
+      out$messages <- c(out$messages, paste0("render error: ", as.character(rr)))
+    } else {
+      out$render_ok <- TRUE
+    }
+  }
+  
+  class(out) <- "camtrap_module_validation"
+  out
+}
 
 #################################
 #################################
 #################################
 #################################
+if (!isGeneric("add_Module")) {
+  setGeneric("add_Module",function(x, before, after, test, object)
+               standardGeneric("add_Module")
+  )
+}
 
-#' Add a report module
-#'
-#' Add a new YAML report module to the camtrapReport module library.
-#'
-#' @param x Path to a YAML module file.
-#' @param before Optional module name before which the new module should be inserted.
-#' @param after Optional module name after which the new module should be inserted.
-#' @param test Logical. If TRUE, test the module before adding it.
-#' @param object Optional camReport object used for testing the module.
-#'
-#' @return Invisibly returns information about the added module.
-#'
-#' @export
-setGeneric(
-  "add_Module",
-  function(x, before, after, test, object)
-    standardGeneric("add_Module")
-)
 
-#' @rdname add_Module
-#' @export
-setMethod(
-  "add_Module",
-  signature(x = "character"),
+setMethod("add_Module",signature(x = "character"),
   function(x, before, after, test, object) {
     
     if (missing(before)) before <- NULL
@@ -1291,7 +1333,7 @@ setMethod(
     .module_dir <- .section_dir(package = "camtrapReport")
     
     if (isTRUE(test)) {
-      v <- validate_module(path = x, render = "parse", view = FALSE)
+      v <- .validate_module(path = x, render = "parse", view = FALSE)
       
       if (!isTRUE(v$parse_ok && v$valid_s4)) {
         stop(
@@ -1314,31 +1356,14 @@ setMethod(
 )
 
 #--------
+if (!isGeneric("move_Module")) {
+  setGeneric("move_Module",function(name, before, after, parent, level0)
+      standardGeneric("move_Module")
+  )
+}
 
-#' Move a report module
-#'
-#' Move an existing module before or after another module, or under a new parent.
-#'
-#' @param name Name of the module to move.
-#' @param before Optional module name before which to move the module.
-#' @param after Optional module name after which to move the module.
-#' @param parent Optional new parent module.
-#' @param level0 Character vector defining the root-level module order.
-#'
-#' @return Invisibly returns the updated module information table.
-#'
-#' @export
-setGeneric(
-  "move_Module",
-  function(name, before, after, parent, level0)
-    standardGeneric("move_Module")
-)
 
-#' @rdname move_Module
-#' @export
-setMethod(
-  "move_Module",
-  signature(name = "character"),
+setMethod("move_Module",signature(name = "character"),
   function(name, before, after, parent, level0) {
     
     if (missing(before)) before <- NULL
@@ -1385,27 +1410,14 @@ setMethod(
 
 #--------
 
-#' Remove a report module
-#'
-#' Move a module, and optionally its child modules, to the module trash folder.
-#'
-#' @param name Name of the module to remove.
-#' @param recursive Logical. If TRUE, remove child modules as well.
-#'
-#' @return Invisibly returns information about the deleted module batch.
-#'
-#' @export
-setGeneric(
-  "remove_Module",
-  function(name, recursive)
+if (!isGeneric("remove_Module")) {
+  setGeneric("remove_Module",function(name, recursive)
     standardGeneric("remove_Module")
-)
+  )
+}
 
-#' @rdname remove_Module
-#' @export
-setMethod(
-  "remove_Module",
-  signature(name = "character"),
+
+setMethod("remove_Module",signature(name = "character"),
   function(name, recursive) {
     
     if (missing(recursive)) recursive <- TRUE
@@ -1423,27 +1435,14 @@ setMethod(
 
 #--------
 
-#' Empty the module trash
-#'
-#' Permanently remove deleted modules from the trash folder.
-#'
-#' @param name Optional module name to purge.
-#' @param id Optional deletion batch ID to purge.
-#'
-#' @return Invisibly returns the updated trash index.
-#'
-#' @export
-setGeneric(
-  "empty_trash",
-  function(name, id)
+if (!isGeneric("empty_trash")) {
+  setGeneric("empty_trash",function(name, id)
     standardGeneric("empty_trash")
-)
+  )
+}
 
-#' @rdname empty_trash
-#' @export
-setMethod(
-  "empty_trash",
-  signature(name = "ANY", id = "ANY"),
+
+setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
   function(name, id) {
     
     if (missing(name)) name <- NULL
@@ -1463,29 +1462,14 @@ setMethod(
 
 #--------
 
-#' List available report modules
-#'
-#' List modules available in the camtrapReport module library.
-#'
-#' @param tree Logical. If TRUE, return modules as a tree table.
-#' @param brief Logical. If TRUE, return a brief table.
-#' @param include_trash Logical. If TRUE, include active trash records.
-#' @param validate Logical. If TRUE, validate module YAML files.
-#'
-#' @return A data frame, or a list containing modules and trash records.
-#'
-#' @export
-setGeneric(
-  "list_Modules",
-  function(tree, brief, include_trash, validate)
+if (!isGeneric("list_Modules")) {
+  setGeneric("list_Modules",function(tree, brief, include_trash, validate)
     standardGeneric("list_Modules")
-)
+  )
+  
+}
 
-#' @rdname list_Modules
-#' @export
-setMethod(
-  "list_Modules",
-  signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
+setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
   function(tree, brief, include_trash, validate) {
     
     if (missing(tree)) tree <- TRUE
@@ -1531,29 +1515,14 @@ setMethod(
 )
 
 #--------
-
-#' Restore a deleted report module
-#'
-#' Restore a module from the module trash folder.
-#'
-#' @param name Name of the module to restore.
-#' @param batch_id Optional deletion batch ID.
-#' @param test Logical. If TRUE, test the restored module.
-#'
-#' @return Invisibly returns information about restored modules.
-#'
-#' @export
-setGeneric(
-  "restore_Module",
-  function(name, batch_id, test)
+if (!isGeneric("restore_Module")) {
+  setGeneric("restore_Module",function(name, batch_id, test)
     standardGeneric("restore_Module")
-)
+  )
+}
 
-#' @rdname restore_Module
-#' @export
-setMethod(
-  "restore_Module",
-  signature(name = "character"),
+
+setMethod("restore_Module",signature(name = "character"),
   function(name, batch_id, test) {
     
     if (missing(batch_id)) batch_id <- NULL

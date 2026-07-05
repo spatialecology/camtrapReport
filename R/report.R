@@ -4,29 +4,12 @@
 # Licence  MIT
 #--------
 
-#' Generate an Ecological Report
-#'
-#' Generates an automated ecological report from a `camReport` object.
-#'
-#' @param object A `camReport` object.
-#' @param filename Output filename or file path without extension. Defaults to `"report"`.
-#' @param view Logical. If `TRUE`, the generated HTML report is opened after rendering.
-#' @param test Logical. If `TRUE`, modules are tested if report generation fails.
-#'
-#' @return Invisibly returns the path to the generated HTML report.
-#'
-#' @export
-setGeneric(
-  "report",
-  function(object, filename, view, test)
-    standardGeneric("report")
-)
+if (!isGeneric("report")) {
+  setGeneric("report", function(object, filename, view, test)
+    standardGeneric("report"))
+}
 
-#' @rdname report
-#' @export
-setMethod(
-  "report",
-  signature(object = "camReport"),
+setMethod("report",signature(object = "camReport"),
   function(object, filename = "report", view, test) {
     
     if (missing(view)) view <- FALSE

@@ -12,6 +12,9 @@
 \alias{characterORnull-class}
 \alias{characterORlistORnull-class}
 \alias{data.frameORnull-class}
+\alias{camR}
+\alias{camReport}
+\alias{camReport-class}
 
 \alias{show,camReport-method}
 \alias{show,camInfo-method}

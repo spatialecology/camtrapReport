@@ -1,6 +1,6 @@
 # Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : May 2026
-# Version 3.2
+# Last Update : June 2026
+# Version 3.4
 # Licence MIT
 #--------
 
@@ -60,7 +60,7 @@
   
   if (any(missing_i) && requireNamespace("lubridate", quietly = TRUE)) {
     parsed <- suppressWarnings(
-      lubridate::parse_date_time(
+      .eval('lubridate::parse_date_time(
         x_chr[missing_i],
         orders = c(
           "ymd HMS z", "ymd HMS",
@@ -72,7 +72,7 @@
         ),
         tz = tz,
         quiet = TRUE
-      )
+      )',environment())
     )
     
     ok <- !is.na(parsed)
@@ -112,80 +112,125 @@
 
 #--------
 
+# .getSequences <- function(media) {
+#   
+#   if (!.require("data.table")) {
+#     stop("The data.table package is not installed.")
+#   }
+#   
+#   empty_sequences <- function() {
+#     data.frame(
+#       sequenceID = character(),
+#       sequence_interval = .eval(
+#         "lubridate::interval(
+#           as.POSIXct(character()),
+#           as.POSIXct(character())
+#         )",
+#         environment()
+#       ),
+#       deploymentID = character(),
+#       captureMethod = character(),
+#       nrphotos = integer(),
+#       stringsAsFactors = FALSE
+#     )
+#   }
+#   
+#   if (is.null(media) || !is.data.frame(media) || nrow(media) == 0) {
+#     return(empty_sequences())
+#   }
+#   
+#   required_cols <- c("deploymentID", "sequenceID", "timestamp", "captureMethod")
+#   missing_cols <- setdiff(required_cols, names(media))
+#   
+#   if (length(missing_cols) > 0) {
+#     for (cc in missing_cols) {
+#       media[[cc]] <- NA
+#     }
+#   }
+#   
+#   media[["timestamp"]] <- .parse_cam_datetime(media[["timestamp"]], tz = "UTC")
+#   
+#   # Match original dplyr logic:
+#   # dplyr::distinct() was applied to the whole media table first,
+#   # then only selected columns were kept.
+#   sequences <- data.table::as.data.table(media)
+#   sequences <- unique(sequences)
+#   sequences <- sequences[, required_cols, with = FALSE]
+#   
+#   sequences <- sequences[!is.na(sequences[["sequenceID"]])]
+#   
+#   if (nrow(sequences) == 0) {
+#     return(empty_sequences())
+#   }
+#   
+#   data.table::setkeyv(sequences, "sequenceID")
+#   
+#   sequences <- sequences[
+#     ,
+#     list(
+#       deploymentID = .first_non_missing(get("deploymentID")),
+#       captureMethod = .first_non_missing(get("captureMethod")),
+#       start = .safe_min_time(get("timestamp"), tz = "UTC"),
+#       end = .safe_max_time(get("timestamp"), tz = "UTC"),
+#       nrphotos = sum(!is.na(get("timestamp")))
+#     ),
+#     by = "sequenceID"
+#   ]
+#   
+#   .eval("data.table::setorder(sequences, deploymentID, sequenceID)",environment())
+#   
+#   sequences <- as.data.frame(sequences, stringsAsFactors = FALSE)
+#   
+#   sequences[["sequence_interval"]] <- .eval(
+#     "lubridate::interval(sequences[['start']], sequences[['end']])",
+#     environment()
+#   )
+#   
+#   # Match original non-empty output order after:
+#   # mutate(sequence_interval = ...)
+#   # relocate(sequence_interval, .before = start)
+#   # select(-start, -end)
+#   sequences <- sequences[, c(
+#     "sequenceID",
+#     "deploymentID",
+#     "captureMethod",
+#     "sequence_interval",
+#     "nrphotos"
+#   ), drop = FALSE]
+#   
+#   rownames(sequences) <- NULL
+#   
+#   sequences
+# }
 .getSequences <- function(media) {
-  if (!.require("data.table")) {
-    stop("The data.table package is not installed.")
-  }
+  if (!.require('data.table')) stop('The data.table package is not installed...!')
   
-  if (is.null(media) || !is.data.frame(media) || nrow(media) == 0) {
-    return(data.frame(
-      sequenceID = character(),
-      sequence_interval = lubridate::interval(
-        as.POSIXct(character()),
-        as.POSIXct(character())
-      ),
-      deploymentID = character(),
-      captureMethod = character(),
-      nrphotos = integer(),
-      stringsAsFactors = FALSE
-    ))
-  }
+  sequences <- .eval('media |> 
+    dplyr::distinct() |> 
+    dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |> 
+    data.table::data.table(key = "sequenceID")',environment())
   
-  required_cols <- c("deploymentID", "sequenceID", "timestamp", "captureMethod")
-  missing_cols <- setdiff(required_cols, names(media))
+  sequences <- sequences[!is.na(sequences$sequenceID),]
   
-  if (length(missing_cols) > 0) {
-    for (cc in missing_cols) {
-      media[[cc]] <- NA
-    }
-  }
+  # summarize per key
+  sequences <- sequences[, list(deploymentID = unique(deploymentID),
+                                captureMethod = unique(captureMethod),
+                                start = min(timestamp),
+                                end = max(timestamp),
+                                nrphotos = length(timestamp)),
+                         by = sequenceID]
   
-  media$timestamp <- .parse_cam_datetime(media$timestamp, tz = "UTC")
   
-  sequences <- media |>
-    dplyr::distinct() |>
-    dplyr::select(
-      dplyr::all_of(c("deploymentID", "sequenceID", "timestamp", "captureMethod"))
-    )
-  
-  sequences <- sequences[!is.na(sequences$sequenceID), , drop = FALSE]
-  
-  if (nrow(sequences) == 0) {
-    return(data.frame(
-      sequenceID = character(),
-      sequence_interval = lubridate::interval(
-        as.POSIXct(character()),
-        as.POSIXct(character())
-      ),
-      deploymentID = character(),
-      captureMethod = character(),
-      nrphotos = integer(),
-      stringsAsFactors = FALSE
-    ))
-  }
-  
-  sequences <- data.table::data.table(sequences, key = "sequenceID")
-  
-  sequences <- sequences[, list(
-    deploymentID = .first_non_missing(deploymentID),
-    captureMethod = .first_non_missing(captureMethod),
-    start = .safe_min_time(timestamp, tz = "UTC"),
-    end = .safe_max_time(timestamp, tz = "UTC"),
-    nrphotos = sum(!is.na(timestamp))
-  ), by = sequenceID]
-  
-  sequences <- sequences |>
+  # convert to tibble, arrange, and convert start/end to interval object
+  sequences <- .eval("sequences |>
     dplyr::as_tibble() |>
-    dplyr::arrange(.data$deploymentID, .data$sequenceID) |>
-    dplyr::mutate(
-      sequence_interval = lubridate::interval(.data$start, .data$end)
-    ) |>
-    dplyr::relocate(.data$sequence_interval, .before = .data$start) |>
-    dplyr::select(-dplyr::all_of(c("start", "end")))
+    dplyr::arrange(deploymentID, sequenceID) |> 
+    dplyr::mutate(sequence_interval = lubridate::interval(start, end)) |> 
+    dplyr::relocate(sequence_interval, .before =  start) |> 
+    dplyr::select(-start, -end)",environment())
   
   as.data.frame(sequences)
 }
-
 #--------
 
 .get_Taxonomic_DF <- function(x) {
@@ -407,12 +452,12 @@
   
   .d$deployments$Year <- .getYear(.d$deployments$deploymentStart)
   
-  .d$deployments <- .d$deployments |>
+  .d$deployments <- .eval(".d$deployments |>
     dplyr::mutate(
-      deployment_interval = lubridate::interval(.data$deploymentStart, .data$deploymentEnd),
-      deployment_interval = lubridate::int_standardize(.data$deployment_interval)
+      deployment_interval = lubridate::interval(deploymentStart, deploymentEnd),
+      deployment_interval = lubridate::int_standardize(deployment_interval)
     ) |>
-    dplyr::relocate(.data$deployment_interval, .before = .data$deploymentStart)
+    dplyr::relocate(deployment_interval, .before = deploymentStart)",environment())
   
   if (!"observationLevel" %in% names(.d$observations)) {
     .d$observations$observationLevel <- NA_character_
@@ -437,13 +482,13 @@
   .media.obs <- .d$observations[.d$observations$observationLevel == "media", , drop = FALSE]
   
   if (nrow(.media.obs) > 0) {
-    obs_first_radius_angle <- .media.obs |>
+    obs_first_radius_angle <- .eval('.media.obs |>
       dplyr::filter(
-        !is.na(.data$individualPositionRadius),
-        !is.na(.data$individualPositionAngle)
+        !is.na(individualPositionRadius),
+        !is.na(individualPositionAngle)
       ) |>
-      dplyr::group_by(.data$eventID, .data$individualID) |>
-      dplyr::slice_min(.data$eventStart, n = 1, with_ties = FALSE) |>
+      dplyr::group_by(eventID, individualID) |>
+      dplyr::slice_min(eventStart, n = 1, with_ties = FALSE) |>
       dplyr::ungroup() |>
       dplyr::select(
         dplyr::all_of(c(
@@ -456,7 +501,7 @@
       dplyr::rename_with(
         ~ paste0("media_", .x),
         dplyr::starts_with("individualPosition")
-      )
+      )',environment())
   } else {
     obs_first_radius_angle <- data.frame(
       eventID = character(),
@@ -473,21 +518,21 @@
     .obs <- .d$observations
   }
   
-  .obs <- .obs |>
+  .obs <- .eval('.obs |>
     dplyr::left_join(
       obs_first_radius_angle,
       by = c("eventID", "individualID")
     ) |>
     dplyr::mutate(
       individualPositionAngle = dplyr::if_else(
-        is.na(.data$individualPositionAngle),
-        .data$media_individualPositionAngle,
-        .data$individualPositionAngle
+        is.na(individualPositionAngle),
+        media_individualPositionAngle,
+        individualPositionAngle
       ),
       individualPositionRadius = dplyr::if_else(
-        is.na(.data$individualPositionRadius),
-        .data$media_individualPositionRadius,
-        .data$individualPositionRadius
+        is.na(individualPositionRadius),
+        media_individualPositionRadius,
+        individualPositionRadius
       )
     ) |>
     dplyr::select(
@@ -495,7 +540,7 @@
         "media_individualPositionAngle",
         "media_individualPositionRadius"
       ))
-    )
+    )',environment())
   
   .d$observations <- .obs
   
@@ -587,16 +632,16 @@
   .d$observations$timestamp <- .parse_cam_datetime(.d$observations$timestamp, tz = tz)
   
   if (nrow(.event_obs) > 0) {
-    by <- dplyr::join_by(
+    by <- .eval("dplyr::join_by(
       deploymentID,
       dplyr::between(timestamp, eventStart, eventEnd)
-    )
+    )",environment())
     
-    .media <- .d$media |>
+    .media <- .eval('.d$media |>
       dplyr::full_join(.event_obs, by) |>
       dplyr::rename(sequenceID = "eventID") |>
       dplyr::select(-dplyr::any_of(c("eventStart", "eventEnd"))) |>
-      dplyr::relocate(.data$sequenceID, .after = .data$deploymentID)
+      dplyr::relocate(sequenceID, .after = deploymentID)',environment())
   } else {
     .media <- .d$media
     if (!"sequenceID" %in% names(.media)) {
@@ -624,16 +669,16 @@
     .media$captureMethod <- NA
   }
   
-  .media <- .media |>
+  .media <- .eval('.media |>
     dplyr::mutate(
       captureMethod = factor(
         ifelse(
-          .data$captureMethod == "activityDetection",
+          captureMethod == "activityDetection",
           "motionDetection",
-          as.character(.data$captureMethod)
+          as.character(captureMethod)
         )
       )
-    )
+    )',environment())
   
   .media$timestamp <- .parse_cam_datetime(.media$timestamp, tz = tz)
   
@@ -684,29 +729,14 @@
 
 #--------
 
-#' Read Camera-Trap Data in Camtrap-DP Format
-#'
-#' Creates a `camReport` object from a Camtrap-DP dataset.
-#'
-#' @param data Path to a Camtrap-DP `.zip` file or an unzipped Camtrap-DP folder.
-#' @param habitat Optional data frame containing habitat information.
-#' @param study_area Optional study-area polygon, either as a file path, `SpatVector` or `sf` object.
-#' @param ... Additional arguments.
-#'
-#' @return A `camReport` object.
-#'
-#' @export
-setGeneric(
-  "camData",
-  function(data, habitat, study_area, ...)
-    standardGeneric("camData")
-)
 
-#' @rdname camData
-#' @export
-setMethod(
-  "camData",
-  signature(data = "character"),
+if (!isGeneric("camData")) {
+  setGeneric("camData", function(data,habitat,study_area,...)
+    standardGeneric("camData"))
+}
+
+
+setMethod("camData",signature(data = "character"),
   function(data, habitat, study_area = NULL, ...) {
     
     .camdata_start_time <- Sys.time()

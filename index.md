@@ -128,9 +128,7 @@ To generate a data status report and review the quality and completeness of the 
 ``` r
 status (cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
-<p style="color: grey; font-size: 0.9em;">
-  <em><strong>Example:</strong> <a href="https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view" style="color: grey; font-style: italic;">Data Status Report output</a></em>
-</p>
+
 
 ## Ecological report
 
@@ -139,9 +137,7 @@ Once the input data have been prepared, a full ecological report can be generate
 ``` r
 report(cm, view = TRUE)  
 ```
-<p style="color: grey; font-size: 0.9em;">
-  <em><strong>Example:</strong> <a href="https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view" style="color: grey; font-style: italic;">Ecological Report output</a></em>
-</p>
+
 
 ## Conclusion
 
