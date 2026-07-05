@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.28
-Date: 2026-06-29
+Version: 1.0.30
+Date: 2026-07-01
 Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in Camtrap-DP format and automatically generating reproducible data-status
@@ -12,56 +12,19 @@ Description: Provides an extensible workflow for processing camera-trap data
 License: MIT
 URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
-Depends:
-    R (>= 4.1.0)
+Depends: R (>= 4.1.0), data.table
 Imports:
-    data.table,
     dplyr,
     shiny,
     glue,
-    htmltools,
     jsonlite,
     knitr,
-    lubridate,
     methods,
-    rlang,
     rmarkdown,
-    sf,
-    sp,
-    taxize,
-    terra,
-    tibble,
-    tidyr
+    terra
 Suggests:
-    activity,
-    corrplot,
-    DT,
-    dygraphs,
-    ggplot2,
-    ggrepel,
-    gridExtra,
-    gt,
-    htmlwidgets,
-    iNEXT,
-    kableExtra,
-    leaflet,
-    leaflet.extras,
-    magick,
-    purrr,
-    remotes,
-    rgbif,
-    scales,
-    shiny,
-    spOccupancy,
-    spatstat,
-    stringr,
-    stats,
-    suncalc,
-    taxadb,
     testthat (>= 3.0.0),
-    unmarked,
     xml2
 VignetteBuilder: knitr
 Encoding: UTF-8
 Config/testthat/edition: 3
-RoxygenNote: 7.3.3
