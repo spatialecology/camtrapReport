@@ -1,9 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.4
-# Licence  MIT
+# Functions for managing camtrapReport report sections
+# Licence: MIT
 #--------
-
 
 .reportSection_catalog <- function(node, path = character()) {
   out <- list()

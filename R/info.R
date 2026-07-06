@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.2
-# Licence  MIT
+# Functions for accessing and updating camtrapReport report information
+# Licence: MIT
 #--------
 
 .default_cam_info_names <- c(

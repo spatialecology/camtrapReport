@@ -1,12 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  June 2026
-# Version 1.3
-# Licence  MIT
+# Functions for managing camtrapReport report modules
+# Licence: MIT
 #--------
-
-#----------------------------
-# helpers
-#----------------------------
 
 .section_dir <- function(package = "camtrapReport", dir = NULL) {
   if (!is.null(dir)) {
@@ -1241,7 +1235,7 @@
   )
 }
 #------
-#' Validate a single report module
+# Validate a single report module.
 
 .validate_module <- function(path,
                             object = NULL,

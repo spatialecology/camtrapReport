@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : July 2026
-# Version 1.2
-# Licence MIT
+# Functions for the camtrapReport graphical user interface
+# Licence: MIT
 #--------
 
 if (!isGeneric("gui")) {

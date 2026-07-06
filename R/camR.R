@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  May 2026
-# Version 3.4
-# Licence  MIT
+# Core camReport class and report-generation methods
+# Licence: MIT
 #--------
 
 .normalize_packages <- function(x) {
@@ -616,7 +614,7 @@ camR <- setRefClass(
       
       #.self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
       .self$title <- 'Report generated using the camtrapReport package'
-      .self$authors <- 'Elham Ebrahimi, Patrick Jansen'
+      .self$authors <- "Monitoring team"
       .self$logoPath <- ''
       #-----
       .self$reportObjectElements$color_palette <- c(

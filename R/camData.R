@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 3.4
-# Licence MIT
+# Functions for reading Camtrap DP datasets and creating camReport objects
+# Licence: MIT
 #--------
 
 .parse_cam_datetime <- function(x, tz = "UTC") {
