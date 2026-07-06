@@ -1,61 +1,46 @@
 \name{report}
 \alias{report}
-\alias{status}
 \alias{report,camReport-method}
-\alias{status,camReport-method}
-
 
 \title{
-Generates an ecological or a data status report
+Generate an ecological report
 }
 
 \description{
-These functions facilitate generating automated reports (data quality status, and ecological insights). Each report is an HTML rendered by creating an RMarkdown file based on the modules added to the \code{camReport} object.
+Generate an automated ecological report from a \code{camReport} object. The report is rendered as an HTML document using an intermediate R Markdown file created from the report sections stored in the object.
 }
-\usage{
-report(object,filename,view, test)
 
-status(object,filename,view)
+\usage{
+report(object, filename, view, test)
 }
 
 \arguments{
-  \item{object}{`camReport` object created by the \code{camData} function}
-  \item{filename}{optional (default is "report"); a character specifying filename or path/filename to write the report and rmarkdown files. The default location to write the files is the data folder}
-  \item{view}{Logical. If `TRUE`, the generated HTML report is opened after rendering.}
-  \item{test}{Logical. If `TRUE`, modules are tested if report generation fails.}
-  
+  \item{object}{A \code{camReport} object created by \code{camData}.}
+  \item{filename}{Optional character value giving the output filename or file path without extension. The default is \code{"report"}.}
+  \item{view}{Logical. If \code{TRUE}, the generated HTML report is opened after rendering.}
+  \item{test}{Logical. If \code{TRUE}, report sections are tested when report generation fails, helping identify problematic modules.}
 }
+
+\value{
+Invisibly returns the path to the generated HTML report.
+}
+
 \details{
-By default (if filename is not specified), two files including "report.html" and "report.rmd" ("data_status.html" and "data_status.rmd" for the data status report) will be written in the folder of the camera-trap dataset.
+The function creates two files: an HTML report and the corresponding R Markdown file used to generate it. If \code{filename} is not specified, the files are written using the default base name \code{"report"}.
 
-If `test = TRUE` is used, in case any error is caused in the report generation procedure, a testing procedure is started to test each section and exclude the problematic section.
+The report content is based on the report sections attached to the \code{camReport} object. These sections may contain text, tables, figures, and R code chunks.
 
+If \code{test = TRUE}, the package attempts to identify problematic report sections when rendering fails. This can be useful during development or when adding custom report modules.
 }
-\references{
-Ebrahimi et al. (2026) xxx
-}
-\author{
-Elham Ebrahimi
-}
-
-
 
 \seealso{
-camData
+\code{camData}, \code{status}, \code{reportSection}, \code{updateReportSection}
 }
+
 \examples{
-
-
 \dontrun{
 cm <- camData("data-folder")
 
-report(cm, view=T) # ecological insights
-
-status(cm, view=T) #  data quality status
-
-
-
+report(cm, view = TRUE)
 }
-
 }
-

@@ -7,70 +7,96 @@
 \alias{list_Modules}
 \alias{add_Module,character-method}
 \alias{move_Module,character-method}
+\alias{remove_Module,character-method}
+\alias{empty_trash,ANY-method}
 \alias{restore_Module,character-method}
 \alias{list_Modules,ANY-method}
-\alias{empty_trash,ANY-method}
-\alias{remove_Module,character-method}
 
 \title{
-Managing modules
+Manage report modules
 }
 
 \description{
-A list of functions are available to manage modules in the package including listing the existing modules, adding a new one or deleting an existing one, or moving the position of a module in a report
+Functions for managing report modules in camtrapReport. These functions can be used to list existing modules, add new modules, move modules within the report structure, remove modules, restore deleted modules, and empty the module trash.
 }
+
 \usage{
-add_Module(x,before,after,test,object)
+add_Module(x, before, after, test, object)
 
-move_Module(name,before,after,parent,level0)
+move_Module(name, before, after, parent, level0)
 
-remove_Module(name,recursive)
+remove_Module(name, recursive)
 
-empty_trash(name,id)
+restore_Module(name, batch_id, test)
 
-list_Modules(tree,brief,include_trash,validate)
+empty_trash(name, id)
+
+list_Modules(tree, brief, include_trash, validate)
 }
 
 \arguments{
-  \item{x}{The new module YAML filename}
-  \item{before}{The name of module before which the new module should be added}
-  \item{after}{The name of module after which the new module should be added}
-  \item{test}{logical; specifying whether the module should be tested}
-  \item{object}{`camReport` object}
-  \item{name}{The module name}
-  \item{parent}{The parent name of module (modules are organised hierarchically as parent and childs)}
-  \item{level0}{Optional; names of the modules in root: c("introduction", "methods", "results", "acknowledgement", "appendix")}
-  \item{recursive}{logical; when it is TRUE, by deleting a parent module, its child modules are also deleted to avoid any inconsistencies in the report}
-  \item{id}{The module id}
-  \item{tree}{logical; specifies whether the list of modules should represents their hierarchical tree structure}
-  \item{brief}{logical; if tree is FALSE, it specifies whether brief module information should be returned}
-  \item{include_trash}{logical; if tree is FALSE, it specifies whether deleted modules in trash should also be listed}
-  \item{validate}{logical; whether the modules should be tested for their validity}
-  
+  \item{x}{Character. Path to a module YAML file to be added to the package.}
+  \item{before}{Optional character value. Name of the module before which the new or moved module should be placed.}
+  \item{after}{Optional character value. Name of the module after which the new or moved module should be placed.}
+  \item{test}{Logical. If \code{TRUE}, the module is tested before it is added or restored.}
+  \item{object}{Optional \code{camReport} object used when testing a module that requires access to report data.}
+  \item{name}{Character. Name of the module to move, remove, restore, or permanently delete from the trash.}
+  \item{parent}{Optional character value. Name of the parent module. If omitted, the current parent is retained when moving a module.}
+  \item{level0}{Optional character vector specifying the top-level module order. The default top-level sections are \code{introduction}, \code{methods}, \code{results}, \code{acknowledgements}, and \code{appendix}.}
+  \item{recursive}{Logical. If \code{TRUE}, child modules are removed together with the selected parent module.}
+  \item{batch_id}{Optional character value. Identifier of a deleted module batch to restore.}
+  \item{id}{Optional character value. Identifier of a deleted module batch to permanently remove from the trash.}
+  \item{tree}{Logical. If \code{TRUE}, modules are returned as a hierarchical tree.}
+  \item{brief}{Logical. If \code{TRUE}, a shortened module summary is returned when \code{tree = FALSE}.}
+  \item{include_trash}{Logical. If \code{TRUE}, deleted modules in the trash are also listed.}
+  \item{validate}{Logical. If \code{TRUE}, module YAML files are checked for validity when listing modules.}
 }
+
+\value{
+The returned value depends on the function used. \code{add_Module}, \code{move_Module}, \code{remove_Module}, \code{restore_Module}, and \code{empty_trash} return information invisibly about the performed operation. \code{list_Modules} returns a data frame, or a list containing active modules and trash contents when \code{include_trash = TRUE}.
+}
+
 \details{
-Given that the package is extensible, designed based on a modular architecture, a set of functions are provided to facilitate module management. 
+camtrapReport uses a modular architecture in which each report section is stored as a module. A module is usually defined in a YAML file and can contain section metadata, text, executable R code, required packages, and rendering settings.
 
-A module refers to an object designed to contain the contents of a section in the report. These contents can be texts, tables, executable R codes, etc. Multiple interfaces are available for a user to define a module.
+\code{add_Module} adds a new YAML-defined module to the package module directory. The module can optionally be inserted before or after an existing module.
 
-An easy way is to use a YAML file (a template can be used) to define a module. While the file is created, it can be added to the package using the \code{add_Module} function.
+\code{move_Module} changes the position or parent of an existing module within the hierarchical report structure.
 
-Other functions can also be used to list the existing modules, delete or recover a module, or move a module to a different location within the hierarchical structure the modules are organised.
+\code{remove_Module} moves a module to the module trash. If \code{recursive = TRUE}, child modules are also moved to the trash.
 
+\code{restore_Module} restores a previously removed module from the trash. If no batch identifier is supplied, the selected module name is used to identify the module to restore.
 
+\code{empty_trash} permanently removes modules from the trash.
 
-
+\code{list_Modules} lists active modules and can optionally include deleted modules stored in the trash.
 }
-\references{
-Ebrahimi et al. (2026) camtrapReport: xxx
-}
-\author{
-Elham Ebrahimi
+
+\seealso{
+\code{reportSection}, \code{updateReportSection}, \code{testSection}, \code{report}
 }
 
 \examples{
-
+\dontrun{
+# List modules as a tree
 list_Modules()
 
-}
+# List modules in table form
+list_Modules(tree = FALSE)
 
+# Add a new module from a YAML file
+add_Module("new_module.yml", after = "captures")
+
+# Move a module
+move_Module("species_accumulation", after = "richness")
+
+# Remove a module and its child modules
+remove_Module("species_accumulation", recursive = TRUE)
+
+# Restore a removed module
+restore_Module("species_accumulation")
+
+# Empty the module trash
+empty_trash()
+}
+}

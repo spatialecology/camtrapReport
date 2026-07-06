@@ -6,58 +6,92 @@
 \alias{info<-,camReport-method}
 
 \title{
-Get or set field values in a \code{camReport} object 
+Get or set report information fields
 }
 
 \description{
-This function facilitates to extract specific fields (e.g., title, authors, etc.) from a \code{camReport} object, or update the value of a field.
+Get or update report-level information stored in a \code{camReport} object. These fields control information shown in generated reports, such as the report title, subtitle, authors, institute, site name, and logo path.
 }
 
 \usage{
 \S4method{info}{camReport}(x, name)
 
-\S4method{info}{camReport}(x, name)<- value
-
+\S4method{info}{camReport}(x, name) <- value
 }
 
 \arguments{
-  \item{x}{A \code{camReport} object}
-  \item{name}{character; names of the field from/to which the information is retrieved/assigned }
-  \item{value}{the new value to assign to the specified field (name)}
+  \item{x}{A \code{camReport} object created by \code{camData}.}
+
+  \item{name}{Optional character vector. Name or names of the information fields to retrieve or update. If omitted, all available information fields are returned.}
+
+  \item{value}{New value to assign to the selected information field.}
 }
 
+\value{
+For \code{info}, a \code{camInfo} object is returned when \code{name} is omitted. This object contains the available report information fields. When \code{name} is supplied, the value of the requested field or fields is returned.
+
+For \code{info<-}, the selected field in the \code{camReport} object is updated.
+}
 
 \details{
-The camReport object,created by the \code{camData} function, contains information extracted from the camera-trap dataset. To control some of these details go to report (e.g., title, subtitle, authors, institute, siteName, description, sampling,...), a user can check their values using the \code{info} function or update the value of a certain field.
+A \code{camReport} object contains report-level information used when generating ecological and data-status reports. These fields are either extracted from the camera-trap dataset, generated automatically, or supplied by the user.
 
-}
-\references{
-Ebrahimi et al. (2025) xxx
-}
-\author{
-Elham Ebrahimi
+The fields returned by \code{info(x)} may include:
+
+\describe{
+  \item{\code{title}}{Main title of the generated report.}
+  \item{\code{subtitle}}{Subtitle displayed below the report title.}
+  \item{\code{authors}}{Authors or contributors shown in the report.}
+  \item{\code{institute}}{Institute, organisation, or project affiliation shown in the report.}
+  \item{\code{siteName}}{Name of the study site or monitoring area.}
+  \item{\code{logoPath}}{Optional file path to a logo used in the report.}
 }
 
-
+The replacement form, \code{info(x, name) <- value}, can be used to customise these fields before generating a report.
+}
 
 \seealso{
-camData
+\code{camData}, \code{report}, \code{status}
 }
+
 \examples{
-
-
 \dontrun{
 cm <- camData("data-folder")
 
+# Show all report information fields
 info(cm)
 
-xi <- info(cm, name=c('title','authors'))
+# The returned object may contain fields such as:
+# title, subtitle, authors, institute, siteName, and logoPath
 
-xi
+# Get one field
+info(cm, "title")
 
-info(cm,'title') <- 'This is NEW title...'
+# Get several fields
+info(cm, c("title", "subtitle", "siteName"))
 
+# Update the report title
+info(cm, "title") <- "Camera-trap monitoring report"
+
+# Update the subtitle
+info(cm, "subtitle") <- "Ecological insights from camera-trap data"
+
+# Update the site name
+info(cm, "siteName") <- "Example monitoring site"
+
+# Update authors or contributors
+info(cm, "authors") <- "Monitoring team"
+
+# Update institute or organisation
+info(cm, "institute") <- "Example institute"
+
+# Add a logo path
+info(cm, "logoPath") <- "path/to/logo.png"
+
+# Check updated information
+info(cm)
+
+# Generate a report using the updated information
+report(cm, view = TRUE)
 }
-
 }
-
