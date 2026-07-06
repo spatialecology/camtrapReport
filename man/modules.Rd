@@ -17,7 +17,7 @@ Manage report modules
 }
 
 \description{
-Functions for managing report modules in camtrapReport. These functions can be used to list existing modules, add new modules, move modules within the report structure, remove modules, restore deleted modules, and empty the module trash.
+Manage report modules in camtrapReport. These functions can be used to list existing modules, add new modules, move modules within the report structure, remove modules, restore deleted modules, and empty the module trash.
 }
 
 \usage{
@@ -35,14 +35,14 @@ list_Modules(tree, brief, include_trash, validate)
 }
 
 \arguments{
-  \item{x}{Character. Path to a module YAML file to be added to the package.}
+  \item{x}{Character. Path to a module YAML file to add to the package.}
   \item{before}{Optional character value. Name of the module before which the new or moved module should be placed.}
   \item{after}{Optional character value. Name of the module after which the new or moved module should be placed.}
-  \item{test}{Logical. If \code{TRUE}, the module is tested before it is added or restored.}
+  \item{test}{Logical. If \code{TRUE}, the module is tested before being added or restored.}
   \item{object}{Optional \code{camReport} object used when testing a module that requires access to report data.}
   \item{name}{Character. Name of the module to move, remove, restore, or permanently delete from the trash.}
   \item{parent}{Optional character value. Name of the parent module. If omitted, the current parent is retained when moving a module.}
-  \item{level0}{Optional character vector specifying the top-level module order. The default top-level sections are \code{introduction}, \code{methods}, \code{results}, \code{acknowledgements}, and \code{appendix}.}
+  \item{level0}{Optional character vector specifying the top-level module order.}
   \item{recursive}{Logical. If \code{TRUE}, child modules are removed together with the selected parent module.}
   \item{batch_id}{Optional character value. Identifier of a deleted module batch to restore.}
   \item{id}{Optional character value. Identifier of a deleted module batch to permanently remove from the trash.}
@@ -52,12 +52,8 @@ list_Modules(tree, brief, include_trash, validate)
   \item{validate}{Logical. If \code{TRUE}, module YAML files are checked for validity when listing modules.}
 }
 
-\value{
-The returned value depends on the function used. \code{add_Module}, \code{move_Module}, \code{remove_Module}, \code{restore_Module}, and \code{empty_trash} return information invisibly about the performed operation. \code{list_Modules} returns a data frame, or a list containing active modules and trash contents when \code{include_trash = TRUE}.
-}
-
 \details{
-camtrapReport uses a modular architecture in which each report section is stored as a module. A module is usually defined in a YAML file and can contain section metadata, text, executable R code, required packages, and rendering settings.
+camtrapReport uses a modular report architecture in which each report section is stored as a module. A module can contain section metadata, text, executable R code, required packages, and rendering settings.
 
 \code{add_Module} adds a new YAML-defined module to the package module directory. The module can optionally be inserted before or after an existing module.
 
@@ -65,11 +61,15 @@ camtrapReport uses a modular architecture in which each report section is stored
 
 \code{remove_Module} moves a module to the module trash. If \code{recursive = TRUE}, child modules are also moved to the trash.
 
-\code{restore_Module} restores a previously removed module from the trash. If no batch identifier is supplied, the selected module name is used to identify the module to restore.
+\code{restore_Module} restores a previously removed module from the trash.
 
 \code{empty_trash} permanently removes modules from the trash.
 
 \code{list_Modules} lists active modules and can optionally include deleted modules stored in the trash.
+}
+
+\value{
+The returned value depends on the function used. \code{add_Module}, \code{move_Module}, \code{remove_Module}, \code{restore_Module}, and \code{empty_trash} return information invisibly about the performed operation. \code{list_Modules} returns a data frame or a hierarchical module tree.
 }
 
 \seealso{

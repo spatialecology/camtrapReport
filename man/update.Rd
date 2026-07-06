@@ -9,37 +9,51 @@ Update report sections
 }
 
 \description{
-Update the text, title, code, code-chunk settings, or required packages of a report section in a \code{camReport} object. The function \code{listReportSections} lists the available report sections and their names.
+Update the content of a report section in a \code{camReport} object, or list the report sections currently attached to the object.
 }
 
 \usage{
-updateReportSection(x, section, text, title, code, code_name,
-                    code_setting, packages, append_text, append_code)
+updateReportSection(
+  x,
+  section,
+  text,
+  title,
+  code,
+  code_name,
+  code_setting,
+  packages,
+  append_text,
+  append_code
+)
 
 listReportSections(x)
 }
 
 \arguments{
   \item{x}{A \code{camReport} object created by \code{camData}.}
-  \item{section}{Character. The name or title of the report section to update.}
-  \item{text}{Optional character value used to replace or extend the text body of the selected section.}
-  \item{title}{Optional character value used as a new section title.}
-  \item{code}{Optional character value containing R code to replace, add, or append to the section code chunk.}
-  \item{code_name}{Optional character value specifying the name of the R code chunk.}
-  \item{code_setting}{Optional character value specifying chunk options for the R code chunk.}
-  \item{packages}{Optional character vector giving the R packages required by the section code chunk.}
-  \item{append_text}{Logical. If \code{TRUE}, the supplied text is appended to the existing section text. If \code{FALSE}, the existing text is replaced.}
-  \item{append_code}{Logical. If \code{TRUE}, the supplied code is appended to the existing code chunk. If \code{FALSE}, the existing code is replaced.}
+  \item{section}{Character. Name or title of the report section to update.}
+  \item{text}{Optional character value used to update the text body of the report section.}
+  \item{title}{Optional character value giving a new title for the report section.}
+  \item{code}{Optional R code used to update or add a code chunk.}
+  \item{code_name}{Optional character value giving the name of the R code chunk.}
+  \item{code_setting}{Optional R Markdown chunk options for the code chunk.}
+  \item{packages}{Optional character vector giving the R packages required by the code chunk.}
+  \item{append_text}{Logical. If \code{TRUE}, the new text is appended to the existing section text. If \code{FALSE}, the existing text is replaced.}
+  \item{append_code}{Logical. If \code{TRUE}, the new code is appended to the existing code chunk. If \code{FALSE}, the existing code is replaced.}
 }
 
 \details{
-Report sections can be identified by their section name or section title. The function \code{listReportSections} can be used to inspect the available sections in a \code{camReport} object before updating a specific section.
+Report sections can be identified using either their name or title. The \code{listReportSections} function lists the sections attached to a \code{camReport} object and can be used to find the exact section names before updating them.
 
-This functionality is useful for customising automatically generated reports, for example by adding project-specific text, modifying figure code, or changing the packages required by a section.
+The \code{updateReportSection} function is useful for adapting the default report content to project-specific needs, including changing section titles, replacing or appending text, and adding or updating R code chunks.
+}
+
+\value{
+\code{updateReportSection} returns the updated \code{camReport} object invisibly. \code{listReportSections} returns information about the report sections attached to the object.
 }
 
 \seealso{
-\code{camData}, \code{report}, \code{info}
+\code{camData}, \code{report}, \code{reportSection}, \code{info}
 }
 
 \examples{
@@ -48,11 +62,12 @@ cm <- camData("data-folder")
 
 listReportSections(cm)
 
-updateReportSection(
+cm <- updateReportSection(
   cm,
-  section = "study_area",
-  text = "This study was conducted in a protected forest landscape.",
-  append_text = FALSE
+  section = "introduction",
+  text = "This report summarises camera-trap monitoring data for the study site."
 )
+
+report(cm, view = TRUE)
 }
 }

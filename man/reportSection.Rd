@@ -7,7 +7,7 @@ Create a report section
 }
 
 \description{
-Create a report-section object that stores the text and optional R code used to generate a section of a camtrapReport report. Report sections can be added to a report to make report generation more flexible, modular, and extensible.
+Create a report-section object that stores text and optional R code for a section of a \code{camReport} report. Report sections can be added to a report to make report generation more flexible, modular, and extensible.
 }
 
 \usage{
@@ -16,11 +16,11 @@ reportSection(name, title, parent, txt, code_setting, packages, code)
 
 \arguments{
   \item{name}{Character. A unique name for the report section.}
-  \item{title}{Character. The section title to be displayed in the report.}
-  \item{parent}{Character or \code{NULL}. The name of the parent section. If \code{NULL}, the section is treated as a top-level section.}
+  \item{title}{Character. The section title displayed in the report.}
+  \item{parent}{Character or \code{NULL}. Name of the parent section. If \code{NULL}, the section is treated as a top-level section.}
   \item{txt}{Character or list. Text content to include in the report section.}
-  \item{code_setting}{Optional. R Markdown chunk options for the code chunk, for example \code{{c(echo = FALSE, results = "asis")}}.}
-  \item{packages}{Optional character vector giving the R packages required by the code chunk.}
+  \item{code_setting}{Optional R Markdown chunk options for the code chunk. For example, \code{{c(echo = FALSE, results = "asis")}}.}
+  \item{packages}{Optional character vector giving the packages required by the code chunk.}
   \item{code}{Optional R code supplied inside braces, for example \code{{ plot(1:10) }}.}
 }
 
@@ -30,6 +30,10 @@ Each report section must have a unique \code{name}. If a new section with the sa
 A report section can contain text only, code only, or both text and code. When the code chunk needs access to the associated \code{camReport} object, the object can be referred to as \code{object} inside the code block.
 
 This function is useful for creating custom report modules or extending the default camtrapReport workflow with project-specific text, tables, figures, or analyses.
+}
+
+\value{
+A \code{.textSection} object.
 }
 
 \seealso{
@@ -46,7 +50,6 @@ tx <- reportSection(
 
 tx
 
-# A report section with an R code chunk
 tx2 <- reportSection(
   name = "methods",
   title = "Methods",
