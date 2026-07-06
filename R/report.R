@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : May 2026
-# Version 1.5
-# Licence  MIT
+# Functions for generating camtrapReport ecological reports
+# Licence: MIT
 #--------
 
 if (!isGeneric("report")) {

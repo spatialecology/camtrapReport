@@ -1,9 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 1.2
-# Licence  MIT
+# Show methods for camtrapReport classes
+# Licence: MIT
 #--------
-
 
 setMethod ('show' , '.textSection',
            function ( object ) {

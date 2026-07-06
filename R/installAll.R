@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.5
-# Licence  MIT
+# Functions for installing optional camtrapReport dependencies
+# Licence: MIT
 #--------
 
 .detachPackage <- function (n, unload = TRUE, force = TRUE) {

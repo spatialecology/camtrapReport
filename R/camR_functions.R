@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  June 2026
-# Version 2.0
-# Licence  MIT
+# Data-status and report-summary helper functions for camtrapReport
+# Licence: MIT
 #--------
 
 .ct_icons <- function(use_icons = getOption("camtrapReport.icons", TRUE)) {

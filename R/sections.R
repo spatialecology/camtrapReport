@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.4
-# Licence  MIT
+# Functions for selecting and updating camtrapReport report sections
+# Licence: MIT
 #--------
 
 if (!isGeneric("section_names")) {

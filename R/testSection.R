@@ -1,9 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.5
-# Licence  MIT
+# Functions for testing camtrapReport report sections
+# Licence: MIT
 #--------
-
 
 .QuickTestReportSection <- function(x, object = NULL, path = NULL) {
   

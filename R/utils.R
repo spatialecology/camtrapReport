@@ -1,7 +1,5 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update: June 2026
-# Version 2.8
-# Licence MIT
+# Internal utility functions for camtrapReport
+# Licence: MIT
 #--------
 
 .paste_comma_and <- function(x) {

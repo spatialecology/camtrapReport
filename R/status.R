@@ -1,8 +1,7 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update : June 2026
-# Version 1.2
-# Licence  MIT
+# Functions for generating camtrapReport data-status reports
+# Licence: MIT
 #--------
+
 if (!isGeneric("status")) {
   setGeneric("status",function(object, filename, view)
     standardGeneric("status")

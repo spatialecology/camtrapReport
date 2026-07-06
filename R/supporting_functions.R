@@ -1,9 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  June 2026
-# Version 1.7
-# Licence  MIT
+# Internal analysis and report-module helper functions for camtrapReport
+# Licence: MIT
 #--------
-
 
 # ------------------------------------------------------------------
 # Effort = deployment duration

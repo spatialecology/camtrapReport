@@ -1,11 +1,6 @@
-# Author: Elham Ebrahimi, eebrahimi.bio@gmail.com
-# Last Update :  April 2026
-# Version 1.4
-# Licence  MIT
+# Class definitions used by camtrapReport
+# Licence: MIT
 #--------
-
-
-
 
 #setOldClass("ctdp")
 setOldClass("camInfo")
