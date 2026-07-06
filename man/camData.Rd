@@ -3,74 +3,50 @@
 \alias{camData,character-method}
 
 \title{
-Create a camReport object from a Camtrap DP dataset
+Read camera-trap data in Camtrap DP format
 }
 
 \description{
-Read a camera-trap dataset in Camtrap DP format and create a \code{camReport} object for data checking, ecological summaries, report customisation, and report generation.
+Create a \code{camReport} object from a Camtrap DP dataset.
 }
 
 \usage{
 camData(data, habitat, study_area, ...)
-
-\S4method{camData}{character}(data, habitat, study_area = NULL, ...)
 }
 
 \arguments{
-  \item{data}{Character. Path to a camera-trap dataset in Camtrap DP format. The input can be a ZIP file, a JSON file, or a dataset folder containing the Camtrap DP metadata and associated tables.}
-
-  \item{habitat}{Optional data frame containing habitat information for camera-trap locations. If omitted, the object is created without external habitat information.}
-
-  \item{study_area}{Optional spatial boundary of the study area. This can be a path to a spatial file, such as a shapefile, a \code{SpatVector} object, or an \code{sf} object. If omitted, no study-area boundary is attached.}
-
-  \item{...}{Additional arguments passed to internal data-reading or processing functions.}
-}
-
-\value{
-A \code{camReport} reference-class object containing the processed camera-trap data, report information, report settings, derived summaries, and report sections.
+  \item{data}{Character. Path to a Camtrap DP dataset, provided as a ZIP file or an extracted dataset directory.}
+  \item{habitat}{Optional data frame containing habitat information for camera locations.}
+  \item{study_area}{Optional study-area boundary, provided as a spatial file path, a \code{SpatVector}, or an \code{sf} object.}
+  \item{...}{Additional arguments.}
 }
 
 \details{
-\code{camData} is the main entry point for creating a camtrapReport workflow object. It reads a Camtrap DP dataset, processes the main camera-trap tables, derives data-status summaries, prepares report information, and attaches the default ecological and data-status report sections.
+The function reads the input Camtrap DP dataset and creates a \code{camReport} object. The resulting object contains processed camera-trap data, metadata, summaries, report text, report modules, and data-status information used to generate automated reports.
 
-The returned \code{camReport} object can be inspected, customised, and used to generate reports with \code{report}, \code{status}, or \code{gui}.
+If habitat information is provided, it is linked to camera locations and used in habitat-related summaries. If a study-area boundary is provided, it is stored with the object and used in spatial summaries where relevant.
+}
 
-When a habitat table is supplied, it is stored in the \code{camReport} object and can be used by report sections that summarise habitat information. When a study-area boundary is supplied, it is stored as spatial information associated with the object.
-
-The function also prepares default filtering and grouping settings used by the package. These settings can later be reviewed or modified before report generation.
+\value{
+A \code{camReport} object.
 }
 
 \seealso{
-\code{report}, \code{status}, \code{gui}, \code{info}
+\code{report}, \code{status}, \code{info}, \code{gui}
 }
 
 \examples{
 \dontrun{
-# Create a camReport object from a Camtrap DP ZIP file
-cm <- camData("veluwe.zip")
-
-cm
-
-# Create a camReport object with habitat information
 habitat <- read.csv("habitat.csv")
 
 cm <- camData(
-  data = "veluwe.zip",
-  habitat = habitat
-)
-
-# Create a camReport object with habitat information and a study-area boundary
-cm <- camData(
-  data = "veluwe.zip",
+  data = "dataset.zip",
   habitat = habitat,
   study_area = "study_area.shp"
 )
 
-# Inspect report information
-info(cm)
+cm
 
-# Generate reports
-status(cm, view = TRUE)
 report(cm, view = TRUE)
 }
 }

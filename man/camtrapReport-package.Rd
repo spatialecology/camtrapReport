@@ -4,26 +4,17 @@
 \alias{camtrapReport-package}
 
 \title{
-camtrapReport: Automated reports for camera-trap datasets
+camtrapReport: Automated reports for camera-trap data
 }
 
 \description{
-camtrapReport provides tools for generating automated reports from camera-trap datasets. The package supports data-status checks, ecological summaries, report customisation, and interactive report generation through a graphical user interface.
+Tools for reading Camtrap DP datasets, summarising camera-trap data, checking data status, and generating automated HTML reports for camera-trap monitoring projects.
 }
 
 \details{
-The package is designed to help users inspect, summarise, and report camera-trap data in a reproducible way. It works with \code{camReport} objects created by \code{camData} and can generate HTML reports describing data completeness, sampling design, species detections, temporal patterns, spatial summaries, and other camera-trap monitoring outputs.
+The package provides functions to create a \code{camReport} object from camera-trap data, inspect and update report metadata, manage modular report sections, and generate ecological and data-status reports.
 
-Main user-facing functions include:
-
-\describe{
-  \item{\code{camData}}{Create a \code{camReport} object from a camera-trap dataset.}
-  \item{\code{status}}{Generate a data-status report.}
-  \item{\code{report}}{Generate an ecological report.}
-  \item{\code{gui}}{Open an interactive graphical user interface for report customisation and generation.}
-  \item{\code{info}}{Inspect or update report-level information.}
-  \item{\code{reportSection}}{Create custom report sections.}
-}
+Main user-facing functions include \code{camData}, \code{report}, \code{status}, \code{info}, \code{reportSection}, \code{updateReportSection}, and \code{gui}.
 }
 
 \seealso{

@@ -4,57 +4,51 @@
 \alias{section_names,ANY-method}
 \alias{sections,camReport-method}
 
-
 \title{
-Get available report section names
+Select report sections
 }
 
 \description{
-Returns the names of available report sections/modules. Users can optionally keep only selected sections or exclude selected sections.
+Get the names of available report sections or update which sections are included in a \code{camReport} report.
 }
-\usage{
-section_names(keep,exclude)
 
-sections(x,n)
+\usage{
+section_names(keep, exclude)
+
+sections(x, n)
 }
 
 \arguments{
-  \item{keep}{Optional character vector of section/module names to keep (default="all").}
-  \item{exclude}{Optional character vector of section/module names to exclude}
-  \item{x}{The `camReport` object created using the \code{camData} function}
-  \item{n}{a character vector to specify the names of report sections to update which report sections should be used in the report}
-  
+  \item{keep}{Optional character vector of section names to keep. The default is \code{"all"}.}
+  \item{exclude}{Optional character vector of section names to exclude.}
+  \item{x}{A \code{camReport} object created by \code{camData}.}
+  \item{n}{Character vector giving the names of report sections to include in the report.}
 }
+
 \details{
-The `section_names` function can help to retrieve and specify the right section names in the `sections` function
+The \code{section_names} function returns the names of available report sections. It can be used to identify valid section names before selecting sections with \code{sections}.
 
-}
-\references{
-Ebrahimi et al. (2025) xxx
-}
-\author{
-Elham Ebrahimi
+The \code{sections} function updates the report-section selection stored in a \code{camReport} object. Only the selected sections are included when the report is generated.
 }
 
-
+\value{
+\code{section_names} returns a character vector of section names. \code{sections} returns the updated section names or updates the supplied \code{camReport} object.
+}
 
 \seealso{
-updateReportSections
+\code{camData}, \code{report}, \code{updateReportSection}, \code{listReportSections}
 }
-\examples{
 
+\examples{
 \dontrun{
-cm <- camData('file.zip')
+cm <- camData("file.zip")
 
 n <- section_names()
 
 n
 
-sections(cm,n)
+sections(cm, n)
 
 report(cm)
-
 }
-
 }
-

@@ -7,7 +7,7 @@ Test a report section
 }
 
 \description{
-Render a \code{.textSection} object as a temporary HTML report to check whether the section text and associated R code can be rendered successfully.
+Render a \code{.textSection} object as a temporary HTML report to check whether the section text and code can be rendered successfully.
 }
 
 \usage{
@@ -16,18 +16,22 @@ testSection(x, object, view)
 
 \arguments{
   \item{x}{A \code{.textSection} object, usually created with \code{reportSection}.}
-  \item{object}{Optional. A \code{camReport} object created with \code{camData}. This is required when the section code uses data or methods from a \code{camReport} object.}
+  \item{object}{Optional \code{camReport} object created by \code{camData}. This is required when the section code needs access to report data.}
   \item{view}{Logical. If \code{TRUE}, the rendered temporary HTML file is opened after rendering.}
 }
 
 \details{
-This function is mainly intended for testing and debugging individual report sections before they are included in a full report. It can be useful when developing new report modules or when checking whether a section-specific code chunk runs correctly.
+This function is mainly used to test custom report sections before they are added to a full \code{camReport} report. It checks whether the section text, R Markdown chunk settings, required packages, and R code can be rendered successfully.
 
-If the section contains code that depends on a \code{camReport} object, the \code{object} argument should be supplied.
+The \code{object} argument is only needed when the R code in the section refers to a \code{camReport} object.
+}
+
+\value{
+Invisibly returns the path to the rendered temporary HTML file.
 }
 
 \seealso{
-\code{camData}, \code{reportSection}, \code{updateReportSection}
+\code{camData}, \code{reportSection}, \code{updateReportSection}, \code{report}
 }
 
 \examples{
