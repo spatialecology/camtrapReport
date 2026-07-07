@@ -56,7 +56,7 @@
   
   missing_i <- is.na(out) & !is.na(x_chr)
   
-  if (any(missing_i) && requireNamespace("lubridate", quietly = TRUE)) {
+  if (any(missing_i) && .require("lubridate")) {
     parsed <- suppressWarnings(
       .eval('lubridate::parse_date_time(
         x_chr[missing_i],
@@ -211,13 +211,12 @@
   sequences <- sequences[!is.na(sequences$sequenceID),]
   
   # summarize per key
-  sequences <- sequences[, list(deploymentID = unique(deploymentID),
+  sequences <- .eval("sequences[, list(deploymentID = unique(deploymentID),
                                 captureMethod = unique(captureMethod),
                                 start = min(timestamp),
                                 end = max(timestamp),
                                 nrphotos = length(timestamp)),
-                         by = sequenceID]
-  
+                         by = sequenceID]",environment())
   
   # convert to tibble, arrange, and convert start/end to interval object
   sequences <- .eval("sequences |>
