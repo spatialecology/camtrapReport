@@ -970,22 +970,22 @@ camR <- setRefClass(
         stop("Provide one species name to .get_REM_Param().")
       }
       
-      if (activity_only) {
-        
-        required_pkgs <- "activity"
-        missing_pkgs <- required_pkgs[
-          !vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)
-        ]
-        
-        if (length(missing_pkgs) > 0) {
-          add_rem_error(
-            paste0(
-              "Missing package(s) for activity model: ",
-              paste(missing_pkgs, collapse = ", ")
-            )
+      required_pkgs <- c("Distance", "sbd", "activity", "camtrapDensity")
+      missing_pkgs <- required_pkgs[
+        !vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)
+      ]
+      
+      if (length(missing_pkgs) > 0) {
+        add_rem_error(
+          paste0(
+            "Missing package(s) for REM: ",
+            paste(missing_pkgs, collapse = ", ")
           )
-          return(NULL)
-        }
+        )
+        return(NULL)
+      }
+      
+      if (activity_only) {
         
         if (is.list(.self$.act_models[[sp]])) {
           return(.self$.act_models[[sp]])
@@ -1001,10 +1001,6 @@ camR <- setRefClass(
             )
           
           activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
-          
-          if (is.null(activity_model)) {
-            stop("Activity model returned NULL.")
-          }
           
           list(activity_model = activity_model)
           
@@ -1025,43 +1021,52 @@ camR <- setRefClass(
         return(.self$.rem_params[[sp]])
       }
       
-      required_pkgs <- c("Distance", "sbd", "activity", "camtrapDensity")
-      missing_pkgs <- required_pkgs[
-        !vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)
-      ]
-      
-      if (length(missing_pkgs) > 0) {
-        add_rem_error(
-          paste0(
-            "Missing package(s) for REM: ",
-            paste(missing_pkgs, collapse = ", ")
-          )
-        )
-        return(NULL)
-      }
-      
-      x <- tryCatch({
-        
-        radius_model <- .fit_detmodel(
+      radius_model <- tryCatch(
+        .fit_detmodel(
           radius ~ 1,
           .self$data$observations,
           species = sp,
           truncation = "5%",
           quiet = TRUE
-        )
-        
-        angle_model <- .fit_detmodel(
+        ),
+        error = function(e) {
+          add_rem_error(paste0("Radius model failed: ", conditionMessage(e)))
+          NULL
+        }
+      )
+      
+      if (is.null(radius_model)) return(NULL)
+      
+      angle_model <- tryCatch(
+        .fit_detmodel(
           angle ~ 1,
           .self$data$observations,
           species = sp,
           unit = "radian",
           quiet = TRUE
-        )
-        
-        speed_model <- .fit_speedmodel(
+        ),
+        error = function(e) {
+          add_rem_error(paste0("Angle model failed: ", conditionMessage(e)))
+          NULL
+        }
+      )
+      
+      if (is.null(angle_model)) return(NULL)
+      
+      speed_model <- tryCatch(
+        .fit_speedmodel(
           .self$data$observations,
           species = sp
-        )
+        ),
+        error = function(e) {
+          add_rem_error(paste0("Speed model failed: ", conditionMessage(e)))
+          NULL
+        }
+      )
+      
+      if (is.null(speed_model)) return(NULL)
+      
+      activity_model <- tryCatch({
         
         dat <- .self$data$observations |>
           dplyr::left_join(
@@ -1070,30 +1075,25 @@ camR <- setRefClass(
             by = "deploymentID"
           )
         
-        activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
-        
-        if (is.null(activity_model)) {
-          stop("Activity model returned NULL.")
-        }
-        
-        list(
-          radius_model = radius_model,
-          angle_model = angle_model,
-          speed_model = speed_model,
-          activity_model = activity_model
-        )
+        .fit_actmodel(dat, species = sp, reps = 10)
         
       }, error = function(e) {
-        add_rem_error(paste0("REM parameter fitting failed: ", conditionMessage(e)))
+        add_rem_error(paste0("Activity model failed: ", conditionMessage(e)))
         NULL
       })
       
-      if (is.list(x)) {
-        .self$.rem_params[[sp]] <- x
-        return(x)
-      }
+      if (is.null(activity_model)) return(NULL)
       
-      NULL
+      x <- list(
+        radius_model = radius_model,
+        angle_model = angle_model,
+        speed_model = speed_model,
+        activity_model = activity_model
+      )
+      
+      .self$.rem_params[[sp]] <- x
+      
+      x
     },
     
     
@@ -1117,11 +1117,11 @@ camR <- setRefClass(
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
       }
       
-      has_rem_input <- sp %in% names(.self$.any_data_for_rem) &&
+      can_run <- sp %in% names(.self$.any_data_for_rem) &&
         isTRUE(unname(.self$.any_data_for_rem[sp]))
       
-      if (!has_rem_input) {
-        add_rem_error("Required REM inputs are missing or insufficient.")
+      if (!can_run) {
+        add_rem_error("REM was not attempted because required REM inputs are missing or insufficient.")
         .self$.any_data_for_rem[sp] <- FALSE
         return(invisible(NULL))
       }
@@ -1179,7 +1179,7 @@ camR <- setRefClass(
           stop("No trap-rate data available.")
         }
         
-        .parameters <- .get_parameter_table(
+        parameters <- .get_parameter_table(
           trdat,
           radius_model = species_params$radius_model,
           angle_model = species_params$angle_model,
@@ -1188,10 +1188,10 @@ camR <- setRefClass(
           reps = 10
         )
         
-        .density_estimates <- .rem(.parameters)
+        density_estimates <- .rem(parameters)
         
-        .density_estimates <- camtrapDensity::convert_units(
-          .density_estimates,
+        density_estimates <- camtrapDensity::convert_units(
+          density_estimates,
           radius_unit = "m",
           angle_unit = "degree",
           active_speed_unit = "km/hour",
@@ -1202,15 +1202,14 @@ camR <- setRefClass(
           scientificName = sp,
           EnglishName = get_english_name(dat, sp),
           Year = year_value,
-          Metric = rownames(.density_estimates),
-          .density_estimates,
+          Metric = rownames(density_estimates),
+          density_estimates,
           row.names = NULL
         )
       }
       
       density_estimate_list <- list()
       
-      # Annual REM estimates
       for (year in .self$years) {
         
         dat_year <- .self$get_data_subset(year)
@@ -1236,8 +1235,6 @@ camR <- setRefClass(
         }
       }
       
-      # Total/all-years REM estimate
-      # Important: this is now attempted even if annual REM failed.
       x_total <- tryCatch(
         make_rem_table(.self$data, 9999),
         error = function(e) {
@@ -1272,9 +1269,15 @@ camR <- setRefClass(
     
     get_REM = function(.sp) {
       
-      if (length(.sp) > 1) {
-        stop("length(.sp) > 1; provide one species name to get_REM().")
+      if (missing(.sp) || is.null(.sp)) {
+        stop("Please provide one species name, e.g. get_REM('Canis aureus').")
       }
+      
+      if (length(.sp) > 1) {
+        stop("Provide one species name at a time.")
+      }
+      
+      .sp <- as.character(.sp)
       
       if (length(.self$.any_data_for_rem) == 0 ||
           !.sp %in% names(.self$.any_data_for_rem)) {
@@ -1316,11 +1319,7 @@ camR <- setRefClass(
       NULL
     },
     
-    
-    
-    
-    
-    setup = function(tz=NULL) {
+    setup = function(tz = NULL) {
       
       # add tz (time zone) to setting:
       if (is.null(tz)) {
@@ -1583,9 +1582,25 @@ camR <- setRefClass(
         #----
         if (length(.sp) > 0) {
           for (n in .sp) {
-            .w <- .self$get_REM(n)
+            
+            .w <- try(.self$get_REM(n), silent = TRUE)
+            
+            if (inherits(.w, "try-error")) {
+              
+              if (is.null(.self$.tempObjects$rem_errors)) {
+                .self$.tempObjects$rem_errors <- list()
+              }
+              
+              old <- .self$.tempObjects$rem_errors[[n]]
+              
+              .self$.tempObjects$rem_errors[[n]] <- unique(
+                c(old, paste0("get_REM failed during setup: ", as.character(.w)))
+              )
+            }
           }
-          rm(.w,.sp,n); gc()
+          
+          rm(.w, .sp, n)
+          gc()
         } else rm(.sp)
       }
       #-------
