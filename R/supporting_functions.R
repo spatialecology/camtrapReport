@@ -71,80 +71,7 @@
 }
 
 
-
-# # a customised version of the calc_effort in the ctdp package (developed by: Henjo de Knegt)
-# .calc_effort <- function (x, by = NULL,unit=c('day','hour','minute','second','week')) {
-#   unit <- match.arg(unit)
-#   
-#   if (unit == 'day') unit <- 'days'
-#   else if (unit == 'hour') unit <- 'hours'
-#   else if (unit == 'minute') unit <- 'mins'
-#   else if (unit == 'second') unit <- 'secs'
-#   else if (unit == 'week') unit <- 'weeks'
-#   
-#   #------
-#   
-#   xdep <- x$deployments |> left_join(x$locations, by = "locationID") |> 
-#     mutate(dep_length = (deploymentEnd - deploymentStart)) 
-#   
-#   units(xdep$dep_length) <- unit
-#   
-#   if (!is.null(by)) {
-#     xdep <- xdep |> group_by(pick(all_of(by)))
-#   }
-#   xdepEffort <- xdep |> 
-#     summarise(effort = sum(dep_length,na.rm=TRUE), .groups = "drop")
-#   return(xdepEffort)
-# }
-#-------
-
-# ------------------------------------------------------------------
-# Merge legacy CTDP-style tables into one analysis table
-# ------------------------------------------------------------------
-# .merge_data <- function(x, dropMedia = TRUE) {
-#   obs <- x$observations %||% tibble::tibble()
-#   seqs <- x$sequences %||% tibble::tibble()
-#   dep <- x$deployments %||% tibble::tibble()
-#   loc <- x$locations %||% tibble::tibble()
-#   tax <- x$taxonomy %||% tibble::tibble()
-#   med <- x$media %||% tibble::tibble()
-#   
-#   # Prefer taxonomy scientificName if both exist
-#   if ("scientificName" %in% names(obs) && "scientificName" %in% names(tax)) {
-#     obs <- dplyr::select(obs, -scientificName)
-#   }
-#   
-#   out <- obs
-#   
-#   if (nrow(seqs) > 0 && "sequenceID" %in% names(out) && "sequenceID" %in% names(seqs)) {
-#     out <- dplyr::left_join(out, seqs, by = "sequenceID", multiple = "all")
-#   }
-#   
-#   if (nrow(dep) > 0 && "deploymentID" %in% names(out) && "deploymentID" %in% names(dep)) {
-#     out <- dplyr::left_join(out, dep, by = "deploymentID", multiple = "all")
-#   }
-#   
-#   if (nrow(loc) > 0 && "locationID" %in% names(out) && "locationID" %in% names(loc)) {
-#     out <- dplyr::left_join(out, loc, by = "locationID", multiple = "all")
-#   }
-#   
-#   if (nrow(tax) > 0 && "taxonID" %in% names(out) && "taxonID" %in% names(tax)) {
-#     out <- dplyr::left_join(out, tax, by = "taxonID", multiple = "all")
-#   }
-#   
-#   if (!dropMedia &&
-#       nrow(med) > 0 &&
-#       "sequenceID" %in% names(out) &&
-#       "sequenceID" %in% names(med)) {
-#     media_tbl <- med |>
-#       tidyr::nest(media = -sequenceID)
-#     
-#     out <- dplyr::left_join(out, media_tbl, by = "sequenceID", multiple = "all")
-#   }
-#   
-#   out
-# }
-
+#---------------
 # a customised version of the merige_tibbles in the ctdp package (developed by: Henjo de Knegt)
 .merge_data <- function(x, dropMedia = TRUE) {
   
@@ -705,175 +632,6 @@
   
   cap
 }
-# .captures <- function(x,onlyAnimal = TRUE,class = NULL,species = NULL,by = NULL,
-#     capture_unit = c("auto", "event", "sequence", "observation"),
-#     effort_unit = c("day", "hour", "minute", "second", "week"),
-#     rate_multiplier = 100) {
-#   capture_unit <- match.arg(capture_unit)
-#   effort_unit  <- match.arg(effort_unit)
-#   
-#   y <- .merge_data(x, dropMedia = TRUE)
-#   
-#   if (onlyAnimal && "observationType" %in% names(y)) {
-#     y <- dplyr::filter(y, .data$observationType == "animal")
-#   }
-#   
-#   if (!is.null(class) && "class" %in% names(y)) {
-#     class <- intersect(class, unique(stats::na.omit(y$class)))
-#     if (length(class) > 0) {
-#       y <- dplyr::filter(y, .data$class %in% class)
-#     }
-#   }
-#   
-#   if (!is.null(species) && "scientificName" %in% names(y)) {
-#     species <- intersect(species, unique(stats::na.omit(y$scientificName)))
-#     if (length(species) > 0) {
-#       y <- dplyr::filter(y, .data$scientificName %in% species)
-#     }
-#   }
-#   
-#   if (capture_unit == "auto") {
-#     if ("eventID" %in% names(y) && any(!is.na(y$eventID))) {
-#       capture_unit <- "event"
-#     } else if ("sequenceID" %in% names(y) && any(!is.na(y$sequenceID))) {
-#       capture_unit <- "sequence"
-#     } else {
-#       capture_unit <- "observation"
-#     }
-#   }
-#   
-#   id_col <- switch(
-#     capture_unit,
-#     event = "eventID",
-#     sequence = "sequenceID",
-#     observation = "observationID"
-#   )
-#   
-#   if (!id_col %in% names(y)) {
-#     stop("Capture unit '", capture_unit, "' is not available in the merged data.")
-#   }
-#   
-#   tax_cols <- intersect(
-#     c("taxonID", "scientificName", "vernacularNames.eng", "vernacularNames", "class", "order"),
-#     names(y)
-#   )
-#   group_cols <- unique(c(by, tax_cols))
-#   
-#   # Count distinct capture units, not rows
-#   cap <- y |>
-#     dplyr::filter(!is.na(.data[[id_col]])) |>
-#     dplyr::distinct(dplyr::across(dplyr::all_of(c(group_cols, id_col)))) |>
-#     dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
-#     dplyr::summarise(captures = dplyr::n(), .groups = "drop")
-#   
-#   # Optional: sum individuals using max(count) within each capture unit
-#   if ("count" %in% names(y)) {
-#     ind <- y |>
-#       dplyr::filter(!is.na(.data[[id_col]])) |>
-#       dplyr::mutate(.n = dplyr::coalesce(as.numeric(.data$count), 1)) |>
-#       dplyr::group_by(dplyr::across(dplyr::all_of(c(group_cols, id_col)))) |>
-#       dplyr::summarise(individuals = max(.data$.n, na.rm = TRUE), .groups = "drop") |>
-#       dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
-#       dplyr::summarise(individuals = sum(.data$individuals, na.rm = TRUE), .groups = "drop")
-#     
-#     cap <- dplyr::left_join(cap, ind, by = group_cols)
-#   }
-#   
-#   # Effort in requested unit
-#   effort_tbl <- .calc_effort(x, by = by, unit = effort_unit)
-#   
-#   # Effort in days for standard RAI
-#   effort_day <- .calc_effort(x, by = by, unit = "day") |>
-#     dplyr::rename(effort_days = effort)
-#   
-#   if (is.null(by)) {
-#     cap <- cap |>
-#       dplyr::mutate(
-#         effort = effort_tbl$effort[[1]],
-#         effort_days = effort_day$effort_days[[1]]
-#       )
-#   } else {
-#     cap <- cap |>
-#       dplyr::left_join(
-#         dplyr::select(effort_tbl, dplyr::all_of(by), effort),
-#         by = by
-#       ) |>
-#       dplyr::left_join(
-#         dplyr::select(effort_day, dplyr::all_of(by), effort_days),
-#         by = by
-#       )
-#   }
-#   
-#   out <- cap |>
-#     dplyr::mutate(
-#       capture_rate = .data$captures / .data$effort,
-#       rai = rate_multiplier * .data$captures / .data$effort_days,
-#       capture_unit = capture_unit,
-#       effort_unit = effort_unit
-#     )
-#   
-#   if ("individuals" %in% names(out)) {
-#     out <- out |>
-#       dplyr::mutate(
-#         individual_rate = .data$individuals / .data$effort,
-#         individual_rai = rate_multiplier * .data$individuals / .data$effort_days
-#       )
-#   }
-#   
-#   out
-# }
-
-
-# # a customised version of the captures in the ctdp package (developed by: Henjo de Knegt)
-# .captures <- function (x, onlyAnimal = TRUE, class = NULL, species = NULL, by = NULL) {
-#   
-#   
-#   effortTable <- .calc_effort(x, by = by)
-#   
-#   y <- .merge_data(x, dropMedia = TRUE)
-#   
-#   if (onlyAnimal) {
-#     y <- y |> dplyr::filter(observationType == "animal")
-#   }
-#   if (!is.null(class)) {
-#     .cls <- .get_classes(x,count = FALSE)
-#     .cls <- .get_match(class,.cls)
-#     if (!is.na(.cls)) y <- y |> dplyr::filter(class %in% .cls)
-#     else message('The specified class(es) is/are not recognised (or not available) in the dataset, so ignored!')
-#   }
-#   #-----
-#   if (!is.null(species)) {
-#     .sp <- .get_species(x,count = F)
-#     species <- .get_match(species,.sp)
-#     species <- species[!is.na(species)]
-#     if (length(species) > 0) {
-#       y <- y |> dplyr::filter(scientificName %in% species)
-#     } else message('The specified species are not recognised (or not available) in the dataset, so ignored!')
-#     
-#   }
-#   #-------
-#   keepCols <- c("taxonID", "captureMethod", "observationType", 
-#                 "count", "classificationMethod", "scientificName", "vernacularNames" ,"vernacularNames.eng", 
-#                 "class", "order", by) |> unique()
-#   y <- y |> select(any_of(keepCols))
-#   y <- y |> group_by(pick(all_of(unique(c("observationType", "class", "order", by)))))
-#   if ("vernacularNames.eng" %in% colnames(y)) {
-#     z <- y |> count(taxonID, vernacularNames.eng) |> ungroup() |> 
-#       rename(captures = n)
-#   } else if ("vernacularNames" %in% colnames(y)) {
-#     z <- y |> count(taxonID, vernacularNames) |> ungroup() |> 
-#       rename(captures = n)
-#   }
-#   
-#   
-#   if (!is.null(by)) {
-#     z <- z |> left_join(effortTable, by = by)
-#   } else {
-#     z <- z |> mutate(effort = as.numeric(effortTable$effort[1]))
-#   }
-#   z <- z |> mutate(capture_rate = captures/as.numeric(effort))
-#   return(z)
-# }
 
 
 #---------
@@ -903,7 +661,7 @@
   
   if (nrow(dat) == 0) stop("There are no usable position data")
   
-  if (class(dat[[depvar]]) == "numeric") {
+  if (inherits(dat[[depvar]],"numeric")) {
     colnames(dat)[which(colnames(dat) == depvar)] <- 'distance'
     dat$distance <- abs(dat$distance)
   } else {
@@ -921,7 +679,7 @@
   else {
     if (is.null(newdata)) {
       newdata <- dat |> 
-        .eval('dplyr::select(dplyr::all_of(covars))',environment()) |> 
+        dplyr::select(dplyr::all_of(covars)) |> 
         lapply(function(x) if (is.numeric(x))
           mean(x, na.rm = T)
           else sort(unique(x))) |> 

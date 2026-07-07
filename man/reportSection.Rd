@@ -50,6 +50,7 @@ tx <- reportSection(
 
 tx
 
+\dontrun{
 tx2 <- reportSection(
   name = "methods",
   title = "Methods",
@@ -68,4 +69,6 @@ tx2 <- reportSection(
 )
 
 tx2
+}
+
 }
