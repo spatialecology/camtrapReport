@@ -955,183 +955,371 @@ camR <- setRefClass(
       
       
     },
-    .get_REM_Param=function(sp,activity_only = FALSE) {
+    .get_REM_Param = function(sp, activity_only = FALSE) {
+      
+      add_rem_error <- function(msg) {
+        if (is.null(.self$.tempObjects$rem_errors)) {
+          .self$.tempObjects$rem_errors <- list()
+        }
+        
+        old <- .self$.tempObjects$rem_errors[[sp]]
+        .self$.tempObjects$rem_errors[[sp]] <- unique(c(old, msg))
+      }
+      
+      if (length(sp) != 1) {
+        stop("Provide one species name to .get_REM_Param().")
+      }
+      
       if (activity_only) {
-        if (is.list(.self$.rem_params[[sp]])) {
-          return(.self$.rem_params[[sp]])
-        } 
-        if (is.null(.self$.act_models[[sp]]) || !is.list(.self$.act_models[[sp]])) {
-          x <- try({
-            dat <- .self$data$observations %>% left_join(.self$data$deployments %>% left_join(.self$data$locations,by='locationID'),'deploymentID')
-            activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
-            
-            rm(dat)
-            
-            # Store only if all succeed
-            list(
-              activity_model = activity_model
+        
+        required_pkgs <- "activity"
+        missing_pkgs <- required_pkgs[
+          !vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)
+        ]
+        
+        if (length(missing_pkgs) > 0) {
+          add_rem_error(
+            paste0(
+              "Missing package(s) for activity model: ",
+              paste(missing_pkgs, collapse = ", ")
             )
-          }, silent = TRUE)
-          #----
-          if (!inherits(x,'try-error')) {
-            .self$.act_models[[sp]] <- x
-            return(x)
+          )
+          return(NULL)
+        }
+        
+        if (is.list(.self$.act_models[[sp]])) {
+          return(.self$.act_models[[sp]])
+        }
+        
+        x <- tryCatch({
+          
+          dat <- .self$data$observations |>
+            dplyr::left_join(
+              .self$data$deployments |>
+                dplyr::left_join(.self$data$locations, by = "locationID"),
+              by = "deploymentID"
+            )
+          
+          activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
+          
+          if (is.null(activity_model)) {
+            stop("Activity model returned NULL.")
           }
           
-        } else if (is.list(.self$.act_models[[sp]])) {
-          return(.self$.act_models[[sp]])
-        } 
-      } else {
-        if ((is.null(.self$.rem_params[[sp]]) || !is.list(.self$.rem_params[[sp]])) && .require('camtrapDensity')) {
-          x <- try({
-            
-            radius_model <- .fit_detmodel(radius ~ 1, .self$data$observations, species = sp, truncation = "5%",quiet=TRUE)
-            angle_model <- .fit_detmodel(angle ~ 1, .self$data$observations, species = sp, unit = "radian",quiet=TRUE)
-            speed_model <- .fit_speedmodel(.self$data$observations, species = sp)
-            
-            dat <- .self$data$observations %>% left_join(.self$data$deployments %>% left_join(.self$data$locations,by='locationID'),'deploymentID')
-            activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
-            
-            rm(dat)
-            
-            # Store only if all succeed
-            list(
-              radius_model = radius_model,
-              angle_model = angle_model,
-              speed_model = speed_model,
-              activity_model = activity_model
-            )
-          }, silent = TRUE)
-          if (!inherits(x,'try-error')) {
-            .self$.rem_params[[sp]] <- x
-            return(x)
-          }# else .self$.rem_params[[sp]] <- NA
-        } else if (is.list(.self$.rem_params[[sp]])) {
-          return(.self$.rem_params[[sp]])
-        } 
+          list(activity_model = activity_model)
+          
+        }, error = function(e) {
+          add_rem_error(paste0("Activity model failed: ", conditionMessage(e)))
+          NULL
+        })
         
+        if (is.list(x)) {
+          .self$.act_models[[sp]] <- x
+          return(x)
+        }
+        
+        return(NULL)
       }
+      
+      if (is.list(.self$.rem_params[[sp]])) {
+        return(.self$.rem_params[[sp]])
+      }
+      
+      required_pkgs <- c("Distance", "sbd", "activity", "camtrapDensity")
+      missing_pkgs <- required_pkgs[
+        !vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)
+      ]
+      
+      if (length(missing_pkgs) > 0) {
+        add_rem_error(
+          paste0(
+            "Missing package(s) for REM: ",
+            paste(missing_pkgs, collapse = ", ")
+          )
+        )
+        return(NULL)
+      }
+      
+      x <- tryCatch({
+        
+        radius_model <- .fit_detmodel(
+          radius ~ 1,
+          .self$data$observations,
+          species = sp,
+          truncation = "5%",
+          quiet = TRUE
+        )
+        
+        angle_model <- .fit_detmodel(
+          angle ~ 1,
+          .self$data$observations,
+          species = sp,
+          unit = "radian",
+          quiet = TRUE
+        )
+        
+        speed_model <- .fit_speedmodel(
+          .self$data$observations,
+          species = sp
+        )
+        
+        dat <- .self$data$observations |>
+          dplyr::left_join(
+            .self$data$deployments |>
+              dplyr::left_join(.self$data$locations, by = "locationID"),
+            by = "deploymentID"
+          )
+        
+        activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
+        
+        if (is.null(activity_model)) {
+          stop("Activity model returned NULL.")
+        }
+        
+        list(
+          radius_model = radius_model,
+          angle_model = angle_model,
+          speed_model = speed_model,
+          activity_model = activity_model
+        )
+        
+      }, error = function(e) {
+        add_rem_error(paste0("REM parameter fitting failed: ", conditionMessage(e)))
+        NULL
+      })
+      
+      if (is.list(x)) {
+        .self$.rem_params[[sp]] <- x
+        return(x)
+      }
+      
+      NULL
     },
-    fit_REM=function(sp) {
+    
+    
+    fit_REM = function(sp) {
+      
+      add_rem_error <- function(msg) {
+        if (is.null(.self$.tempObjects$rem_errors)) {
+          .self$.tempObjects$rem_errors <- list()
+        }
+        
+        old <- .self$.tempObjects$rem_errors[[sp]]
+        .self$.tempObjects$rem_errors[[sp]] <- unique(c(old, msg))
+      }
+      
+      if (length(sp) != 1) {
+        stop("Provide one species name to fit_REM().")
+      }
+      
+      if (length(.self$.any_data_for_rem) == 0 ||
+          !sp %in% names(.self$.any_data_for_rem)) {
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+      }
+      
+      has_rem_input <- sp %in% names(.self$.any_data_for_rem) &&
+        isTRUE(unname(.self$.any_data_for_rem[sp]))
+      
+      if (!has_rem_input) {
+        add_rem_error("Required REM inputs are missing or insufficient.")
+        .self$.any_data_for_rem[sp] <- FALSE
+        return(invisible(NULL))
+      }
       
       .g <- .self$get_focus_group(sp)
+      
       if (!.g %in% names(.self$rem)) {
         .self$rem[[.g]] <- list()
       }
-      .density_estimate_list <- list()
       
+      species_params <- .self$.get_REM_Param(sp)
+      
+      if (is.null(species_params)) {
+        .self$.any_data_for_rem[sp] <- FALSE
+        return(invisible(NULL))
+      }
+      
+      get_english_name <- function(dat, sp) {
+        
+        english_name <- character()
+        
+        if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
+          english_name <- dat$taxonomy$vernacularNames.eng[
+            dat$taxonomy$scientificName == sp
+          ]
+        } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
+          english_name <- dat$taxonomy$vernacularNames[
+            dat$taxonomy$scientificName == sp
+          ]
+        }
+        
+        english_name <- unique(english_name)
+        english_name <- english_name[!is.na(english_name) & nzchar(english_name)]
+        
+        if (length(english_name) == 0) {
+          english_name <- "Unknown"
+        }
+        
+        english_name[1]
+      }
+      
+      make_rem_table <- function(dat, year_value) {
+        
+        if (is.null(dat$observations) || nrow(dat$observations) == 0) {
+          stop("No observations available.")
+        }
+        
+        if (!sp %in% dat$observations$scientificName) {
+          stop("Species not present in this data subset.")
+        }
+        
+        trdat <- .get_traprate_data(dat, species = sp)
+        
+        if (is.null(trdat) || !is.data.frame(trdat) || nrow(trdat) == 0) {
+          stop("No trap-rate data available.")
+        }
+        
+        .parameters <- .get_parameter_table(
+          trdat,
+          radius_model = species_params$radius_model,
+          angle_model = species_params$angle_model,
+          speed_model = species_params$speed_model,
+          activity_model = species_params$activity_model,
+          reps = 10
+        )
+        
+        .density_estimates <- .rem(.parameters)
+        
+        .density_estimates <- camtrapDensity::convert_units(
+          .density_estimates,
+          radius_unit = "m",
+          angle_unit = "degree",
+          active_speed_unit = "km/hour",
+          overall_speed_unit = "km/day"
+        )
+        
+        data.frame(
+          scientificName = sp,
+          EnglishName = get_english_name(dat, sp),
+          Year = year_value,
+          Metric = rownames(.density_estimates),
+          .density_estimates,
+          row.names = NULL
+        )
+      }
+      
+      density_estimate_list <- list()
+      
+      # Annual REM estimates
       for (year in .self$years) {
-        dat <- .self$get_data_subset(year = year)
-        if (nrow(dat$observations) > 0) {
-          species_params <- .self$.get_REM_Param(sp)
-          if (!is.null(species_params)) {
-            x <- try({
-              trdat <- .get_traprate_data(dat, species = sp)
-              .parameters <- .get_parameter_table(trdat, 
-                                                  radius_model = species_params$radius_model, 
-                                                  angle_model = species_params$angle_model, 
-                                                  speed_model = species_params$speed_model, 
-                                                  activity_model = species_params$activity_model, 
-                                                  reps = 10)
-              .density_estimates <- .rem(.parameters)
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", 
-                                          environment())
-              if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == 
-                                                                   sp]
-              }
-              else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == 
-                                                               sp]
-              }
-              else english_name <- "Unknown"
-              if (length(english_name) == 0) 
-                english_name <- "Unknown"
-              data.frame(scientificName = sp, EnglishName = english_name, 
-                         Year = year, Metric = rownames(.density_estimates), 
-                         .density_estimates, row.names = NULL)
-            }, silent = TRUE)
-            if (!inherits(x, "try-error")) {
-              .density_estimate_list[[paste0(sp, "_", year)]] <- x
-            }
+        
+        dat_year <- .self$get_data_subset(year)
+        
+        if (is.null(dat_year) ||
+            is.null(dat_year$observations) ||
+            nrow(dat_year$observations) == 0) {
+          next
+        }
+        
+        x <- tryCatch(
+          make_rem_table(dat_year, year),
+          error = function(e) {
+            add_rem_error(
+              paste0("Year ", year, " failed: ", conditionMessage(e))
+            )
+            NULL
           }
+        )
+        
+        if (is.data.frame(x) && nrow(x) > 0) {
+          density_estimate_list[[paste0(sp, "_", year)]] <- x
         }
       }
-      if (length(.density_estimate_list) > 0) {
-        for (n in names(.density_estimate_list)) {
-          .self$rem[[.g]][[n]] <- .density_estimate_list[[n]]
+      
+      # Total/all-years REM estimate
+      # Important: this is now attempted even if annual REM failed.
+      x_total <- tryCatch(
+        make_rem_table(.self$data, 9999),
+        error = function(e) {
+          add_rem_error(
+            paste0("Total/all-years REM failed: ", conditionMessage(e))
+          )
+          NULL
         }
-        #------------
-        # also for total (all-years):
-        dat <- .self$data
-        if (nrow(dat$observations) > 0) {
-          species_params <- .self$.get_REM_Param(sp)
-          if (!is.null(species_params)) {
-            x <- try({
-              trdat <- .get_traprate_data(dat, species = sp)
-              .parameters <- .get_parameter_table(trdat, 
-                                                  radius_model = species_params$radius_model, 
-                                                  angle_model = species_params$angle_model, 
-                                                  speed_model = species_params$speed_model, 
-                                                  activity_model = species_params$activity_model, 
-                                                  reps = 10)
-              .density_estimates <- .rem(.parameters)
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", environment())
-              if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == sp]
-              } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == sp]
-              } else english_name <- "Unknown"
-              if (length(english_name) == 0) english_name <- "Unknown"
-              data.frame(scientificName = sp, EnglishName = english_name, 
-                         Year = 9999, Metric = rownames(.density_estimates), 
-                         .density_estimates, row.names = NULL)
-            }, silent = TRUE)
-            if (!inherits(x, "try-error")) {
-              .self$rem[[.g]][[sp]] <- x
-            }
-          }
+      )
+      
+      if (is.data.frame(x_total) && nrow(x_total) > 0) {
+        density_estimate_list[[sp]] <- x_total
+      }
+      
+      if (length(density_estimate_list) > 0) {
+        
+        for (n in names(density_estimate_list)) {
+          .self$rem[[.g]][[n]] <- density_estimate_list[[n]]
         }
+        
+        .self$.any_data_for_rem[sp] <- TRUE
+        
       } else {
-        if (length(.self$.any_data_for_rem) == 0) {
-          .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-        } else {
-          .self$.any_data_for_rem[sp] <- FALSE
-        }
+        
+        .self$.any_data_for_rem[sp] <- FALSE
+        
       }
       
-      
+      invisible(.self$rem[[.g]])
     },
+    
+    
     get_REM = function(.sp) {
-      # extract REM results for a species from .self$rem
-      # if not available, fit_REM is called!
       
-      if (length(.sp) > 1) stop('length(.sp) > 1; a single species name should be provided to get_REM!')
-      
-      if (length(.self$.any_data_for_rem) == 0) .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-      else if (!.sp %in% names(.self$.any_data_for_rem)) .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-      #-------------
-      if (length(.self$.any_data_for_rem) > 0 && .sp %in% names(.self$.any_data_for_rem) && .self$.any_data_for_rem[.sp]) {
-        .g <- .self$get_focus_group(.sp)
-        if (.g %in% names(.self$rem)) {
-          .n <- names(.self$rem[[.g]])
-          .spn <- c(paste0(.sp,'_',.self$years),.sp)
-          if (any(.spn %in% .n)) {
-            .spn <- .spn[.spn %in% .n]
-            .self$rem[[.g]][.spn]
-          } else {
-            .self$fit_REM(.sp)
-            .self$get_REM(.sp)
-          }
-        } else {
-          .self$fit_REM(.sp)
-          .self$get_REM(.sp)
-        }
-      } else {
-        .tmp <- .get_REM_Param(.sp,activity_only = TRUE)
-        rm(.tmp)
+      if (length(.sp) > 1) {
+        stop("length(.sp) > 1; provide one species name to get_REM().")
       }
+      
+      if (length(.self$.any_data_for_rem) == 0 ||
+          !.sp %in% names(.self$.any_data_for_rem)) {
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+      }
+      
+      can_run <- .sp %in% names(.self$.any_data_for_rem) &&
+        isTRUE(unname(.self$.any_data_for_rem[.sp]))
+      
+      if (!can_run) {
+        return(NULL)
+      }
+      
+      .g <- .self$get_focus_group(.sp)
+      
+      if (!.g %in% names(.self$rem)) {
+        .self$rem[[.g]] <- list()
+      }
+      
+      wanted_names <- c(
+        paste0(.sp, "_", .self$years),
+        .sp
+      )
+      
+      existing_names <- intersect(wanted_names, names(.self$rem[[.g]]))
+      
+      if (length(existing_names) > 0) {
+        return(.self$rem[[.g]][existing_names])
+      }
+      
+      .self$fit_REM(.sp)
+      
+      existing_names <- intersect(wanted_names, names(.self$rem[[.g]]))
+      
+      if (length(existing_names) > 0) {
+        return(.self$rem[[.g]][existing_names])
+      }
+      
+      NULL
     },
+    
+    
+    
+    
+    
     setup = function(tz=NULL) {
       
       # add tz (time zone) to setting:
