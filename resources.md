@@ -91,7 +91,7 @@ output:
 }
 </style>
 
-This page lists publications, workshops, and training activities related to `camtrapReport`. It is intended as a central place for users to find scientific outputs, tutorials, and workshop information.
+This page lists publications, workshops, and training activities related to `camtrapReport`. 
 
 ## Publications
 
