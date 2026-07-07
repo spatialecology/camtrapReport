@@ -23,7 +23,7 @@ Imports:
     terra
 Suggests:
     testthat (>= 3.0.0),
-    xml2
+    xml2,
     Distance,
     sbd,
     activity,
