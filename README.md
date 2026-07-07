@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="man/figures/logo.png" width="200" alt="camtrapReport"/>
+  <img src="inst/figures/logo.png" width="200" alt="camtrapReport"/>
 </p>
 
 <h1 align="center">camtrapReport</h1>
@@ -20,7 +20,7 @@
 `camtrapReport` turns standardised camera-trap datasets into structured, reproducible ecological reports. Drop in a [Camtrap-DP](https://camtrap-dp.tdwg.org/) `.zip`, and the package will diagnose data quality, run a suite of ecological analyses, and compile narrative, figures, maps and tables into a single article-style HTML document.
 
 <p align="center">
-  <img src="man/figures/workflow.png" width="900" alt="camtrapReport workflow"/>
+  <img src="inst/figures/workflow.png" width="900" alt="camtrapReport workflow"/>
   <br>
   <em>Schematic overview of the camtrapReport workflow.</em>
 </p>
