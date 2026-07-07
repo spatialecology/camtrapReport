@@ -704,20 +704,57 @@
 
 #-----------------
 # adjusted from the package camtrapDensity:
-.fit_speedmodel <- function (dat, species = NULL, newdata = NULL, formula=speed~1,
-                             reps = 1000, distUnit = c("m", "km", "cm"), timeUnit = c("second", "minute", "hour", "day"), ...) {
+.fit_speedmodel <- function(dat,
+                            species = NULL,
+                            newdata = NULL,
+                            formula = speed ~ 1,
+                            reps = 1000,
+                            distUnit = c("m", "km", "cm"),
+                            timeUnit = c("second", "minute", "hour", "day"),
+                            ...) {
+  
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
-  varnms <- 'speed'
   
-  dat <- dat[dat$scientificName %in% species & dat$speed > 0.01 & dat$speed < 10,varnms,drop=FALSE]
-  dat <- as.data.frame(na.omit(dat))
-  if (nrow(dat) == 0) stop("There are no usable speed data")
+  required_cols <- c("scientificName", "speed")
+  missing_cols <- setdiff(required_cols, names(dat))
   
-  args <- c(list(formula = formula,data=dat),list(...))
-  res <- .eval('do.call(sbd::sbm,args)',environment())
+  if (length(missing_cols) > 0) {
+    stop(
+      "Missing required column(s) for speed model: ",
+      paste(missing_cols, collapse = ", ")
+    )
+  }
+  
+  dat <- dat[
+    dat$scientificName %in% species &
+      !is.na(dat$speed) &
+      dat$speed > 0.01 &
+      dat$speed < 10,
+    "speed",
+    drop = FALSE
+  ]
+  
+  dat <- as.data.frame(stats::na.omit(dat))
+  
+  if (nrow(dat) == 0) {
+    stop("There are no usable speed data for ", species)
+  }
+  
+  args <- c(
+    list(formula = formula, data = dat),
+    list(...)
+  )
+  
+  res <- do.call(sbd::sbm, args)
   
   res$unit <- paste(distUnit, timeUnit, sep = "/")
+  
+  # Important: .get_parameter_table() expects this
+  if (is.null(res$data)) {
+    res$data <- dat
+  }
+  
   res
 }
 #-------------
@@ -934,70 +971,216 @@
 }
 #-------
 # adjusted from the package camtrapDensity:
-.get_parameter_table <- function (traprate_data, radius_model, angle_model, speed_model, activity_model, reps = 999) {
-  rad <- radius_model$edd
-  ang <- angle_model$edd * 2
-  spd <- dplyr::select(speed_model$estimate, dplyr::all_of(c("est", "se")))
-  act <- activity_model@act[1:2]
-  names(act) <- names(spd) <- dimnames(rad)[[2]]
-  res <- data.frame(rbind(rad, ang, spd, act))
-  ospd <- res[3, 1] * res[4, 1]
-  se_ospd <- ospd * sqrt(sum((res[3:4, 2]/res[3:4, 1])^2))
-  res <- rbind(res, c(ospd, se_ospd))
-  res$cv <- res$se/res$estimate
+.get_parameter_table <- function(traprate_data,
+                                 radius_model,
+                                 angle_model,
+                                 speed_model,
+                                 activity_model,
+                                 reps = 999) {
+  
+  extract_est_se <- function(x, object_name = "model") {
+    
+    if (is.data.frame(x) || is.matrix(x)) {
+      x <- as.data.frame(x)
+      
+      est_col <- intersect(c("estimate", "est", "Estimate", "mean"), names(x))
+      se_col  <- intersect(c("se", "SE", "std.error", "std_error"), names(x))
+      
+      if (length(est_col) == 0 || length(se_col) == 0) {
+        stop("Could not find estimate/se columns in ", object_name)
+      }
+      
+      return(
+        data.frame(
+          estimate = as.numeric(x[[est_col[1]]][1]),
+          se = as.numeric(x[[se_col[1]]][1])
+        )
+      )
+    }
+    
+    if (is.numeric(x)) {
+      if (!is.null(names(x))) {
+        est_name <- intersect(c("estimate", "est", "Estimate", "mean"), names(x))
+        se_name  <- intersect(c("se", "SE", "std.error", "std_error"), names(x))
+        
+        if (length(est_name) > 0 && length(se_name) > 0) {
+          return(
+            data.frame(
+              estimate = as.numeric(x[[est_name[1]]]),
+              se = as.numeric(x[[se_name[1]]])
+            )
+          )
+        }
+      }
+      
+      if (length(x) >= 2) {
+        return(
+          data.frame(
+            estimate = as.numeric(x[1]),
+            se = as.numeric(x[2])
+          )
+        )
+      }
+    }
+    
+    stop("Could not extract estimate and se from ", object_name)
+  }
+  
+  rad <- extract_est_se(radius_model$edd, "radius_model$edd")
+  
+  ang <- extract_est_se(angle_model$edd, "angle_model$edd")
+  ang$estimate <- ang$estimate * 2
+  ang$se <- ang$se * 2
+  
+  if (is.null(speed_model$estimate)) {
+    stop("speed_model$estimate is missing")
+  }
+  
+  spd <- extract_est_se(speed_model$estimate, "speed_model$estimate")
+  
+  if (is.null(activity_model)) {
+    stop("activity_model is NULL")
+  }
+  
+  if (!methods::is(activity_model, "actmod")) {
+    stop("activity_model is not an activity::fitact model")
+  }
+  
+  act_raw <- activity_model@act[1:2]
+  
+  act <- data.frame(
+    estimate = as.numeric(act_raw[1]),
+    se = as.numeric(act_raw[2])
+  )
+  
+  res <- rbind(rad, ang, spd, act)
+  rownames(res) <- c("radius", "angle", "active_speed", "activity_level")
+  
+  overall_speed <- res["active_speed", "estimate"] * res["activity_level", "estimate"]
+  
+  overall_speed_se <- overall_speed *
+    sqrt(
+      sum(
+        (
+          res[c("active_speed", "activity_level"), "se"] /
+            res[c("active_speed", "activity_level"), "estimate"]
+        )^2,
+        na.rm = TRUE
+      )
+    )
+  
+  res <- rbind(
+    res,
+    overall_speed = c(
+      estimate = overall_speed,
+      se = overall_speed_se
+    )
+  )
+  
+  res$cv <- res$se / res$estimate
   res$lcl95 <- res$estimate - 1.96 * res$se
   res$ucl95 <- res$estimate + 1.96 * res$se
-  res$n <- c(nrow(radius_model$data), nrow(angle_model$data), 
-             nrow(speed_model$data), length(activity_model@data), 
-             NA)
-  res$unit <- c(radius_model$unit, angle_model$unit, speed_model$unit, "none", speed_model$unit)
-  rownames(res) <- c("radius", "angle", "active_speed", "activity_level", "overall_speed")
-  traprate <- .eval('camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',environment())
-  j <- c("estimate", "se", "lcl95", "ucl95")
-  traprate[, j] <- traprate[, j] * radius_model$proportion_used
-  res <- rbind(res, traprate)
-  .eval('camtrapDensity::convert_units(res)',environment())
+  
+  n_radius <- if (!is.null(radius_model$data)) nrow(radius_model$data) else NA_integer_
+  n_angle  <- if (!is.null(angle_model$data)) nrow(angle_model$data) else NA_integer_
+  n_speed  <- if (!is.null(speed_model$data)) nrow(speed_model$data) else NA_integer_
+  n_act    <- if (!is.null(activity_model@data)) length(activity_model@data) else NA_integer_
+  
+  res$n <- c(n_radius, n_angle, n_speed, n_act, NA_integer_)
+  
+  res$unit <- c(
+    radius_model$unit,
+    angle_model$unit,
+    speed_model$unit,
+    "none",
+    speed_model$unit
+  )
+  
+  if (is.null(traprate_data) || !is.data.frame(traprate_data) || nrow(traprate_data) == 0) {
+    stop("traprate_data is empty")
+  }
+  
+  traprate <- camtrapDensity::get_trap_rate(
+    traprate_data,
+    strata = NULL,
+    reps = reps
+  )
+  
+  if (is.null(rownames(traprate)) || !"trap_rate" %in% rownames(traprate)) {
+    rownames(traprate)[1] <- "trap_rate"
+  }
+  
+  proportion_used <- radius_model$proportion_used
+  if (is.null(proportion_used) || is.na(proportion_used)) {
+    proportion_used <- 1
+  }
+  
+  j <- intersect(c("estimate", "se", "lcl95", "ucl95"), colnames(traprate))
+  traprate[, j] <- traprate[, j, drop = FALSE] * proportion_used
+  
+  out <- rbind(res, traprate)
+  
+  camtrapDensity::convert_units(out)
 }
 #-------------
 
 # checks whether required data are available for REM analysis:
-.any_data_for_rem <- function(dat,sp=NULL) {
+.any_data_for_rem <- function(dat, sp = NULL, min_rows = 1) {
+  
   tab <- dat$observations
   
+  if (is.null(tab) || !is.data.frame(tab) || nrow(tab) == 0) {
+    if (!is.null(sp)) return(stats::setNames(rep(FALSE, length(sp)), sp))
+    return(NA)
+  }
+  
+  required_cols <- c("scientificName", "speed", "radius", "angle")
+  missing_cols <- setdiff(required_cols, names(tab))
+  
+  if (length(missing_cols) > 0) {
+    if (!is.null(sp)) return(stats::setNames(rep(FALSE, length(sp)), sp))
+    
+    if ("scientificName" %in% names(tab)) {
+      spp <- unique(tab$scientificName)
+      spp <- spp[!is.na(spp) & nzchar(spp) & grepl("\\s", spp)]
+      return(stats::setNames(rep(FALSE, length(spp)), spp))
+    }
+    
+    return(NA)
+  }
+  
   if (!is.null(sp)) {
-    tab <- tab[tab[["scientificName"]] %in% sp, , drop = FALSE]
+    tab <- tab[tab$scientificName %in% sp, , drop = FALSE]
   }
   
   tab <- tab[
-    !is.na(tab[["scientificName"]]) &
-      tab[["scientificName"]] != "" &
-      grepl("\\s", tab[["scientificName"]]),
+    !is.na(tab$scientificName) &
+      tab$scientificName != "" &
+      grepl("\\s", tab$scientificName),
     ,
     drop = FALSE
   ]
   
   if (nrow(tab) == 0) {
+    if (!is.null(sp)) return(stats::setNames(rep(FALSE, length(sp)), sp))
     return(NA)
   }
   
-  spp <- unique(tab[["scientificName"]])
-  
-  out <- stats::setNames(rep(NA, length(spp)), spp)
+  spp <- unique(tab$scientificName)
+  out <- stats::setNames(rep(FALSE, length(spp)), spp)
   
   for (s in spp) {
-    x <- tab[tab[["scientificName"]] == s, , drop = FALSE]
     
-    n_speeds <- sum(
-      x[["speed"]] > 0.01 &
-        x[["speed"]] < 10 &
-        !is.na(x[["speed"]]),
-      na.rm = TRUE
-    )
+    x <- tab[tab$scientificName == s, , drop = FALSE]
     
-    n_radii <- sum(!is.na(x[["radius"]]))
-    n_angles <- sum(!is.na(x[["angle"]]))
+    valid_rem_rows <- !is.na(x$speed) &
+      x$speed > 0.01 &
+      x$speed < 10 &
+      !is.na(x$radius) &
+      x$radius > 0 &
+      !is.na(x$angle)
     
-    out[s] <- all(c(n_speeds, n_radii, n_angles) > 0)
+    out[s] <- sum(valid_rem_rows, na.rm = TRUE) >= min_rows
   }
   
   out
