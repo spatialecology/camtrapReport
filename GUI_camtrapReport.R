@@ -12,7 +12,7 @@ library(shiny)
 # SETTINGS
 # ============================================================
 
-logo_path <- "C:/Users/ebrah010/OneDrive - Wageningen University & Research/Package_camReport/_GitHUB/camtrapReport/man/figures/logo.png"
+logo_path <- "C:/Users/ebrah010/OneDrive - Wageningen University & Research/Package_camReport/_GitHUB/camtrapReport/inst/figures/logo.png"
 
 # Use a YouTube embed URL if you have one, for example:
 # "https://www.youtube.com/embed/dQw4w9WgXcQ"

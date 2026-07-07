@@ -100,7 +100,7 @@ The following publications describe `camtrapReport` or related workflows.
 <div class="resource-list">
 
 <div class="resource-card">
-<img src="man/figures/Outreach/ECM9.png" alt="IX European Congress of Mammalogy logo">
+<img src="inst/figures/Outreach/ECM9.png" alt="IX European Congress of Mammalogy logo">
 
 <div>
 <span class="resource-type">Conference abstract</span>
@@ -114,7 +114,7 @@ The following publications describe `camtrapReport` or related workflows.
 </div>
 
 <div class="resource-card">
-<img src="man/figures/Outreach/TIBS2026.png" alt="The International Biogeography Society conference logo">
+<img src="inst/figures/Outreach/TIBS2026.png" alt="The International Biogeography Society conference logo">
 
 <div>
 <span class="resource-type">Conference abstract</span>
@@ -128,7 +128,7 @@ The following publications describe `camtrapReport` or related workflows.
 </div>
 
 <div class="resource-card">
-<img src="man/figures/Outreach/NAEM2026.png" alt="Netherlands Annual Ecology Meeting logo">
+<img src="inst/figures/Outreach/NAEM2026.png" alt="Netherlands Annual Ecology Meeting logo">
 
 <div>
 <span class="resource-type">Conference abstract</span>
@@ -150,7 +150,7 @@ This section lists workshops, tutorials, and training activities related to `cam
 <div class="resource-list">
 
 <div class="resource-card workshop-card">
-<img src="man/figures/Outreach/ws2.png" alt="camtrapReport TrapLab workshop">
+<img src="inst/figures/Outreach/ws2.png" alt="camtrapReport TrapLab workshop">
 
 <div>
 <span class="resource-type">Training workshop</span>
@@ -163,7 +163,7 @@ This section lists workshops, tutorials, and training activities related to `cam
 </div>
 
 <div class="resource-card workshop-card">
-<img src="man/figures/Outreach/ws1.png" alt="camtrapReport INBO workshop">
+<img src="inst/figures/Outreach/ws1.png" alt="camtrapReport INBO workshop">
 
 <div>
 <span class="resource-type">Technical workshop</span>
