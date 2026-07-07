@@ -24,6 +24,10 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     xml2
+    Distance,
+    sbd,
+    activity,
+    camtrapDensity
 VignetteBuilder: knitr
 Encoding: UTF-8
 Config/testthat/edition: 3

@@ -759,27 +759,105 @@
 }
 #-------------
 # adjusted from the package camtrapDensity:
-.fit_actmodel <- function (dat, species = NULL, reps = 999, obsdef = c("individual","sequence")) {
+.fit_actmodel <- function(dat,
+                          species = NULL,
+                          reps = 999,
+                          obsdef = c("individual", "sequence")) {
+  
   obsdef <- match.arg(obsdef)
   
-  obs <- dat[dat$scientificName %in% species,c("deploymentID","sequenceID", "timestamp",  "latitude", "longitude","count")]
+  required_cols <- c(
+    "scientificName",
+    "deploymentID",
+    "sequenceID",
+    "timestamp",
+    "latitude",
+    "longitude"
+  )
   
-  i <- switch(obsdef, individual = rep(1:nrow(obs), obs$count), sequence = !duplicated(obs$sequenceID))
-  obs <- obs[i, ]
+  missing_cols <- setdiff(required_cols, names(dat))
   
-  if (nrow(obs) > 1) {
-    suntimes <- .eval('activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',environment())
-    timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
-    
-    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment())
-    obs$solartime <- .eval('with(obs,
-          activity::wrap(
-            activity::solartime(timestamp, latitude, longitude, 0)$solar + timeshift
-          ))',environment())
-    
-    .eval('activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',environment())
+  if (length(missing_cols) > 0) {
+    stop(
+      "Missing required column(s) for activity model: ",
+      paste(missing_cols, collapse = ", ")
+    )
   }
-  else NULL
+  
+  obs <- dat[
+    !is.na(dat$scientificName) &
+      dat$scientificName %in% species,
+    intersect(
+      c("deploymentID", "sequenceID", "timestamp", "latitude", "longitude", "count"),
+      names(dat)
+    ),
+    drop = FALSE
+  ]
+  
+  if (nrow(obs) < 2) {
+    stop("There are fewer than two observations for activity modelling.")
+  }
+  
+  obs$timestamp <- as.POSIXct(obs$timestamp, tz = "UTC")
+  obs$latitude  <- suppressWarnings(as.numeric(obs$latitude))
+  obs$longitude <- suppressWarnings(as.numeric(obs$longitude))
+  
+  obs <- obs[
+    !is.na(obs$timestamp) &
+      !is.na(obs$latitude) &
+      !is.na(obs$longitude),
+    ,
+    drop = FALSE
+  ]
+  
+  if (nrow(obs) < 2) {
+    stop("There are fewer than two valid timestamp/location records for activity modelling.")
+  }
+  
+  if (!"count" %in% names(obs)) {
+    obs$count <- 1L
+  }
+  
+  obs$count <- suppressWarnings(as.numeric(obs$count))
+  obs$count[is.na(obs$count) | obs$count < 1] <- 1
+  obs$count <- as.integer(round(obs$count))
+  
+  if (obsdef == "individual") {
+    i <- rep(seq_len(nrow(obs)), obs$count)
+  } else {
+    i <- !duplicated(obs$sequenceID)
+  }
+  
+  obs <- obs[i, , drop = FALSE]
+  
+  if (nrow(obs) < 2) {
+    stop("There are fewer than two usable activity observations after applying obsdef.")
+  }
+  
+  suntimes <- activity::get_suntimes(
+    obs$timestamp,
+    obs$latitude,
+    obs$longitude,
+    0
+  )
+  
+  timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3] / 2, na.rm = TRUE) * pi / 12
+  
+  obs$solartime <- activity::wrap(
+    activity::solartime(
+      obs$timestamp,
+      obs$latitude,
+      obs$longitude,
+      0
+    )$solar + timeshift
+  )
+  
+  activity::fitact(
+    obs$solartime,
+    adj = 1.5,
+    sample = "data",
+    reps = reps
+  )
 }
 #---------
 # adjusted from the package camtrapDensity:
