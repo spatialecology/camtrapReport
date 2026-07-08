@@ -110,96 +110,7 @@
 
 #--------
 
-# .getSequences <- function(media) {
-#   
-#   if (!.require("data.table")) {
-#     stop("The data.table package is not installed.")
-#   }
-#   
-#   empty_sequences <- function() {
-#     data.frame(
-#       sequenceID = character(),
-#       sequence_interval = .eval(
-#         "lubridate::interval(
-#           as.POSIXct(character()),
-#           as.POSIXct(character())
-#         )",
-#         environment()
-#       ),
-#       deploymentID = character(),
-#       captureMethod = character(),
-#       nrphotos = integer(),
-#       stringsAsFactors = FALSE
-#     )
-#   }
-#   
-#   if (is.null(media) || !is.data.frame(media) || nrow(media) == 0) {
-#     return(empty_sequences())
-#   }
-#   
-#   required_cols <- c("deploymentID", "sequenceID", "timestamp", "captureMethod")
-#   missing_cols <- setdiff(required_cols, names(media))
-#   
-#   if (length(missing_cols) > 0) {
-#     for (cc in missing_cols) {
-#       media[[cc]] <- NA
-#     }
-#   }
-#   
-#   media[["timestamp"]] <- .parse_cam_datetime(media[["timestamp"]], tz = "UTC")
-#   
-#   # Match original dplyr logic:
-#   # dplyr::distinct() was applied to the whole media table first,
-#   # then only selected columns were kept.
-#   sequences <- data.table::as.data.table(media)
-#   sequences <- unique(sequences)
-#   sequences <- sequences[, required_cols, with = FALSE]
-#   
-#   sequences <- sequences[!is.na(sequences[["sequenceID"]])]
-#   
-#   if (nrow(sequences) == 0) {
-#     return(empty_sequences())
-#   }
-#   
-#   data.table::setkeyv(sequences, "sequenceID")
-#   
-#   sequences <- sequences[
-#     ,
-#     list(
-#       deploymentID = .first_non_missing(get("deploymentID")),
-#       captureMethod = .first_non_missing(get("captureMethod")),
-#       start = .safe_min_time(get("timestamp"), tz = "UTC"),
-#       end = .safe_max_time(get("timestamp"), tz = "UTC"),
-#       nrphotos = sum(!is.na(get("timestamp")))
-#     ),
-#     by = "sequenceID"
-#   ]
-#   
-#   .eval("data.table::setorder(sequences, deploymentID, sequenceID)",environment())
-#   
-#   sequences <- as.data.frame(sequences, stringsAsFactors = FALSE)
-#   
-#   sequences[["sequence_interval"]] <- .eval(
-#     "lubridate::interval(sequences[['start']], sequences[['end']])",
-#     environment()
-#   )
-#   
-#   # Match original non-empty output order after:
-#   # mutate(sequence_interval = ...)
-#   # relocate(sequence_interval, .before = start)
-#   # select(-start, -end)
-#   sequences <- sequences[, c(
-#     "sequenceID",
-#     "deploymentID",
-#     "captureMethod",
-#     "sequence_interval",
-#     "nrphotos"
-#   ), drop = FALSE]
-#   
-#   rownames(sequences) <- NULL
-#   
-#   sequences
-# }
+
 .getSequences <- function(media) {
   if (!.require('data.table')) stop('The data.table package is not installed...!')
   
@@ -734,7 +645,20 @@ if (!isGeneric("camData")) {
 
 
 setMethod("camData",signature(data = "character"),
-  function(data, habitat, study_area = NULL, ...) {
+  function(data, habitat, study_area = NULL,update=FALSE, ...) {
+    
+    if (missing(update)) update = FALSE
+    
+    if (dir.exists(data) && !update) {
+      if ("__camReport_Object.rds" %in% tolower(dir(data))) {
+        file <- dir(data, full.names = TRUE)
+        .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
+        if (any(.w)) {
+          cm <- readRDS(file[.w][1])
+          return(cm)
+        }
+      } 
+    }
     
     .camdata_start_time <- Sys.time()
     .camdata_start_message(data)
@@ -905,6 +829,8 @@ setMethod("camData",signature(data = "character"),
     .attach_status_modules(cm, n = "all")
     
     .camdata_done_message(.camdata_start_time, cm$siteName)
+    
+    saveRDS(cm,paste0(cm$info$directory,"/__camReport_Object.rds"))
     
     cm
   }
