@@ -20,7 +20,11 @@ Imports:
     knitr,
     methods,
     rmarkdown,
-    terra
+    terra,
+    Distance,
+    sbd,
+    activity,
+    camtrapDensity
 Suggests:
     testthat (>= 3.0.0),
     xml2
