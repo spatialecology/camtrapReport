@@ -23,11 +23,7 @@ Imports:
     terra
 Suggests:
     testthat (>= 3.0.0),
-    xml2,
-    Distance,
-    sbd,
-    activity,
-    camtrapDensity
+    xml2
 VignetteBuilder: knitr
 Encoding: UTF-8
 Config/testthat/edition: 3
