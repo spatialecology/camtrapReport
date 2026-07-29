@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.36
-Date: 2026-07-08
+Version: 1.0.37
+Date: 2026-07-16
 Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in Camtrap-DP format and automatically generating reproducible data-status
@@ -20,11 +20,7 @@ Imports:
     knitr,
     methods,
     rmarkdown,
-    terra,
-    Distance,
-    sbd,
-    activity,
-    camtrapDensity
+    terra
 Suggests:
     testthat (>= 3.0.0),
     xml2
