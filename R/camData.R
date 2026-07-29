@@ -639,7 +639,7 @@
 
 
 if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,...)
+  setGeneric("camData", function(data,habitat,study_area,update,...)
     standardGeneric("camData"))
 }
 
@@ -650,7 +650,7 @@ setMethod("camData",signature(data = "character"),
     if (missing(update)) update = FALSE
     
     if (dir.exists(data) && !update) {
-      if ("__camReport_Object.rds" %in% tolower(dir(data))) {
+      if ("__camreport_object.rds" %in% tolower(dir(data))) {
         file <- dir(data, full.names = TRUE)
         .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
         if (any(.w)) {
