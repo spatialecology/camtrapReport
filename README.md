@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="inst/report-assets/logo.png" width="200" alt="camtrapReport"/>
+  <img src="inst/report-assets/camtrapReport-logo.png" width="200" alt="camtrapReport"/>
 </p>
 
 <h1 align="center">camtrapReport</h1>
