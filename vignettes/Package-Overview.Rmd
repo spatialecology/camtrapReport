@@ -7,6 +7,8 @@ vignette: >
   %\VignetteIndexEntry{Package Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+resource_files:
+  - figures/package-architecture.png
 ---
 ## Introduction
 
@@ -15,7 +17,7 @@ vignette: >
 The workflow is built around a central `camReport` object, created with `camData()`. This object stores the input data, metadata, user settings, intermediate outputs, report sections, and analytical modules. From this object, users can generate a Data Status Check report using `status()` and an Ecological Report using `report()`.
 
 ```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow, from input camera-trap data to the central camReport object and final report outputs."}
-knitr::include_graphics("figures/Figure1.png")
+knitr::include_graphics("figures/package-architecture.png")
 ```
 
 Figure 1 summarises the main `camtrapReport` workflow. Camera-trap data are imported with `camData()` and stored in a central `camReport` object. This object supports data-status checks, ecological analyses, visualisation, report customisation, and automated report generation.
@@ -57,5 +59,4 @@ New modules can also be added using YAML templates or custom R code, allowing us
 
 The two main outputs are the Data Status Check report and the Ecological Report. Together, they help users assess data readiness, identify potential issues, and translate camera-trap records into interpretable ecological information.
 
-To learn more, continue to the [Data Status Report](data-status-report.html), [Ecological Report](ecological-report.html), and [How to add new modules?](modules.html) articles.
-
+To learn more, continue to the [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html), [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html), and [How to add new modules?](https://spatialecology.github.io/camtrapReport/articles/modules.html) articles.

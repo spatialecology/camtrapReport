@@ -1305,7 +1305,117 @@ if (!isGeneric("add_Module")) {
   )
 }
 
-
+#' Manage report modules
+#'
+#' Manage report modules in camtrapReport. These functions can be used to list
+#' existing modules, add new modules, move modules within the report structure,
+#' remove modules, restore deleted modules, and empty the module trash.
+#'
+#' camtrapReport uses a modular report architecture in which each report section
+#' is stored as a module. A module can contain section metadata, text,
+#' executable R code, required packages, and rendering settings.
+#'
+#' `add_Module()` adds a new YAML-defined module to the package module directory.
+#' The module can optionally be inserted before or after an existing module.
+#'
+#' `move_Module()` changes the position or parent of an existing module within
+#' the hierarchical report structure.
+#'
+#' `remove_Module()` moves a module to the module trash. If `recursive = TRUE`,
+#' child modules are also moved to the trash.
+#'
+#' `restore_Module()` restores a previously removed module from the trash.
+#'
+#' `empty_trash()` permanently removes modules from the trash.
+#'
+#' `list_Modules()` lists active modules and can optionally include deleted
+#' modules stored in the trash.
+#'
+#' @param x A character string giving the path to a module YAML file to add to
+#'   the package.
+#' @param before An optional character string naming the module before which
+#'   the new or moved module should be placed. The default is `NULL`.
+#' @param after An optional character string naming the module after which the
+#'   new or moved module should be placed. The default is `NULL`.
+#' @param test A logical value specifying whether a module is tested before
+#'   being added or restored. For `add_Module()`, the default is `FALSE` when
+#'   `object` is not supplied and `TRUE` when a `camReport` object is supplied.
+#'   For `restore_Module()`, the default is `TRUE`.
+#' @param object An optional [`camReport`][camReport-classes] object used when
+#'   testing a module that requires access to report data. The default is
+#'   `NULL`.
+#' @param name A character string naming the module to move, remove, restore, or
+#'   permanently delete from the trash. For `empty_trash()`, the default is
+#'   `NULL`.
+#' @param parent An optional character string naming the parent module. If
+#'   omitted, the current parent is retained when moving a module.
+#' @param level0 An optional character vector specifying the top-level module
+#'   order. The default is `c("introduction", "methods", "results",
+#'   "acknowledgements", "appendix")`.
+#' @param recursive A logical value (default `TRUE`) specifying whether child
+#'   modules are removed together with the selected parent module.
+#' @param batch_id An optional character string identifying a deleted-module
+#'   batch to restore. The default is `NULL`.
+#' @param id An optional character string identifying a deleted-module batch to
+#'   remove permanently from the trash. The default is `NULL`.
+#' @param tree A logical value (default `TRUE`). If `TRUE`, modules are returned
+#'   as a hierarchical tree.
+#' @param brief A logical value (default `TRUE`). If `TRUE`, a shortened module
+#'   summary is returned when `tree = FALSE`.
+#' @param include_trash A logical value (default `FALSE`) specifying whether
+#'   deleted modules in the trash are also listed.
+#' @param validate A logical value (default `FALSE`) specifying whether module
+#'   YAML files are checked for validity when listing modules.
+#'
+#' @return `list_Modules()` returns a data frame, a hierarchical module tree, or
+#'   a list containing active and trashed modules. The other functions return
+#'   information about the performed operation invisibly.
+#'
+#' @seealso [reportSection()], [updateReportSection()], [testSection()],
+#'   [report()]
+#' @family report modules
+#'
+#' @usage
+#' add_Module(x, before, after, test, object)
+#'
+#' move_Module(name, before, after, parent, level0)
+#'
+#' remove_Module(name, recursive)
+#'
+#' restore_Module(name, batch_id, test)
+#'
+#' empty_trash(name, id)
+#'
+#' list_Modules(tree, brief, include_trash, validate)
+#' @name modules
+#' @aliases add_Module move_Module remove_Module empty_trash restore_Module
+#'   list_Modules add_Module,character-method move_Module,character-method
+#'   remove_Module,character-method empty_trash,ANY-method
+#'   restore_Module,character-method list_Modules,ANY-method
+#'
+#' @examples
+#' \dontrun{
+#' # List modules as a tree
+#' list_Modules()
+#'
+#' # List modules in table form
+#' list_Modules(tree = FALSE)
+#'
+#' # Add a new module from a YAML file
+#' add_Module("new_module.yml", after = "captures")
+#'
+#' # Move a module
+#' move_Module("species_accumulation", after = "richness")
+#'
+#' # Remove a module and its child modules
+#' remove_Module("species_accumulation", recursive = TRUE)
+#'
+#' # Restore a removed module
+#' restore_Module("species_accumulation")
+#'
+#' # Empty the module trash
+#' empty_trash()
+#' }
 setMethod("add_Module",signature(x = "character"),
   function(x, before, after, test, object) {
     
@@ -1535,5 +1645,3 @@ setMethod("restore_Module",signature(name = "character"),
 )
 
 #--------
-
-

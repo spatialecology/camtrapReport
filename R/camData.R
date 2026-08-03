@@ -643,7 +643,57 @@ if (!isGeneric("camData")) {
     standardGeneric("camData"))
 }
 
-
+#' Read camera-trap data in Camtrap DP format
+#'
+#' Create a [`camReport`][camReport-classes] object from a Camtrap DP dataset.
+#'
+#' The function reads the input Camtrap DP dataset and creates a `camReport`
+#' object. The resulting object contains processed camera-trap data, metadata,
+#' summaries, report text, report modules, and data-status information used to
+#' generate automated reports.
+#'
+#' If habitat information is provided, it is linked to camera locations and
+#' used in habitat-related summaries. If a study-area boundary is provided, it
+#' is stored with the object and used in spatial summaries where relevant.
+#'
+#' The `camReport` object is saved within an extracted dataset directory as
+#' `__camReport_Object.rds`. A later call using that directory reuses the saved
+#' object unless `update = TRUE`, in which case the object is recreated.
+#'
+#' @param data A character string giving the path to a Camtrap DP dataset,
+#'   provided as a ZIP file or an extracted dataset directory.
+#' @param habitat An optional data frame containing habitat information for
+#'   camera locations. The default is `NULL`.
+#' @param study_area An optional study-area boundary provided as a spatial file
+#'   path, a `SpatVector`, or an `sf` object. The default is `NULL`.
+#' @param update A logical value (default `FALSE`) specifying whether to
+#'   recreate a previously saved `camReport` object.
+#' @param ... Additional arguments. These are currently reserved for future use.
+#'
+#' @return A [`camReport`][camReport-classes] object.
+#'
+#' @seealso [report()], [status()], [info()], [gui()]
+#' @family camtrapReport data
+#'
+#' @usage camData(data, habitat, study_area, update, ...)
+#' @rdname camData
+#' @aliases camData
+#' @keywords spatial species camera-trap
+#'
+#' @examples
+#' \dontrun{
+#' habitat <- read.csv("habitat.csv")
+#'
+#' cm <- camData(
+#'   data = "dataset.zip",
+#'   habitat = habitat,
+#'   study_area = "study_area.shp"
+#' )
+#'
+#' cm
+#'
+#' report(cm, view = TRUE)
+#' }
 setMethod("camData",signature(data = "character"),
   function(data, habitat, study_area = NULL,update=FALSE, ...) {
     

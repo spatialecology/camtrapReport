@@ -7,6 +7,60 @@ if (!isGeneric("report")) {
     standardGeneric("report"))
 }
 
+#' Generate ecological and data-status reports
+#'
+#' Generate automated HTML reports from a [`camReport`][camReport-classes]
+#' object. `report()` creates an ecological report, while [status()] creates a
+#' data-status report summarising data completeness, structure, and quality.
+#'
+#' Both functions create an intermediate R Markdown file and render it to HTML.
+#' By default, `report()` creates `report.html` and `report.Rmd`, while
+#' `status()` creates `data_status.html` and `data_status.Rmd`.
+#'
+#' The ecological report is generated from the report modules attached to the
+#' `camReport` object. The data-status report is generated from status modules
+#' that summarise key aspects of the dataset, including spatial, temporal,
+#' annotation, validation, and species-level information.
+#'
+#' If `test = TRUE` is used with `report()`, the package attempts to test report
+#' modules when rendering fails. This can help identify modules that cause
+#' errors during report generation.
+#'
+#' @param object A [`camReport`][camReport-classes] object created by
+#'   [camData()].
+#' @param filename An optional character string giving the output filename or
+#'   file path without an extension. The default is `"report"` for `report()`
+#'   and `"data_status"` for `status()`. Relative default filenames are written
+#'   to the camera-trap data directory.
+#' @param view A logical value (default `FALSE`) specifying whether the generated
+#'   HTML report is opened after rendering.
+#' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
+#'   tested when ecological report generation fails, helping identify
+#'   problematic modules.
+#'
+#' @return Invisibly returns the path to the generated HTML report.
+#'
+#' @seealso [camData()], [reportSection()], [updateReportSection()],
+#'   [section_names()]
+#' @family report generation
+#'
+#' @usage
+#' report(object, filename, view, test)
+#'
+#' status(object, filename, view)
+#' @name report
+#' @aliases report status report,camReport-method status,camReport-method
+#'
+#' @examples
+#' \dontrun{
+#' cm <- camData("data-folder")
+#'
+#' # Generate ecological report
+#' report(cm, view = TRUE)
+#'
+#' # Generate data-status report
+#' status(cm, view = TRUE)
+#' }
 setMethod("report",signature(object = "camReport"),
   function(object, filename = "report", view, test) {
     

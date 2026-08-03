@@ -19,7 +19,6 @@
 <meta property="og:title" content="Data Status Report">
 <meta name="description" content="This vignette describes the Data Status Report and explains the checks used to assess the quality, completeness, and consistency of camera-trap data.">
 <meta property="og:description" content="This vignette describes the Data Status Report and explains the checks used to assess the quality, completeness, and consistency of camera-trap data.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.41</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,14 +42,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<li class="nav-item"><a class="nav-link" href="../resources.html">Resources</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -71,19 +69,20 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Data Status Report</h1>
+
+      <h1>Data Status Report</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/data-status-report.Rmd" class="external-link"><code>vignettes/data-status-report.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/articles/data-status-report.Rmd" class="external-link"><code>vignettes/articles/data-status-report.Rmd</code></a></small>
       <div class="d-none name"><code>data-status-report.Rmd</code></div>
     </div>
 
     
     
 <div class="section level2">
-<h2 id="data-status-report">Data Status Report<a class="anchor" aria-label="anchor" href="#data-status-report"></a>
+<h2 id="purpose-of-the-data-status-report">Purpose of the Data Status Report<a class="anchor" aria-label="anchor" href="#purpose-of-the-data-status-report"></a>
 </h2>
 <p>The Data Status Report provides an overview of the quality,
 completeness, and readiness of a camera-trap dataset before generating
@@ -108,7 +107,7 @@ p.caption {
 }
 </style>
 <div class="figure">
-<img src="figures/data-status/WF_DS.png" class="r-plt" alt="Figure 1. Workflow for generating a Data Status Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
+<img src="figures/data-status/data-status-workflow.png" class="r-plt" alt="Figure 1. Workflow for generating a Data Status Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
 Figure 1. Workflow for generating a Data Status Report from camera-trap
 data using camtrapReport.
 </p>
@@ -116,7 +115,7 @@ data using camtrapReport.
 <p>Figure 1 summarises how <code>camtrapReport</code> checks the
 readiness of a camera-trap dataset before ecological reporting. After
 the data are loaded with <code><a href="../reference/camData.html">camData()</a></code>, the
-<code><a href="https://spatialecology.github.io/camtrapReport/reference/report.html">status()</a></code> function runs automated checks on the main input
+<code><a href="../reference/report.html">status()</a></code> function runs automated checks on the main input
 files, metadata, deployments, observations, timestamps, taxonomy,
 spatial information, and annotation records. The output helps users
 identify potential issues and decide whether the dataset is ready for
@@ -128,7 +127,7 @@ generating the final Ecological Report.</p>
 <span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"cameratrap.zip"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate and view the Data Status Report</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>When <code>view = TRUE</code>, the generated report is opened in the
 browser. This provides a quick, human-readable overview of dataset
 quality, completeness, and consistency.</p>
@@ -244,7 +243,7 @@ full HTML report.</p>
 }
 </style>
 <div class="status-gallery">
-<a class="status-card" href="../reports/data_status_Leuven.html" target="_blank" rel="noopener"><img src="figures/data-status/ct.png" alt="Leuven Data Status Report"><div class="status-card-overlay">
+<a class="status-card" href="../reports/data_status_Leuven.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Leuven
 </div>
@@ -254,7 +253,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_Amsterdam.html" target="_blank" rel="noopener"><img src="figures/data-status/dq.png" alt="Amsterdam Data Status Report"><div class="status-card-overlay">
+<a class="status-card" href="../reports/data_status_Amsterdam.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Amsterdam Water Supply Dunes
 </div>
@@ -264,7 +263,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_Lux.html" target="_blank" rel="noopener"><img src="figures/data-status/ct1.png" alt="Luxembourg Data Status Report"><div class="status-card-overlay">
+<a class="status-card" href="../reports/data_status_Lux.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Lux National Monitoring
 </div>
@@ -274,7 +273,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_MICA.html" target="_blank" rel="noopener"><img src="figures/data-status/dq1.png" alt="MICA Data Status Report"><div class="status-card-overlay">
+<a class="status-card" href="../reports/data_status_MICA.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 MICA Monitoring Project
 </div>
@@ -333,7 +332,7 @@ final Ecological Report.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

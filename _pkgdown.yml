@@ -1,13 +1,15 @@
+llm-docs: false
+
 url: https://spatialecology.github.io/camtrapReport/
 
 template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: '#1F6F54'
-    secondary: '#4B5563'
-    light: '#F8FAF7'
-    dark: '#1F2937'
+    primary: "#1F6F54"
+    secondary: "#4B5563"
+    light: "#F8FAF7"
+    dark: "#1F2937"
 
 home:
   title: camtrapReport
@@ -19,8 +21,17 @@ home:
 
 navbar:
   structure:
-    left: [home, articles, reference, changelog, resources]
-    right: [search, report-bug, discussion, github]
+    left:
+      - home
+      - articles
+      - reference
+      - resources
+
+    right:
+      - search
+      - report-bug
+      - discussion
+      - github
 
   components:
     home:
@@ -32,10 +43,13 @@ navbar:
       menu:
         - text: Package Overview
           href: articles/Package-Overview.html
-        - text: Ecological Report
-          href: articles/ecological-report.html
+
         - text: Data Status Report
           href: articles/data-status-report.html
+
+        - text: Ecological Report
+          href: articles/ecological-report.html
+
         - text: How to add new modules?
           href: articles/modules.html
 
@@ -43,13 +57,9 @@ navbar:
       text: Reference
       href: reference/index.html
 
-    changelog:
-      text: Changelog
-      href: news/index.html
-
     resources:
       text: Resources
-      href: resources.html
+      href: articles/resources.html
 
     report-bug:
       icon: fa-bug
@@ -73,11 +83,19 @@ articles:
       Guides and documentation for using camtrapReport.
     contents:
       - Package-Overview
-      - ecological-report
-      - data-status-report
-      - modules
+      - articles/data-status-report
+      - articles/ecological-report
+      - articles/modules
+
+  - title: internal
+    contents:
+      - articles/resources
 
 reference:
+  - title: Package overview
+    contents:
+      - camtrapReport-package
+
   - title: Data input and setup
     contents:
       - camData
@@ -92,6 +110,7 @@ reference:
   - title: Report generation
     contents:
       - report
+      - gui
       - updateReportSection
 
   - title: Report sections and modules
@@ -109,3 +128,8 @@ reference:
   - title: Utilities
     contents:
       - empty_trash
+
+  - title: internal
+    contents:
+      - matches("^install_All,ANY-method$")
+      

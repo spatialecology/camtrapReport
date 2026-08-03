@@ -19,7 +19,6 @@
 <meta property="og:title" content="Module Management">
 <meta name="description" content="This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report.">
 <meta property="og:description" content="This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.41</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,14 +42,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<li class="nav-item"><a class="nav-link" href="../resources.html">Resources</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -71,12 +69,13 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Module Management</h1>
+
+      <h1>Module Management</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/modules.Rmd" class="external-link"><code>vignettes/modules.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/articles/modules.Rmd" class="external-link"><code>vignettes/articles/modules.Rmd</code></a></small>
       <div class="d-none name"><code>modules.Rmd</code></div>
     </div>
 
@@ -91,7 +90,7 @@ contain explanatory text, R code, or both. This modular structure allows
 users to extend the report by adding new sections, modifying existing
 ones, or changing the order in which sections appear.</p>
 <p>A new module is defined in a YAML file and then registered with
-<code>camtrapReport</code> using <code><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module()</a></code>. After the
+<code>camtrapReport</code> using <code><a href="../reference/modules.html">add_Module()</a></code>. After the
 module has been added, it is useful to test it before generating the
 full report.</p>
 <p>The modular structure of <code>camtrapReport</code> allows users to
@@ -99,7 +98,7 @@ extend the Ecological Report by defining new report sections,
 registering them as modules, selecting which modules should be included,
 and then generating the final report.</p>
 <div class="figure" style="text-align: center">
-<img src="figures/Modular.png" class="r-plt" alt="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*." width="85%"><p class="caption">
+<img src="figures/modular-design.png" class="r-plt" alt="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*." width="85%"><p class="caption">
 Figure 1. Modular workflow for defining, registering, selecting, and
 running report modules in <em>camtrapReport</em>.
 </p>
@@ -116,10 +115,10 @@ Report.</p>
 in the package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List all available modules</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/list_Modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Show all section names used in the report</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="create-a-new-module-yaml-file">2. Create a new module YAML file<a class="anchor" aria-label="anchor" href="#create-a-new-module-yaml-file"></a>
@@ -138,9 +137,9 @@ your working directory.</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  #| echo: false</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  #| message: false</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  #| warning: false</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  </span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  species_table &lt;- object$data_status$Species$Table</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  if (!is.null(species_table) &amp;&amp; nrow(species_table) &gt; 0) {</span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    knitr::kable(</span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>      species_table,</span>
@@ -161,12 +160,12 @@ module output.</p>
 <h3 id="add-the-new-module">3. Add the new module<a class="anchor" aria-label="anchor" href="#add-the-new-module"></a>
 </h3>
 <p>After creating the YAML file, add the module using
-<code><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module()</a></code>. In this example, the new
+<code><a href="../reference/modules.html">add_Module()</a></code>. In this example, the new
 <code>species_table</code> module is placed before the
 <code>richness</code> section.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a new module from a YAML file</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/add_Module.html">add_Module</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="../reference/modules.html">add_Module</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="st">"species_table.yml"</span>,</span>
 <span>  before <span class="op">=</span> <span class="st">"richness"</span>,</span>
 <span>  test <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -174,8 +173,8 @@ module output.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check whether the module has been added</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/list_Modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>You can change <code>before = "richness"</code> to another section
 name if you want the new module to appear elsewhere in the report.</p>
 </div>
@@ -190,13 +189,13 @@ sections.</p>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Get all available section names, including the new module</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Apply the updated section list to the camReport object</span></span>
-<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, <span class="va">n</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">n</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check included sections</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/listReportSections.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="test-the-new-module">5. Test the new module<a class="anchor" aria-label="anchor" href="#test-the-new-module"></a>
@@ -238,7 +237,7 @@ interpretation sections.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

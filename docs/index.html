@@ -21,7 +21,6 @@
 ">
 <meta property="og:description" content="An R package for processing camera-trap data and generating reproducible wildlife monitoring reports.
 ">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.41</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,14 +44,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
-<li class="nav-item"><a class="nav-link" href="resources.html">Resources</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -69,10 +67,8 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
-</h1>
-</div>
+<div class="page-header"><h1 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
+</h1></div>
 <div class="section level2">
 <h2 id="package-aims">Package aims<a class="anchor" aria-label="anchor" href="#package-aims"></a>
 </h2>
@@ -129,18 +125,18 @@
 </h2>
 <p>Install <code>camtrapReport</code> with the standard <code>remotes</code> workflow:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install using the "remotes" package</span></span>
+<code class="sourceCode R"><span><span class="co"># Install the development version from GitHub</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
 <p style="color: grey; font-size: 0.9em;">
 <em><strong>Note:</strong> <code>camtrapReport</code> requires R ≥ 4.1.0. If you are unsure of your current R version, run <code>R.version.string</code> in the R console.</em>
 </p>
 <div class="section level3">
 <h3 id="load-the-package">Load the package<a class="anchor" aria-label="anchor" href="#load-the-package"></a>
 </h3>
-<p>In addition to loading <code>camtrapReport</code> package, depending on which report sections and methods you use, additional packages may be required. To ensure full functionality, run the helper function, <code>install_All</code>, that installs all package dependencies:</p>
+<p>Load <code>camtrapReport</code> before starting the workflow. Some optional report sections require additional suggested packages. To install all optional dependencies interactively, use the <code><a href="reference/install_All.html">install_All()</a></code> helper:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/install_All.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -151,12 +147,12 @@
 <div class="section level3">
 <h3 id="troubleshooting-installation">Troubleshooting installation<a class="anchor" aria-label="anchor" href="#troubleshooting-installation"></a>
 </h3>
-<p>If <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> fails, a common cause is a missing GitHub personal access token (PAT). To set one up, run:</p>
+<p>If <code>remotes::install_github()</code> fails, a common cause is a missing GitHub personal access token (PAT). To set one up, run:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"usethis"</span>, <span class="st">"gitcreds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/github-token.html" class="external-link">create_github_token</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Opens GitHub in your browser — create and copy the token</span></span>
 <span><span class="fu">gitcreds</span><span class="fu">::</span><span class="fu"><a href="https://gitcreds.r-lib.org/reference/gitcreds_get.html" class="external-link">gitcreds_set</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># Paste the token when prompted in R</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
 <p>If installation still fails, please <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">open an issue</a> and include the full error message, the output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo()</a></code>, and information on whether the error occurred during <code>install_github()</code> or <code><a href="reference/install_All.html">install_All()</a></code>.</p>
 </div>
 </div>
@@ -183,7 +179,7 @@
 </h3>
 <p>Habitat information can be provided as a two-column CSV file with <code>locationName</code> and <code>Habitat</code>. An example template of habitat.csv can be downloaded <a href="https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing" class="external-link">here</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"C:/Users/ebrah010/Data/habitat.csv"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"path/to/habitat.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">habitat</span><span class="op">)</span></span>
 <span><span class="co">#   locationName      Habitat</span></span>
 <span><span class="co"># 1       VEL-01     Sandhill</span></span>
@@ -196,7 +192,7 @@
 </h3>
 <p>A polygon shapefile of the site boundary can be provided to improve maps and add spatial context to the report.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu">vect</span><span class="op">(</span><span class="st">"C:/Users/ebrah010/Data/studyarea_nl.shp"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/vect.html" class="external-link">vect</a></span><span class="op">(</span><span class="st">"path/to/study_area.shp"</span><span class="op">)</span></span></code></pre></div>
 <p>When optional input data are available, they can be supplied directly to <code><a href="reference/camData.html">camData()</a></code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span></span>
@@ -211,7 +207,7 @@
 </h2>
 <p>To generate a data status report and review the quality and completeness of the input data, use:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/report.html">status</a></span> <span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># With view = TRUE, the generated report opens automatically</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># With view = TRUE, the generated report opens automatically</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="ecological-report">Ecological report<a class="anchor" aria-label="anchor" href="#ecological-report"></a>
@@ -223,7 +219,7 @@
 <div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
-<p>This page introduced the basic workflow for setting up input data, reviewing data quality, and generating reports with <code>camtrapReport</code>. To understand how the package is organised, see the <a href="https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html">Package Overview</a>. To explore data quality checks in detail, see the <a href="https://spatialecology.github.io/camtrapReport/articles/data-status-report.html">Data Status Report</a>. To customise the ecological report, see the <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html">Ecological Report</a>. For more detail on the package’s modular and extensible design, including how to add new report sections, see <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">Module Management</a>.</p>
+<p>This page introduced the basic workflow for setting up input data, reviewing data quality, and generating reports with <code>camtrapReport</code>. To understand how the package is organised, see the <a href="articles/Package-Overview.html">Package Overview</a>. To explore data quality checks in detail, see the <a href="articles/data-status-report.html">Data Status Report</a>. To customise the ecological report, see the <a href="articles/ecological-report.html">Ecological Report</a>. For more detail on the package’s modular and extensible design, including how to add new report sections, see <a href="articles/modules.html">Module Management</a>. Publications, workshops, and training activities are available on the <a href="articles/resources.html">Resources</a> page.</p>
 </div>
 <div class="section level2">
 <h2 id="contribute">Contribute<a class="anchor" aria-label="anchor" href="#contribute"></a>
@@ -259,7 +255,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
