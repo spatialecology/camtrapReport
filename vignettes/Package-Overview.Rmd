@@ -30,7 +30,7 @@ The package is intended to support researchers, monitoring practitioners, conser
 
 ## Input data
 
-The workflow requires a camera-trap dataset in Camtrap-DP format, provided as a ZIP archive. Optional supporting data, such as habitat information and study-area boundaries, can be added to improve visualisation, ecological analysis, and interpretation.
+The workflow requires a camera-trap dataset in Camtrap DP format, provided as a ZIP archive. Optional supporting data, such as habitat information and study-area boundaries, can be added to improve visualisation, ecological analysis, and interpretation.
 
 
 ## Key outputs

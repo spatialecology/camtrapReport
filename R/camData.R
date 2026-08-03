@@ -287,7 +287,7 @@
           ") are not available in the specified folder."
         ))
       } else {
-        stop("The specified folder does not have the standard Camtrap-DP files.")
+        stop("The specified folder does not have the standard Camtrap DP files.")
       }
     }
   } else {

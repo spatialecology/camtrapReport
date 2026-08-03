@@ -17,7 +17,7 @@
 
 ---
 
-`camtrapReport` turns standardised camera-trap datasets into structured, reproducible ecological reports. Drop in a [Camtrap-DP](https://camtrap-dp.tdwg.org/) `.zip`, and the package will diagnose data quality, run a suite of ecological analyses, and compile narrative, figures, maps and tables into a single article-style HTML document.
+`camtrapReport` turns standardised camera-trap datasets into structured, reproducible ecological reports. Drop in a [Camtrap DP](https://camtrap-dp.tdwg.org/) `.zip`, and the package will diagnose data quality, run a suite of ecological analyses, and compile narrative, figures, maps and tables into a single article-style HTML document.
 
 <p align="center">
   <img src="vignettes/articles/figures/workflow.png" width="900" alt="camtrapReport workflow"/>
@@ -35,7 +35,7 @@ install_All()   # Install all package dependencies required for full functionali
 
 ## Create the camReport object
 
-The only required input is a single `.zip` file containing the dataset in Camtrap-DP format.
+The only required input is a single `.zip` file containing the dataset in Camtrap DP format.
 
 ```r
 cm <- camData("Leuven-data.zip")   # build the camReport object
@@ -263,7 +263,7 @@ Reports can be shared even when raw images or precise locations cannot — broad
 
 ## Example data
 
-Try the workflow using the open [Leuven Camtrap-DP dataset](https://drive.google.com/file/d/1l-nSJKopM9agJgtTCzTx3tQiP8aTYH5c/view?usp=sharing). This example includes camera-trap data files based on the original Camtrap-DP dataset, which is available from [GBIF](https://doi.org/10.15468/4u3wm4), together with optional supporting files such as `habitat.csv` and a study-area boundary shapefile.
+Try the workflow using the open [Leuven Camtrap DP dataset](https://drive.google.com/file/d/1l-nSJKopM9agJgtTCzTx3tQiP8aTYH5c/view?usp=sharing). This example includes camera-trap data files based on the original Camtrap DP dataset, which is available from [GBIF](https://doi.org/10.15468/4u3wm4), together with optional supporting files such as `habitat.csv` and a study-area boundary shapefile.
 
 This is a relatively large dataset, covering multiple years and more than 300 camera locations, so preprocessing and report generation may take some time.
 

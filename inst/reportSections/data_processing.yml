@@ -3,7 +3,7 @@ name: "data_processing"
 title: "## Data Processing"
 parent: "methods"
 text: |
-  The input data were provided in [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/) and pre-processed in [camtrapReport](https://github.com/spatialecology/camtrapReport), including cleaning, harmonisation, organisation, summarisation, and extraction of key attributes. Records were checked for completeness and internal consistency before being summarised into the descriptive statistics and ecological metrics presented in this report. 
+  The input data were provided in [Camtrap DP standard format](https://camtrap-dp.tdwg.org/) and pre-processed in [camtrapReport](https://github.com/spatialecology/camtrapReport), including cleaning, harmonisation, organisation, summarisation, and extraction of key attributes. Records were checked for completeness and internal consistency before being summarised into the descriptive statistics and ecological metrics presented in this report. 
   
   In the processing stage, ecological analysis modules operated on these standardised data to generate harmonised outputs, including tables, figures, text, and summary statistics. The report includes a broad range of ecological analyses, such as sampling effort, species richness, activity patterns, and species co-occurrence. These analyses draw on established ecological methods implemented in dedicated R packages, including [activity](https://github.com/MarcusRowcliffe/activity) and [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity). 
   
