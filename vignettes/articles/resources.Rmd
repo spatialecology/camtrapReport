@@ -299,7 +299,7 @@ An overview of the functionality of <code>camtrapReport</code>: An R package for
 
 </div>
 
-
+</div>
 ## Community and contact
 
 `camtrapReport` is developed for the camera-trap research and conservation community. Organisations, research teams, and camera-trap networks interested in arranging workshops, exploring collaboration opportunities, testing the package, or contributing new `camtrapReport` modules are welcome to get in touch.
