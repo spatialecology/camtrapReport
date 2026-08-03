@@ -3,7 +3,7 @@ name: "image_processing"
 title: "## Image Processing"
 parent: "methods"
 text: |
-  To support standardized, reproducible, and interoperable workflows, camera-trap data are increasingly managed using dedicated platforms such as [Agouti](https://agouti.eu/) (*Casaer et al., 2019*) and structured according to community standards such as [CamtrapDP](https://camtrap-dp.tdwg.org/) (*Bubnicki et al., 2024*).
+  To support standardized, reproducible, and interoperable workflows, camera-trap data are increasingly managed using dedicated platforms such as [Agouti](https://agouti.eu/) (*Casaer et al., 2019*) and structured according to community standards such as [Camtrap DP](https://camtrap-dp.tdwg.org/) (*Bubnicki et al., 2024*).
   Agouti supports sequence-based annotation, AI-assisted classification, secure archiving, and standardized data export.
   In this workflow, images recorded within 120 seconds of one another were grouped into sequences representing putative single events and annotated using a combination of AI-assisted classification and manual review; a subset was subsequently validated by experienced observers.
   Where relevant for density estimation, calibration images and species-specific movement paths were also annotated and analysed using the photogrammetric tools in the R package [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity) (*Rowcliffe, 2014*).
@@ -13,5 +13,5 @@ code: |
   
   cat("The images used in this report were processed and archived in ",
     object$reportTextElements$data_source,
-    ", and the data were structured according to the CamtrapDP standard.","\n\n")
+    ", and the data were structured according to the Camtrap DP standard.","\n\n")
 ---

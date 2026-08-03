@@ -16,11 +16,11 @@ title: "Get started"
 
 ## Data standard format
 
-`camtrapReport` is designed for datasets provided in, or converted to, the [Camtrap-DP standard format](https://camtrap-dp.tdwg.org/), which is a community-developed data exchange format for camera-trap data. Several camera-trap data management systems support Camtrap-DP as an export format, including [Agouti](https://agouti.eu/) and [TRAPPER](https://os-conservation.org/trapper/). It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap-DP format for use in `camtrapReport`.
+`camtrapReport` is designed for datasets provided in, or converted to, the [Camtrap DP standard format](https://camtrap-dp.tdwg.org/), which is a community-developed data exchange format for camera-trap data. Several camera-trap data management systems support Camtrap DP as an export format, including [Agouti](https://agouti.eu/) and [TRAPPER](https://os-conservation.org/trapper/). It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap DP format for use in `camtrapReport`.
 
 ### Example input datasets
 
-Three example datasets are provided below. These open-access camera-trap datasets, available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data), follow the Camtrap-DP standard and can be used to test `camtrapReport`. 
+Three example datasets are provided below. These open-access camera-trap datasets, available through [GBIF](https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data), follow the Camtrap DP standard and can be used to test `camtrapReport`. 
 
 | Dataset | Habitat data | Study area |
 |:---:|:---:|:---:|
@@ -81,7 +81,7 @@ Use `camData()` to create the `camReport` object by reading and pre-processing y
 
 ## Required input
 
-To keep the workflow simple and reproducible, the only required input is a single `.zip` file containing the dataset in Camtrap-DP format.
+To keep the workflow simple and reproducible, the only required input is a single `.zip` file containing the dataset in Camtrap DP format.
 
 ```r
 cm <- camData("path/to/your/dataset.zip")
