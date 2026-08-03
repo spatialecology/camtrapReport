@@ -8,11 +8,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - figures/data-status/data-status-workflow.png
-  - figures/data-status/leuven-data-status.png
-  - figures/data-status/amsterdam-data-status.png
-  - figures/data-status/luxembourg-data-status.png
-  - figures/data-status/mica-data-status.png
+  - vignettes/articles/figures/data-status/data-status-workflow.png
+  - vignettes/articles/figures/data-status/leuven-data-status.png
+  - vignettes/articles/figures/data-status/amsterdam-data-status.png
+  - vignettes/articles/figures/data-status/luxembourg-data-status.png
+  - vignettes/articles/figures/data-status/mica-data-status.png
 ---
 
 ## Purpose of the Data Status Report
