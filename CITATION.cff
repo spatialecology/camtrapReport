@@ -1,13 +1,48 @@
-cff-version: "1.2.0"
-message: "If you use this software, please cite it as below."
+# ------------------------------------------------
+# CITATION.cff file created with {cffr} R package
+# See also: https://docs.ropensci.org/cffr/
+# ------------------------------------------------
+ 
+cff-version: 1.2.0
+message: 'To cite package "camtrapReport" in publications use:'
 type: software
-title: "camtrapReport"
+license: MIT
+title: 'camtrapReport: Camera-Trap Report Generator'
+version: 1.0.44
+doi: 10.5281/zenodo.18405441
+abstract: Provides an extensible workflow for processing camera-trap data in Camtrap-DP
+  format and automatically generating reproducible data-status and ecological reports.
+  The package supports data-quality checks, ecological summaries, visualisations,
+  maps, tables and modular report sections for wildlife-monitoring applications.
 authors:
-  - family-names: "Ebrahimi"
-    given-names: "Elham"
-    orcid: "https://orcid.org/0000-0001-5191-9832"
-    email: "eebrahimi.bio@gmail.com"
-repository-code: "https://github.com/spatialecology/camtrapReport"
-url: "https://github.com/spatialecology/camtrapReport"
-license: "MIT"
-version: "1.0.41"
+- family-names: Ebrahimi
+  given-names: Elham
+  email: eebrahimi.bio@gmail.com
+  orcid: https://orcid.org/0000-0001-5191-9832
+preferred-citation:
+  type: manual
+  title: 'camtrapReport: An R Package for Automated Camera-Trap Reporting'
+  authors:
+  - family-names: Ebrahimi
+    given-names: Elham
+    email: eebrahimi.bio@gmail.com
+    orcid: https://orcid.org/0000-0001-5191-9832
+  year: '2026'
+  doi: 10.5281/zenodo.18405441
+  url: https://github.com/spatialecology/camtrapReport
+repository-code: https://github.com/spatialecology/camtrapReport
+url: https://spatialecology.github.io/camtrapReport/
+date-released: '2026-08-03'
+contact:
+- family-names: Ebrahimi
+  given-names: Elham
+  email: eebrahimi.bio@gmail.com
+  orcid: https://orcid.org/0000-0001-5191-9832
+keywords:
+- automating-camera-trap-data-reporting
+- camera-traps
+- ecological-reporting
+- modular-r-package
+- reproducible-workflow
+- wildlife-monitoring
+
