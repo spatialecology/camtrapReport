@@ -12,7 +12,7 @@ resource_files:
   - figures/ecological-report/gallery/leuven.png
   - figures/ecological-report/gallery/antwerp.png
   - figures/ecological-report/gallery/mica.png
-  - figures/ecological-report/gallery/Luxembourg.png
+  - figures/ecological-report/gallery/luxembourg-gallery.png
   - figures/ecological-report/gallery/Amsterdam.png
 ---
 
@@ -264,7 +264,7 @@ Below are example Ecological Reports generated with `camtrapReport` for differen
 
 <a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/Luxembourg.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg-gallery.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
 
 <a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/Amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
 
