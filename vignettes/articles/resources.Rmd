@@ -299,13 +299,6 @@ An overview of the functionality of <code>camtrapReport</code>: An R package for
 
 </div>
 
-### Upcoming workshops
-
-<div class="upcoming-note">
-
-Information about upcoming `camtrapReport` workshops, demonstrations, and training activities will be announced on this page.
-
-</div>
 
 ## Community and contact
 
