@@ -8,11 +8,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - vignettes/articles/figures/data-status/data-status-workflow.png
-  - vignettes/articles/figures/data-status/leuven-data-status.png
-  - vignettes/articles/figures/data-status/amsterdam-data-status.png
-  - vignettes/articles/figures/data-status/luxembourg-data-status.png
-  - vignettes/articles/figures/data-status/mica-data-status.png
+  - figures/data-status/data-status-workflow.png
+  - figures/data-status/leuven-data-status.png
+  - figures/data-status/amsterdam-data-status.png
+  - figures/data-status/luxembourg-data-status.png
+  - figures/data-status/mica-data-status.png
 ---
 
 ## Purpose of the Data Status Report
@@ -32,7 +32,7 @@ p.caption {
 }
 </style>
 
-```{r data-status-workflow, echo=FALSE, out.width="100%", fig.cap="Figure 1. Workflow for generating a Data Status Report from camera-trap data using camtrapReport."}
+```{r data-status-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating a Data Status Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating a Data Status Report from camera-trap data using camtrapReport."}
 knitr::include_graphics("figures/data-status/data-status-workflow.png")
 ```
 

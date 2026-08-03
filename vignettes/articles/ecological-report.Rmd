@@ -8,12 +8,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - vignettes/articles/figures/ecological-report/ecological-report-workflow.png
-  - vignettes/articles/figures/ecological-report/gallery/leuven.png
-  - vignettes/articles/figures/ecological-report/gallery/antwerp.png
-  - vignettes/articles/figures/ecological-report/gallery/mica.png
-  - vignettes/articles/figures/ecological-report/gallery/luxembourg.png
-  - vignettes/articles/figures/ecological-report/gallery/amsterdam.png
+  - figures/ecological-report/ecological-report-workflow.png
+  - figures/ecological-report/gallery/leuven.png
+  - figures/ecological-report/gallery/antwerp.png
+  - figures/ecological-report/gallery/mica.png
+  - figures/ecological-report/gallery/luxembourg.png
+  - figures/ecological-report/gallery/amsterdam.png
 ---
 
 ## Purpose of the Ecological Report
@@ -32,8 +32,8 @@ p.caption {
 }
 </style>
 
-```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
-knitr::include_graphics("vignettes/articles/figures/ecological-report/ecological-report-workflow.png")
+```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
+knitr::include_graphics("figures/ecological-report/ecological-report-workflow.png")
 ```
 
 
@@ -258,15 +258,15 @@ Below are example Ecological Reports generated with `camtrapReport` for differen
 
 <div class="eco-gallery">
 
-<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="vignettes/articles/figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Leuven</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Leuven</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="vignettes/articles/figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Antwerp</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Antwerp</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="vignettes/articles/figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="vignettes/articles/figures/ecological-report/gallery/luxembourg.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="vignettes/articles/figures/ecological-report/gallery/amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
 
 </div>
 
