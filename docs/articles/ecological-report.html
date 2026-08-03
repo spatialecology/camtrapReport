@@ -19,7 +19,6 @@
 <meta property="og:title" content="Ecological Report">
 <meta name="description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
 <meta property="og:description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.26</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.41</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,14 +42,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<li class="nav-item"><a class="nav-link" href="../resources.html">Resources</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -71,12 +69,13 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Ecological Report</h1>
+
+      <h1>Ecological Report</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/ecological-report.Rmd" class="external-link"><code>vignettes/ecological-report.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/articles/ecological-report.Rmd" class="external-link"><code>vignettes/articles/ecological-report.Rmd</code></a></small>
       <div class="d-none name"><code>ecological-report.Rmd</code></div>
     </div>
 
@@ -106,7 +105,7 @@ p.caption {
 }
 </style>
 <div class="figure">
-<img src="figures/ecological-report/wf.png" class="r-plt" alt="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
+<img src="figures/ecological-report/ecological-report-workflow.png" class="r-plt" alt="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
 Figure 1. Workflow for generating an Ecological Report from camera-trap
 data using camtrapReport.
 </p>
@@ -150,8 +149,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card {
 
   position: relative;
@@ -172,8 +169,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card img {
 
   width: 100%;
@@ -188,8 +183,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card:hover img {
 
   transform: scale(1.05);
@@ -197,8 +190,6 @@ projects. Click on an image to open the full HTML report.</p>
   filter: brightness(1.06);
 
 }
-
-
 
 .eco-card-overlay {
 
@@ -228,8 +219,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card .eco-card-title {
 
   margin: 0 0 0.25rem 0;
@@ -246,8 +235,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card .eco-card-text {
 
   margin: 0;
@@ -263,8 +250,6 @@ projects. Click on an image to open the full HTML report.</p>
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
 
 }
-
-
 
 .eco-card .eco-card-badge {
 
@@ -292,8 +277,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card:hover,
 
 .eco-card:focus,
@@ -310,8 +293,6 @@ projects. Click on an image to open the full HTML report.</p>
 
 }
 
-
-
 .eco-card:last-child {
 
   grid-column: 1 / -1;
@@ -321,8 +302,6 @@ projects. Click on an image to open the full HTML report.</p>
   justify-self: center;
 
 }
-
-
 
 @media (max-width: 800px) {
 
@@ -334,8 +313,6 @@ projects. Click on an image to open the full HTML report.</p>
 
   }
 
-
-
   .eco-card:last-child {
 
     grid-column: auto;
@@ -343,8 +320,6 @@ projects. Click on an image to open the full HTML report.</p>
     width: 100%;
 
   }
-
-
 
   .eco-card img {
 
@@ -356,7 +331,7 @@ projects. Click on an image to open the full HTML report.</p>
 
 </style>
 <div class="eco-gallery">
-<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report"><div class="eco-card-overlay">
+<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Leuven
 </div>
@@ -366,7 +341,7 @@ Belgium
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report"><div class="eco-card-overlay">
+<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Antwerp
 </div>
@@ -376,7 +351,7 @@ Belgium
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report"><div class="eco-card-overlay">
+<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 MICA Monitoring Project
 </div>
@@ -386,7 +361,7 @@ Europe
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Luxembourg.png" alt="Luxembourg Ecological Report"><div class="eco-card-overlay">
+<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Lux National Monitoring
 </div>
@@ -396,7 +371,7 @@ Luxembourg
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener"><img src="figures/ecological-report/gallery/Amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report"><div class="eco-card-overlay">
+<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/amsterdam.png" alt="Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Amsterdam Water Supply Dunes
 </div>
@@ -552,24 +527,24 @@ report. This is useful when a shorter report is needed, or when some
 analyses are not relevant for a particular dataset.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View the sections currently available</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/listReportSections.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Show all section names</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Exclude one section</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="st">"introduction"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="st">"introduction"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Exclude multiple sections</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acknowledgements"</span>, <span class="st">"appendix"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acknowledgements"</span>, <span class="st">"appendix"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Keep only selected sections</span></span>
-<span><span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
 <span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"methods"</span>, <span class="st">"study_area"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example: include all sections except richness and co-occurrence</span></span>
-<span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
 <span>  exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"richness"</span>, <span class="st">"co_occurrence"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -577,13 +552,13 @@ analyses are not relevant for a particular dataset.</p>
 <span><span class="va">selected_sections</span></span>
 <span></span>
 <span><span class="co"># Apply selected sections to the camReport object</span></span>
-<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected_sections</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected_sections</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the customised report</span></span>
 <span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore all available sections</span></span>
-<span><span class="fu">sections</span><span class="op">(</span><span class="va">cm</span>, n <span class="op">=</span> <span class="fu"><a href="https://spatialecology.github.io/camtrapReport/reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, n <span class="op">=</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Together, these options allow users to generate Ecological Reports
 that are reproducible, flexible, and tailored to the aims of each
 camera-trap monitoring project.</p>
@@ -600,7 +575,7 @@ camera-trap monitoring project.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

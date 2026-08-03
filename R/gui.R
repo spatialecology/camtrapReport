@@ -7,6 +7,43 @@ if (!isGeneric("gui")) {
     standardGeneric("gui"))
 }
 
+#' Launch the camtrapReport GUI
+#'
+#' Launch an interactive Shiny interface for configuring and generating
+#' camtrapReport outputs from an existing [`camReport`][camReport-classes]
+#' object.
+#'
+#' The function starts a Shiny-based graphical user interface for editing report
+#' metadata, selecting report sections, defining focus groups, and generating
+#' data-status or ecological reports.
+#'
+#' The GUI can be used with an existing `camReport` object and provides an
+#' interactive alternative to configuring reports directly in R.
+#'
+#' @param object A [`camReport`][camReport-classes] object, usually created with
+#'   [camData()].
+#' @param launch.browser A logical value (default `TRUE`) indicating whether the
+#'   application is opened in the default web browser.
+#' @param max_upload_mb A numeric value (default `2000`) giving the maximum
+#'   file-upload size in megabytes.
+#' @param ... Additional arguments passed to [shiny::runApp()].
+#'
+#' @return Invisibly returns the supplied `camReport` object after launching the
+#'   application.
+#'
+#' @seealso [camData()], [report()], [status()], [info()]
+#' @family report generation
+#'
+#' @usage gui(object, launch.browser, max_upload_mb, ...)
+#' @rdname gui
+#' @aliases gui
+#'
+#' @examples
+#' \dontrun{
+#' cm <- camData("data-folder")
+#'
+#' gui(cm)
+#' }
 setMethod("gui",signature(object = "camReport"),
           function(object, launch.browser = TRUE,
                    max_upload_mb = 2000,

@@ -358,6 +358,82 @@ if (!isGeneric("updateReportSection")) {
 }
 
 
+#' Update report sections
+#'
+#' Update the content of a report section in a
+#' [`camReport`][camReport-classes] object, or list the report sections currently
+#' attached to the object.
+#'
+#' Report sections can be identified using either their name or title.
+#' `listReportSections()` lists the sections attached to a `camReport` object and
+#' can be used to find the exact section names before updating them.
+#'
+#' `updateReportSection()` is useful for adapting the default report content to
+#' project-specific needs, including changing section titles, replacing or
+#' appending text, and adding or updating R code chunks.
+#'
+#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @param section A single character string giving the name or title of the
+#'   report section to update.
+#' @param text An optional character value used to update the text body of the
+#'   report section. The default is `NULL`, which leaves the text unchanged.
+#' @param title An optional character value giving a new title for the report
+#'   section. The default is `NULL`, which leaves the title unchanged.
+#' @param code Optional R code used to update or add a code chunk. The code can
+#'   be supplied inside braces.
+#' @param code_name An optional character string naming the R code chunk. The
+#'   default is `NULL`.
+#' @param code_setting Optional R Markdown chunk options for the code chunk. The
+#'   default is `NULL`.
+#' @param packages An optional character vector giving the R packages required
+#'   by the code chunk. The default is `NULL`.
+#' @param append_text A logical value (default `FALSE`). If `TRUE`, the new text
+#'   is appended to the existing section text; otherwise, the existing text is
+#'   replaced.
+#' @param append_code A logical value (default `FALSE`). If `TRUE`, the new code
+#'   is appended to the existing code chunk; otherwise, the existing code is
+#'   replaced.
+#'
+#' @return `updateReportSection()` returns the updated `camReport` object
+#'   invisibly. `listReportSections()` returns a data frame describing the
+#'   report sections attached to the object.
+#'
+#' @seealso [camData()], [report()], [reportSection()], [info()]
+#' @family report sections
+#'
+#' @usage
+#' updateReportSection(
+#'   x,
+#'   section,
+#'   text,
+#'   title,
+#'   code,
+#'   code_name,
+#'   code_setting,
+#'   packages,
+#'   append_text,
+#'   append_code
+#' )
+#'
+#' listReportSections(x)
+#' @name updateReportSection
+#' @aliases updateReportSection listReportSections
+#'   updateReportSection,camReport-method listReportSections,camReport-method
+#'
+#' @examples
+#' \dontrun{
+#' cm <- camData("data-folder")
+#'
+#' listReportSections(cm)
+#'
+#' cm <- updateReportSection(
+#'   cm,
+#'   section = "introduction",
+#'   text = "This report summarises camera-trap monitoring data for the study site."
+#' )
+#'
+#' report(cm, view = TRUE)
+#' }
 setMethod("updateReportSection",signature(x = "camReport"),
   function(x, section, text, title, code, code_name,
            code_setting, packages, append_text, append_code) {

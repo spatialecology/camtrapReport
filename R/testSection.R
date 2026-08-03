@@ -168,7 +168,50 @@ if (!isGeneric("testSection")) {
   )
 }
 
-
+#' Test a report section
+#'
+#' Render a `.textSection` object as a temporary HTML report to check whether
+#' the section text and code can be rendered successfully.
+#'
+#' This function is mainly used to test custom report sections before they are
+#' added to a full [`camReport`][camReport-classes] report. It checks whether the
+#' section text, R Markdown chunk settings, required packages, and R code can be
+#' rendered successfully.
+#'
+#' The `object` argument is only needed when the R code in the section refers to
+#' a `camReport` object.
+#'
+#' @param x A `.textSection` object, usually created with [reportSection()].
+#' @param object An optional [`camReport`][camReport-classes] object created by
+#'   [camData()]. The default is `NULL`.
+#' @param view A logical value (default `TRUE`) specifying whether the rendered
+#'   temporary HTML file is opened after rendering.
+#'
+#' @return Invisibly returns the path to the rendered temporary HTML file.
+#'
+#' @seealso [camData()], [reportSection()], [updateReportSection()], [report()]
+#' @family report sections
+#'
+#' @usage testSection(x, object, view)
+#' @rdname testSection
+#' @aliases testSection
+#'
+#' @examples
+#' tx <- reportSection(
+#'   name = "introduction",
+#'   title = "Introduction",
+#'   parent = NULL,
+#'   txt = "This is an introduction section.",
+#'   code = {
+#'     plot(1:10)
+#'   }
+#' )
+#'
+#' tx
+#'
+#' \dontrun{
+#' testSection(tx)
+#' }
 setMethod("testSection",signature(x = ".textSection"),
   function(x, object, view) {
     

@@ -38,7 +38,7 @@ Three example datasets are provided below. These open-access camera-trap dataset
 Install `camtrapReport` with the standard `remotes` workflow:
 
 ``` r
-# install using the "remotes" package
+# Install the development version from GitHub
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
@@ -50,7 +50,7 @@ remotes::install_github("spatialecology/camtrapReport")
 
 ### Load the package
 
-In addition to loading `camtrapReport` package, depending on which report sections and methods you use, additional packages may be required. To ensure full functionality, run the helper function, `install_All`, that installs all package dependencies:
+Load `camtrapReport` before starting the workflow. Some optional report sections require additional suggested packages. To install all optional dependencies interactively, use the `install_All()` helper:
 
 ``` r
 library(camtrapReport)
@@ -95,7 +95,7 @@ Additional input data can be provided to improve maps, add spatial context, and 
 Habitat information can be provided as a two-column CSV file with `locationName` and `Habitat`. An example template of habitat.csv can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing).
 
 ``` r
-habitat <- read.csv("C:/Users/ebrah010/Data/habitat.csv")
+habitat <- read.csv("path/to/habitat.csv")
 head(habitat)
 #   locationName      Habitat
 # 1       VEL-01     Sandhill
@@ -108,7 +108,7 @@ head(habitat)
 A polygon shapefile of the site boundary can be provided to improve maps and add spatial context to the report.
 
 ``` r
-study_area <- vect("C:/Users/ebrah010/Data/studyarea_nl.shp")
+study_area <- terra::vect("path/to/study_area.shp")
 ```
 
 When optional input data are available, they can be supplied directly to `camData()`:
@@ -126,7 +126,7 @@ cm <- camData(
 To generate a data status report and review the quality and completeness of the input data, use:
 
 ``` r
-status (cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
+status(cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
 
 
@@ -143,10 +143,11 @@ report(cm, view = TRUE)
 
 This page introduced the basic workflow for setting up input data, 
 reviewing data quality, and generating reports with `camtrapReport`.
-To understand how the package is organised, see the [Package Overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html). 
-To explore data quality checks in detail, see the [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html). 
-To customise the ecological report, see the [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html). 
-For more detail on the package's modular and extensible design, including how to add new report sections, see [Module Management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
+To understand how the package is organised, see the [Package Overview](articles/Package-Overview.html). 
+To explore data quality checks in detail, see the [Data Status Report](articles/data-status-report.html). 
+To customise the ecological report, see the [Ecological Report](articles/ecological-report.html). 
+For more detail on the package's modular and extensible design, including how to add new report sections, see [Module Management](articles/modules.html).
+Publications, workshops, and training activities are available on the [Resources](articles/resources.html) page.
 
 ## Contribute
 

@@ -1,15 +1,15 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.37
-Date: 2026-07-16
+Version: 1.0.42
+Date: 2026-08-03
 Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in Camtrap-DP format and automatically generating reproducible data-status
     and ecological reports. The package supports data-quality checks, ecological
     summaries, visualisations, maps, tables and modular report sections for
     wildlife-monitoring applications.
-License: MIT
+License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
 Depends: R (>= 4.1.0), data.table, dplyr
@@ -17,13 +17,17 @@ Imports:
     shiny,
     glue,
     jsonlite,
+    lubridate,
     knitr,
     methods,
     rmarkdown,
     terra
 Suggests:
-    testthat (>= 3.0.0),
+    roxygen2,
+    testthat (>= 3.1.7),
     xml2
 VignetteBuilder: knitr
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
 Config/testthat/edition: 3

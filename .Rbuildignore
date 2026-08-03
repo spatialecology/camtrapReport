@@ -1,8 +1,12 @@
-^.*\.Rproj$
+^\.github$
 ^\.Rproj\.user$
-^_pkgdown\.yml$
+^.*\.Rproj$
+^\.Rhistory$
+^\.RData$
 ^docs$
 ^pkgdown$
-^\.github$
-^LICENSE\.md$
+^_pkgdown\.yml$
+^CITATION\.cff$
+^cran-comments\.md$
 ^dev$
+^vignettes/articles$

@@ -9,8 +9,56 @@ if (!isGeneric("section_names")) {
 }
 
 
-
-
+#' Select report sections
+#'
+#' Get the names of available report sections or update which sections are
+#' included in a [`camReport`][camReport-classes] report.
+#'
+#' `section_names()` returns the names of available report sections. It can be
+#' used to identify valid section names before selecting sections with
+#' `sections()`.
+#'
+#' `sections()` updates the report-section selection stored in a `camReport`
+#' object. Only the selected sections are included when the report is generated.
+#' When `n` is omitted, it returns the names of the object's currently available
+#' sections without changing the object.
+#'
+#' @param keep An optional character vector of section names to keep. When
+#'   omitted, all available sections are returned.
+#' @param exclude An optional character vector of section names to exclude. The
+#'   default is `NULL`.
+#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @param n An optional character vector giving the names of report sections to
+#'   include. When omitted, the current section names are returned.
+#'
+#' @return `section_names()` returns a character vector of section names.
+#'   `sections()` returns a character vector when `n` is omitted; otherwise, it
+#'   updates the supplied `camReport` object and returns it invisibly.
+#'
+#' @seealso [camData()], [report()], [updateReportSection()],
+#'   [listReportSections()]
+#' @family report sections
+#'
+#' @usage
+#' section_names(keep, exclude)
+#'
+#' sections(x, n)
+#' @name section_names
+#' @aliases section_names sections section_names,ANY-method
+#'   sections,camReport-method
+#'
+#' @examples
+#' \dontrun{
+#' cm <- camData("file.zip")
+#'
+#' n <- section_names()
+#'
+#' n
+#'
+#' sections(cm, n)
+#'
+#' report(cm)
+#' }
 setMethod("section_names",signature(keep = "ANY"),
   function(keep, exclude) {
     

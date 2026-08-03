@@ -1,0 +1,481 @@
+{
+  "profile": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/camtrap-dp-profile.json",
+  "name": "eow-veluwe-20250203123337",
+  "id": "eefda2a0-7095-4c0f-9b83-74e76f3e0e5b",
+  "created": "2025-02-03T12:33:37Z",
+  "contributors": [
+    {
+      "title": "Agouti Admins",
+      "email": "agouti@wur.nl",
+      "role": "contributor"
+    },
+    {
+      "title": "Anna Stubbe",
+      "email": "anna.stubbe@yahoo.com",
+      "role": "principalInvestigator"
+    },
+    {
+      "title": "Anouk van der Schaaf",
+      "email": "anouk.vanderschaaf@wur.nl",
+      "role": "principalInvestigator"
+    },
+    {
+      "title": "Bart van Rossum",
+      "email": "bart.vanrossum@wur.nl",
+      "role": "principalInvestigator"
+    },
+    {
+      "title": "Elham Ebrahimi",
+      "email": "elham.ebrahimi@wur.nl",
+      "role": "principalInvestigator"
+    },
+    {
+      "title": "Henjo de Knegt",
+      "email": "henjo.deknegt@wur.nl",
+      "role": "principalInvestigator"
+    },
+    {
+      "title": "Jan den Ouden",
+      "email": "jan.denouden@wur.nl",
+      "role": "contributor"
+    },
+    {
+      "title": "Jari Bos",
+      "email": "jari.bos@wur.nl",
+      "role": "contributor"
+    },
+    {
+      "title": "Laurens Dijkhuis",
+      "email": "laurensdijkhuis@hotmail.com",
+      "path": "https://orcid.org/0000-0002-4858-1997",
+      "role": "principalInvestigator",
+      "organization": "Wageningen University"
+    },
+    {
+      "title": "Patrick Jansen",
+      "email": "patrick.jansen@wur.nl",
+      "path": "https://orcid.org/0000-0002-4660-0314",
+      "role": "principalInvestigator",
+      "organization": "Wageningen University"
+    },
+    {
+      "title": "Tancredi Guerrasio",
+      "email": "tancredi1926@gmail.com",
+      "role": "principalInvestigator",
+      "organization": "University of Sassari"
+    },
+    {
+      "title": "Yorick Liefting",
+      "email": "yorick.liefting@wur.nl",
+      "role": "principalInvestigator",
+      "organization": "Wageningen University"
+    },
+    {
+      "title": "Wageningen University",
+      "path": "https://www.wur.nl",
+      "role": "rightsHolder"
+    },
+    {
+      "title": "Patrick Jansen",
+      "role": "contact"
+    },
+    {
+      "title": "Patrick Jansen",
+      "role": "principalInvestigator"
+    }
+  ],
+  "image": "https://www.agouti.eu/uploads/project-images/fe16c9ec-b469-41e1-b2cc-21515c296342.jpg",
+  "sources": [
+    {
+      "title": "Agouti",
+      "path": "https://www.agouti.eu",
+      "email": "agouti@wur.nl",
+      "version": "v4"
+    }
+  ],
+  "project": {
+    "id": "fe16c9ec-b469-41e1-b2cc-21515c296342",
+    "title": "EOW Veluwe",
+    "description": "This survey is part of the European Observatory of Wildlife, an international project in which institutions sample protected areas in European countries, organized by the ENETWILD consortium. See https://wildlifeobservatory.org/ This compact, relationship-preserving subset is intended only for camtrapReport examples and software tests, not ecological inference.",
+    "samplingDesign": "systematicRandom",
+    "captureMethod": [
+      "activityDetection",
+      "timeLapse"
+    ],
+    "individualAnimals": false,
+    "observationLevel": [
+      "event",
+      "media"
+    ]
+  },
+  "spatial": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          5.7239,
+          52.1154
+        ],
+        [
+          5.9281,
+          52.1154
+        ],
+        [
+          5.9281,
+          52.2195
+        ],
+        [
+          5.7239,
+          52.2195
+        ],
+        [
+          5.7239,
+          52.1154
+        ]
+      ]
+    ]
+  },
+  "temporal": {
+    "start": "2022-10-26",
+    "end": "2024-12-18"
+  },
+  "taxonomic": [
+    {
+      "scientificName": "Aves",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/V2",
+      "taxonRank": "class",
+      "order": "",
+      "family": "",
+      "vernacularNames": {
+        "eng": "bird sp.",
+        "nld": "vogel"
+      }
+    },
+    {
+      "scientificName": "Canis lupus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/QLXL",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Canidae",
+      "vernacularNames": {
+        "eng": "wolf",
+        "nld": "wolf"
+      }
+    },
+    {
+      "scientificName": "Canis lupus familiaris",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/5G6ZJ",
+      "taxonRank": "subspecies",
+      "order": "Carnivora",
+      "family": "Canidae",
+      "vernacularNames": {
+        "eng": "dog",
+        "nld": "hond"
+      }
+    },
+    {
+      "scientificName": "Capreolus capreolus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/QSF3",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Cervidae",
+      "vernacularNames": {
+        "eng": "roe deer",
+        "nld": "ree"
+      }
+    },
+    {
+      "scientificName": "Cervidae",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/7XR",
+      "taxonRank": "family",
+      "order": "Artiodactyla",
+      "family": "Cervidae",
+      "vernacularNames": {
+        "eng": "deer",
+        "nld": "hertachtigen"
+      }
+    },
+    {
+      "scientificName": "Cervus elaphus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/T56G",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Cervidae",
+      "vernacularNames": {
+        "eng": "red deer",
+        "nld": "edelhert"
+      }
+    },
+    {
+      "scientificName": "Columba palumbus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/XBGG",
+      "taxonRank": "species",
+      "order": "Columbiformes",
+      "family": "Columbidae",
+      "vernacularNames": {
+        "eng": "common wood pigeon",
+        "nld": "houtduif"
+      }
+    },
+    {
+      "scientificName": "Cyanistes caeruleus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/32NH2",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Paridae",
+      "vernacularNames": {
+        "eng": "Eurasian blue tit",
+        "nld": "pimpelmees"
+      }
+    },
+    {
+      "scientificName": "Dama dama",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/342N9",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Cervidae",
+      "vernacularNames": {
+        "eng": "fallow deer",
+        "nld": "damhert"
+      }
+    },
+    {
+      "scientificName": "Erithacus rubecula",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/6H2XM",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Muscicapidae",
+      "vernacularNames": {
+        "eng": "European robin",
+        "nld": "roodborst"
+      }
+    },
+    {
+      "scientificName": "Felis catus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3DXV3",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Felidae",
+      "vernacularNames": {
+        "eng": "domestic cat",
+        "nld": "kat"
+      }
+    },
+    {
+      "scientificName": "Garrulus glandarius",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/6JYHZ",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Corvidae",
+      "vernacularNames": {
+        "eng": "Eurasian jay",
+        "nld": "gaai"
+      }
+    },
+    {
+      "scientificName": "Homo sapiens",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/6MB3T",
+      "taxonRank": "species",
+      "order": "Primates",
+      "family": "Hominidae",
+      "vernacularNames": {
+        "eng": "human",
+        "nld": "mens"
+      }
+    },
+    {
+      "scientificName": "Lepus europaeus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/6PPYF",
+      "taxonRank": "species",
+      "order": "Lagomorpha",
+      "family": "Leporidae",
+      "vernacularNames": {
+        "eng": "European hare",
+        "nld": "haas"
+      }
+    },
+    {
+      "scientificName": "Mammalia",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/6224G",
+      "taxonRank": "class",
+      "order": "",
+      "family": "",
+      "vernacularNames": {
+        "eng": "mammal sp.",
+        "nld": "zoogdier"
+      }
+    },
+    {
+      "scientificName": "Martes",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/5LMD",
+      "taxonRank": "genus",
+      "order": "Carnivora",
+      "family": "Mustelidae",
+      "vernacularNames": {
+        "eng": "martens",
+        "nld": "marters"
+      }
+    },
+    {
+      "scientificName": "Martes martes",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3Y9W2",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Mustelidae",
+      "vernacularNames": {
+        "eng": "European pine marten",
+        "nld": "boommarter"
+      }
+    },
+    {
+      "scientificName": "Meles meles",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3ZDRX",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Mustelidae",
+      "vernacularNames": {
+        "eng": "European badger",
+        "nld": "das"
+      }
+    },
+    {
+      "scientificName": "Oryctolagus cuniculus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/74ZBP",
+      "taxonRank": "species",
+      "order": "Lagomorpha",
+      "family": "Leporidae",
+      "vernacularNames": {
+        "eng": "European rabbit",
+        "nld": "Europees konijn"
+      }
+    },
+    {
+      "scientificName": "Parus major",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/75SVV",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Paridae",
+      "vernacularNames": {
+        "eng": "great tit",
+        "nld": "koolmees"
+      }
+    },
+    {
+      "scientificName": "Picus viridis",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/4HR3F",
+      "taxonRank": "species",
+      "order": "Piciformes",
+      "family": "Picidae",
+      "vernacularNames": {
+        "eng": "European green woodpecker",
+        "nld": "groene specht"
+      }
+    },
+    {
+      "scientificName": "Rodentia",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3Z5",
+      "taxonRank": "order",
+      "order": "Rodentia",
+      "family": "",
+      "vernacularNames": {
+        "eng": "rodents",
+        "nld": "knaagdieren"
+      }
+    },
+    {
+      "scientificName": "Sciurus vulgaris",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/79Y2K",
+      "taxonRank": "species",
+      "order": "Rodentia",
+      "family": "Sciuridae",
+      "vernacularNames": {
+        "eng": "red squirrel",
+        "nld": "rode eekhoorn"
+      }
+    },
+    {
+      "scientificName": "Strix aluco",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/532G9",
+      "taxonRank": "species",
+      "order": "Strigiformes",
+      "family": "Strigidae",
+      "vernacularNames": {
+        "eng": "tawny owl",
+        "nld": "bosuil"
+      }
+    },
+    {
+      "scientificName": "Sus scrofa",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/53HGR",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Suidae",
+      "vernacularNames": {
+        "eng": "wild boar",
+        "nld": "everzwijn"
+      }
+    },
+    {
+      "scientificName": "Turdus iliacus",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/59PLT",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Turdidae",
+      "vernacularNames": {
+        "eng": "redwing",
+        "nld": "koperwiek"
+      }
+    },
+    {
+      "scientificName": "Turdus merula",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/7CYVX",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Turdidae",
+      "vernacularNames": {
+        "eng": "common blackbird",
+        "nld": "merel"
+      }
+    },
+    {
+      "scientificName": "Vulpes vulpes",
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/5BSG3",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Canidae",
+      "vernacularNames": {
+        "eng": "red fox",
+        "nld": "vos"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "deployments",
+      "path": "deployments.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/deployments-table-schema.json"
+    },
+    {
+      "name": "media",
+      "path": "media.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/media-table-schema.json"
+    },
+    {
+      "name": "observations",
+      "path": "observations.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/observations-table-schema.json"
+    }
+  ]
+}

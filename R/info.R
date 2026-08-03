@@ -19,7 +19,47 @@ if (!isGeneric("info")) {
   )
 }
 
-
+#' Get or set information in a camReport object
+#'
+#' Get selected information fields from a [`camReport`][camReport-classes]
+#' object or update the value of a field used in report generation.
+#'
+#' A `camReport` object contains metadata and report information extracted from
+#' the camera-trap dataset, such as title, subtitle, authors, institute, site
+#' name, description, and acknowledgement text.
+#'
+#' The `info` function can be used to inspect selected fields. The replacement
+#' form, `info(x, name) <- value`, can be used to update report information
+#' before generating the report.
+#'
+#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @param name A character vector naming fields to retrieve, or a single
+#'   character string naming the field to update. When omitted from `info()`,
+#'   the default report-information fields are returned.
+#' @param value The new value to assign to the specified field.
+#'
+#' @return `info()` returns an object of class `camInfo` containing the requested
+#'   fields. The replacement method returns the updated `camReport` object
+#'   invisibly.
+#'
+#' @seealso [camData()], [report()], [status()], [updateReportSection()]
+#' @family report metadata
+#'
+#' @rdname info
+#' @aliases info info<-
+#'
+#' @examples
+#' \dontrun{
+#' cm <- camData("data-folder")
+#'
+#' info(cm)
+#'
+#' xi <- info(cm, name = c("title", "authors"))
+#'
+#' xi
+#'
+#' info(cm, "title") <- "Camera-trap monitoring report"
+#' }
 setMethod("info", signature(x = "camReport"),
   function(x, name) {
     
@@ -58,7 +98,7 @@ if (!isGeneric("info<-")) {
   )
 }
 
-
+#' @rdname info
 setReplaceMethod("info",signature(x = "camReport"),
   function(x, name, value) {
     
@@ -88,7 +128,7 @@ setReplaceMethod("info",signature(x = "camReport"),
       }
       
       if (name_lower == "image processing") {
-        return(updateReportSection(x, "introduction", text = value))
+        return(updateReportSection(x, "image processing", text = value))
       }
       
       if (name_lower %in% c("sampling efforts", "sampling effort")) {

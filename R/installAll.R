@@ -76,7 +76,41 @@ if (!isGeneric("install_All")) {
     standardGeneric("install_All"))
 }
 
-
+#' Install packages required by camtrapReport
+#'
+#' Install packages required for the full camtrapReport workflow, including
+#' packages used by optional report modules.
+#'
+#' The function identifies packages required by camtrapReport and its report
+#' modules, checks whether they are installed, and attempts to install missing
+#' packages. This can be useful before generating reports that depend on
+#' optional modules or additional packages.
+#'
+#' Some report sections may not render correctly if their required packages are
+#' not installed.
+#'
+#' @param pkgs An optional character vector of package names. The current method
+#'   uses the package list configured by camtrapReport regardless of this
+#'   argument.
+#' @param update A logical value (default `FALSE`). If `TRUE`, packages are
+#'   reinstalled or updated where possible.
+#' @param ... Additional arguments passed to [utils::install.packages()].
+#'
+#' @return Called for its side effects. The function attempts to install
+#'   required packages and prints a summary of packages that were installed or
+#'   could not be installed.
+#'
+#' @seealso [camData()], [report()], [status()]
+#' @family optional dependencies
+#'
+#' @usage install_All(pkgs, update, ...)
+#' @rdname install_All
+#' @aliases install_All
+#'
+#' @examples
+#' \dontrun{
+#' install_All()
+#' }
 setMethod('install_All', signature(pkgs='ANY'),
           function(pkgs,update=FALSE,...) {
             if (missing(update)) update <- FALSE
@@ -219,6 +253,5 @@ setMethod('install_All', signature(pkgs='ANY'),
             
           }
 )
-
 
 
