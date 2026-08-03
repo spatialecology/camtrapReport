@@ -7,11 +7,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - vignettes/articles/figures/Outreach/ecm9.png
-  - vignettes/articles/figures/Outreach/ibs-2026.png
-  - vignettes/articles/figures/Outreach/naem-2026.png
-  - vignettes/articles/figures/Outreach/traplab-workshop.png
-  - vignettes/articles/figures/Outreach/inbo-workshop.png
+  - figures/outreach/ecm9.png
+  - figures/outreach/ibs-2026.png
+  - figures/outreach/naem-2026.png
+  - figures/outreach/traplab-workshop.png
+  - figures/outreach/inbo-workshop.png
 ---
 
 <style>
@@ -146,7 +146,7 @@ The following publications present `camtrapReport` or related workflows for stan
 <div class="resource-card">
 
 <img
-  src="vignettes/articles/figures/Outreach/ecm9.png"
+  src="figures/outreach/ecm9.png"
   alt="Logo of the IX European Congress of Mammalogy"
   loading="lazy"
   decoding="async"
@@ -178,7 +178,7 @@ Ebrahimi, E., Stubbe, A., Dijkhuis, L., de Knegt, H., Liefting, Y., &amp; Jansen
 <div class="resource-card">
 
 <img
-  src="vignettes/articles/figures/Outreach/ibs-2026.png"
+  src="figures/outreach/ibs-2026.png"
   alt="Logo of the International Biogeography Society conference"
   loading="lazy"
   decoding="async"
@@ -210,7 +210,7 @@ Ebrahimi, E., &amp; Jansen, P. A. (2026). camtrapReport: An R package for automa
 <div class="resource-card">
 
 <img
-  src="vignettes/articles/figures/Outreach/naem-2026.png"
+  src="figures/outreach/naem-2026.png"
   alt="Logo of the Netherlands Annual Ecology Meeting"
   loading="lazy"
   decoding="async"
@@ -250,7 +250,7 @@ The following workshops and training activities introduce the functionality of `
 <div class="resource-card workshop-card">
 
 <img
-  src="vignettes/articles/figures/Outreach/traplab-workshop.png"
+  src="figures/outreach/traplab-workshop.png"
   alt="Participants in the camtrapReport TrapLab workshop"
   loading="lazy"
   decoding="async"
@@ -275,7 +275,7 @@ An overview of the functionality of <code>camtrapReport</code>: An R package for
 <div class="resource-card workshop-card">
 
 <img
-  src="vignettes/articles/figures/Outreach/inbo-workshop.png"
+  src="figures/outreach/inbo-workshop.png"
   alt="Participants in the camtrapReport INBO workshop"
   loading="lazy"
   decoding="async"

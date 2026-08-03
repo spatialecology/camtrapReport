@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - vignettes/articles/figures/modular-design.png
+  - figures/modular-design.png
 ---
 
 ## How to add new modules?
@@ -19,8 +19,8 @@ A new module is defined in a YAML file and then registered with `camtrapReport` 
 
 The modular structure of `camtrapReport` allows users to extend the Ecological Report by defining new report sections, registering them as modules, selecting which modules should be included, and then generating the final report.
 
-```{r module-workflow, echo=FALSE, out.width="85%", fig.align="center", fig.cap="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*."}
-knitr::include_graphics("vignettes/articles/figures/modular-design.png")
+```{r module-workflow, echo=FALSE, out.width="85%", fig.align="center", fig.cap="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*.", fig.alt="Modular workflow for defining, registering, selecting, and running report modules in camtrapReport."}
+knitr::include_graphics("figures/modular-design.png")
 ```
 
 Figure 1 summarises how new modules are added to the report workflow. A module can be defined using R code or a YAML file, registered in the module library, added to the main `camReport` object, tested separately, and then included when generating the final Ecological Report.
