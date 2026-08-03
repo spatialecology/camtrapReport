@@ -276,4 +276,12 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 ## Contribute
 
-Open an [issue](https://github.com/spatialecology/camtrapReport/issues), start a [discussion](https://github.com/spatialecology/camtrapReport/discussions), or contribute a module. All welcome.
+Bug reports, feature suggestions, documentation improvements and new report
+modules are welcome. You can open an
+[issue](https://github.com/spatialecology/camtrapReport/issues)
+or start a
+[discussion](https://github.com/spatialecology/camtrapReport/discussions).
+
+Before contributing, please read our
+[contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md) and
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/CODE_OF_CONDUCT.md).
