@@ -16,7 +16,7 @@ resource_files:
 
 The workflow is built around a central `camReport` object, created with `camData()`. This object stores the input data, metadata, user settings, intermediate outputs, report sections, and analytical modules. From this object, users can generate a Data Status Check report using `status()` and an Ecological Report using `report()`.
 
-```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow, from input camera-trap data to the central camReport object and final report outputs."}
+```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow, from input camera-trap data to the central camReport object and final report outputs.", fig.alt="Schematic overview of the camtrapReport workflow from input camera-trap data to the central camReport object and final report outputs."}
 knitr::include_graphics("figures/package-architecture.png")
 ```
 
