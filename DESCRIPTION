@@ -1,8 +1,8 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.44
-Date: 2026-08-03
+Version: 1.0.45
+Date: 2026-08-05
 Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible

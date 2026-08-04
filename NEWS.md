@@ -1,3 +1,3 @@
-# camtrapReport 1.0.44
+# camtrapReport 1.0.45 (2026-08-05)
 
-* Initial CRAN submission.
+* Initial official release.
