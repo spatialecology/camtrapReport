@@ -452,14 +452,14 @@ methods::setMethod("gui",signature(object = "camReport"),
         
         shiny::textInput(
           "data_zip_path",
-          "Camtrap-DP zip file path",
+          "Camtrap DP ZIP file path",
           value = "",
           placeholder = "C:/Users/.../Leuven-data.zip"
         ),
         
         shiny::fileInput(
           "data_zip",
-          "Or upload Camtrap-DP zip file",
+          "Or upload Camtrap DP ZIP file",
           accept = ".zip"
         ),
         
