@@ -29,5 +29,5 @@
 #' @importFrom dplyr bind_rows distinct filter group_by mutate select slice left_join
 #' @importFrom terra hull crs expanse extract project rast readRDS unwrap vect wrap writeRaster
 #' @importFrom lubridate interval
-
+#' @rawNamespace exportPattern("^[[:alpha:]]+")
 "_PACKAGE"
