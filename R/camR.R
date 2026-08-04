@@ -925,7 +925,7 @@ camR <- setRefClass(
           if (PA) {
             .d <- .d |>
               dplyr::group_by(locationID, scientificName) |>
-              dplyr::summarise(count = n(), .groups = "drop") |>
+              dplyr::summarise(count = dplyr::n(), .groups = "drop") |>
               .pivot_wider(names_from = scientificName, values_from = count, fill = 0)
             
             sp_mat <- as.matrix(.d[, -1])  
