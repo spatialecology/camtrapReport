@@ -10,9 +10,9 @@ license: MIT
 title: 'camtrapReport: Camera-Trap Report Generator'
 version: 1.0.44
 doi: 10.5281/zenodo.18405441
-abstract: Provides an extensible workflow for processing camera-trap data in Camtrap
-  DP format and automatically generating reproducible data-status and ecological reports.
-  The package supports data-quality checks, ecological summaries, visualisations,
+abstract: Provides an extensible workflow for processing camera-trap data in the 'Camtrap
+  DP' format and automatically generating reproducible data-status and ecological
+  reports. The package supports data-quality checks, ecological summaries, visualisations,
   maps, tables and modular report sections for wildlife-monitoring applications.
 authors:
 - family-names: Ebrahimi
@@ -63,7 +63,7 @@ references:
 - type: software
   title: data.table
   abstract: 'data.table: Extension of `data.frame`'
-  notes: Depends
+  notes: Imports
   url: https://r-datatable.com
   repository: https://CRAN.R-project.org/package=data.table
   authors:
@@ -100,7 +100,7 @@ references:
 - type: software
   title: dplyr
   abstract: 'dplyr: A Grammar of Data Manipulation'
-  notes: Depends
+  notes: Imports
   url: https://dplyr.tidyverse.org
   repository: https://CRAN.R-project.org/package=dplyr
   authors:
