@@ -1,13 +1,14 @@
 name: pkgcheck
 
-# This will cancel running jobs once a new run is triggered
+# Cancel a running job when a newer run is triggered
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 
 on:
-  # Manually trigger the Action under Actions/pkgcheck
+  # Manually trigger the workflow under Actions/pkgcheck
   workflow_dispatch:
+
   # Run on every push to main
   push:
     branches:
@@ -16,7 +17,27 @@ on:
 jobs:
   pkgcheck:
     runs-on: ubuntu-latest
+
     permissions:
+      contents: read
       issues: write
+
     steps:
-      - uses: ropensci-review-tools/pkgcheck-action@main
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Mark repository as safe for pkgcheck
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/_github_home"
+          git config \
+            --file "${RUNNER_TEMP}/_github_home/.gitconfig" \
+            --add safe.directory /github/workspace
+
+      - name: Run pkgcheck
+        uses: ropensci-review-tools/pkgcheck-action@main
+        with:
+          ref: ""
+          
