@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a>
-  <a href="https://codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Codecov test coverage"></a>
+  <a href="https://app.codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Codecov test coverage"></a>
   <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active"></a>
   <a href="https://www.r-project.org/"><img src="https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white" alt="R ≥ 4.1.0"></a>
   <a href="https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT"></a>
@@ -274,14 +274,18 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
-## Contribute
+## Contributing
 
-Bug reports, feature suggestions, documentation improvements and new report
-modules are welcome. You can open an
-[issue](https://github.com/spatialecology/camtrapReport/issues)
-or start a
+Contributions to `camtrapReport` are very welcome. These may include bug
+reports, feature requests, documentation improvements, code contributions,
+or proposals for new report modules.
+
+You can contribute by opening a
+[GitHub issue](https://github.com/spatialecology/camtrapReport/issues)
+or starting a
 [discussion](https://github.com/spatialecology/camtrapReport/discussions).
 
-Before contributing, please read our
-[contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md) and
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/CODE_OF_CONDUCT.md).
+Before contributing, please read the
+[contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)
+and the
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
