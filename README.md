@@ -283,9 +283,7 @@ or proposals for new report modules.
 You can contribute by opening a
 [GitHub issue](https://github.com/spatialecology/camtrapReport/issues)
 or starting a
-[discussion](https://github.com/spatialecology/camtrapReport/discussions).
-
-Before contributing, please read the
+[discussion](https://github.com/spatialecology/camtrapReport/discussions). Before contributing, please read the
 [contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)
 and the
 [Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
