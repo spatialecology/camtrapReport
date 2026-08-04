@@ -57,4 +57,4 @@ so that contributions are easier to review.
 ## Code of Conduct
 
 Participation in this project is governed by the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/CODE_OF_CONDUCT.md).
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)
