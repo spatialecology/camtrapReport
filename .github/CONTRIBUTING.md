@@ -16,10 +16,7 @@ To help us investigate the problem, please include:
 - a minimal reproducible example;
 - the output of `sessionInfo()`;
 - a small synthetic or openly shareable Camtrap DP dataset, where possible.
-  If this is not possible because the data are restricted or sensitive,
-  please contact the maintainer privately so that we can discuss a secure
-  way to share the smallest example needed to reproduce the problem.
-
+If this is not possible because of data privacy, confidentiality or sensitivity concerns, please contact the maintainer [by email](mailto:e.ebrahimi@uu.nl) to discuss an appropriate alternative for reproducing the issue.
 Please do not upload confidential camera-trap data, sensitive species
 locations, restricted images, personal information or other protected
 material to a public GitHub issue.
