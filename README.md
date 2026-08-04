@@ -274,6 +274,14 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
+## Citation
+
+To cite `camtrapReport` in publications, run:
+
+```r
+citation("camtrapReport")
+```
+
 ## Contributing
 
 Contributions to `camtrapReport` are very welcome. These may include bug
