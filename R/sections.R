@@ -2,11 +2,12 @@
 # Licence: MIT
 #--------
 
-if (!isGeneric("section_names")) {
-  setGeneric("section_names",function(keep, exclude)
-    standardGeneric("section_names")
-  )
-}
+methods::setGeneric(
+  "section_names",
+  function(keep, exclude) {
+    methods::standardGeneric("section_names")
+  }
+)
 
 
 #' Select report sections
@@ -44,8 +45,7 @@ if (!isGeneric("section_names")) {
 #'
 #' sections(x, n)
 #' @name section_names
-#' @aliases section_names sections section_names,ANY-method
-#'   sections,camReport-method
+#' @aliases section_names sections section_names,ANY-method sections,camReport-method
 #'
 #' @examples
 #' \dontrun{
@@ -134,13 +134,12 @@ setMethod("section_names",signature(keep = "ANY"),
 )
 
 #-------
-
-if (!isGeneric("sections")) {
-  setGeneric("sections",function(x, n)
-    standardGeneric("sections")
-  )
-}
-
+methods::setGeneric(
+  "sections",
+  function(x, n) {
+    methods::standardGeneric("sections")
+  }
+)
 
 setMethod("sections",signature(x = "camReport"),
   function(x, n) {

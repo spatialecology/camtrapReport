@@ -327,11 +327,12 @@
 }
 
 #--------
-if (!isGeneric("reportSection")) {
-  setGeneric("reportSection",function(name, title, parent, txt, code_setting, packages, code)
-    standardGeneric("reportSection")
-  )
-}
+methods::setGeneric(
+  "reportSection",
+  function(name, title, parent, txt, code_setting, packages, code) {
+    methods::standardGeneric("reportSection")
+  }
+)
 
 #' Create a report section
 #'

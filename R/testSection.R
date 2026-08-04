@@ -162,11 +162,12 @@ output:
 
 #---------
 
-if (!isGeneric("testSection")) {
-  setGeneric("testSection",function(x, object, view)
-    standardGeneric("testSection")
-  )
-}
+methods::setGeneric(
+  "testSection",
+  function(x, object, view) {
+    methods::standardGeneric("testSection")
+  }
+)
 
 #' Test a report section
 #'

@@ -64,7 +64,7 @@ status(cm, view = TRUE)
 \code{\link[=camData]{camData()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}},
 \code{\link[=section_names]{section_names()}}
 
-Other report generation: 
+Other report generation:
 \code{\link{gui,camReport-method}}
 }
 \concept{report generation}

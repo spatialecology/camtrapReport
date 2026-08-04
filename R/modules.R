@@ -474,24 +474,6 @@
 #---------------------------------
 # File helpers
 #---------------------------------
-
-.find_module_file <- function(module_dir, name) {
-  cand <- list.files(
-    module_dir,
-    pattern = "\\.ya?ml$",
-    full.names = TRUE,
-    recursive = FALSE
-  )
-  
-  if (length(cand) == 0L) return(NULL)
-  
-  base_no_ext <- tools::file_path_sans_ext(basename(cand))
-  w <- which(base_no_ext == name)
-  
-  if (length(w) == 0L) return(NULL)
-  cand[w[1]]
-}
-
 .safe_file_move <- function(from, to) {
   if (!file.exists(from)) {
     stop("Source file does not exist: ", from)
@@ -1299,11 +1281,12 @@
 #################################
 #################################
 #################################
-if (!isGeneric("add_Module")) {
-  setGeneric("add_Module",function(x, before, after, test, object)
-               standardGeneric("add_Module")
-  )
-}
+methods::setGeneric(
+  "add_Module",
+  function(x, before, after, test, object) {
+    methods::standardGeneric("add_Module")
+  }
+)
 
 #' Manage report modules
 #'
@@ -1388,10 +1371,7 @@ if (!isGeneric("add_Module")) {
 #'
 #' list_Modules(tree, brief, include_trash, validate)
 #' @name modules
-#' @aliases add_Module move_Module remove_Module empty_trash restore_Module
-#'   list_Modules add_Module,character-method move_Module,character-method
-#'   remove_Module,character-method empty_trash,ANY-method
-#'   restore_Module,character-method list_Modules,ANY-method
+#' @aliases add_Module move_Module remove_Module empty_trash restore_Module list_Modules add_Module,character-method move_Module,character-method remove_Module,character-method empty_trash,ANY-method restore_Module,character-method list_Modules,ANY-method
 #'
 #' @examples
 #' \dontrun{
@@ -1460,12 +1440,11 @@ setMethod("add_Module",signature(x = "character"),
 )
 
 #--------
-if (!isGeneric("move_Module")) {
-  setGeneric("move_Module",function(name, before, after, parent, level0)
-      standardGeneric("move_Module")
-  )
-}
-
+methods::setGeneric("move_Module",
+  function(name, before, after, parent, level0) {
+    methods::standardGeneric("move_Module")
+  }
+)
 
 setMethod("move_Module",signature(name = "character"),
   function(name, before, after, parent, level0) {
@@ -1514,11 +1493,12 @@ setMethod("move_Module",signature(name = "character"),
 
 #--------
 
-if (!isGeneric("remove_Module")) {
-  setGeneric("remove_Module",function(name, recursive)
-    standardGeneric("remove_Module")
-  )
-}
+methods::setGeneric(
+  "remove_Module",
+  function(name, recursive) {
+    methods::standardGeneric("remove_Module")
+  }
+)
 
 
 setMethod("remove_Module",signature(name = "character"),
@@ -1539,11 +1519,12 @@ setMethod("remove_Module",signature(name = "character"),
 
 #--------
 
-if (!isGeneric("empty_trash")) {
-  setGeneric("empty_trash",function(name, id)
-    standardGeneric("empty_trash")
-  )
-}
+methods::setGeneric(
+  "empty_trash",
+  function(name, id) {
+    methods::standardGeneric("empty_trash")
+  }
+)
 
 
 setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
@@ -1565,13 +1546,12 @@ setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
 )
 
 #--------
-
-if (!isGeneric("list_Modules")) {
-  setGeneric("list_Modules",function(tree, brief, include_trash, validate)
-    standardGeneric("list_Modules")
-  )
-  
-}
+methods::setGeneric(
+  "list_Modules",
+  function(tree, brief, include_trash, validate) {
+    methods::standardGeneric("list_Modules")
+  }
+)
 
 setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
   function(tree, brief, include_trash, validate) {
@@ -1619,12 +1599,12 @@ setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = 
 )
 
 #--------
-if (!isGeneric("restore_Module")) {
-  setGeneric("restore_Module",function(name, batch_id, test)
-    standardGeneric("restore_Module")
-  )
-}
-
+methods::setGeneric(
+  "restore_Module",
+  function(name, batch_id, test) {
+    methods::standardGeneric("restore_Module")
+  }
+)
 
 setMethod("restore_Module",signature(name = "character"),
   function(name, batch_id, test) {

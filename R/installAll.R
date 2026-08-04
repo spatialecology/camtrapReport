@@ -2,256 +2,437 @@
 # Licence: MIT
 #--------
 
-.detachPackage <- function (n, unload = TRUE, force = TRUE) {
-  s <- search()
-  ss <- unlist(lapply(strsplit(s, ":"), function(x) x[2]))
-  for (nn in n) {
-    if (nn %in% ss) {
-      detach(s[which(ss == nn)], force = force, character.only = TRUE, 
-             unload = unload)
+.detachPackage <- function(n, unload = TRUE, force = TRUE) {
+  n <- unique(as.character(n))
+  n <- n[!is.na(n) & nzchar(n)]
+  
+  for (pkg in n) {
+    package_name <- paste0("package:", pkg)
+    
+    if (package_name %in% search()) {
+      try(
+        detach(
+          package_name,
+          force = force,
+          character.only = TRUE,
+          unload = unload
+        ),
+        silent = TRUE
+      )
     }
   }
+  
+  invisible(NULL)
 }
 
-.eval <- function(x,env) {
-  eval(parse(text=x),envir=env)
+#--------
+
+.eval <- function(x, env) {
+  eval(parse(text = x), envir = env)
 }
-#------
+
+#--------
+
 .is.installed <- function(n) {
-  names(n) <- n
-  sapply(n, function(x) length(unlist(lapply(.libPaths(), function(lib) find.package(x, lib, quiet=TRUE, verbose=FALSE)))) > 0)
+  if (length(n) == 0L) {
+    return(setNames(logical(0), character(0)))
+  }
+  
+  n <- as.character(n)
+  
+  installed <- vapply(
+    n,
+    function(pkg) {
+      !is.na(pkg) &&
+        nzchar(pkg) &&
+        nzchar(system.file(package = pkg))
+    },
+    logical(1)
+  )
+  
+  names(installed) <- n
+  installed
 }
-#---------
 
-.require <-function(x) {
+#--------
+
+.require <- function(x) {
   x <- as.character(x)
-  xx <- unlist(lapply(.libPaths(), function(lib) find.package(x, lib, quiet=TRUE, verbose=FALSE)))
-  if (length(xx) > 0) {
-    .loaded <- eval(parse(text=paste0('require(',x,')')))
-    return (.loaded)
-  } else FALSE
+  
+  if (length(x) != 1L || is.na(x) || !nzchar(x)) {
+    return(FALSE)
+  }
+  
+  suppressWarnings(
+    require(
+      x,
+      character.only = TRUE,
+      quietly = TRUE,
+      warn.conflicts = FALSE
+    )
+  )
 }
-#----------
+
+#--------
+
 .loadLib <- function(pkgs) {
-  options(warn=-1)
-  return(unlist(lapply(pkgs,function(x) {
-    all(unlist(lapply(x,function(p) {.require(p)})))
-  })))
-  options(warn=0)
+  old_warn <- getOption("warn")
+  on.exit(options(warn = old_warn), add = TRUE)
+  
+  options(warn = -1)
+  
+  vapply(
+    pkgs,
+    function(x) {
+      all(vapply(x, .require, logical(1)))
+    },
+    logical(1)
+  )
 }
-#---------
+
+#--------
 
 .getPackageList <- function() {
-  p <- .get_module_packages()
-  if (file.exists(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))) {
-    pl <- readRDS(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))
-    p <- unique(c(p,pl$packages))
+  packages <- .get_module_packages()
+  
+  config_file <- system.file(
+    "external",
+    "camtrapReportConfig.rds",
+    package = "camtrapReport"
+  )
+  
+  if (nzchar(config_file) && file.exists(config_file)) {
+    config <- readRDS(config_file)
+    
+    if (!is.null(config$packages)) {
+      packages <- unique(c(packages, config$packages))
+    }
   }
-  p
+  
+  packages <- as.character(packages)
+  packages <- packages[!is.na(packages) & nzchar(packages)]
+  
+  unique(packages)
 }
 
-#----
-# List of the packages that should be installed from GitHUB:
+#--------
+
 .getPackageGitHubList <- function() {
-  if (file.exists(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))) {
-    pl <- readRDS(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))
-    pl$github
+  config_file <- system.file(
+    "external",
+    "camtrapReportConfig.rds",
+    package = "camtrapReport"
+  )
+  
+  if (!nzchar(config_file) || !file.exists(config_file)) {
+    return(character(0))
   }
+  
+  config <- readRDS(config_file)
+  
+  if (is.null(config$github)) {
+    return(character(0))
+  }
+  
+  unlist(config$github, use.names = TRUE)
 }
-#----
+
+#--------
+
 .getPackageGitLabList <- function() {
-  if (file.exists(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))) {
-    pl <- readRDS(system.file("external","camtrapReportConfig.rds",package="camtrapReport"))
-    pl$gitlab
+  config_file <- system.file(
+    "external",
+    "camtrapReportConfig.rds",
+    package = "camtrapReport"
+  )
+  
+  if (!nzchar(config_file) || !file.exists(config_file)) {
+    return(character(0))
   }
+  
+  config <- readRDS(config_file)
+  
+  if (is.null(config$gitlab)) {
+    return(character(0))
+  }
+  
+  unlist(config$gitlab, use.names = TRUE)
 }
-#--------------
 
+#--------
 
-
-
-
-if (!isGeneric("install_All")) {
-  setGeneric("install_All", function(pkgs,update,...)
-    standardGeneric("install_All"))
+.installGitHub <- function(repository) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    warning(
+      "Package 'remotes' is required to install packages from GitHub.",
+      call. = FALSE
+    )
+    return(FALSE)
+  }
+  
+  result <- try(
+    remotes::install_github(
+      repository,
+      quiet = TRUE,
+      force = TRUE
+    ),
+    silent = TRUE
+  )
+  
+  !inherits(result, "try-error")
 }
+
+#--------
+
+methods::setGeneric(
+  "install_All",
+  function(pkgs = NULL, update = FALSE, ...) {
+    methods::standardGeneric("install_All")
+  }
+)
 
 #' Install packages required by camtrapReport
 #'
 #' Install packages required for the full camtrapReport workflow, including
 #' packages used by optional report modules.
 #'
-#' The function identifies packages required by camtrapReport and its report
-#' modules, checks whether they are installed, and attempts to install missing
-#' packages. This can be useful before generating reports that depend on
-#' optional modules or additional packages.
+#' The function checks the package list used by camtrapReport and installs
+#' packages that are not currently available. Packages listed in the package
+#' configuration as GitHub dependencies are installed with
+#' [remotes::install_github()].
 #'
-#' Some report sections may not render correctly if their required packages are
-#' not installed.
+#' @param pkgs An optional character vector of additional CRAN package names.
+#'   The default is `NULL`.
+#' @param update A logical value. If `TRUE`, optional packages are reinstalled.
+#'   The default is `FALSE`.
+#' @param ... Additional arguments passed to [install.packages()].
 #'
-#' @param pkgs An optional character vector of package names. The current method
-#'   uses the package list configured by camtrapReport regardless of this
-#'   argument.
-#' @param update A logical value (default `FALSE`). If `TRUE`, packages are
-#'   reinstalled or updated where possible.
-#' @param ... Additional arguments passed to [utils::install.packages()].
-#'
-#' @return Called for its side effects. The function attempts to install
-#'   required packages and prints a summary of packages that were installed or
-#'   could not be installed.
+#' @return Called for its side effects. The function returns `NULL` invisibly.
 #'
 #' @seealso [camData()], [report()], [status()]
 #' @family optional dependencies
 #'
-#' @usage install_All(pkgs, update, ...)
+#' @usage install_All(pkgs = NULL, update = FALSE, ...)
 #' @rdname install_All
 #' @aliases install_All
 #'
 #' @examples
 #' \dontrun{
 #' install_All()
+#' install_All(pkgs = "remotes")
+#' install_All(update = TRUE)
 #' }
-setMethod('install_All', signature(pkgs='ANY'),
-          function(pkgs,update=FALSE,...) {
-            if (missing(update)) update <- FALSE
-            pl <- .getPackageList()
-            plG <- .getPackageGitHubList()
-            #plGL <- .getPackageGitLabList()
-            plGn <- names(plG)
-            #plGLn <- names(plGL)
-            if (!update) {
-              p <- pl[!.is.installed(pl)]
-              #pG <- plG[!.is.installed(plGn)]
-              .n <- 0
-              if (length(p) > 0) {
-                for (i in seq_along(p)) {
-                  .s <- try(install.packages(p[i],...),silent = TRUE)
-                  if (!inherits(.s, "try-error")) .n <- .n + 1
-                }
-                #---
-                p <- plGn[!.is.installed(plGn)]
-                
-                if (length(p) > 0) {
-                  plG <- plG[plGn %in% p]
-                  for (pG in plG) {
-                    .s <- try(.eval("remotes::install_github(pG,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                    if (!inherits(.s, "try-error")) .n <- .n + 1
-                  }
-                }
-                #----
-                #p <- plGLn[!.is.installed(plGLn)]
-                
-                # if (length(p) > 0) {
-                #   plGL <- plGL[plGLn %in% p]
-                #   for (i in seq_along(plGL)) {
-                #     pG <- plGL[[i]][['repo']]
-                #     .h <- plGL[[i]][['host']]
-                #     .s <- .s <- try(.eval("remotes::install_gitlab(pG,host = .h,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                #     if (!inherits(.s, "try-error")) .n <- .n + 1
-                #   }
-                # }
-                #p <- unique(c(pl,plGn,plGLn))
-                
-                p <- unique(c(pl,plGn))
-                p <- p[!.is.installed(p)]
-                if (length(.n) > 0) cat(paste('\n',.n,' packages are successfully installed...\n'))
-                if (length(p) > 0) cat(paste('The following packages could not be installed:\n.... ',paste(p,collapse=', '),'\n'))
-                
-              } else {
-                .n <- 0
-                p <- plGn[!.is.installed(plGn)]
-                
-                if (length(p) > 0) {
-                  plG <- plG[plGn %in% p]
-                  for (pG in plG) {
-                    .s <- try(.eval("remotes::install_github(pG,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                    if (!inherits(.s, "try-error")) .n <- .n + 1
-                  }
-                }
-                #----
-                # p <- plGLn[!.is.installed(plGLn)]
-                # 
-                # if (length(p) > 0) {
-                #   plGL <- plGL[plGLn %in% p]
-                #   for (i in seq_along(plGL)) {
-                #     pG <- plGL[[i]][['repo']]
-                #     .h <- plGL[[i]][['host']]
-                #     .s <- .s <- try(.eval("remotes::install_gitlab(pG,host = .h,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                #     if (!inherits(.s, "try-error")) .n <- .n + 1
-                #   }
-                # }
-                #p <- unique(c(plGn,plGLn))
-                p <- unique(c(plGn))
-                
-                p <- p[!.is.installed(p)]
-                if (.n > 0 | length(p) > 0) {
-                  if (.n > 0) cat(paste('\n',.n,' packages are successfully installed...\n'))
-                  if (length(p) > 0) cat(paste('The following packages could not be installed:\n.... ',paste(p,collapse=', '),'\n'))
-                } else {
-                  cat(paste('\n All required packages have been already installed!\n'))
-                }
-              }
-              
-            } else {
-              p <- pl[!pl %in% c('stats','utils','parallel','base','grDevice','tools','methods','graphics','compiler','datasets','profile','grid')]
-              
-              if (length(c(p,plGn)) > 0) {
-                s <- rep(TRUE,length(c(p,plGn)))
-                .n <- 0
-                if (length(p) > 0) {
-                  .detachPackage(p)
-                  pi <- p[.is.installed(p)]
-                  if (length(pi) > 0) pi <- try(remove.packages(pi),silent = TRUE)
-                  
-                  
-                  for (i in seq_along(p)) {
-                    .s <- try(install.packages(p[i],...),silent = TRUE)
-                    if (!inherits(.s, "try-error")) .n <- .n + 1
-                  }
-                }
-                
-                if (length(plGn) > 0) {
-                  .detachPackage(plGn)
-                  plGi <- plGn[.is.installed(plGn)]
-                  if (length(plGi) > 0) {
-                    plGi <- try(remove.packages(plGi),silent = TRUE)
-                    for (pG in plG) {
-                      .s <- try(.eval("remotes::install_github(pG,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                      if (!inherits(.s, "try-error")) .n <- .n + 1
-                    }
-                  }
-                }
-                #---
-                # if (length(plGLn) > 0) {
-                #   .detachPackage(plGLn)
-                #   plGi <- plGLn[.is.installed(plGLn)]
-                #   if (length(pGi) > 0) {
-                #     plGi <- try(remove.packages(plGi),silent = TRUE)
-                #     
-                #     for (i in seq_along(plGL)) {
-                #       pG <- plGL[[i]][['repo']]
-                #       .h <- plGL[[i]][['host']]
-                #       .s <- .s <- try(.eval("devtools::install_gitlab(pG,host = .h,quiet=TRUE,force = TRUE)",env=environment()),silent = TRUE)
-                #       if (!inherits(.s, "try-error")) .n <- .n + 1
-                #     }
-                #   }
-                # }
-                #---
-                #p <- unique(c(plGn,plGLn))
-                p <- unique(c(plGn))
-                
-                p <- p[!.is.installed(p)]
-                if (.n > 0 | length(p) > 0) {
-                  if (.n > 0) cat(paste('\n',.n,' packages are successfully installed...\n'))
-                  if (length(p) > 0) cat(paste('The following packages could not be installed:\n.... ',paste(p,collapse=', '),'\n'))
-                } else {
-                  cat(paste('\n All required packages already installed... (they are not UPDATED!) \n'))
-                }
-                
-              } else cat(paste('\n There is no package to install!\n'))
-            }
-            
+methods::setMethod(
+  "install_All",
+  signature(pkgs = "ANY"),
+  function(pkgs = NULL, update = FALSE, ...) {
+    if (
+      !is.logical(update) ||
+      length(update) != 1L ||
+      is.na(update)
+    ) {
+      stop("'update' must be TRUE or FALSE.", call. = FALSE)
+    }
+    
+    if (!is.null(pkgs)) {
+      if (!is.character(pkgs) || anyNA(pkgs)) {
+        stop(
+          "'pkgs' must be NULL or a character vector of package names.",
+          call. = FALSE
+        )
+      }
+      
+      pkgs <- trimws(pkgs)
+      pkgs <- pkgs[nzchar(pkgs)]
+    }
+    
+    cran_packages <- .getPackageList()
+    
+    if (length(pkgs) > 0L) {
+      cran_packages <- unique(c(cran_packages, pkgs))
+    }
+    
+    github_repositories <- .getPackageGitHubList()
+    github_packages <- names(github_repositories)
+    
+    if (is.null(github_packages)) {
+      github_packages <- character(0)
+    }
+    
+    installed_count <- 0L
+    
+    if (!update) {
+      missing_cran <- cran_packages[!.is.installed(cran_packages)]
+      
+      for (pkg in missing_cran) {
+        result <- try(
+          install.packages(pkg, ...),
+          silent = TRUE
+        )
+        
+        if (
+          !inherits(result, "try-error") &&
+          isTRUE(unname(.is.installed(pkg)))
+        ) {
+          installed_count <- installed_count + 1L
+        }
+      }
+      
+      missing_github <- github_packages[
+        !.is.installed(github_packages)
+      ]
+      
+      if (length(missing_github) > 0L) {
+        repositories <- github_repositories[missing_github]
+        
+        for (pkg in names(repositories)) {
+          result <- .installGitHub(repositories[[pkg]])
+          
+          if (
+            isTRUE(result) &&
+            isTRUE(unname(.is.installed(pkg)))
+          ) {
+            installed_count <- installed_count + 1L
           }
+        }
+      }
+      
+      required_packages <- unique(c(cran_packages, github_packages))
+      failed_packages <- required_packages[
+        !.is.installed(required_packages)
+      ]
+      
+      if (installed_count > 0L) {
+        cat(
+          "\n",
+          installed_count,
+          if (installed_count == 1L) {
+            " package was successfully installed.\n"
+          } else {
+            " packages were successfully installed.\n"
+          },
+          sep = ""
+        )
+      }
+      
+      if (length(failed_packages) > 0L) {
+        cat(
+          "The following packages could not be installed:\n",
+          paste(failed_packages, collapse = ", "),
+          "\n",
+          sep = ""
+        )
+      } else if (installed_count == 0L) {
+        cat("\nAll required packages have already been installed.\n")
+      }
+      
+      return(invisible(NULL))
+    }
+    
+    protected_packages <- rownames(
+      utils::installed.packages(
+        priority = c("base", "recommended")
+      )
+    )
+    
+    cran_to_update <- setdiff(cran_packages, protected_packages)
+    
+    if (
+      length(cran_to_update) == 0L &&
+      length(github_packages) == 0L
+    ) {
+      cat("\nThere are no optional packages to update.\n")
+      return(invisible(NULL))
+    }
+    
+    if (length(cran_to_update) > 0L) {
+      .detachPackage(cran_to_update)
+      
+      installed_cran <- cran_to_update[
+        .is.installed(cran_to_update)
+      ]
+      
+      if (length(installed_cran) > 0L) {
+        try(
+          remove.packages(installed_cran),
+          silent = TRUE
+        )
+      }
+      
+      for (pkg in cran_to_update) {
+        result <- try(
+          install.packages(pkg, ...),
+          silent = TRUE
+        )
+        
+        if (
+          !inherits(result, "try-error") &&
+          isTRUE(unname(.is.installed(pkg)))
+        ) {
+          installed_count <- installed_count + 1L
+        }
+      }
+    }
+    
+    if (length(github_packages) > 0L) {
+      .detachPackage(github_packages)
+      
+      installed_github <- github_packages[
+        .is.installed(github_packages)
+      ]
+      
+      if (length(installed_github) > 0L) {
+        try(
+          remove.packages(installed_github),
+          silent = TRUE
+        )
+      }
+      
+      for (pkg in github_packages) {
+        result <- .installGitHub(
+          github_repositories[[pkg]]
+        )
+        
+        if (
+          isTRUE(result) &&
+          isTRUE(unname(.is.installed(pkg)))
+        ) {
+          installed_count <- installed_count + 1L
+        }
+      }
+    }
+    
+    checked_packages <- unique(c(cran_to_update, github_packages))
+    failed_packages <- checked_packages[
+      !.is.installed(checked_packages)
+    ]
+    
+    if (installed_count > 0L) {
+      cat(
+        "\n",
+        installed_count,
+        if (installed_count == 1L) {
+          " package was successfully reinstalled.\n"
+        } else {
+          " packages were successfully reinstalled.\n"
+        },
+        sep = ""
+      )
+    }
+    
+    if (length(failed_packages) > 0L) {
+      cat(
+        "The following packages could not be installed:\n",
+        paste(failed_packages, collapse = ", "),
+        "\n",
+        sep = ""
+      )
+    } else {
+      cat("\nAll requested optional packages are installed.\n")
+    }
+    
+    invisible(NULL)
+  }
 )
 
-
+#--------

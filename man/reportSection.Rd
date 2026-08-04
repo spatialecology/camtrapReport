@@ -84,9 +84,9 @@ tx2
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=testSection]{testSection()}}
 
-Other report sections: 
-\code{\link{section_names}()},
+Other report sections:
+\code{\link[=section_names]{section_names()}},
 \code{\link{testSection,.textSection-method}},
-\code{\link{updateReportSection}()}
+\code{\link[=updateReportSection]{updateReportSection()}}
 }
 \concept{report sections}

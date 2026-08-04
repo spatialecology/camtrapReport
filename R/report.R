@@ -2,10 +2,12 @@
 # Licence: MIT
 #--------
 
-if (!isGeneric("report")) {
-  setGeneric("report", function(object, filename, view, test)
-    standardGeneric("report"))
-}
+methods::setGeneric(
+  "report",
+  function(object, filename, view, test) {
+    methods::standardGeneric("report")
+  }
+)
 
 #' Generate ecological and data-status reports
 #'
@@ -61,7 +63,9 @@ if (!isGeneric("report")) {
 #' # Generate data-status report
 #' status(cm, view = TRUE)
 #' }
-setMethod("report",signature(object = "camReport"),
+methods::setMethod(
+  "report",
+  signature(object = "camReport"),
   function(object, filename = "report", view, test) {
     
     if (missing(view)) view <- FALSE

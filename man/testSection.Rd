@@ -52,9 +52,9 @@ testSection(tx)
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=report]{report()}}
 
-Other report sections: 
+Other report sections:
 \code{\link{reportSection,character-method}},
-\code{\link{section_names}()},
-\code{\link{updateReportSection}()}
+\code{\link[=section_names]{section_names()}},
+\code{\link[=updateReportSection]{updateReportSection()}}
 }
 \concept{report sections}

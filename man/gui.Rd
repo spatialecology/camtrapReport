@@ -46,7 +46,7 @@ gui(cm)
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}
 
-Other report generation: 
-\code{\link{report}()}
+Other report generation:
+\code{\link[=report]{report()}}
 }
 \concept{report generation}

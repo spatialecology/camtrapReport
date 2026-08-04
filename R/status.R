@@ -2,12 +2,12 @@
 # Licence: MIT
 #--------
 
-if (!isGeneric("status")) {
-  setGeneric("status",function(object, filename, view)
-    standardGeneric("status")
+methods::setGeneric(
+  "status",
+  function(object, filename, view) {
+    methods::standardGeneric("status")
+  }
 )
-
-}
 
 
 
