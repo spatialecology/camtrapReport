@@ -59,9 +59,9 @@ report(cm)
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}},
 \code{\link[=listReportSections]{listReportSections()}}
 
-Other report sections: 
+Other report sections:
 \code{\link{reportSection,character-method}},
 \code{\link{testSection,.textSection-method}},
-\code{\link{updateReportSection}()}
+\code{\link[=updateReportSection]{updateReportSection()}}
 }
 \concept{report sections}

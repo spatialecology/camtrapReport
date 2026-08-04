@@ -13,11 +13,12 @@
 
 
 
-if (!isGeneric("info")) {
-  setGeneric("info",function(x, name)
-    standardGeneric("info")
-  )
-}
+methods::setGeneric(
+  "info",
+  function(x, name) {
+    methods::standardGeneric("info")
+  }
+)
 
 #' Get or set information in a camReport object
 #'
@@ -60,10 +61,14 @@ if (!isGeneric("info")) {
 #'
 #' info(cm, "title") <- "Camera-trap monitoring report"
 #' }
-setMethod("info", signature(x = "camReport"),
+methods::setMethod(
+  "info",
+  signature(x = "camReport"),
   function(x, name) {
     
-    if (missing(name)) name <- NULL
+    if (missing(name)) {
+      name <- NULL
+    }
     
     .inf <- list()
     
@@ -92,20 +97,32 @@ setMethod("info", signature(x = "camReport"),
   }
 )
 
-if (!isGeneric("info<-")) {
-  setGeneric("info<-",function(x, name, value)
-      standardGeneric("info<-")
-  )
-}
+methods::setGeneric(
+  "info<-",
+  function(x, name, value) {
+    methods::standardGeneric("info<-")
+  }
+)
 
 #' @rdname info
-setReplaceMethod("info",signature(x = "camReport"),
+methods::setReplaceMethod(
+  "info",
+  signature(x = "camReport"),
   function(x, name, value) {
     
-    if (length(name) > 1) {
-      stop("Only one field can be updated at a time.")
+    if (
+      missing(name) ||
+      length(name) != 1L ||
+      is.na(name) ||
+      !nzchar(trimws(name))
+    ) {
+      stop(
+        "'name' must be one non-empty character string.",
+        call. = FALSE
+      )
     }
     
+    name <- trimws(as.character(name))
     name_lower <- tolower(name)
     
     if (name_lower %in% c(
@@ -145,7 +162,9 @@ setReplaceMethod("info",signature(x = "camReport"),
       name <- name[name %in% names(.f)]
       
       if (length(name) == 0) {
-        stop("The specified name is not identified or available in the camReport object.")
+        stop(
+          "The specified name is not identified or available in the camReport object."
+        )
       }
       
       x[[name]] <- value
@@ -153,5 +172,4 @@ setReplaceMethod("info",signature(x = "camReport"),
     }
   }
 )
-
 #--------

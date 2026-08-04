@@ -5,39 +5,35 @@
 \alias{install_All}
 \title{Install packages required by camtrapReport}
 \usage{
-install_All(pkgs, update, ...)
+install_All(pkgs = NULL, update = FALSE, ...)
 }
 \arguments{
-\item{pkgs}{An optional character vector of package names. The current method
-uses the package list configured by camtrapReport regardless of this
-argument.}
+\item{pkgs}{An optional character vector of additional CRAN package names.
+The default is \code{NULL}.}
 
-\item{update}{A logical value (default \code{FALSE}). If \code{TRUE}, packages are
-reinstalled or updated where possible.}
+\item{update}{A logical value. If \code{TRUE}, optional packages are reinstalled.
+The default is \code{FALSE}.}
 
-\item{...}{Additional arguments passed to \code{\link[utils:install.packages]{utils::install.packages()}}.}
+\item{...}{Additional arguments passed to \code{\link[=install.packages]{install.packages()}}.}
 }
 \value{
-Called for its side effects. The function attempts to install
-required packages and prints a summary of packages that were installed or
-could not be installed.
+Called for its side effects. The function returns \code{NULL} invisibly.
 }
 \description{
 Install packages required for the full camtrapReport workflow, including
 packages used by optional report modules.
 }
 \details{
-The function identifies packages required by camtrapReport and its report
-modules, checks whether they are installed, and attempts to install missing
-packages. This can be useful before generating reports that depend on
-optional modules or additional packages.
-
-Some report sections may not render correctly if their required packages are
-not installed.
+The function checks the package list used by camtrapReport and installs
+packages that are not currently available. Packages listed in the package
+configuration as GitHub dependencies are installed with
+\code{\link[remotes:install_github]{remotes::install_github()}}.
 }
 \examples{
 \dontrun{
 install_All()
+install_All(pkgs = "remotes")
+install_All(update = TRUE)
 }
 }
 \seealso{

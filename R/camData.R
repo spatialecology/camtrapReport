@@ -636,12 +636,12 @@
 }
 
 #--------
-
-
-if (!isGeneric("camData")) {
-  setGeneric("camData", function(data,habitat,study_area,update,...)
-    standardGeneric("camData"))
-}
+methods::setGeneric(
+  "camData",
+  function(data, habitat, study_area, update, ...) {
+    methods::standardGeneric("camData")
+  }
+)
 
 #' Read camera-trap data in Camtrap DP format
 #'
@@ -694,8 +694,10 @@ if (!isGeneric("camData")) {
 #'
 #' report(cm, view = TRUE)
 #' }
-setMethod("camData",signature(data = "character"),
-  function(data, habitat, study_area = NULL,update=FALSE, ...) {
+methods::setMethod(
+  "camData",
+  signature(data = "character"),
+  function(data, habitat, study_area = NULL, update = FALSE, ...) {
     
     if (missing(update)) update = FALSE
     

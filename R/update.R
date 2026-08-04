@@ -350,13 +350,23 @@
 
 #--------
 
-if (!isGeneric("updateReportSection")) {
-  setGeneric("updateReportSection",function(x, section, text, title, code, code_name,
-                                            code_setting, packages, append_text, append_code)
-    standardGeneric("updateReportSection")
-  )
-}
-
+methods::setGeneric(
+  "updateReportSection",
+  function(
+    x,
+    section,
+    text,
+    title,
+    code,
+    code_name,
+    code_setting,
+    packages,
+    append_text,
+    append_code
+  ) {
+    methods::standardGeneric("updateReportSection")
+  }
+)
 
 #' Update report sections
 #'
@@ -417,8 +427,7 @@ if (!isGeneric("updateReportSection")) {
 #'
 #' listReportSections(x)
 #' @name updateReportSection
-#' @aliases updateReportSection listReportSections
-#'   updateReportSection,camReport-method listReportSections,camReport-method
+#' @aliases updateReportSection listReportSections updateReportSection,camReport-method listReportSections,camReport-method
 #'
 #' @examples
 #' \dontrun{
@@ -550,11 +559,12 @@ setMethod("updateReportSection",signature(x = "camReport"),
 #--------
 
 
-if (!isGeneric("listReportSections")) {
-  setGeneric("listReportSections",function(x)
-    standardGeneric("listReportSections")
-  )
-}
+methods::setGeneric(
+  "listReportSections",
+  function(x) {
+    methods::standardGeneric("listReportSections")
+  }
+)
 
 
 setMethod("listReportSections",signature(x = "camReport"),

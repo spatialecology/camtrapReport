@@ -42,7 +42,7 @@ test_that("metadata access validates fields and aliases", {
 
   expect_error(
     `info<-`(cm, c("title", "subtitle"), value = "x"),
-    "Only one field"
+    "one non-empty character string"
   )
   expect_error(`info<-`(cm, "not_a_field", value = "x"), "not identified")
 
