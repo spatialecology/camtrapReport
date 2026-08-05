@@ -29,7 +29,29 @@ Suggests:
     roxygen2,
     remotes,
     testthat (>= 3.1.7),
-    xml2
+    xml2,
+    activity,
+    corrplot,
+    Distance,
+    dygraphs,
+    ggplot2,
+    ggrepel,
+    gt,
+    htmltools,
+    htmlwidgets,
+    iNEXT,
+    leaflet,
+    lutz,
+    magick,
+    readr,
+    sbd,
+    scales,
+    sf,
+    spatstat,
+    suncalc,
+    taxize,
+    tidyr,
+    xts
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
