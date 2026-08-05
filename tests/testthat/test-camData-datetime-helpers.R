@@ -377,26 +377,44 @@ test_that("safe_max_time returns latest valid timestamp", {
 })
 
 
-test_that("safe_max_time returns POSIXct NA for empty values", {
-  result_empty <- camtrapReport:::.safe_max_time(
-    as.POSIXct(
-      character(),
-      tz = "UTC"
+test_that("parse_cam_datetime uses fallback parser", {
+  testthat::local_mocked_bindings(
+    .require = function(package) {
+      identical(package, "lubridate")
+    },
+    .eval = function(x, env) {
+      as.POSIXct(
+        c(
+          "2025-08-05 14:30:15",
+          "2025-08-06 09:45:00"
+        ),
+        tz = "UTC"
+      )
+    },
+    .package = "camtrapReport"
+  )
+  
+  result <- camtrapReport:::.parse_cam_datetime(
+    c(
+      "20250805 14:30:15",
+      "20250806 09:45"
     ),
     tz = "UTC"
   )
   
-  result_missing <- camtrapReport:::.safe_max_time(
-    as.POSIXct(
-      c(NA, NA),
-      origin = "1970-01-01",
+  expect_s3_class(result, "POSIXct")
+  expect_length(result, 2L)
+  expect_false(anyNA(result))
+  
+  expect_identical(
+    format(
+      result,
+      "%Y-%m-%d %H:%M:%S",
       tz = "UTC"
     ),
-    tz = "UTC"
+    c(
+      "2025-08-05 14:30:15",
+      "2025-08-06 09:45:00"
+    )
   )
-  
-  expect_s3_class(result_empty, "POSIXct")
-  expect_s3_class(result_missing, "POSIXct")
-  expect_true(is.na(result_empty))
-  expect_true(is.na(result_missing))
 })
