@@ -274,6 +274,41 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
+## Relationship to other camera-trap packages
+
+The R ecosystem includes complementary tools for different stages of the
+camera-trap data lifecycle. [`camtrapdp`](https://docs.ropensci.org/camtrapdp/)
+supports reading, validating, filtering and transforming Camtrap DP datasets,
+whereas [`camtraptor`](https://inbo.github.io/camtraptor/) and
+[`ctdp`](https://git.wur.nl/camtrap/ctdp) support their exploration,
+summarisation and visualisation. `camtrapDensity` provides methods for
+estimating density from camera-trap data using Random Encounter Model
+approaches. [`camtrapR`](https://cran.r-project.org/package=camtrapR) provides
+a broader framework for media and metadata organisation, record-table
+construction, detection histories, survey summaries and ecological analyses,
+and can import Camtrap DP records into its own internal structures. Other
+packages provide integrated workflows or specialised methods, including `ct`
+for camera-trap data processing and selected activity, diversity, abundance
+and density analyses; `activity` and `overlap` for diel activity patterns;
+`Distance` for distance-sampling analyses; `iNEXT` for diversity interpolation
+and extrapolation; and `unmarked` and `secr` for hierarchical occurrence,
+abundance and spatial capture–recapture models.
+
+`camtrapReport` addresses a different organising challenge: it makes the
+complete ecological report, rather than an individual dataset transformation
+or statistical analysis, the reproducible unit of work. Starting from a
+standardised Camtrap DP dataset, it coordinates data-quality assessment,
+harmonised preprocessing, analytical settings, ecological modules, metadata,
+provenance, visual outputs and data-informed narrative through a shared
+`camReport` object. Its report-centred architecture maintains an explicit
+connection between the underlying records, processing decisions, analytical
+results and final communication product. The modular design further allows
+users to select, omit, reorder or customise report sections and to develop,
+register and reuse new analytical modules without modifying the package core.
+`camtrapReport` therefore extends the existing camera-trap software ecosystem
+with an auditable and extensible pathway from standardised records to coherent,
+reproducible and shareable ecological synthesis.
+
 ## Citation
 
 To cite `camtrapReport` in publications, run:
