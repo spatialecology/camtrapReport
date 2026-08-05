@@ -9,7 +9,7 @@ packages used by optional report modules."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.44</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.45</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@ packages used by optional report modules.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_All</span><span class="op">(</span><span class="va">pkgs</span>, <span class="va">update</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_All</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="cn">NULL</span>, update <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -60,34 +60,29 @@ packages used by optional report modules.</p>
 
 
 <dl><dt id="arg-pkgs">pkgs<a class="anchor" aria-label="anchor" href="#arg-pkgs"></a></dt>
-<dd><p>An optional character vector of package names. The current method
-uses the package list configured by camtrapReport regardless of this
-argument.</p></dd>
+<dd><p>An optional character vector of additional CRAN package names.
+The default is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-update">update<a class="anchor" aria-label="anchor" href="#arg-update"></a></dt>
-<dd><p>A logical value (default <code>FALSE</code>). If <code>TRUE</code>, packages are
-reinstalled or updated where possible.</p></dd>
+<dd><p>A logical value. If <code>TRUE</code>, optional packages are reinstalled.
+The default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">utils::install.packages()</a></code>.</p></dd>
+<dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Called for its side effects. The function attempts to install
-required packages and prints a summary of packages that were installed or
-could not be installed.</p>
+    <p>Called for its side effects. The function returns <code>NULL</code> invisibly.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The function identifies packages required by camtrapReport and its report
-modules, checks whether they are installed, and attempts to install missing
-packages. This can be useful before generating reports that depend on
-optional modules or additional packages.</p>
-<p>Some report sections may not render correctly if their required packages are
-not installed.</p>
+    <p>The function checks the package list used by camtrapReport and installs
+packages that are not currently available. Packages listed in the package
+configuration as GitHub dependencies are installed with
+<code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -98,6 +93,8 @@ not installed.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">install_All</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_All</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"remotes"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_All</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
