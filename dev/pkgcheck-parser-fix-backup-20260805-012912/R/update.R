@@ -350,7 +350,7 @@
 
 #--------
 
-setGeneric(
+methods::setGeneric(
   "updateReportSection",
   function(
     x,
@@ -559,7 +559,7 @@ setMethod("updateReportSection",signature(x = "camReport"),
 #--------
 
 
-setGeneric(
+methods::setGeneric(
   "listReportSections",
   function(x) {
     methods::standardGeneric("listReportSections")

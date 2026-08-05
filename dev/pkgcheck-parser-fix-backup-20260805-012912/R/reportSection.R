@@ -327,7 +327,7 @@
 }
 
 #--------
-setGeneric(
+methods::setGeneric(
   "reportSection",
   function(name, title, parent, txt, code_setting, packages, code) {
     methods::standardGeneric("reportSection")

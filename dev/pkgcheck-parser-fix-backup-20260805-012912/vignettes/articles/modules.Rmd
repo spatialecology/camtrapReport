@@ -43,7 +43,7 @@ A module can be written as a YAML file. The example below defines a simple modul
 
 Create a file called `species_table.yml` and save it in your working directory.
 
-~~~yaml
+```yaml
 name: species_table
 title: "Species summary table"
 parent: "results"
@@ -64,7 +64,7 @@ code: |
   } else {
     cat("No species table is available for this dataset.")
   }
-~~~
+```
 
 The `name` field defines the internal module name. The `title` field controls the section title shown in the report. The `parent` field defines where the module belongs in the report structure, for example under `methods` or `results`. The `text` field adds explanatory text, and the `code` field contains the R code used to generate the module output.
 

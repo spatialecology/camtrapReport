@@ -162,7 +162,7 @@ output:
 
 #---------
 
-setGeneric(
+methods::setGeneric(
   "testSection",
   function(x, object, view) {
     methods::standardGeneric("testSection")

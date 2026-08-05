@@ -1281,7 +1281,7 @@
 #################################
 #################################
 #################################
-setGeneric(
+methods::setGeneric(
   "add_Module",
   function(x, before, after, test, object) {
     methods::standardGeneric("add_Module")
@@ -1440,7 +1440,7 @@ setMethod("add_Module",signature(x = "character"),
 )
 
 #--------
-setGeneric("move_Module",
+methods::setGeneric("move_Module",
   function(name, before, after, parent, level0) {
     methods::standardGeneric("move_Module")
   }
@@ -1493,7 +1493,7 @@ setMethod("move_Module",signature(name = "character"),
 
 #--------
 
-setGeneric(
+methods::setGeneric(
   "remove_Module",
   function(name, recursive) {
     methods::standardGeneric("remove_Module")
@@ -1519,7 +1519,7 @@ setMethod("remove_Module",signature(name = "character"),
 
 #--------
 
-setGeneric(
+methods::setGeneric(
   "empty_trash",
   function(name, id) {
     methods::standardGeneric("empty_trash")
@@ -1546,7 +1546,7 @@ setMethod("empty_trash",signature(name = "ANY", id = "ANY"),
 )
 
 #--------
-setGeneric(
+methods::setGeneric(
   "list_Modules",
   function(tree, brief, include_trash, validate) {
     methods::standardGeneric("list_Modules")
@@ -1599,7 +1599,7 @@ setMethod("list_Modules",signature(tree = "ANY", brief = "ANY", include_trash = 
 )
 
 #--------
-setGeneric(
+methods::setGeneric(
   "restore_Module",
   function(name, batch_id, test) {
     methods::standardGeneric("restore_Module")

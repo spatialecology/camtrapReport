@@ -636,7 +636,7 @@
 }
 
 #--------
-setGeneric(
+methods::setGeneric(
   "camData",
   function(data, habitat, study_area, update, ...) {
     methods::standardGeneric("camData")
@@ -694,7 +694,7 @@ setGeneric(
 #'
 #' report(cm, view = TRUE)
 #' }
-setMethod(
+methods::setMethod(
   "camData",
   signature(data = "character"),
   function(data, habitat, study_area = NULL, update = FALSE, ...) {

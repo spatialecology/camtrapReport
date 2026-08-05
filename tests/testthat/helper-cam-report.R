@@ -28,28 +28,69 @@ copy_camtrap_test_dataset <- function() {
 }
 
 camtrap_test_report <- function() {
-  if (!exists("report", envir = .camtrap_test_cache, inherits = FALSE)) {
+  if (!exists(
+    "report",
+    envir = .camtrap_test_cache,
+    inherits = FALSE
+  )) {
     dataset <- copy_camtrap_test_dataset()
     object <- NULL
-
-    invisible(capture.output(
-      object <- withCallingHandlers(
-        suppressMessages(camData(dataset, update = TRUE)),
-        warning = function(w) {
-          if (grepl(
-            "chi\\^2 approximation may be inaccurate",
-            conditionMessage(w)
-          )) {
-            invokeRestart("muffleWarning")
-          }
+    
+    # Routine tests must not contact GBIF.
+    original_require <- get(
+      ".require",
+      envir = asNamespace("camtrapReport")
+    )
+    
+    testthat::local_mocked_bindings(
+      .require = function(x) {
+        package <- as.character(x)[1]
+        
+        if (
+          !is.na(package) &&
+          identical(package, "taxize")
+        ) {
+          return(FALSE)
         }
+        
+        original_require(x)
+      },
+      .package = "camtrapReport"
+    )
+    
+    invisible(
+      capture.output(
+        object <- withCallingHandlers(
+          suppressMessages(
+            camData(
+              dataset,
+              update = TRUE
+            )
+          ),
+          warning = function(w) {
+            if (grepl(
+              "chi\\^2 approximation may be inaccurate",
+              conditionMessage(w)
+            )) {
+              invokeRestart("muffleWarning")
+            }
+          }
+        )
       )
-    ))
-
-    assign("report", object, envir = .camtrap_test_cache)
+    )
+    
+    assign(
+      "report",
+      object,
+      envir = .camtrap_test_cache
+    )
   }
-
-  get("report", envir = .camtrap_test_cache, inherits = FALSE)
+  
+  get(
+    "report",
+    envir = .camtrap_test_cache,
+    inherits = FALSE
+  )
 }
 
 find_test_report_section <- function(x, name) {
