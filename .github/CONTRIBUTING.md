@@ -37,7 +37,7 @@ Before submitting a pull request, please:
 1. Keep the proposed change focused.
 2. Add or update tests when behaviour changes.
 3. Update the roxygen2 documentation when needed.
-4. Add a short entry to `NEWS.md` for user-facing changes.
+4. Add a short entry to [`NEWS.md`](../NEWS.md) for user-facing changes.
 5. Run:
 
 ```r

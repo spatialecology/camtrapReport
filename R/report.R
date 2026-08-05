@@ -2,7 +2,7 @@
 # Licence: MIT
 #--------
 
-methods::setGeneric(
+setGeneric(
   "report",
   function(object, filename, view, test) {
     methods::standardGeneric("report")
@@ -63,7 +63,7 @@ methods::setGeneric(
 #' # Generate data-status report
 #' status(cm, view = TRUE)
 #' }
-methods::setMethod(
+setMethod(
   "report",
   signature(object = "camReport"),
   function(object, filename = "report", view, test) {

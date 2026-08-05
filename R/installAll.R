@@ -184,7 +184,7 @@
 
 #--------
 
-methods::setGeneric(
+setGeneric(
   "install_All",
   function(pkgs = NULL, update = FALSE, ...) {
     methods::standardGeneric("install_All")
@@ -222,7 +222,7 @@ methods::setGeneric(
 #' install_All(pkgs = "remotes")
 #' install_All(update = TRUE)
 #' }
-methods::setMethod(
+setMethod(
   "install_All",
   signature(pkgs = "ANY"),
   function(pkgs = NULL, update = FALSE, ...) {

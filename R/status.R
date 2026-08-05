@@ -2,7 +2,7 @@
 # Licence: MIT
 #--------
 
-methods::setGeneric(
+setGeneric(
   "status",
   function(object, filename, view) {
     methods::standardGeneric("status")

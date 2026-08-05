@@ -2,7 +2,7 @@
 # Licence: MIT
 #--------
 
-methods::setGeneric(
+setGeneric(
   "section_names",
   function(keep, exclude) {
     methods::standardGeneric("section_names")
@@ -134,7 +134,7 @@ setMethod("section_names",signature(keep = "ANY"),
 )
 
 #-------
-methods::setGeneric(
+setGeneric(
   "sections",
   function(x, n) {
     methods::standardGeneric("sections")

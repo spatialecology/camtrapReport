@@ -13,7 +13,7 @@
 
 
 
-methods::setGeneric(
+setGeneric(
   "info",
   function(x, name) {
     methods::standardGeneric("info")
@@ -61,7 +61,7 @@ methods::setGeneric(
 #'
 #' info(cm, "title") <- "Camera-trap monitoring report"
 #' }
-methods::setMethod(
+setMethod(
   "info",
   signature(x = "camReport"),
   function(x, name) {
@@ -97,7 +97,7 @@ methods::setMethod(
   }
 )
 
-methods::setGeneric(
+setGeneric(
   "info<-",
   function(x, name, value) {
     methods::standardGeneric("info<-")
@@ -105,7 +105,7 @@ methods::setGeneric(
 )
 
 #' @rdname info
-methods::setReplaceMethod(
+setReplaceMethod(
   "info",
   signature(x = "camReport"),
   function(x, name, value) {

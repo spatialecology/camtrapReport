@@ -6,7 +6,7 @@ text: "Spatial density maps derived from point pattern analysis illustrate the s
 code: |
   #| name: spatial_density_
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE
-  #| packages: leaflet, terra, dplyr, htmltools
+  #| packages: spatstat, leaflet, terra, dplyr, htmltools
   
   .spn <- object$get_speciesNames(object$setting$focus_groups)
   

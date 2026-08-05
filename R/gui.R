@@ -2,7 +2,7 @@
 # Licence: MIT
 #--------
 
-methods::setGeneric(
+setGeneric(
   "gui",
   function(object, launch.browser, max_upload_mb, ...) {
     methods::standardGeneric("gui")
@@ -46,7 +46,7 @@ methods::setGeneric(
 #'
 #' gui(cm)
 #' }
-methods::setMethod("gui",signature(object = "camReport"),
+setMethod("gui",signature(object = "camReport"),
           function(object, launch.browser = TRUE,
                    max_upload_mb = 2000,
                    ...) {
