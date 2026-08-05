@@ -47,6 +47,13 @@
 #' @aliases camReport camReport-class camR camInfo-class characterORnull-class characterORlist-class characterORlistORnull-class listORnull-class data.frameORnull-class .Rchunk-class .textSection-class show,camReport-method show,camInfo-method
 #' @docType class
 #' @seealso [camData()], [report()], [status()], [info()], [reportSection()]
+#'
+#' @examples
+#' # Inspect the formal definition of the main report class.
+#' methods::getClass("camReport")
+#'
+#' # Check whether the class is registered.
+#' methods::isClass("camReport")
 NULL
 
 #setOldClass("ctdp")

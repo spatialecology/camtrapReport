@@ -64,6 +64,13 @@ internally, including \code{camInfo}, \code{.Rchunk}, \code{.textSection},
 \code{listORnull}, and \code{data.frameORnull}.
 }
 
+\examples{
+# Inspect the formal definition of the main report class.
+methods::getClass("camReport")
+
+# Check whether the class is registered.
+methods::isClass("camReport")
+}
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}, \code{\link[=reportSection]{reportSection()}}
 }
