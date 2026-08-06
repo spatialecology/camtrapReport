@@ -727,7 +727,12 @@
   
   obs <- dat[dat$scientificName %in% species,c("deploymentID","sequenceID", "timestamp",  "latitude", "longitude","count")]
   
-  i <- switch(obsdef, individual = rep(1:nrow(obs), obs$count), sequence = !duplicated(obs$sequenceID))
+  i <- switch(
+    obsdef,
+    individual = rep(seq_len(nrow(obs)), obs$count),
+    sequence = !duplicated(obs$sequenceID)
+  )
+  
   obs <- obs[i, ]
   
   if (nrow(obs) > 1) {
@@ -1374,7 +1379,7 @@
   ml <- ml[ml$name %in% n,]
   #-----
   .x <- c()
-  for (i in 1:nrow(ml)) {
+  for (i in seq_len(nrow(ml))) {
     if (ml$parent[i] == '.root') next
     else if (ml$parent[i] %in% ml$name) next
     else .x <- c(.x,ml$name[i])

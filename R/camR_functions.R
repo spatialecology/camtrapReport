@@ -496,7 +496,10 @@
   }
   
   if (length(.years) > 0) {
-    .df  <- df[1:length(.years),c('observation_Year','count','scientificName',.n)]
+    .df <- df[
+      seq_along(.years),
+      c("observation_Year", "count", "scientificName", .n)
+    ]
     colnames(.df) <- c('observation_Year','total_species','species_list_scientificName',.nn)
     .df$total_observations <- 0
     .df$observation_Year <- as.numeric(.years)
