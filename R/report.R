@@ -8,6 +8,12 @@ setGeneric(
     methods::standardGeneric("report")
   }
 )
+.generate_report <- function(object, output_file, rmd_file) {
+  object$generateReport(
+    output_file = output_file,
+    rmd_file = rmd_file
+  )
+}
 
 #' Generate ecological and data-status reports
 #'
@@ -110,9 +116,10 @@ setMethod(
     
     # Generate report
     w <- try(
-      object$generateReport(
+      .generate_report(
+        object = object,
         output_file = paste0(out_stem, ".html"),
-        rmd_file    = paste0(out_stem, ".Rmd")
+        rmd_file = paste0(out_stem, ".Rmd")
       ),
       silent = TRUE
     )

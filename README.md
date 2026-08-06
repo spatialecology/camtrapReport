@@ -20,13 +20,14 @@
 
 ---
 
-`camtrapReport` turns standardised camera-trap datasets into structured, reproducible ecological reports. Drop in a [Camtrap DP](https://camtrap-dp.tdwg.org/) `.zip`, and the package will diagnose data quality, run a suite of ecological analyses, and compile narrative, figures, maps and tables into a single article-style HTML document.
+`camtrapReport` turns standardised camera-trap datasets into structured, reproducible ecological reports through an automated workflow. Drop in a [Camtrap DP](https://camtrap-dp.tdwg.org/) ZIP file, and the package will diagnose data quality, run a suite of ecological analyses, and compile narrative text, figures, maps, and tables into a single article-style HTML document.
 
 <p align="center">
-  <img src="vignettes/articles/figures/workflow.png" width="900" alt="camtrapReport workflow"/>
+  <img src="vignettes/articles/figures/workflow.png" width="900" alt="Schematic overview of the camtrapReport workflow"/>
   <br>
-  <em>Schematic overview of the camtrapReport workflow.</em>
+  <em>Schematic overview of the automated <code>camtrapReport</code> workflow.</em>
 </p>
+
 
 ## Install
 
@@ -46,9 +47,7 @@ cm <- camData("Leuven-data.zip")   # build the camReport object
 
 ## Optional input
 
-Optional input data can be used to improve maps, add spatial context, and support richer summaries and analyses. The two supported optional inputs are **habitat data** and a **study area polygon**.
-
-Habitat information can be provided as a two-column CSV file containing `locationName` and `Habitat`. An example `habitat.csv` template can be downloaded [here](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing). A polygon shapefile representing the study area boundary can also be provided. When available, these optional inputs can be passed directly to `camData()`.
+Optional inputs can be supplied directly to `camData()`, including habitat data as a CSV file ([see template](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing)) and the study-area boundary as a polygon shapefile.
 
 ```r
 habitat <- read.csv("C:/Users/Data/habitat.csv")
@@ -274,7 +273,7 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
-## Relationship to other camera-trap packages
+## Existing Packages to Work with Camera-trap Data
 
 The R ecosystem includes complementary tools for different stages of the
 camera-trap data lifecycle. [`camtrapdp`](https://docs.ropensci.org/camtrapdp/)
