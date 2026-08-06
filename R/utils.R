@@ -694,9 +694,9 @@
   .colors <- grDevices::colorRampPalette(c("red", "white", "blue"))(100)
   
   graphics::image(
-    1:ncol(x),
-    1:nrow(x),
-    t(x[nrow(x):1, ]),
+    seq_len(ncol(x)),
+    seq_len(nrow(x)),
+    t(x[rev(seq_len(nrow(x))), , drop = FALSE]),
     col = .colors,
     axes = FALSE,
     xlab = "",
