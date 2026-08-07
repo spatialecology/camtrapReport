@@ -12,3 +12,6 @@
 ^vignettes/articles$
 ^LICENSE\.md$
 ^long-functions-audit\.csv$
+^\.RDataTmp$
+^doc$
+^Meta$
