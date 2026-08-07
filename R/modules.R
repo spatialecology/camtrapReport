@@ -1374,26 +1374,22 @@ setGeneric(
 #' @aliases add_Module move_Module remove_Module empty_trash restore_Module list_Modules add_Module,character-method move_Module,character-method remove_Module,character-method empty_trash,ANY-method restore_Module,character-method list_Modules,ANY-method
 #'
 #' @examples
-#' \dontrun{
-#' # List modules as a tree
-#' list_Modules()
+#' # List modules as a hierarchical tree
+#' module_tree <- list_Modules()
+#' head(module_tree)
 #'
 #' # List modules in table form
-#' list_Modules(tree = FALSE)
+#' module_table <- list_Modules(tree = FALSE)
+#' head(module_table)
 #'
-#' # Add a new module from a YAML file
+#' \dontrun{
+#' # The operations below modify the installed module registry
+#' # and are therefore not run automatically.
+#'
 #' add_Module("new_module.yml", after = "captures")
-#'
-#' # Move a module
 #' move_Module("species_accumulation", after = "richness")
-#'
-#' # Remove a module and its child modules
 #' remove_Module("species_accumulation", recursive = TRUE)
-#'
-#' # Restore a removed module
 #' restore_Module("species_accumulation")
-#'
-#' # Empty the module trash
 #' empty_trash()
 #' }
 setMethod("add_Module",signature(x = "character"),

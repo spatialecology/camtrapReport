@@ -29,15 +29,14 @@
   )
 }
 
+
 #-----------
-.camr_getMergedSummary <- function(cm) {
-  
-  #---------------- helper functions ----------------
-  
-  .base_left_join <- function(x, y, by) {
+  .camr_base_left_join <- function(x, y, by) {
+    
     if (is.null(x) || !is.data.frame(x)) {
       stop("'x' must be a data.frame.")
     }
+    
     if (is.null(y) || !is.data.frame(y)) {
       stop("'y' must be a data.frame.")
     }
@@ -46,13 +45,21 @@
     missing_y <- setdiff(by, names(y))
     
     if (length(missing_x) > 0) {
-      stop("Missing join column(s) in x: ", paste(missing_x, collapse = ", "))
+      stop(
+        "Missing join column(s) in x: ",
+        paste(missing_x, collapse = ", ")
+      )
     }
+    
     if (length(missing_y) > 0) {
-      stop("Missing join column(s) in y: ", paste(missing_y, collapse = ", "))
+      stop(
+        "Missing join column(s) in y: ",
+        paste(missing_y, collapse = ", ")
+      )
     }
     
     row_id <- ".camr_row_id__"
+    
     while (row_id %in% names(x) || row_id %in% names(y)) {
       row_id <- paste0(row_id, "_")
     }
@@ -67,22 +74,39 @@
       sort = FALSE
     )
     
-    out <- out[order(out[[row_id]]), , drop = FALSE]
+    out <- out[
+      order(out[[row_id]]),
+      ,
+      drop = FALSE
+    ]
+    
     out[[row_id]] <- NULL
     rownames(out) <- NULL
     
     out
   }
   
-  .unique_rows <- function(x, cols = names(x)) {
+  
+  .camr_unique_rows <- function(x, cols = names(x)) {
+    
     if (is.null(x) || nrow(x) == 0) {
       return(x)
     }
     
-    x[!duplicated(x[, cols, drop = FALSE]), , drop = FALSE]
+    x[
+      !duplicated(x[, cols, drop = FALSE]),
+      ,
+      drop = FALSE
+    ]
   }
   
-  .clean_unique <- function(x, sep = ", ", sort_values = TRUE) {
+  
+  .camr_clean_unique <- function(
+    x,
+    sep = ", ",
+    sort_values = TRUE
+  ) {
+    
     x <- .trim_chr(x)
     x <- x[!is.na(x) & x != ""]
     x <- unique(x)
@@ -95,18 +119,31 @@
       x <- sort(x)
     }
     
-    paste(x, collapse = sep)
+    paste(
+      x,
+      collapse = sep
+    )
   }
   
-  .rows_for_location <- function(location_vec, loc) {
+  
+  .camr_rows_for_location <- function(location_vec, loc) {
+    
     if (is.na(loc)) {
       is.na(location_vec)
     } else {
-      !is.na(location_vec) & location_vec == loc
+      !is.na(location_vec) &
+        location_vec == loc
     }
   }
   
-  .summary_by_location <- function(df, value_col, out_col, fun) {
+  
+  .camr_summary_by_location <- function(
+    df,
+    value_col,
+    out_col,
+    fun
+  ) {
+    
     if (
       is.null(df) ||
       !is.data.frame(df) ||
@@ -114,30 +151,61 @@
       !"locationID" %in% names(df) ||
       !value_col %in% names(df)
     ) {
-      out <- data.frame(locationID = character(), stringsAsFactors = FALSE)
+      
+      out <- data.frame(
+        locationID = character(),
+        stringsAsFactors = FALSE
+      )
+      
       out[[out_col]] <- character()
+      
       return(out)
     }
     
-    locs <- unique(df[["locationID"]])
+    locs <- unique(
+      df[["locationID"]]
+    )
     
     vals <- vapply(
       locs,
       function(loc) {
-        idx <- .rows_for_location(df[["locationID"]], loc)
-        fun(df[[value_col]][idx])
+        
+        idx <- .camr_rows_for_location(
+          df[["locationID"]],
+          loc
+        )
+        
+        fun(
+          df[[value_col]][idx]
+        )
       },
       character(1)
     )
     
-    out <- data.frame(locationID = locs, stringsAsFactors = FALSE)
+    out <- data.frame(
+      locationID = locs,
+      stringsAsFactors = FALSE
+    )
+    
     out[[out_col]] <- vals
+    
     out
   }
   
+  
+  .camr_getMergedSummary <- function(cm) {
+    
+    #----------- deployments + locations ----------------
+    
+    dep_loc <- .camr_base_left_join(
+      cm$data$deployments,
+      cm$data$locations,
+      by = "locationID"
+    )
+  
   #----------- deployments + locations ----------------
   
-  dep_loc <- .base_left_join(
+  dep_loc <- .camr_base_left_join(
     cm$data$deployments,
     cm$data$locations,
     by = "locationID"
@@ -160,18 +228,18 @@
   
   #---------------- Count deployments per location ----------------
   
-  deployments_per_location <- .summary_by_location(
+  deployments_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "deploymentID",
     out_col = "deploymentID_List",
-    fun = function(x) .clean_unique(x, sep = ", ", sort_values = FALSE)
+    fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = FALSE)
   )
   
   if (nrow(deployments_per_location) > 0) {
     deployments_per_location$Num_Deployments <- vapply(
       deployments_per_location$locationID,
       function(loc) {
-        sum(.rows_for_location(dep_loc$locationID, loc))
+        sum(.camr_rows_for_location(dep_loc$locationID, loc))
       },
       integer(1)
     )
@@ -182,7 +250,7 @@
   #---------------- deployment-to-location mapping ----------------
   
   deployment_to_location <- dep_loc[, c("deploymentID", "locationID"), drop = FALSE]
-  deployment_to_location <- .unique_rows(
+  deployment_to_location <- .camr_unique_rows(
     deployment_to_location,
     cols = c("deploymentID", "locationID")
   )
@@ -196,13 +264,13 @@
   ) {
     
     seq_cap <- cm$data$sequences[, c("deploymentID", "captureMethod"), drop = FALSE]
-    seq_cap <- .base_left_join(seq_cap, deployment_to_location, by = "deploymentID")
+    seq_cap <- .camr_base_left_join(seq_cap, deployment_to_location, by = "deploymentID")
     
-    capture_methods_per_location <- .summary_by_location(
+    capture_methods_per_location <- .camr_summary_by_location(
       seq_cap,
       value_col = "captureMethod",
       out_col = "CaptureMethod_List",
-      fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+      fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
     )
     
   } else {
@@ -215,11 +283,11 @@
   
   #---------------- setupBy per location ----------------
   
-  setup_per_location <- .summary_by_location(
+  setup_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "setupBy",
     out_col = "Setup_By_List",
-    fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+    fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
   
   #---------------- sequenceID to deploymentID mapping ----------------
@@ -231,7 +299,7 @@
   ) {
     
     sequence_to_deployment <- cm$data$sequences[, c("sequenceID", "deploymentID"), drop = FALSE]
-    sequence_to_deployment <- .unique_rows(
+    sequence_to_deployment <- .camr_unique_rows(
       sequence_to_deployment,
       cols = c("sequenceID", "deploymentID")
     )
@@ -259,23 +327,23 @@
       obs_class$deploymentID <- NULL
     }
     
-    obs_class <- .base_left_join(
+    obs_class <- .camr_base_left_join(
       obs_class,
       sequence_to_deployment,
       by = "sequenceID"
     )
     
-    obs_class <- .base_left_join(
+    obs_class <- .camr_base_left_join(
       obs_class,
       deployment_to_location,
       by = "deploymentID"
     )
     
-    Classify_per_location <- .summary_by_location(
+    Classify_per_location <- .camr_summary_by_location(
       obs_class,
       value_col = "classifiedBy",
       out_col = "Classify_By_List",
-      fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+      fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
     )
     
   } else {
@@ -288,20 +356,20 @@
   
   #---------------- baitUse per location ----------------
   
-  bait_use_per_location <- .summary_by_location(
+  bait_use_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "baitUse",
     out_col = "BaitUse_List",
-    fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+    fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
   
   #---------------- years per location ----------------
   
-  years_per_location <- .summary_by_location(
+  years_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "Year",
     out_col = "Year_List",
-    fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+    fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
   
   #---------------- photos per location ----------------
@@ -313,7 +381,7 @@
   ) {
     
     photo_df <- cm$data$sequences[, c("deploymentID", "nrphotos"), drop = FALSE]
-    photo_df <- .base_left_join(
+    photo_df <- .camr_base_left_join(
       deployment_to_location,
       photo_df,
       by = "deploymentID"
@@ -324,7 +392,7 @@
     total_photos <- vapply(
       locs,
       function(loc) {
-        idx <- .rows_for_location(photo_df$locationID, loc)
+        idx <- .camr_rows_for_location(photo_df$locationID, loc)
         sum(photo_df$nrphotos[idx], na.rm = TRUE)
       },
       numeric(1)
@@ -365,9 +433,9 @@
       }
       
       tax <- cm$data$taxonomy[, c("taxonID", "scientificName"), drop = FALSE]
-      tax <- .unique_rows(tax, cols = "taxonID")
+      tax <- .camr_unique_rows(tax, cols = "taxonID")
       
-      obs_tax <- .base_left_join(obs_tax, tax, by = "taxonID")
+      obs_tax <- .camr_base_left_join(obs_tax, tax, by = "taxonID")
     }
     
     if (
@@ -377,13 +445,13 @@
       
       species_obs <- obs_tax[, c("sequenceID", "scientificName"), drop = FALSE]
       
-      species_obs <- .base_left_join(
+      species_obs <- .camr_base_left_join(
         species_obs,
         sequence_to_deployment,
         by = "sequenceID"
       )
       
-      species_obs <- .base_left_join(
+      species_obs <- .camr_base_left_join(
         species_obs,
         deployment_to_location,
         by = "deploymentID"
@@ -399,11 +467,11 @@
         drop = FALSE
       ]
       
-      species_per_location <- .summary_by_location(
+      species_per_location <- .camr_summary_by_location(
         species_obs,
         value_col = "scientificName",
         out_col = "Species_List",
-        fun = function(x) .clean_unique(x, sep = ", ", sort_values = TRUE)
+        fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
       )
       
     } else {
@@ -426,14 +494,14 @@
   
   .d <- dep_loc
   
-  .d <- .base_left_join(.d, deployments_per_location, by = "locationID")
-  .d <- .base_left_join(.d, capture_methods_per_location, by = "locationID")
-  .d <- .base_left_join(.d, setup_per_location, by = "locationID")
-  .d <- .base_left_join(.d, Classify_per_location, by = "locationID")
-  .d <- .base_left_join(.d, bait_use_per_location, by = "locationID")
-  .d <- .base_left_join(.d, years_per_location, by = "locationID")
-  .d <- .base_left_join(.d, photos_per_location, by = "locationID")
-  .d <- .base_left_join(.d, species_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, deployments_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, capture_methods_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, setup_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, Classify_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, bait_use_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, years_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, photos_per_location, by = "locationID")
+  .d <- .camr_base_left_join(.d, species_per_location, by = "locationID")
   
   rownames(.d) <- NULL
   
@@ -3258,7 +3326,7 @@
   out$Capture_Rate <- .round_capture_metric(out[["capture_rate"]])
   out$RAI <- .round_capture_metric(out[["rai"]])
   
-  # Equivalent of dplyr::select(...)
+  # Final standardized output columns
   out <- data.frame(
     Species_Name = out[["Species_Name"]],
     scientificName = out[["scientificName"]],
@@ -3271,16 +3339,29 @@
   )
   
   # Equivalent of distinct(scientificName, Year, .keep_all = TRUE)
-  keep <- !duplicated(out[, c("scientificName", "Year"), drop = FALSE])
-  out <- out[keep, , drop = FALSE]
+  keep <- !duplicated(
+    out[, c("scientificName", "Year"), drop = FALSE]
+  )
+  
+  out <- out[
+    keep,
+    ,
+    drop = FALSE
+  ]
   
   # Equivalent of arrange(Species_Name)
-  ord <- order(out$Species_Name, na.last = TRUE)
-  out <- out[ord, , drop = FALSE]
+  ord <- order(
+    out$Species_Name,
+    na.last = TRUE
+  )
+  
+  out <- out[
+    ord,
+    ,
+    drop = FALSE
+  ]
   
   rownames(out) <- NULL
   
   out
 }
-
-

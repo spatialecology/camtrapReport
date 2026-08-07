@@ -101,7 +101,6 @@ reference:
       - camData
       - info
       - install_All
-      - status
 
   - title: Core classes
     contents:

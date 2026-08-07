@@ -43,17 +43,29 @@ When \code{n} is omitted, it returns the names of the object's currently availab
 sections without changing the object.
 }
 \examples{
-\dontrun{
-cm <- camData("file.zip")
+# List all available report-section names
+available_sections <- section_names()
+head(available_sections)
 
-n <- section_names()
+# Load the packaged example dataset
+example_dataset <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport"
+)
 
-n
+cm <- camData(example_dataset)
 
-sections(cm, n)
+# Inspect the sections currently available for this object
+current_sections <- sections(cm)
+head(current_sections)
 
-report(cm)
-}
+# Select a small subset of available sections
+selected_sections <- head(current_sections, 4)
+cm <- sections(cm, selected_sections)
+
+# Show the selected section names
+selected_sections
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}},

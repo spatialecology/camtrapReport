@@ -681,19 +681,15 @@ setGeneric(
 #' @keywords spatial species camera-trap
 #'
 #' @examples
-#' \dontrun{
-#' habitat <- read.csv("habitat.csv")
-#'
-#' cm <- camData(
-#'   data = "dataset.zip",
-#'   habitat = habitat,
-#'   study_area = "study_area.shp"
+#' example_dataset <- system.file(
+#'   "external",
+#'   "dataset",
+#'   package = "camtrapReport"
 #' )
 #'
-#' cm
+#' cm <- camData(example_dataset)
 #'
-#' report(cm, view = TRUE)
-#' }
+#' cm
 setMethod(
   "camData",
   signature(data = "character"),

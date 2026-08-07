@@ -197,7 +197,7 @@ setGeneric(
 #' @rdname testSection
 #' @aliases testSection
 #'
-#' @examples
+#' @examplesIf rmarkdown::pandoc_available()
 #' tx <- reportSection(
 #'   name = "introduction",
 #'   title = "Introduction",
@@ -208,11 +208,16 @@ setGeneric(
 #'   }
 #' )
 #'
-#' tx
+#' # Render the section without opening a browser
+#' test_file <- testSection(
+#'   tx,
+#'   view = FALSE
+#' )
 #'
-#' \dontrun{
-#' testSection(tx)
-#' }
+#' file.exists(test_file)
+#'
+#' # Remove the generated HTML file
+#' unlink(test_file)
 setMethod("testSection",signature(x = ".textSection"),
   function(x, object, view) {
     

@@ -40,12 +40,16 @@ setGeneric(
 #' @rdname gui
 #' @aliases gui
 #'
-#' @examples
-#' \dontrun{
-#' cm <- camData("data-folder")
+#' @examplesIf interactive()
+#' example_dataset <- system.file(
+#'   "external",
+#'   "dataset",
+#'   package = "camtrapReport"
+#' )
+#'
+#' cm <- camData(example_dataset)
 #'
 #' gui(cm)
-#' }
 setMethod("gui",signature(object = "camReport"),
           function(object, launch.browser = TRUE,
                    max_upload_mb = 2000,

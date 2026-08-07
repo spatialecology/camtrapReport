@@ -99,17 +99,73 @@ before generating the report.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="camData.html">camData</a></span><span class="op">(</span><span class="st">"data-folder"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">example_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"external"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"dataset"</span>,</span></span>
+<span class="r-in"><span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="camData.html">camData</a></span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Retrieve all report information</span></span></span>
 <span class="r-in"><span><span class="fu">info</span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $title</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for EOW Veluwe, Netherlands"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $subtitle</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Ecological insights from camera-trap data for wildlife monitoring"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $authors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Jari Bos, Laurens Dijkhuis, Elham Ebrahimi, Tancredi Guerrasio, Henjo de Knegt, Yorick Liefting, Jan den Ouden, Bart van Rossum, Anouk van der Schaaf, Anna Stubbe, and Patrick Jansen*"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $institute</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Wageningen University and University of Sassari"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $siteName</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EOW Veluwe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $logoPath</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "camInfo"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">xi</span> <span class="op">&lt;-</span> <span class="fu">info</span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"title"</span>, <span class="st">"authors"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Retrieve selected fields</span></span></span>
+<span class="r-in"><span><span class="va">selected_info</span> <span class="op">&lt;-</span> <span class="fu">info</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">cm</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"title"</span>, <span class="st">"authors"</span>, <span class="st">"institute"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">xi</span></span></span>
+<span class="r-in"><span><span class="va">selected_info</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $title</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for EOW Veluwe, Netherlands"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $authors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Jari Bos, Laurens Dijkhuis, Elham Ebrahimi, Tancredi Guerrasio, Henjo de Knegt, Yorick Liefting, Jan den Ouden, Bart van Rossum, Anouk van der Schaaf, Anna Stubbe, and Patrick Jansen*"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $institute</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Wageningen University and University of Sassari"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "camInfo"</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Update individual fields</span></span></span>
 <span class="r-in"><span><span class="fu">info</span><span class="op">(</span><span class="va">cm</span>, <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-trap monitoring report"</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu">info</span><span class="op">(</span><span class="va">cm</span>, <span class="st">"institute"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Example Wildlife Research Institute"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Inspect the updated fields</span></span></span>
+<span class="r-in"><span><span class="fu">info</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">cm</span>,</span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"title"</span>, <span class="st">"institute"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $title</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-trap monitoring report"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $institute</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Example Wildlife Research Institute"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "camInfo"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

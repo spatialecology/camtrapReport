@@ -33,6 +33,7 @@ The \code{object} argument is only needed when the R code in the section refers 
 a \code{camReport} object.
 }
 \examples{
+\dontshow{if (rmarkdown::pandoc_available()) withAutoprint(\{ # examplesIf}
 tx <- reportSection(
   name = "introduction",
   title = "Introduction",
@@ -43,11 +44,17 @@ tx <- reportSection(
   }
 )
 
-tx
+# Render the section without opening a browser
+test_file <- testSection(
+  tx,
+  view = FALSE
+)
 
-\dontrun{
-testSection(tx)
-}
+file.exists(test_file)
+
+# Remove the generated HTML file
+unlink(test_file)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=report]{report()}}

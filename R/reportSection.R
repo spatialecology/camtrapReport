@@ -386,26 +386,29 @@ setGeneric(
 #'
 #' tx
 #'
-#' \dontrun{
+#' # Create a section containing text and an R code chunk
 #' tx2 <- reportSection(
 #'   name = "methods",
 #'   title = "Methods",
 #'   parent = NULL,
 #'   txt = "This section summarises the camera deployment design.",
-#'   code_setting = {c(echo = FALSE, results = "asis", warning = FALSE)},
+#'   code_setting = {
+#'     c(echo = FALSE, results = "asis", warning = FALSE)
+#'   },
 #'   packages = c("gt", "dplyr"),
 #'   code = {
 #'     object$camera_setup |>
 #'       gt::gt() |>
 #'       gt::tab_header(
 #'         title = gt::md("**Camera Deployment Summary**"),
-#'         subtitle = gt::md("Details of camera deployments per year")
+#'         subtitle = gt::md(
+#'           "Details of camera deployments per year"
+#'         )
 #'       )
 #'   }
 #' )
 #'
 #' tx2
-#' }
 setMethod("reportSection",signature(name = "character"),
   function(name,
            title,

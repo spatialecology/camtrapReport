@@ -273,41 +273,67 @@ This is a relatively large dataset, covering multiple years and more than 300 ca
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
-## Existing Packages to Work with Camera-trap Data
+## How does `camtrapReport` differ from existing tools?
 
-The R ecosystem includes complementary tools for different stages of the
-camera-trap data lifecycle. [`camtrapdp`](https://inbo.github.io/camtrapdp/)
-supports reading, validating, filtering, and transforming Camtrap DP datasets,
-whereas [`camtraptor`](https://inbo.github.io/camtraptor/) and
-[`ctdp`](https://git.wur.nl/camtrap/ctdp) support their exploration,
-summarisation, and visualisation. 
-[`camtrapDensity`](https://github.com/MarcusRowcliffe/camtrapDensity) provides
-methods for estimating density from camera-trap data using Random Encounter
-Model approaches. [`camtrapR`](https://cran.r-project.org/package=camtrapR)
-provides a broader framework for media and metadata organisation, record-table
-construction, detection histories, survey summaries, and ecological analyses,
-and can import Camtrap DP records into its own internal structures. Other
-packages provide integrated workflows or specialised methods, including `ct`
-for camera-trap data processing and selected activity, diversity, abundance,
-and density analyses; `activity` and `overlap` for diel activity patterns;
-`Distance` for distance-sampling analyses; `iNEXT` for diversity interpolation
-and extrapolation; and `unmarked` and `secr` for hierarchical occurrence,
-abundance, and spatial capture–recapture models.
+R has a rich ecosystem for working with camera-trap data. Existing packages support complementary parts of the data lifecycle, including:
 
-`camtrapReport` addresses a different organising challenge: it makes the
-complete ecological report, rather than an individual dataset transformation
-or statistical analysis, the reproducible unit of work. Starting from a
-standardised Camtrap DP dataset, it coordinates data-quality assessment,
-harmonised preprocessing, analytical settings, ecological modules, metadata,
-provenance, visual outputs and data-informed narrative through a shared
-`camReport` object. Its report-centred architecture maintains an explicit
-connection between the underlying records, processing decisions, analytical
-results and final communication product. The modular design further allows
-users to select, omit, reorder or customise report sections and to develop,
-register and reuse new analytical modules without modifying the package core.
-`camtrapReport` therefore extends the existing camera-trap software ecosystem
-with an auditable and extensible pathway from standardised records to coherent,
-reproducible and shareable ecological synthesis.
+- **Data standards and standardised data handling:** `camtrapdp`;
+- **Data management and preparation:** `camtrapR` and `ct`;
+- **Exploration, summaries, and visualisation:** `camtraptor`, `ctdp`, `camtrapR`, and `ct`;
+- **Activity, diversity, abundance, and density analyses:** `activity`, `overlap`, `iNEXT`, `camtrapDensity`, `Distance`, and `ct`; and
+- **Hierarchical and spatial modelling:** `unmarked` and `secr`.
+
+These packages provide powerful functionality for particular data-processing tasks, ecological analyses, or model classes. However, producing a complete ecological report typically still requires users to organise several analytical steps, harmonise their settings and outputs, generate figures and tables, document processing decisions, and assemble the results into a coherent report.
+
+### The Distinctive Contribution of `camtrapReport`
+
+To our knowledge, `camtrapReport` is the first R package designed to automatically generate a complete, modular, and reproducible ecological report directly from a standardised Camtrap DP dataset.
+
+Its central innovation is that it treats the ecological report itself as the reproducible unit of work, rather than treating an individual transformation, analysis, model, or figure as the final product.
+
+From a single standardised dataset, `camtrapReport` coordinates:
+
+- data-quality assessment and reporting;
+- harmonised preprocessing and analytical settings;
+- ecological analyses and indicators;
+- figures, tables, maps, and other visual outputs;
+- metadata and provenance;
+- data-informed explanatory text; and
+- generation of the final ecological report.
+
+These components are managed through a shared `camReport` object, which maintains the connection between the original records, processing decisions, analytical results, and reported outputs.
+
+### Key Differences at a Glance
+
+| Feature | Most existing tools | `camtrapReport` |
+|---|---|---|
+| **Primary purpose** | Perform a specific data-management or analytical task | Generate a complete ecological report |
+| **Primary output** | Processed data, model objects, statistics, or individual figures | A structured and shareable report containing coordinated analyses, figures, tables, metadata, and narrative |
+| **Reproducible unit** | An individual processing or analytical step | The complete reporting workflow |
+| **Workflow structure** | Functions or workflows designed around particular methods | Independent and configurable report modules |
+| **Customisation** | Users combine and adapt separate analytical scripts | Users can select, omit, reorder, and configure report sections |
+| **Extensibility** | Additional analyses are commonly added through external scripts | New modules can be developed, registered, and reused without modifying the package core |
+| **Traceability** | Depends on how users organise their workflow | Input data, settings, decisions, results, and report outputs are explicitly linked through the `camReport` object |
+| **Consistency across datasets** | Requires users to reproduce and harmonise their own workflows | A common framework supports consistent processing, analysis, visualisation, and reporting |
+
+### Modular, Flexible, and Extensible by Design
+
+`camtrapReport` is not a fixed report template. Its modular architecture allows users to:
+
+- include only analyses supported by their data and research objectives;
+- omit or reorder report sections;
+- modify analytical settings;
+- customise existing modules; and
+- develop and register new analytical or reporting modules.
+
+The framework can therefore be adapted to datasets with different species, sampling designs, survey durations, spatial extents, and reporting needs. It can also evolve as new camera-trap methods, indicators, visualisations, and data standards become available.
+
+### Relationship to other Packages
+
+`camtrapReport` does not aim to replace specialised camera-trap packages or reimplement every available ecological model. Instead, it adds a report-centred, reproducible, and extensible layer to the existing R ecosystem. Where appropriate, specialised tools, models, and data-processing procedures can be incorporated into report modules and presented within a consistent reporting structure.
+
+**In brief:** existing packages help users manage or analyse camera-trap data; `camtrapReport` automatically transforms standardised camera-trap data into a complete, configurable, traceable, and reproducible ecological report.
+
 
 ## Citation
 
@@ -321,12 +347,8 @@ citation("camtrapReport")
 
 Contributions to `camtrapReport` are very welcome. These may include bug
 reports, feature requests, documentation improvements, code contributions,
-or proposals for new report modules.
-
-You can contribute by opening a
+or proposals for new report modules.You can contribute by opening a
 [GitHub issue](https://github.com/spatialecology/camtrapReport/issues)
-or starting a
-[discussion](https://github.com/spatialecology/camtrapReport/discussions). Before contributing, please read the
+or starting a [discussion](https://github.com/spatialecology/camtrapReport/discussions). Before contributing, please read the
 [contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)
-and the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
+and the [Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).

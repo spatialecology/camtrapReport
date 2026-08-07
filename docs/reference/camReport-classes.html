@@ -99,6 +99,100 @@ internally, including <code>camInfo</code>, <code>.Rchunk</code>, <code>.textSec
     <div class="dont-index"><p><code><a href="camData.html">camData()</a></code>, <code><a href="report.html">report()</a></code>, <code><a href="report.html">status()</a></code>, <code><a href="info.html">info()</a></code>, <code><a href="reportSection.html">reportSection()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect the formal definition of the main report class.</span></span></span>
+<span class="r-in"><span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/getClass.html" class="external-link">getClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reference Class "camReport":</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class fields:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                        data                    habitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 data_merged                 study_area</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 listORnull</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                    siteName                      title</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                    subtitle                    authors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   institute                   logoPath</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   annonator            acknowledgement</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 description                      years</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                    numeric</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:            group_definition              filterExclude</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                  filterKeep                filterCount</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                    numeric</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:              filterDuration            observed_counts</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                    numeric                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:            frequent_species               camera_stats</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                camera_setup          observation_stats</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:             species_summary              species_stats</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:  species_summary_by_habitat                    capture</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:           density_estimates                    setting</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   sun_times                   packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:           data.frameORnull                  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                        info                data_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                         rem                .rem_params</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 .act_models          .any_data_for_rem</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                    logical</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                .tempObjects         reportTextElements</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:        reportObjectElements        statusReportObjects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Name:               reportObjects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class Methods: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "get_REM", "get_speciesNames", "get_data_subset", "import", "initFields", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "filter", "export", "show#envRefClass", "fit_REM", "getClass", "field", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "initialize", "addStatusReportObject", "gui", "get_focus_group", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "get_group", "callSuper", "untrace", "setup", "richness", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "recetFigTabNumber", "spatial_density", "extractYears", "generateReport", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "species_summary_by_location", ".objectPackage", "trace", "getRefClass", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "copy", "show", "addReportObject", "usingMethods", "generateStatusReport", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "set_focus_group", ".get_REM_Param", "getTableNumber", ".objectParent", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "add_group", "getFigureNumber"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reference Superclasses: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "envRefClass"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Check whether the class is registered.</span></span></span>
+<span class="r-in"><span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/findClass.html" class="external-link">isClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

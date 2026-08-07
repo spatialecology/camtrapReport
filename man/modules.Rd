@@ -110,26 +110,22 @@ child modules are also moved to the trash.
 modules stored in the trash.
 }
 \examples{
-\dontrun{
-# List modules as a tree
-list_Modules()
+# List modules as a hierarchical tree
+module_tree <- list_Modules()
+head(module_tree)
 
 # List modules in table form
-list_Modules(tree = FALSE)
+module_table <- list_Modules(tree = FALSE)
+head(module_table)
 
-# Add a new module from a YAML file
+\dontrun{
+# The operations below modify the installed module registry
+# and are therefore not run automatically.
+
 add_Module("new_module.yml", after = "captures")
-
-# Move a module
 move_Module("species_accumulation", after = "richness")
-
-# Remove a module and its child modules
 remove_Module("species_accumulation", recursive = TRUE)
-
-# Restore a removed module
 restore_Module("species_accumulation")
-
-# Empty the module trash
 empty_trash()
 }
 }

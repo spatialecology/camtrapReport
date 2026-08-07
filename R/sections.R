@@ -48,17 +48,29 @@ setGeneric(
 #' @aliases section_names sections section_names,ANY-method sections,camReport-method
 #'
 #' @examples
-#' \dontrun{
-#' cm <- camData("file.zip")
+#' # List all available report-section names
+#' available_sections <- section_names()
+#' head(available_sections)
 #'
-#' n <- section_names()
+#' # Load the packaged example dataset
+#' example_dataset <- system.file(
+#'   "external",
+#'   "dataset",
+#'   package = "camtrapReport"
+#' )
 #'
-#' n
+#' cm <- camData(example_dataset)
 #'
-#' sections(cm, n)
+#' # Inspect the sections currently available for this object
+#' current_sections <- sections(cm)
+#' head(current_sections)
 #'
-#' report(cm)
-#' }
+#' # Select a small subset of available sections
+#' selected_sections <- head(current_sections, 4)
+#' cm <- sections(cm, selected_sections)
+#'
+#' # Show the selected section names
+#' selected_sections
 setMethod("section_names",signature(keep = "ANY"),
   function(keep, exclude) {
     

@@ -218,6 +218,8 @@ setGeneric(
 #'
 #' @examples
 #' \dontrun{
+#' # These calls install packages into the user's R library
+#' # and are therefore not run automatically.
 #' install_All()
 #' install_All(pkgs = "remotes")
 #' install_All(update = TRUE)

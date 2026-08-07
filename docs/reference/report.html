@@ -114,15 +114,52 @@ errors during report generation.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="camData.html">camData</a></span><span class="op">(</span><span class="st">"data-folder"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">example_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"external"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"dataset"</span>,</span></span>
+<span class="r-in"><span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Generate ecological report</span></span></span>
-<span class="r-in"><span><span class="fu">report</span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="camData.html">camData</a></span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Generate data-status report</span></span></span>
-<span class="r-in"><span><span class="fu">status</span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># Use one lightweight section for the ecological report</span></span></span>
+<span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="st">"introduction"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The report sections are updated.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate an ecological report in a temporary directory</span></span></span>
+<span class="r-in"><span><span class="va">report_stem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-report-"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu">report</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">cm</span>,</span></span>
+<span class="r-in"><span>  filename <span class="op">=</span> <span class="va">report_stem</span>,</span></span>
+<span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown report ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpoNh9AW\camtrapReport-report-219469aa28d1.html</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">report_file</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate a data-status report in a temporary directory</span></span></span>
+<span class="r-in"><span><span class="va">status_stem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-status-"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu">status</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">cm</span>,</span></span>
+<span class="r-in"><span>  filename <span class="op">=</span> <span class="va">status_stem</span>,</span></span>
+<span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown data_status report ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpoNh9AW\camtrapReport-status-2194370f2d3.html</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">status_file</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove files generated by the examples</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">report_file</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">report_stem</span>, <span class="st">".Rmd"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">status_file</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">status_stem</span>, <span class="st">".Rmd"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

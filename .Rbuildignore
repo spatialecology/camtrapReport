@@ -11,3 +11,4 @@
 ^dev$
 ^vignettes/articles$
 ^LICENSE\.md$
+^long-functions-audit\.csv$
