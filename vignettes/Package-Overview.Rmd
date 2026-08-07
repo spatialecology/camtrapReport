@@ -102,7 +102,63 @@ From a single standardised dataset, `camtrapReport` coordinates:
 
 These components are managed through a shared `camReport` object, which maintains the connection between the original records, processing decisions, analytical results, and reported outputs.
 
+
 ### Key differences at a glance
+
+<style>
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid #d0d7de;
+  padding: 12px 18px;
+  vertical-align: middle;
+}
+
+.comparison-table thead th {
+  background-color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+}
+
+.comparison-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.comparison-table tbody tr:nth-child(even) {
+  background-color: #f6f8fa;
+}
+
+.comparison-table tbody td:first-child {
+  font-weight: 700;
+  width: 20%;
+}
+
+.comparison-table th:nth-child(2),
+.comparison-table td:nth-child(2) {
+  width: 32%;
+}
+
+.comparison-table th:nth-child(3),
+.comparison-table td:nth-child(3) {
+  width: 48%;
+}
+
+.comparison-table code {
+  color: #24292f;
+  background-color: rgba(175, 184, 193, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  font-size: 85%;
+}
+</style>
+
+::: {.comparison-table}
 
 | Feature | Most existing tools | `camtrapReport` |
 |---|---|---|
@@ -115,6 +171,7 @@ These components are managed through a shared `camReport` object, which maintain
 | **Traceability** | Depends on how users organise their workflow | Input data, settings, decisions, results, and report outputs are explicitly linked through the `camReport` object |
 | **Consistency across datasets** | Requires users to reproduce and harmonise their own workflows | A common framework supports consistent processing, analysis, visualisation, and reporting |
 
+:::
 
 ### Relationship to other packages
 

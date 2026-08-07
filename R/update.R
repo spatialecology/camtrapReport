@@ -3,11 +3,11 @@
 #--------
 
 .reportSection_catalog <- function(node, path = character()) {
-  out <- list()
+  out_state <- new.env(parent = emptyenv()); out_state$value <- list()
   
   walk <- function(x, path) {
     if (inherits(x, ".textSection")) {
-      out[[length(out) + 1L]] <<- data.frame(
+      out_state$value[[length(out_state$value) + 1L]] <- data.frame(
         name   = x@name,
         title  = x@title %||% "",
         parent = .norm_parent(x@parent),
@@ -29,6 +29,7 @@
   }
   
   walk(node, path)
+  out <- out_state$value
   
   if (length(out) == 0L) {
     return(data.frame(

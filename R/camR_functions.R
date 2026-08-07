@@ -1974,16 +1974,17 @@
         )
       }
       
+      obs_state <- new.env(parent = emptyenv()); obs_state$value <- cm$data_status$Essentials$obs
       .set_animal_field <- function(key, candidates, label, type = c("chr","num")) {
         type <- match.arg(type)
         col <- .pick_col(cm$data$observations, candidates)
         if (is.na(col)) {
-          cm$data_status$Essentials$obs[[key]] <<- paste0(r, " Missing column: ", paste(candidates, collapse = " / "))
+          obs_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse = " / "))
           return()
         }
         x <- cm$data$observations[[col]][idx_animal]
         present_n <- if (type == "num") .present_num(x) else .present_chr(x)
-        cm$data_status$Essentials$obs[[key]] <<- .animal_field_status(present_n, n_animal, label)
+        obs_state$value[[key]] <- .animal_field_status(present_n, n_animal, label)
       }
       
       .set_animal_field("behavior", c("behavior"), "behavior","chr")
@@ -1993,6 +1994,7 @@
       .set_animal_field("radius", c("individualPositionRadius","radius"), "radius", "num")
       .set_animal_field("speed", c("individualSpeed","speed"), "speed", "num")
       .set_animal_field("individualID", c("individualID"), "individualID", "chr")
+      cm$data_status$Essentials$obs <- obs_state$value
     }
   }
   #------
@@ -2001,14 +2003,15 @@
   if (!("deployments" %in% names(cm$data)) || !is.data.frame(cm$data$deployments)) {
     cm$data_status$Essentials$dep$status <- paste0(r, " Missing table: cm$data$deployments")
   } else {
+    dep_state <- new.env(parent = emptyenv()); dep_state$value <- cm$data_status$Essentials$dep
     add_dep <- function(key, candidates, kind = c("counts","timestamp","dep_interval"), treat_blank = TRUE) {
       kind <- match.arg(kind)
       col <- .pick_col(cm$data$deployments, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$dep[[key]] <<- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        dep_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
         return()
       }
-      cm$data_status$Essentials$dep[[key]] <<- if (kind == "timestamp") {
+      dep_state$value[[key]] <- if (kind == "timestamp") {
         .timestamp_status(cm$data$deployments[[col]])
       } else if (kind == "dep_interval") {
         .dep_interval_status(cm$data$deployments[[col]])
@@ -2025,6 +2028,7 @@
     add_dep("dep_interval", c("deployment_interval","dep_interval"), "dep_interval")
     add_dep("depStart", c("deploymentStart","depStart"), "timestamp")
     add_dep("depEnd", c("deploymentEnd","depEnd"),"timestamp")
+    cm$data_status$Essentials$dep <- dep_state$value
     
     col_sb <- .pick_col(cm$data$deployments, c("setupBy"))
     if (is.na(col_sb)) {
