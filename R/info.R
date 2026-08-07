@@ -50,17 +50,34 @@ setGeneric(
 #' @aliases info info<-
 #'
 #' @examples
-#' \dontrun{
-#' cm <- camData("data-folder")
+#' example_dataset <- system.file(
+#'   "external",
+#'   "dataset",
+#'   package = "camtrapReport"
+#' )
 #'
+#' cm <- camData(example_dataset)
+#'
+#' # Retrieve all report information
 #' info(cm)
 #'
-#' xi <- info(cm, name = c("title", "authors"))
+#' # Retrieve selected fields
+#' selected_info <- info(
+#'   cm,
+#'   name = c("title", "authors", "institute")
+#' )
 #'
-#' xi
+#' selected_info
 #'
+#' # Update individual fields
 #' info(cm, "title") <- "Camera-trap monitoring report"
-#' }
+#' info(cm, "institute") <- "Example Wildlife Research Institute"
+#'
+#' # Inspect the updated fields
+#' info(
+#'   cm,
+#'   name = c("title", "institute")
+#' )
 setMethod(
   "info",
   signature(x = "camReport"),

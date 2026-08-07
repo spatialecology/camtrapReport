@@ -107,18 +107,17 @@ a <code>camReport</code> object.</p>
 <span class="r-in"><span>  <span class="op">}</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tx</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class                                 : .textSection </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> =========================================================== </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> name of the object                    :  introduction </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> title                                 :  Introduction </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> parent                                :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> is R code included?                   :  TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ----------------------------------------------------------- </span>
+<span class="r-in"><span><span class="co"># Render the section without opening a browser</span></span></span>
+<span class="r-in"><span><span class="va">test_file</span> <span class="op">&lt;-</span> <span class="fu">testSection</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">tx</span>,</span></span>
+<span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">testSection</span><span class="op">(</span><span class="va">tx</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">test_file</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove the generated HTML file</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">test_file</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

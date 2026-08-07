@@ -181,26 +181,36 @@ modules stored in the trash.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># List modules as a tree</span></span></span>
-<span class="r-in"><span><span class="fu">list_Modules</span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># List modules as a hierarchical tree</span></span></span>
+<span class="r-in"><span><span class="va">module_tree</span> <span class="op">&lt;-</span> <span class="fu">list_Modules</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">module_tree</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              ID         name  parent level          label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> introduction  1 introduction   .root     0 - introduction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> methods       2      methods   .root     0      - methods</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> study_area    3   study_area methods     1   - study_area</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sampling      4     sampling methods     1     - sampling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> location      5     location methods     1     - location</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> effort        6       effort methods     1       - effort</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># List modules in table form</span></span></span>
-<span class="r-in"><span><span class="fu">list_Modules</span><span class="op">(</span>tree <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">module_table</span> <span class="op">&lt;-</span> <span class="fu">list_Modules</span><span class="op">(</span>tree <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">module_table</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID         name  parent valid status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 introduction   .root  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2      methods   .root  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3   study_area methods  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  4     sampling methods  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  5     location methods  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  6       effort methods  TRUE     ok</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Add a new module from a YAML file</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># The operations below modify the installed module registry</span></span></span>
+<span class="r-in"><span><span class="co"># and are therefore not run automatically.</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">add_Module</span><span class="op">(</span><span class="st">"new_module.yml"</span>, after <span class="op">=</span> <span class="st">"captures"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Move a module</span></span></span>
 <span class="r-in"><span><span class="fu">move_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span>, after <span class="op">=</span> <span class="st">"richness"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove a module and its child modules</span></span></span>
 <span class="r-in"><span><span class="fu">remove_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Restore a removed module</span></span></span>
 <span class="r-in"><span><span class="fu">restore_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Empty the module trash</span></span></span>
 <span class="r-in"><span><span class="fu">empty_trash</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

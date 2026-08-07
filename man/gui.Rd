@@ -37,11 +37,17 @@ The GUI can be used with an existing \code{camReport} object and provides an
 interactive alternative to configuring reports directly in R.
 }
 \examples{
-\dontrun{
-cm <- camData("data-folder")
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+example_dataset <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport"
+)
+
+cm <- camData(example_dataset)
 
 gui(cm)
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}

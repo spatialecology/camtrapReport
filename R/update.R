@@ -430,19 +430,36 @@ setGeneric(
 #' @aliases updateReportSection listReportSections updateReportSection,camReport-method listReportSections,camReport-method
 #'
 #' @examples
-#' \dontrun{
-#' cm <- camData("data-folder")
+#' example_dataset <- system.file(
+#'   "external",
+#'   "dataset",
+#'   package = "camtrapReport"
+#' )
 #'
-#' listReportSections(cm)
+#' cm <- camData(example_dataset)
 #'
+#' # List sections currently attached to the report
+#' section_catalog <- listReportSections(cm)
+#' head(section_catalog)
+#'
+#' # Update the introduction
 #' cm <- updateReportSection(
 #'   cm,
 #'   section = "introduction",
-#'   text = "This report summarises camera-trap monitoring data for the study site."
+#'   title = "Project introduction",
+#'   text = paste(
+#'     "This report summarises camera-trap monitoring",
+#'     "data for the example study site."
+#'   )
 #' )
 #'
-#' report(cm, view = TRUE)
-#' }
+#' # Confirm the updated section title
+#' updated_catalog <- listReportSections(cm)
+#' updated_catalog[
+#'   updated_catalog$name == "introduction",
+#'   c("name", "title"),
+#'   drop = FALSE
+#' ]
 setMethod("updateReportSection",signature(x = "camReport"),
   function(x, section, text, title, code, code_name,
            code_setting, packages, append_text, append_code) {
