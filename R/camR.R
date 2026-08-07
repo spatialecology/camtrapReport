@@ -19,7 +19,7 @@
 #-----------
 
 .collect_module_packages <- function(x) {
-  pkgs <- character()
+  pkgs_state <- new.env(parent = emptyenv()); pkgs_state$value <- character()
   
   add_pkgs <- function(p) {
     if (is.null(p) || length(p) == 0) return()
@@ -28,7 +28,7 @@
     }
     p <- trimws(as.character(p))
     p <- p[nzchar(p)]
-    pkgs <<- c(pkgs, p)
+    pkgs_state$value <- c(pkgs_state$value, p)
   }
   
   walk <- function(obj) {
@@ -46,7 +46,7 @@
   }
   
   walk(x)
-  unique(pkgs)
+  unique(pkgs_state$value)
 }
 #-------
 #-------
@@ -241,7 +241,7 @@ camR <- setRefClass(
     initialize = function() {
       #.loadlib()
       
-      .self$setting = list(locationLegend = FALSE,color=c("#CA6A28","#6C9100","#00A383","#008ADF","#D44CBF"))
+      .self$setting <- list(locationLegend = FALSE,color=c("#CA6A28","#6C9100","#00A383","#008ADF","#D44CBF"))
       
       
       .self$filterDuration <- 5

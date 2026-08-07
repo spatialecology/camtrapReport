@@ -681,21 +681,25 @@ setGeneric(
 #' @keywords spatial species camera-trap
 #'
 #' @examples
-#' example_dataset <- system.file(
-#'   "external",
-#'   "dataset",
-#'   package = "camtrapReport"
+#' \dontrun{
+#' habitat <- read.csv("habitat.csv")
+#'
+#' cm <- camData(
+#'   data = "dataset.zip",
+#'   habitat = habitat,
+#'   study_area = "study_area.shp"
 #' )
 #'
-#' cm <- camData(example_dataset)
-#'
 #' cm
+#'
+#' report(cm, view = TRUE)
+#' }
 setMethod(
   "camData",
   signature(data = "character"),
   function(data, habitat, study_area = NULL, update = FALSE, ...) {
     
-    if (missing(update)) update = FALSE
+    if (missing(update)) update <- FALSE
     
     if (dir.exists(data) && !update) {
       if ("__camreport_object.rds" %in% tolower(dir(data))) {
