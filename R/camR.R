@@ -1176,7 +1176,7 @@ camR <- setRefClass(
       #------------
       
       
-      # Captures per species × site, with scientificName
+      # Captures per species and site, with scientificName
       
       if (nrow(.self$habitat) > 0) {
         caps_by_site <- .captures(.self$data, by = "locationName") |>
