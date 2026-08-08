@@ -54,9 +54,14 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report bug</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Discussion</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span> GitHub</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support">
+<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+  </ul>
+</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -96,6 +101,14 @@ timestamps, incomplete metadata, spatial issues, and inconsistencies
 between deployments and observations. Based on these checks, users can
 decide whether the dataset is ready for reporting or whether further
 correction is needed before ecological analyses are performed.</p>
+<p>Figure 1 summarises how <code>camtrapReport</code> checks the
+readiness of a camera-trap dataset before ecological reporting. After
+the data are loaded with <code><a href="../reference/camData.html">camData()</a></code>, the
+<code><a href="../reference/report.html">status()</a></code> function runs automated checks on the main input
+files, metadata, deployments, observations, timestamps, taxonomy,
+spatial information, and annotation records. The output helps users
+identify potential issues and decide whether the dataset is ready for
+generating the final Ecological Report.</p>
 <style>
 .figure .caption,
 figcaption,
@@ -112,14 +125,6 @@ Figure 1. Workflow for generating a Data Status Report from camera-trap
 data using camtrapReport.
 </p>
 </div>
-<p>Figure 1 summarises how <code>camtrapReport</code> checks the
-readiness of a camera-trap dataset before ecological reporting. After
-the data are loaded with <code><a href="../reference/camData.html">camData()</a></code>, the
-<code><a href="../reference/report.html">status()</a></code> function runs automated checks on the main input
-files, metadata, deployments, observations, timestamps, taxonomy,
-spatial information, and annotation records. The output helps users
-identify potential issues and decide whether the dataset is ready for
-generating the final Ecological Report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
@@ -131,17 +136,31 @@ generating the final Ecological Report.</p>
 <p>When <code>view = TRUE</code>, the generated report is opened in the
 browser. This provides a quick, human-readable overview of dataset
 quality, completeness, and consistency.</p>
+<p>The function also invisibly returns the path to the HTML report. By
+default, <code>data_status.html</code> and its intermediate
+<code>data_status.Rmd</code> file are written beside the input dataset.
+Use <code>filename</code> to give another file stem or an existing
+output path:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"data_status_2026"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>An existing file with the same name may be replaced. Use a
+deliberate, versioned filename when reports from multiple processing
+runs must be retained.</p>
 <hr class="section-divider">
 </div>
 <div class="section level2">
 <h2 id="example-data-status-reports">Example Data Status Reports<a class="anchor" aria-label="anchor" href="#example-data-status-reports"></a>
 </h2>
-<p>Below are example Data Status Reports generated with
+<p>Below are previews of Data Status Reports generated with
 <code>camtrapReport</code> for different camera-trap monitoring
-projects. These examples show how the report can be used to assess
-dataset completeness, detect possible issues, and evaluate whether the
-data are ready for ecological reporting. Click on an image to open the
-full HTML report.</p>
+projects. These examples illustrate the presentation of dataset
+completeness and potential issues. Click a preview to open the
+corresponding complete report. Reports can also be generated locally
+from a Camtrap DP dataset using the workflow described above.</p>
 <style>
 .status-gallery {
   display: grid;
@@ -243,7 +262,7 @@ full HTML report.</p>
 }
 </style>
 <div class="status-gallery">
-<a class="status-card" href="../reports/data_status_Leuven.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Leuven
 </div>
@@ -253,7 +272,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_Amsterdam.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Amsterdam Water Supply Dunes
 </div>
@@ -263,7 +282,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_Lux.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Lux National Monitoring
 </div>
@@ -273,7 +292,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="../reports/data_status_MICA.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 MICA Monitoring Project
 </div>
@@ -294,7 +313,7 @@ Data Status Report
 in R through the <code>data_status</code> slot. This is useful when
 users want to inspect the underlying tables, extract summaries, or use
 the quality-control outputs in another workflow.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Explore all data-status outputs stored in the camReport object</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span></span>
 <span></span>
@@ -311,7 +330,7 @@ the quality-control outputs in another workflow.</p>
 <p>For example, the species table can be inspected to check which
 species were detected and how many captures were recorded for each
 species.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View species summary table</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span><span class="op">$</span><span class="va">Table</span></span></code></pre></div>
 <p>Together, <code>status(cm, view = TRUE)</code> and

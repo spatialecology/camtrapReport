@@ -29,5 +29,25 @@
 #' @importFrom dplyr bind_rows distinct filter group_by mutate select slice left_join
 #' @importFrom terra hull crs expanse extract project rast readRDS unwrap vect wrap writeRaster
 #' @importFrom lubridate interval
-#' @rawNamespace exportPattern("^[[:alpha:]]+")
+#' @export add_Module
+#' @export camData
+#' @export camR
+#' @export empty_trash
+#' @export gui
+#' @export info
+#' @export info<-
+#' @export install_All
+#' @export list_Modules
+#' @export listReportSections
+#' @export move_Module
+#' @export remove_Module
+#' @export report
+#' @export reportSection
+#' @export restore_Module
+#' @export section_names
+#' @export sections
+#' @export status
+#' @export testSection
+#' @export updateReportSection
+#' @exportClass camReport
 "_PACKAGE"

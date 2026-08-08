@@ -54,9 +54,14 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report bug</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Discussion</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span> GitHub</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support">
+<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+  </ul>
+</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -109,6 +114,16 @@ Figure 1 summarises how camera-trap data are imported with
 <code><a href="../reference/camData.html">camData()</a></code>, stored in the central <code>camReport</code>
 object, and transformed into data-status checks, ecological analyses,
 visualisations, and automated reports.</p>
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
 <div class="figure" style="text-align: center">
 <img src="figures/package-architecture.png" class="r-plt" alt="Schematic overview of the camtrapReport workflow from input camera-trap data to the central camReport object and final report outputs." width="100%"><p class="caption">
 Figure 1. Overview of the camtrapReport workflow, from input camera-trap
@@ -156,7 +171,34 @@ temporal mismatches, spatial outliers, and observation types.</p>
 assembled from selected analytical modules. It combines ecological
 summaries, tables, figures, maps, and narrative text into a reproducible
 report.</p>
+<p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create an HTML
+file and the intermediate R Markdown file used to render it. By default,
+these files are written beside the input dataset; an alternative output
+path can be supplied through <code>filename</code>. The functions
+invisibly return the path of the generated HTML file, which makes the
+output location available to scripts and automated workflows.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="reproducibility-interpretation-and-scope">Reproducibility, interpretation, and scope<a class="anchor" aria-label="anchor" href="#reproducibility-interpretation-and-scope"></a>
+</h2>
+<p>Reproducibility in <code>camtrapReport</code> depends on preserving
+the input Camtrap DP dataset, optional spatial and habitat inputs, the
+selected report sections, and all settings used to create the
+<code>camReport</code> object. For work intended for publication or
+repeated monitoring, users should also record the package version, R
+version, and versions of optional analytical packages, for example with
+<code><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo()</a></code>.</p>
+<p>The package standardises checks, calculations, and report assembly;
+it does not determine whether a sampling design is appropriate for a
+particular ecological question. A successful Data Status Report does not
+establish that detections are unbiased, spatially independent, or
+sufficient for a specific model. Similarly, automatically generated
+ecological results require interpretation in relation to survey design,
+effort, detectability, habitat, season, and the assumptions of each
+selected method. Users remain responsible for checking input records and
+evaluating whether individual analyses are suitable for their data and
+scientific objectives.</p>
 </div>
 <div class="section level2">
 <h2 id="modular-workflow">Modular workflow<a class="anchor" aria-label="anchor" href="#modular-workflow"></a>
@@ -244,6 +286,59 @@ processing decisions, analytical results, and reported outputs.</p>
 <div class="section level3">
 <h3 id="key-differences-at-a-glance">Key differences at a glance<a class="anchor" aria-label="anchor" href="#key-differences-at-a-glance"></a>
 </h3>
+<style>
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid #d0d7de;
+  padding: 12px 18px;
+  vertical-align: middle;
+}
+
+.comparison-table thead th {
+  background-color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+}
+
+.comparison-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.comparison-table tbody tr:nth-child(even) {
+  background-color: #f6f8fa;
+}
+
+.comparison-table tbody td:first-child {
+  font-weight: 700;
+  width: 20%;
+}
+
+.comparison-table th:nth-child(2),
+.comparison-table td:nth-child(2) {
+  width: 32%;
+}
+
+.comparison-table th:nth-child(3),
+.comparison-table td:nth-child(3) {
+  width: 48%;
+}
+
+.comparison-table code {
+  color: #24292f;
+  background-color: rgba(175, 184, 193, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  font-size: 85%;
+}
+</style>
+<div class="comparison-table">
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -303,6 +398,7 @@ visualisation, and reporting</td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <div class="section level3">
 <h3 id="relationship-to-other-packages">Relationship to other packages<a class="anchor" aria-label="anchor" href="#relationship-to-other-packages"></a>

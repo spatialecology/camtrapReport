@@ -50,12 +50,24 @@ cm <- camData("cameratrap.zip")
 report(cm, view = TRUE)
 ```
 
+`report()` invisibly returns the path to the generated HTML file. By default, `report.html` and the intermediate `report.Rmd` file are written beside the input dataset. A specific file stem or existing output directory can be supplied through `filename`:
+
+```{r ecological-report-output-path, eval=FALSE}
+report_file <- report(
+  cm,
+  filename = file.path("reports", "ecological_report_2026"),
+  view = FALSE
+)
+```
+
+An existing output with the same name may be replaced. Use explicit, versioned filenames when reports from multiple datasets, settings, or processing dates must be retained.
+
 <hr class="section-divider">
 
 
 ## Example Ecological Reports
 
-Below are example Ecological Reports generated with `camtrapReport` for different camera-trap monitoring projects. Click on an image to open the full HTML report.
+Below are previews of Ecological Reports generated with `camtrapReport` for different camera-trap monitoring projects. Click a preview to open the corresponding complete report. Reports can also be generated locally from a Camtrap DP dataset using the workflow described above.
 
 
 <style>
@@ -258,15 +270,15 @@ Below are example Ecological Reports generated with `camtrapReport` for differen
 
 <div class="eco-gallery">
 
-<a class="eco-card" href="../reports/Leuven_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/leuven.png" alt="Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Leuven</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/leuven.png" alt="Preview of the Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Leuven</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/Antwerp_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/antwerp.png" alt="Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Antwerp</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/antwerp-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/antwerp.png" alt="Preview of the Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Antwerp</div><div class="eco-card-text">Belgium</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/MICA_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="Preview of the MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">MICA Monitoring Project</div><div class="eco-card-text">Europe</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/Luxembourg_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg-gallery.png" alt="Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg-gallery.png" alt="Preview of the Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Lux National Monitoring</div><div class="eco-card-text">Luxembourg</div><span class="eco-card-badge">Open report</span></div></a>
 
-<a class="eco-card" href="../reports/AmsterdamseWaterleidingduinen_EcologicalReport.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/amsterdam-gallery.png" alt="Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/amsterdam-gallery.png" alt="Preview of the Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay"><div class="eco-card-title">Amsterdam Water Supply Dunes</div><div class="eco-card-text">Netherlands</div><span class="eco-card-badge">Open report</span></div></a>
 
 </div>
 
@@ -432,3 +444,4 @@ sections(cm, n = section_names())
 ```
 
 Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
+

@@ -56,9 +56,14 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report bug</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Discussion</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span> GitHub</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support">
+<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+  </ul>
+</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -72,20 +77,23 @@
 <div class="section level2">
 <h2 id="package-aims">Package aims<a class="anchor" aria-label="anchor" href="#package-aims"></a>
 </h2>
-<p><a href="https://github.com/spatialecology/camtrapReport" class="external-link"><strong><code>camtrapReport</code></strong></a> helps turn camera-trap data into standardised, reproducible ecological outputs through a workflow designed to automate as much of the reporting process as possible. The package combines data quality checks, summarisation, visualisation, and ecological analysis in a modular framework, helping users move efficiently from raw records to interpretable results. Its automated workflow improves comparability, scalability, and reproducibility across sites and over time, while reducing technical barriers and supporting transparent, efficient, and timely ecological reporting. The main functions of the package include:</p>
+<p><a href="https://github.com/spatialecology/camtrapReport" class="external-link"><code>camtrapReport</code></a> is an R package for processing camera-trap data and producing standardised, reproducible reports for wildlife monitoring. It brings data-quality checks, summaries, visualisations, and ecological analyses together in a modular reporting workflow.</p>
+<p>The package is intended to reduce the repeated technical work involved in preparing camera-trap reports. Using a consistent workflow also makes outputs easier to compare among monitoring sites and across time. The two principal outputs are:</p>
 <ul>
-<li><p><strong>Data status report</strong>, which performs automated diagnostics of data quality and completeness across key components of camera-trap datasets, including spatial and temporal information, key column availability, annotations, validation status, and observation types by capture method. These checks help users identify missing information, inconsistencies, and unusual values that may require correction or completion.</p></li>
-<li><p><strong>Ecological report</strong>, which produces standardised outputs through modular components. Reports can include descriptive information, summaries of key data, visualisations of important patterns, and ecological assessments and analyses.</p></li>
+<li><p><strong>Data Status Check.</strong> This report checks the quality and completeness of the input data. It summarises spatial and temporal coverage, the availability of important fields, annotation and validation status, and observation types by capture method. These checks help identify missing information, inconsistencies, and values that may require further inspection.</p></li>
+<li><p><strong>Ecological Report.</strong> This report produces standardised ecological summaries through a set of modules. Depending on the selected modules and the available data, it can include descriptive information, tables, visualisations, and ecological analyses.</p></li>
 </ul>
+<p>For a more detailed description of the package structure and its relationship to other camera-trap tools, see the <a href="articles/Package-Overview.html">Package Overview</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="data-standard-format">Data standard format<a class="anchor" aria-label="anchor" href="#data-standard-format"></a>
+<h2 id="data-format">Data format<a class="anchor" aria-label="anchor" href="#data-format"></a>
 </h2>
-<p><code>camtrapReport</code> is designed for datasets provided in, or converted to, the <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP standard format</a>, which is a community-developed data exchange format for camera-trap data. Several camera-trap data management systems support Camtrap DP as an export format, including <a href="https://agouti.eu/" class="external-link">Agouti</a> and <a href="https://os-conservation.org/trapper/" class="external-link">TRAPPER</a>. It is also possible to convert data from other camera-trap sources, including manually managed datasets and Wildlife Insights exports, into Camtrap DP format for use in <code>camtrapReport</code>.</p>
+<p><code>camtrapReport</code> uses datasets in the <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP format</a>, a community-developed data exchange format for camera-trap data. Camera-trap data management systems including <a href="https://agouti.eu/" class="external-link">Agouti</a> and <a href="https://os-conservation.org/trapper/" class="external-link">TRAPPER</a> can export Camtrap DP datasets.</p>
+<p>Data from other sources, including manually managed datasets and Wildlife Insights exports, can also be used after conversion to Camtrap DP.</p>
 <div class="section level3">
-<h3 id="example-input-datasets">Example input datasets<a class="anchor" aria-label="anchor" href="#example-input-datasets"></a>
+<h3 id="example-datasets">Example datasets<a class="anchor" aria-label="anchor" href="#example-datasets"></a>
 </h3>
-<p>Three example datasets are provided below. These open-access camera-trap datasets, available through <a href="https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data" class="external-link">GBIF</a>, follow the Camtrap DP standard and can be used to test <code>camtrapReport</code>.</p>
+<p>The following open-access datasets follow the Camtrap DP standard and can be used to test the package. They are part of a collection of camera-trap datasets available through <a href="https://www.gbif.org/composition/4fZGV2vrXjo3rNxySz41sj/exploring-camera-trap-data" class="external-link">GBIF</a>.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -93,109 +101,93 @@
 <col width="33%">
 </colgroup>
 <thead><tr>
-<th align="center">Dataset</th>
-<th align="center">Habitat data</th>
-<th align="center">Study area</th>
+<th align="left">Dataset</th>
+<th align="left">Habitat data</th>
+<th align="left">Study area</th>
 </tr></thead>
 <tbody>
 <tr>
-<td align="center"><a href="https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download" class="external-link">Leuven dataset</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing" class="external-link">Leuven habitat</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing" class="external-link">Leuven study area boundary</a></td>
+<td align="left"><a href="https://album.wildlabs.net/dataset/c9cbc586-660e-4d89-ba14-0000c5770de1/download" class="external-link">Leuven dataset</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1kVO3SztP4aeW53KIMJNQi5DDcGK3Wgsk/view?usp=sharing" class="external-link">Leuven habitat</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1frZsAFzxHtrXU98_5XFsBhSlbyf7quAe/view?usp=sharing" class="external-link">Leuven study-area boundary</a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download" class="external-link">Antwerp dataset</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing" class="external-link">Antwerp habitat</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing" class="external-link">Antwerp study area boundary</a></td>
+<td align="left"><a href="https://album.wildlabs.net/dataset/a209cef2-cfad-460b-8ed4-0ccf211a8240/download" class="external-link">Antwerp dataset</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1ByUVZXc4w6JNFnMbgXEUu9ihJreIp7UJ/view?usp=sharing" class="external-link">Antwerp habitat</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1Avb-SRqYsL59mrBrcmNdIkS8f582UVkR/view?usp=sharing" class="external-link">Antwerp study-area boundary</a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download" class="external-link">MICA dataset</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing" class="external-link">MICA habitat</a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing" class="external-link">MICA study area boundary</a></td>
+<td align="left"><a href="https://album.wildlabs.net/dataset/8a5cbaec-2839-4471-9e1d-98df301095dd/download" class="external-link">MICA dataset</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1-1i8Kw8AUPYpedme8e8t6GKUgqatR8ji/view?usp=sharing" class="external-link">MICA habitat</a></td>
+<td align="left"><a href="https://drive.google.com/file/d/1xskwg3H1vZw4gu-VDaiCHgXPXeoktDvH/view?usp=sharing" class="external-link">MICA study-area boundary</a></td>
 </tr>
 </tbody>
 </table>
-<p style="color: grey; font-size: 0.9em;">
-<em><strong>Note:</strong> The <a href="https://doi.org/10.1038/s41597-025-06235-7" style="color: grey; font-style: italic;" class="external-link">habitat data</a> and study area files were prepared exclusively for testing <code>camtrapReport</code> and do not represent official data products published by the original dataset owners.</em>
-</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="first-use-installation">First use: installation<a class="anchor" aria-label="anchor" href="#first-use-installation"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install <code>camtrapReport</code> with the standard <code>remotes</code> workflow:</p>
+<p><code>camtrapReport</code> requires R 4.1.0 or later. Install the current development version from GitHub, load the package, and optionally install all additional dependencies:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install the development version from GitHub</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
-<p style="color: grey; font-size: 0.9em;">
-<em><strong>Note:</strong> <code>camtrapReport</code> requires R ≥ 4.1.0. If you are unsure of your current R version, run <code>R.version.string</code> in the R console.</em>
-</p>
-<div class="section level3">
-<h3 id="load-the-package">Load the package<a class="anchor" aria-label="anchor" href="#load-the-package"></a>
-</h3>
-<p>Load <code>camtrapReport</code> before starting the workflow. Some optional report sections require additional suggested packages. To install all optional dependencies interactively, use the <code><a href="reference/install_All.html">install_All()</a></code> helper:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Optional: install packages required by additional report sections</span></span>
 <span><span class="fu"><a href="reference/install_All.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p style="color: grey; font-size: 0.9em;">
-<em><strong>Note:</strong> You may be prompted to approve package installations or compile packages from source. Make sure you have an active internet connection.</em>
-</p>
-</div>
+<p><strong>Note:</strong> Installation may require approval prompts, source compilation, and an internet connection.</p>
 <div class="section level3">
 <h3 id="troubleshooting-installation">Troubleshooting installation<a class="anchor" aria-label="anchor" href="#troubleshooting-installation"></a>
 </h3>
-<p>If <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> fails, a common cause is a missing GitHub personal access token (PAT). To set one up, run:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>If <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> fails, one possible cause is a missing GitHub personal access token. A token can be created and stored from R as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"usethis"</span>, <span class="st">"gitcreds"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/github-token.html" class="external-link">create_github_token</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Opens GitHub in your browser — create and copy the token</span></span>
-<span><span class="fu">gitcreds</span><span class="fu">::</span><span class="fu"><a href="https://gitcreds.r-lib.org/reference/gitcreds_get.html" class="external-link">gitcreds_set</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># Paste the token when prompted in R</span></span>
+<span></span>
+<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/github-token.html" class="external-link">create_github_token</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">gitcreds</span><span class="fu">::</span><span class="fu"><a href="https://gitcreds.r-lib.org/reference/gitcreds_get.html" class="external-link">gitcreds_set</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
-<p>If installation still fails, please <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">open an issue</a> and include the full error message, the output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo()</a></code>, and information on whether the error occurred during <code>install_github()</code> or <code><a href="reference/install_All.html">install_All()</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="create-the-camreport-object">Create the camReport object<a class="anchor" aria-label="anchor" href="#create-the-camreport-object"></a>
+<h2 id="create-a-camreport-object">Create a <code>camReport</code> object<a class="anchor" aria-label="anchor" href="#create-a-camreport-object"></a>
 </h2>
-<p>At the core of <code>camtrapReport</code> is a mutable Reference Class object called <code>camReport</code>, which acts as the central workflow container and module registry. It stores harmonised input data, user-defined settings, and intermediate results throughout the reporting process.</p>
-<p>Use <code><a href="reference/camData.html">camData()</a></code> to create the <code>camReport</code> object by reading and pre-processing your camera-trap dataset.</p>
-</div>
-<div class="section level2">
-<h2 id="required-input">Required input<a class="anchor" aria-label="anchor" href="#required-input"></a>
-</h2>
-<p>To keep the workflow simple and reproducible, the only required input is a single <code>.zip</code> file containing the dataset in Camtrap DP format.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>The main object used by the package is a mutable Reference Class object named <code>camReport</code>. It stores the processed input data, package settings, selected report sections, and intermediate results used during reporting.</p>
+<p>Use <code><a href="reference/camData.html">camData()</a></code> to read and pre-process a camera-trap dataset and create this object.</p>
+<div class="section level3">
+<h3 id="required-input">Required input<a class="anchor" aria-label="anchor" href="#required-input"></a>
+</h3>
+<p>The only required input is a <code>.zip</code> file containing a dataset in Camtrap DP format:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"path/to/your/dataset.zip"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="optional-input">Optional input<a class="anchor" aria-label="anchor" href="#optional-input"></a>
-</h2>
-<p>Additional input data can be provided to improve maps, add spatial context, and support more informative summaries and analyses.</p>
 <div class="section level3">
-<h3 id="habitat-data">
-<strong>Habitat data</strong><a class="anchor" aria-label="anchor" href="#habitat-data"></a>
+<h3 id="optional-input">Optional input<a class="anchor" aria-label="anchor" href="#optional-input"></a>
 </h3>
-<p>Habitat information can be provided as a two-column CSV file with <code>locationName</code> and <code>Habitat</code>. An example template of habitat.csv can be downloaded <a href="https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing" class="external-link">here</a>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"path/to/habitat.csv"</span><span class="op">)</span></span>
+<p>Optional habitat data and a study-area boundary can be supplied to add spatial context to maps, summaries, and analyses.</p>
+<p>Habitat information can be provided as a two-column CSV file containing <code>locationName</code> and <code>Habitat</code>. An example <a href="https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing" class="external-link"><code>habitat.csv</code> template</a> is available for download. A study-area boundary can be supplied as a polygon spatial object.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Habitat data</span></span>
+<span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"path/to/habitat.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the expected structure</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">habitat</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co">#   locationName      Habitat</span></span>
 <span><span class="co"># 1       VEL-01     Sandhill</span></span>
 <span><span class="co"># 2       VEL-02       Forest</span></span>
-<span><span class="co"># 3       VEL-03 Dry_heathland</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="study-area-polygon">
-<strong>Study area polygon</strong><a class="anchor" aria-label="anchor" href="#study-area-polygon"></a>
-</h3>
-<p>A polygon shapefile of the site boundary can be provided to improve maps and add spatial context to the report.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/vect.html" class="external-link">vect</a></span><span class="op">(</span><span class="st">"path/to/study_area.shp"</span><span class="op">)</span></span></code></pre></div>
-<p>When optional input data are available, they can be supplied directly to <code><a href="reference/camData.html">camData()</a></code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span></span>
+<span><span class="co"># 3       VEL-03 Dry_heathland</span></span>
+<span></span>
+<span><span class="co"># Study-area boundary</span></span>
+<span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/vect.html" class="external-link">vect</a></span><span class="op">(</span><span class="st">"path/to/study_area.shp"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create the camReport object with optional inputs</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span></span>
 <span>  <span class="st">"path/to/your/dataset.zip"</span>,</span>
 <span>  habitat <span class="op">=</span> <span class="va">habitat</span>,</span>
 <span>  study_area <span class="op">=</span> <span class="va">study_area</span></span>
@@ -203,38 +195,40 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="data-status-report">Data status report<a class="anchor" aria-label="anchor" href="#data-status-report"></a>
+<h2 id="generate-a-data-status-check">Generate a Data Status Check<a class="anchor" aria-label="anchor" href="#generate-a-data-status-check"></a>
 </h2>
-<p>To generate a data status report and review the quality and completeness of the input data, use:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># With view = TRUE, the generated report opens automatically</span></span></code></pre></div>
+<p>Use <code><a href="reference/report.html">status()</a></code> to inspect the quality and completeness of the input data:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="ecological-report">Ecological report<a class="anchor" aria-label="anchor" href="#ecological-report"></a>
+<h2 id="generate-an-ecological-report">Generate an Ecological Report<a class="anchor" aria-label="anchor" href="#generate-an-ecological-report"></a>
 </h2>
-<p>Once the input data have been prepared, a full ecological report can be generated using <code><a href="reference/report.html">report()</a></code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  </span></code></pre></div>
+<p>After checking the input data quality, generate the Ecological Report with:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
+<h2 id="further-documentation">Further documentation<a class="anchor" aria-label="anchor" href="#further-documentation"></a>
 </h2>
-<p>This page introduced the basic workflow for setting up input data, reviewing data quality, and generating reports with <code>camtrapReport</code>. To understand how the package is organised, see the <a href="articles/Package-Overview.html">Package Overview</a>. To explore data quality checks in detail, see the <a href="articles/data-status-report.html">Data Status Report</a>. To customise the ecological report, see the <a href="articles/ecological-report.html">Ecological Report</a>. For more detail on the package’s modular and extensible design, including how to add new report sections, see <a href="articles/modules.html">Module Management</a>. Publications, workshops, and training activities are available on the <a href="articles/resources.html">Resources</a> page.</p>
+<p>This page introduced the basic workflow for preparing input data, reviewing data quality, and generating reports with <code>camtrapReport</code>.</p>
+<p>For more information, see the <a href="articles/Package-Overview.html">Package Overview</a> for the package scope and architecture, the <a href="articles/data-status-report.html">Data Status Check</a> and <a href="articles/ecological-report.html">Ecological Report</a> articles for the two reporting workflows, and <a href="articles/modules.html">Module Management</a> for extending or reorganising report sections.</p>
+<p>Publications, workshops, and training materials are listed on the <a href="articles/resources.html">Resources</a> page, and individual functions and methods are documented in the <a href="reference/index.html">function reference</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="contribute">Contribute<a class="anchor" aria-label="anchor" href="#contribute"></a>
 </h2>
-<p>Questions, suggestions, and ideas for improvement are always welcome. You can contribute to the development of the <a href="https://github.com/spatialecology/camtrapReport" class="external-link">camtrapReport R package</a> by <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">opening an issue</a> or joining the conversation in <a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link">GitHub Discussions</a>.</p>
+<p>Questions, suggestions, and ideas for improvement are welcome. You can contribute to the development of the <a href="https://github.com/spatialecology/camtrapReport" class="external-link"><code>camtrapReport</code> R package</a> by <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">opening an issue</a> or joining the conversation in <a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link">GitHub Discussions</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>As the official scientific publication for <code>camtrapReport</code> is still in preparation, please cite the package as:</p>
-<p><span class="citation-text">Ebrahimi, E., &amp; Jansen, P. A. (2026). <em>CamtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring</em>. p. 65. Abstract from <em>The International Biogeography Society – 12th Biennial Conference</em>, Aarhus, Denmark. <a href="https://zenodo.org/records/18405441" class="external-link uri">https://zenodo.org/records/18405441</a></span></p>
-<p>For package citation details, please refer to the citation information available in the <a href="https://github.com/spatialecology/camtrapReport" class="external-link">GitHub repository</a>.</p>
+<p>To cite <code>camtrapReport</code> in publications, run:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"camtrapReport"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="acknowledgment">Acknowledgment<a class="anchor" aria-label="anchor" href="#acknowledgment"></a>
+<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
 </h2>
 <p>The development of <code>camtrapReport</code> was supported by <a href="https://www.biodiversa.eu/2022/10/07/2022-2023-joint-call/" class="external-link">Biodiversa+</a> through the <a href="https://wildlifecamera.eu/" class="external-link">Big Picture project</a>.</p>
 </div>

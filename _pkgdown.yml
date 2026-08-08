@@ -29,8 +29,7 @@ navbar:
 
     right:
       - search
-      - report-bug
-      - discussion
+      - support
       - github
 
   components:
@@ -61,19 +60,18 @@ navbar:
       text: Resources
       href: articles/resources.html
 
-    report-bug:
-      icon: fa-bug
-      text: Report bug
-      href: https://github.com/spatialecology/camtrapReport/issues/new/choose
-
-    discussion:
-      icon: fa-comments
-      text: Discussion
-      href: https://github.com/spatialecology/camtrapReport/discussions
+    support:
+      text: Support
+      menu:
+        - text: Report a bug
+          icon: fa-bug
+          href: https://github.com/spatialecology/camtrapReport/issues/new/choose
+        - text: Ask a question
+          icon: fa-comments
+          href: https://github.com/spatialecology/camtrapReport/discussions
 
     github:
       icon: fab fa-github
-      text: GitHub
       href: https://github.com/spatialecology/camtrapReport
       aria-label: GitHub repository
 

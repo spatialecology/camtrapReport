@@ -54,9 +54,14 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report bug</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Discussion</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span> GitHub</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support">
+<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+  </ul>
+</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -82,7 +87,7 @@ Ebrahimi</h4>
     
     
 <div class="section level2">
-<h2 id="how-to-add-new-modules">How to add new modules?<a class="anchor" aria-label="anchor" href="#how-to-add-new-modules"></a>
+<h2 id="managing-and-extending-report-modules">Managing and extending report modules<a class="anchor" aria-label="anchor" href="#managing-and-extending-report-modules"></a>
 </h2>
 <p>The Ecological Report is built from separate report sections, here
 referred to as modules. Each module is a small report component that can
@@ -97,6 +102,16 @@ full report.</p>
 extend the Ecological Report by defining new report sections,
 registering them as modules, selecting which modules should be included,
 and then generating the final report.</p>
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
 <div class="figure" style="text-align: center">
 <img src="figures/modular-design.png" class="r-plt" alt="Modular workflow for defining, registering, selecting, and running report modules in camtrapReport." width="85%"><p class="caption">
 Figure 1. Modular workflow for defining, registering, selecting, and
@@ -155,6 +170,13 @@ report structure, for example under <code>methods</code> or
 <code>results</code>. The <code>text</code> field adds explanatory text,
 and the <code>code</code> field contains the R code used to generate the
 module output.</p>
+<p>A scientific module should also document its purpose, required input
+fields, packages, preprocessing decisions, method assumptions, returned
+output, and interpretation limits. Prefer deterministic code, avoid
+modifying global state or source data, and qualify package calls
+explicitly where practical. If randomness is required, set and document
+a reproducible seed. Never place passwords, access tokens, personal
+data, or machine-specific absolute paths in a module file.</p>
 </div>
 <div class="section level3">
 <h3 id="add-the-new-module">3. Add the new module<a class="anchor" aria-label="anchor" href="#add-the-new-module"></a>
@@ -225,6 +247,35 @@ module included.</p>
 project-specific outputs, additional summaries, new figures, or custom
 interpretation sections.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="reordering-removing-and-restoring-modules">Reordering, removing, and restoring modules<a class="anchor" aria-label="anchor" href="#reordering-removing-and-restoring-modules"></a>
+</h2>
+<p>Module changes can be inspected and reversed before anything is
+deleted permanently:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Validate active module definitions and inspect the hierarchy</span></span>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>validate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Move a module within the report hierarchy</span></span>
+<span><span class="fu"><a href="../reference/modules.html">move_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, after <span class="op">=</span> <span class="st">"captures"</span>, parent <span class="op">=</span> <span class="st">"results"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Move a module and its children to the module trash</span></span>
+<span><span class="fu"><a href="../reference/modules.html">remove_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Inspect active and deleted modules</span></span>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>include_trash <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Restore a removed module</span></span>
+<span><span class="fu"><a href="../reference/modules.html">restore_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/modules.html">empty_trash()</a></code> permanently deletes trashed module
+definitions and should only be used after confirming that the YAML files
+are backed up elsewhere. After any registry change, recreate or rerun
+<code>setup()</code> on the <code>camReport</code> object, confirm the
+selected sections with <code>listReportSections(cm)</code>, test
+affected modules, and generate the complete report in a new output file.
+Review the resulting text, tables, figures, warnings, and citations as
+carefully as any manually written scientific analysis.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
