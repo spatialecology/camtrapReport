@@ -97,8 +97,8 @@ R has a rich ecosystem for working with camera-trap data. Existing packages supp
 - **Data standards and standardised data handling:** [camtrapdp](https://inbo.github.io/camtrapdp/);
 - **Data management and preparation:** [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR) and [ct](https://doi.org/10.32614/CRAN.package.ct);
 - **Exploration, summaries, and visualisation:** [camtraptor](https://inbo.github.io/camtraptor/), [ctdp](https://git.wur.nl/camtrap/ctdp), [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR), and [ct](https://doi.org/10.32614/CRAN.package.ct);
-- **Activity, diversity, abundance, and density analyses:** [activity](https://doi.org/10.32614/CRAN.package.activity), [overlap](https://doi.org/10.32614/CRAN.package.overlap), [iNEXT](https://doi.org/10.32614/CRAN.package.iNEXT), [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity), [Distance](https://cran.r-project.org/web/packages/Distance/index.html), and [ct](https://doi.org/10.32614/CRAN.package.ct); and
-- **Hierarchical and spatial modelling:** [unmarked](https://doi.org/10.32614/CRAN.package.unmarked) and [secr](https://cran.r-project.org/web/packages/secr/index.html) package.
+- **Activity, diversity, abundance, and density analyses:** [activity](https://doi.org/10.32614/CRAN.package.activity), [overlap](https://doi.org/10.32614/CRAN.package.overlap), [iNEXT](https://doi.org/10.32614/CRAN.package.iNEXT), [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity), [Distance](https://CRAN.R-project.org/package=Distance), and [ct](https://doi.org/10.32614/CRAN.package.ct); and
+- **Hierarchical and spatial modelling:** [unmarked](https://doi.org/10.32614/CRAN.package.unmarked) and [secr](https://CRAN.R-project.org/package=secr) package.
 
 These categories are not mutually exclusive, as several packages support more than one stage of the camera-trap data workflow.
 
