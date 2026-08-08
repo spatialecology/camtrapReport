@@ -31,6 +31,17 @@ object, users can generate two coordinated outputs:
 
 Together, these outputs keep data assessment, analytical results, and report composition connected within the same reproducible workflow. Figure 1 summarises how camera-trap data are imported with `camData()`, stored in the central `camReport` object, and transformed into data-status checks, ecological analyses, visualisations, and automated reports.
 
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
+
 ```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow, from input camera-trap data to the central camReport object and final report outputs.", fig.alt="Schematic overview of the camtrapReport workflow from input camera-trap data to the central camReport object and final report outputs."}
 knitr::include_graphics("figures/package-architecture.png")
 ```
@@ -58,6 +69,15 @@ The Data Status Check report evaluates whether a camera-trap dataset is complete
 
 The Ecological Report is a structured, article-style document assembled from selected analytical modules. It combines ecological summaries, tables, figures, maps, and narrative text into a reproducible report.
 
+Both `status()` and `report()` create an HTML file and the intermediate R Markdown file used to render it. By default, these files are written beside the input dataset; an alternative output path can be supplied through `filename`. The functions invisibly return the path of the generated HTML file, which makes the output location available to scripts and automated workflows.
+
+
+## Reproducibility, interpretation, and scope
+
+Reproducibility in `camtrapReport` depends on preserving the input Camtrap DP dataset, optional spatial and habitat inputs, the selected report sections, and all settings used to create the `camReport` object. For work intended for publication or repeated monitoring, users should also record the package version, R version, and versions of optional analytical packages, for example with `sessionInfo()`.
+
+The package standardises checks, calculations, and report assembly; it does not determine whether a sampling design is appropriate for a particular ecological question. A successful Data Status Report does not establish that detections are unbiased, spatially independent, or sufficient for a specific model. Similarly, automatically generated ecological results require interpretation in relation to survey design, effort, detectability, habitat, season, and the assumptions of each selected method. Users remain responsible for checking input records and evaluating whether individual analyses are suitable for their data and scientific objectives.
+
 
 ## Modular workflow
 
@@ -77,8 +97,8 @@ R has a rich ecosystem for working with camera-trap data. Existing packages supp
 - **Data standards and standardised data handling:** [camtrapdp](https://inbo.github.io/camtrapdp/);
 - **Data management and preparation:** [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR) and [ct](https://doi.org/10.32614/CRAN.package.ct);
 - **Exploration, summaries, and visualisation:** [camtraptor](https://inbo.github.io/camtraptor/), [ctdp](https://git.wur.nl/camtrap/ctdp), [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR), and [ct](https://doi.org/10.32614/CRAN.package.ct);
-- **Activity, diversity, abundance, and density analyses:** [activity](https://doi.org/10.32614/CRAN.package.activity), [overlap](https://doi.org/10.32614/CRAN.package.overlap), [iNEXT](https://doi.org/10.32614/CRAN.package.iNEXT), [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity), [Distance](https://CRAN.R-project.org/package=Distance), and [ct](https://doi.org/10.32614/CRAN.package.ct); and
-- **Hierarchical and spatial modelling:** [unmarked](https://doi.org/10.32614/CRAN.package.unmarked) and [secr](https://CRAN.R-project.org/package=secr) package.
+- **Activity, diversity, abundance, and density analyses:** [activity](https://doi.org/10.32614/CRAN.package.activity), [overlap](https://doi.org/10.32614/CRAN.package.overlap), [iNEXT](https://doi.org/10.32614/CRAN.package.iNEXT), [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity), [Distance](https://cran.r-project.org/web/packages/Distance/index.html), and [ct](https://doi.org/10.32614/CRAN.package.ct); and
+- **Hierarchical and spatial modelling:** [unmarked](https://doi.org/10.32614/CRAN.package.unmarked) and [secr](https://cran.r-project.org/web/packages/secr/index.html) package.
 
 These categories are not mutually exclusive, as several packages support more than one stage of the camera-trap data workflow.
 

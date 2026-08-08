@@ -11,13 +11,26 @@ resource_files:
   - figures/modular-design.png
 ---
 
-## How to add new modules?
+## Managing and extending report modules
 
 The Ecological Report is built from separate report sections, here referred to as modules. Each module is a small report component that can contain explanatory text, R code, or both. This modular structure allows users to extend the report by adding new sections, modifying existing ones, or changing the order in which sections appear.
 
 A new module is defined in a YAML file and then registered with `camtrapReport` using `add_Module()`. After the module has been added, it is useful to test it before generating the full report.
 
 The modular structure of `camtrapReport` allows users to extend the Ecological Report by defining new report sections, registering them as modules, selecting which modules should be included, and then generating the final report.
+
+
+
+<style>
+.figure .caption,
+figcaption,
+p.caption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555555;
+}
+</style>
 
 ```{r module-workflow, echo=FALSE, out.width="85%", fig.align="center", fig.cap="Figure 1. Modular workflow for defining, registering, selecting, and running report modules in *camtrapReport*.", fig.alt="Modular workflow for defining, registering, selecting, and running report modules in camtrapReport."}
 knitr::include_graphics("figures/modular-design.png")
@@ -67,6 +80,8 @@ code: |
 ~~~
 
 The `name` field defines the internal module name. The `title` field controls the section title shown in the report. The `parent` field defines where the module belongs in the report structure, for example under `methods` or `results`. The `text` field adds explanatory text, and the `code` field contains the R code used to generate the module output.
+
+A scientific module should also document its purpose, required input fields, packages, preprocessing decisions, method assumptions, returned output, and interpretation limits. Prefer deterministic code, avoid modifying global state or source data, and qualify package calls explicitly where practical. If randomness is required, set and document a reproducible seed. Never place passwords, access tokens, personal data, or machine-specific absolute paths in a module file.
 
 ### 3. Add the new module
 
@@ -131,3 +146,26 @@ report(cm, view = TRUE)
 ```
 
 This workflow allows users to extend the Ecological Report with project-specific outputs, additional summaries, new figures, or custom interpretation sections.
+
+## Reordering, removing, and restoring modules
+
+Module changes can be inspected and reversed before anything is deleted permanently:
+
+```{r manage-existing-modules, eval=FALSE}
+# Validate active module definitions and inspect the hierarchy
+list_Modules(validate = TRUE)
+
+# Move a module within the report hierarchy
+move_Module("species_table", after = "captures", parent = "results")
+
+# Move a module and its children to the module trash
+remove_Module("species_table", recursive = TRUE)
+
+# Inspect active and deleted modules
+list_Modules(include_trash = TRUE)
+
+# Restore a removed module
+restore_Module("species_table", test = TRUE)
+```
+
+`empty_trash()` permanently deletes trashed module definitions and should only be used after confirming that the YAML files are backed up elsewhere. After any registry change, recreate or rerun `setup()` on the `camReport` object, confirm the selected sections with `listReportSections(cm)`, test affected modules, and generate the complete report in a new output file. Review the resulting text, tables, figures, warnings, and citations as carefully as any manually written scientific analysis.
