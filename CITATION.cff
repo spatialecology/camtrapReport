@@ -7,7 +7,7 @@ message: 'To cite package "camtrapReport" in publications, please use:'
 type: software
 license: MIT
 title: 'camtrapReport: Camera-Trap Report Generator'
-version: '1.0.45'
+version: '1.0.46'
 
 abstract: >-
   Provides an extensible workflow for processing camera-trap data in the
@@ -24,7 +24,7 @@ authors:
 
 repository-code: https://github.com/spatialecology/camtrapReport
 url: https://spatialecology.github.io/camtrapReport/
-date-released: '2026-08-05'
+date-released: '2026-08-09'
 
 contact:
   - family-names: Ebrahimi
@@ -39,4 +39,4 @@ keywords:
   - modular-r-package
   - reproducible-workflow
   - wildlife-monitoring
-  
+
