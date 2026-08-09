@@ -508,7 +508,15 @@ camR <- setRefClass(
         "spatstat.geom::owin(xrange = xr, yrange = yr)",
         env = environment()
       )
-      .ppp_obj <- .eval("ppp(x = x$x, y=x$y,window= .win,marks=x$total_observations)",env = environment())
+      .ppp_obj <- .eval(
+        "spatstat.geom::ppp(
+    x = x$x,
+    y = x$y,
+    window = .win,
+    marks = x$total_observations
+  )",
+        env = environment()
+      )
       den <- density(.ppp_obj, weights = x$total_observations)
       den$v <- den$v / max(den$v, na.rm = TRUE)
       r <- rast(den)

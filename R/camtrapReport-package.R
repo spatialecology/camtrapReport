@@ -50,5 +50,5 @@
 #' @export testSection
 #' @export updateReportSection
 #' @exportClass camReport
-#' @importFrom spatstat.geom owin
+#' @importFrom spatstat.geom owin ppp
 "_PACKAGE"

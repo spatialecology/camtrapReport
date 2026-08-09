@@ -1285,7 +1285,7 @@
       )
       
       ppp_obj <- .eval(
-        "ppp(
+        "spatstat.geom::ppp(
           x = coords_xy[['longitude']],
           y = coords_xy[['latitude']],
           window = win

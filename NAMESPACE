@@ -51,7 +51,10 @@ importFrom(graphics,
   text
 )
 importFrom(lubridate,interval)
-importFrom(spatstat.geom,owin)
+importFrom(spatstat.geom,
+  owin,
+  ppp
+)
 importFrom(stats,
   cor,
   cov,
