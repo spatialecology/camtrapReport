@@ -173,7 +173,7 @@ test_that("report falls back from a nonexistent requested directory", {
   )
   
   expected_output <- file.path(
-    output_dir,
+    tempdir(),
     "custom-report.html"
   )
   
@@ -228,7 +228,7 @@ test_that("status falls back from a nonexistent requested directory", {
   )
   
   expected_output <- file.path(
-    output_dir,
+    tempdir(),
     "custom-status.html"
   )
   

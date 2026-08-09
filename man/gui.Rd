@@ -24,7 +24,7 @@ Invisibly returns the supplied \code{camReport} object after launching the
 application.
 }
 \description{
-Launch an interactive Shiny interface for configuring and generating
+Launch a Shiny interface for reviewing, configuring, and generating
 camtrapReport outputs from an existing \code{\link[=camReport-classes]{camReport}}
 object.
 }
@@ -33,8 +33,10 @@ The function starts a Shiny-based graphical user interface for editing report
 metadata, selecting report sections, defining focus groups, and generating
 data-status or ecological reports.
 
-The GUI can be used with an existing \code{camReport} object and provides an
-interactive alternative to configuring reports directly in R.
+The GUI provides an interactive alternative to configuring reports directly
+in R. Files created by the GUI are written only in response to an explicit
+user action. If no output directory is supplied, the R session temporary
+directory is used.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}

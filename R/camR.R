@@ -1235,7 +1235,7 @@ camR <- setRefClass(
                    "acknowledgements", "appendix"),
         package = "camtrapReport",
         dir = .module_dir,
-        write_info = TRUE
+        write_info = FALSE
       )
       
       .self$reportObjectElements$Modules <- mods
@@ -1250,7 +1250,7 @@ camR <- setRefClass(
                    "observation_type","conclusion","acknowledge"),
         package = "camtrapReport",
         dir = .module_dir,
-        write_info = TRUE
+        write_info = FALSE
       )
       
       .self$reportObjectElements$Status_modules <- mods
@@ -2038,7 +2038,7 @@ camR <- setRefClass(
       #-----
       .self$years
     },
-    generateReport = function(output_file = "cam_report.html",rmd_file="cam_report.Rmd") {
+    generateReport = function(output_file = file.path(tempdir(), "cam_report.html"), rmd_file = file.path(tempdir(), "cam_report.Rmd")) {
       .self$recetFigTabNumber()
       render_env <- .make_render_env(.self)
       
@@ -2112,7 +2112,7 @@ output:
       message("Report generated at: ", normalizePath(out))
       return(invisible(out))
     },
-    generateStatusReport = function(output_file = "data_status_report.html", rmd_file = "data_status_report.Rmd") {
+    generateStatusReport = function(output_file = file.path(tempdir(), "data_status_report.html"), rmd_file = file.path(tempdir(), "data_status_report.Rmd")) {
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)

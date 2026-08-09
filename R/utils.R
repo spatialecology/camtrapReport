@@ -901,15 +901,12 @@
 #--------
 
 .loadPKG <- function(pkgs) {
-  old_warn <- getOption("warn")
-  on.exit(options(warn = old_warn), add = TRUE)
-  
-  options(warn = -1)
-  
   pkgs <- as.character(pkgs)
   pkgs <- pkgs[!is.na(pkgs) & nzchar(pkgs)]
   
-  all(unlist(lapply(pkgs, function(p) .require(p))))
+  suppressWarnings(
+    all(unlist(lapply(pkgs, function(p) .require(p))))
+  )
 }
 
 #--------

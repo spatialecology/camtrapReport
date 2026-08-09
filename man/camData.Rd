@@ -43,19 +43,14 @@ The \code{camReport} object is saved within an extracted dataset directory as
 object unless \code{update = TRUE}, in which case the object is recreated.
 }
 \examples{
-\dontrun{
-habitat <- read.csv("habitat.csv")
-
-cm <- camData(
-  data = "dataset.zip",
-  habitat = habitat,
-  study_area = "study_area.shp"
+example_dataset <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport"
 )
 
+cm <- camData(example_dataset)
 cm
-
-report(cm, view = TRUE)
-}
 }
 \seealso{
 \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}, \code{\link[=gui]{gui()}}

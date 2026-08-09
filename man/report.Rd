@@ -18,7 +18,9 @@ status(object, filename, view)
 \item{filename}{An optional character string giving the output filename or
 file path without an extension. The default is \code{"report"} for \code{report()}
 and \code{"data_status"} for \code{status()}. Relative default filenames are written
-to the camera-trap data directory.}
+file path without an extension. The default is \code{"report"} for \code{report()}
+and \code{"data_status"} for \code{status()}. If no output directory is explicitly
+supplied, files are written to the R session's temporary directory.}
 
 \item{view}{A logical value (default \code{FALSE}) specifying whether the generated
 HTML report is opened after rendering.}

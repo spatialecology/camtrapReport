@@ -39,7 +39,9 @@ setGeneric(
 #' @param filename An optional character string giving the output filename or
 #'   file path without an extension. The default is `"report"` for `report()`
 #'   and `"data_status"` for `status()`. Relative default filenames are written
-#'   to the camera-trap data directory.
+#'   file path without an extension. The default is `"report"` for `report()`
+#'   and `"data_status"` for `status()`. If no output directory is explicitly
+#'   supplied, files are written to the R session's temporary directory.
 #' @param view A logical value (default `FALSE`) specifying whether the generated
 #'   HTML report is opened after rendering.
 #' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
@@ -117,14 +119,7 @@ setMethod(
     }
     
     # Resolve base output directory
-    base_dir <- object$info$directory
-    
-    base_dir <- tryCatch(
-      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
-      error = function(e) {
-        getwd()
-      }
-    )
+    base_dir <- tempdir()
     
     # Decide final output stem
     if (is.null(fi)) {
@@ -163,14 +158,10 @@ setMethod(
         
         if (length(ww) > 0) {
           
-          dir.create(
-            paste0(object$info$directory, "/_temp"),
-            showWarnings = FALSE
-          )
+          .path <- file.path(tempdir(), "_camtrapReport_test")
+          dir.create(.path, showWarnings = FALSE, recursive = TRUE)
           
-          if (dir.exists(paste0(object$info$directory, "/_temp"))) {
-            .path <- paste0(object$info$directory, "/_temp")
-          } else {
+          if (!dir.exists(.path)) {
             .path <- NULL
           }
           

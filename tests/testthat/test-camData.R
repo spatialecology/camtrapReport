@@ -33,15 +33,24 @@ test_that("the bundled Camtrap DP toy dataset is available and linked", {
 
 test_that("camData reads the bundled toy dataset into a complete camReport", {
   cm <- camtrap_test_report()
+
   metadata <- jsonlite::fromJSON(file.path(
     camtrap_test_dataset(),
     "datapackage.json"
   ))
 
   expect_s4_class(cm, "camReport")
+
   expect_named(
     cm$data,
-    c("observations", "deployments", "media", "locations", "sequences", "taxonomy")
+    c(
+      "observations",
+      "deployments",
+      "media",
+      "locations",
+      "sequences",
+      "taxonomy"
+    )
   )
 
   row_counts <- vapply(
@@ -50,14 +59,30 @@ test_that("camData reads the bundled toy dataset into a complete camReport", {
     integer(1)
   )
 
-  expect_identical(unname(row_counts), c(24L, 444L, 4616L))
-  expect_identical(cm$siteName, metadata$project$title)
-  expect_true(file.exists(file.path(
-    cm$info$directory,
-    "__camReport_Object.rds"
-  )))
-})
+  expect_identical(
+    unname(row_counts),
+    c(24L, 444L, 4616L)
+  )
 
+  expect_identical(
+    cm$siteName,
+    metadata$project$title
+  )
+
+  cache_dir <- file.path(
+    tempdir(),
+    "camtrapReport"
+  )
+
+  cache_files <- list.files(
+    cache_dir,
+    pattern = "__camReport_Object\\.rds$",
+    full.names = TRUE
+  )
+
+  expect_true(length(cache_files) >= 1L)
+  expect_true(all(file.exists(cache_files)))
+})
 test_that("camData reuses its saved camReport object", {
   cm <- camtrap_test_report()
 
@@ -65,5 +90,8 @@ test_that("camData reuses its saved camReport object", {
 
   expect_s4_class(cached, "camReport")
   expect_identical(cached$siteName, cm$siteName)
-  expect_identical(nrow(cached$data$observations), nrow(cm$data$observations))
+  expect_identical(
+    nrow(cached$data$observations),
+    nrow(cm$data$observations)
+  )
 })

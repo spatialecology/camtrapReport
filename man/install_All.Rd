@@ -30,12 +30,11 @@ configuration as GitHub dependencies are installed with
 \code{\link[remotes:install_github]{remotes::install_github()}}.
 }
 \examples{
-\dontrun{
-# These calls install packages into the user's R library
-# and are therefore not run automatically.
-install_All()
-install_All(pkgs = "remotes")
-install_All(update = TRUE)
+if (interactive()) {
+  # These calls install packages into the user's R library.
+  install_All()
+  install_All(pkgs = "remotes")
+  install_All(update = TRUE)
 }
 }
 \seealso{

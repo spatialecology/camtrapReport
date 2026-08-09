@@ -76,17 +76,14 @@
 #--------
 
 .loadLib <- function(pkgs) {
-  old_warn <- getOption("warn")
-  on.exit(options(warn = old_warn), add = TRUE)
-  
-  options(warn = -1)
-  
-  vapply(
-    pkgs,
-    function(x) {
-      all(vapply(x, .require, logical(1)))
-    },
-    logical(1)
+  suppressWarnings(
+    vapply(
+      pkgs,
+      function(x) {
+        all(vapply(x, .require, logical(1)))
+      },
+      logical(1)
+    )
   )
 }
 
@@ -217,12 +214,11 @@ setGeneric(
 #' @aliases install_All
 #'
 #' @examples
-#' \dontrun{
-#' # These calls install packages into the user's R library
-#' # and are therefore not run automatically.
-#' install_All()
-#' install_All(pkgs = "remotes")
-#' install_All(update = TRUE)
+#' if (interactive()) {
+#'   # These calls install packages into the user's R library.
+#'   install_All()
+#'   install_All(pkgs = "remotes")
+#'   install_All(update = TRUE)
 #' }
 setMethod(
   "install_All",
