@@ -52,7 +52,7 @@
 #-------
 .make_package_loader_chunk <- function(pkgs,
                                        core = c("knitr"),
-                                       attach = TRUE) {
+                                       attach_packages = TRUE) {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
   
   if (length(pkgs) == 0) {
@@ -61,7 +61,7 @@
   
   pkg_txt <- paste(sprintf('"%s"', pkgs), collapse = ", ")
   
-  if (attach) {
+  if (attach_packages) {
     paste0(
       "```{r setup, include=FALSE}\n",
       "pkgs <- c(", pkg_txt, ")\n",

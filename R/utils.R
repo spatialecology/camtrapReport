@@ -67,24 +67,10 @@
     return(FALSE)
   }
   
-  if (!requireNamespace(x, quietly = TRUE)) {
-    return(FALSE)
-  }
-  
-  ok <- suppressWarnings(
-    suppressMessages(
-      suppressPackageStartupMessages(
-        require(
-          x,
-          character.only = TRUE,
-          quietly = TRUE,
-          warn.conflicts = FALSE
-        )
-      )
-    )
+  requireNamespace(
+    x,
+    quietly = TRUE
   )
-  
-  isTRUE(ok)
 }
 
 #--------

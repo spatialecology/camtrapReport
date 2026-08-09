@@ -2,29 +2,6 @@
 # Licence: MIT
 #--------
 
-.detachPackage <- function(n, unload = TRUE, force = TRUE) {
-  n <- unique(as.character(n))
-  n <- n[!is.na(n) & nzchar(n)]
-  
-  for (pkg in n) {
-    package_name <- paste0("package:", pkg)
-    
-    if (package_name %in% search()) {
-      try(
-        detach(
-          package_name,
-          force = force,
-          character.only = TRUE,
-          unload = unload
-        ),
-        silent = TRUE
-      )
-    }
-  }
-  
-  invisible(NULL)
-}
-
 #--------
 
 .eval <- function(x, env) {
@@ -55,7 +32,6 @@
 }
 
 #--------
-
 .require <- function(x) {
   x <- as.character(x)
   
@@ -63,16 +39,11 @@
     return(FALSE)
   }
   
-  suppressWarnings(
-    require(
-      x,
-      character.only = TRUE,
-      quietly = TRUE,
-      warn.conflicts = FALSE
-    )
+  requireNamespace(
+    x,
+    quietly = TRUE
   )
 }
-
 #--------
 
 .loadLib <- function(pkgs) {
@@ -327,13 +298,24 @@ setMethod(
       return(invisible(NULL))
     }
     
-    protected_packages <- rownames(
-      utils::installed.packages(
-        priority = c("base", "recommended")
-      )
+    is_protected_package <- vapply(
+      cran_packages,
+      function(pkg) {
+        priority <- suppressWarnings(
+          utils::packageDescription(
+            pkg,
+            fields = "Priority"
+          )
+        )
+        
+        length(priority) == 1L &&
+          !is.na(priority) &&
+          priority %in% c("base", "recommended")
+      },
+      logical(1)
     )
     
-    cran_to_update <- setdiff(cran_packages, protected_packages)
+    cran_to_update <- cran_packages[!is_protected_package]
     
     if (
       length(cran_to_update) == 0L &&
@@ -344,19 +326,6 @@ setMethod(
     }
     
     if (length(cran_to_update) > 0L) {
-      .detachPackage(cran_to_update)
-      
-      installed_cran <- cran_to_update[
-        .is.installed(cran_to_update)
-      ]
-      
-      if (length(installed_cran) > 0L) {
-        try(
-          remove.packages(installed_cran),
-          silent = TRUE
-        )
-      }
-      
       for (pkg in cran_to_update) {
         result <- try(
           install.packages(pkg, ...),
@@ -373,19 +342,20 @@ setMethod(
     }
     
     if (length(github_packages) > 0L) {
-      .detachPackage(github_packages)
-      
-      installed_github <- github_packages[
-        .is.installed(github_packages)
-      ]
-      
-      if (length(installed_github) > 0L) {
-        try(
-          remove.packages(installed_github),
-          silent = TRUE
-        )
-      }
-      
+      if (length(github_packages) > 0L) {
+        for (pkg in github_packages) {
+          result <- .installGitHub(
+            github_repositories[[pkg]]
+          )
+          
+          if (
+            isTRUE(result) &&
+            isTRUE(unname(.is.installed(pkg)))
+          ) {
+            installed_count <- installed_count + 1L
+          }
+        }
+      }    
       for (pkg in github_packages) {
         result <- .installGitHub(
           github_repositories[[pkg]]

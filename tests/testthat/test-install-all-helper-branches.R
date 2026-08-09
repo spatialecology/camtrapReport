@@ -71,25 +71,6 @@ test_that("package configuration helpers return stable vectors", {
 })
 
 
-test_that("detachPackage ignores empty and unattached package names", {
-  expect_null(
-    camtrapReport:::.detachPackage(
-      character()
-    )
-  )
-  
-  expect_null(
-    camtrapReport:::.detachPackage(
-      c(
-        "",
-        NA_character_,
-        "not-attached-package"
-      )
-    )
-  )
-})
-
-
 test_that("require helper rejects invalid package names", {
   require_package <- camtrapReport:::.require
   

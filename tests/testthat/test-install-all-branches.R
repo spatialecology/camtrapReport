@@ -1,7 +1,6 @@
 test_that("installation helpers validate and classify package names", {
   is_installed <- camtrapReport:::.is.installed
   load_lib <- camtrapReport:::.loadLib
-  detach_package <- camtrapReport:::.detachPackage
   
   empty_result <- is_installed(character())
   
@@ -37,20 +36,16 @@ test_that("installation helpers validate and classify package names", {
       installed["a_package_that_does_not_exist_12345"]
     )
   )
-  # Duplicate and invalid package names should not cause errors.
-  expect_null(
-    detach_package(
-      c(
-        NA_character_,
-        "",
-        "a_package_that_is_not_attached_12345",
-        "a_package_that_is_not_attached_12345"
-      )
-    )
-  )
   
   expect_identical(
-    unname(load_lib(list(c("methods"), c("stats", "methods")))),
+    unname(
+      load_lib(
+        list(
+          c("methods"),
+          c("stats", "methods")
+        )
+      )
+    ),
     c(TRUE, TRUE)
   )
   
@@ -111,7 +106,13 @@ test_that("install_All reports when all requested packages are installed", {
     },
     .is.installed = function(n) {
       n <- as.character(n)
-      checked_packages <<- unique(c(checked_packages, n))
+      
+      checked_packages <<- unique(
+        c(
+          checked_packages,
+          n
+        )
+      )
       
       result <- rep(TRUE, length(n))
       names(result) <- n
@@ -130,13 +131,19 @@ test_that("install_All reports when all requested packages are installed", {
   )
   
   expect_null(result)
-  expect_true(all(c("methods", "stats") %in% checked_packages))
+  
+  expect_true(
+    all(
+      c("methods", "stats") %in% checked_packages
+    )
+  )
 })
 
 
 test_that("install_All attempts only missing CRAN packages", {
-  installed_after_attempt <- FALSE
-  installation_calls <- character()
+  state <- new.env(parent = emptyenv())
+  state$installed <- FALSE
+  state$installation_calls <- character()
   
   testthat::local_mocked_bindings(
     .getPackageList = function() {
@@ -156,7 +163,7 @@ test_that("install_All attempts only missing CRAN packages", {
           }
           
           if (identical(package, "missingPackage")) {
-            return(installed_after_attempt)
+            return(state$installed)
           }
           
           FALSE
@@ -168,12 +175,12 @@ test_that("install_All attempts only missing CRAN packages", {
       result
     },
     install.packages = function(pkgs, ...) {
-      installation_calls <<- c(
-        installation_calls,
+      state$installation_calls <- c(
+        state$installation_calls,
         as.character(pkgs)
       )
       
-      installed_after_attempt <<- TRUE
+      state$installed <- TRUE
       invisible(NULL)
     },
     .package = "camtrapReport"
@@ -188,7 +195,7 @@ test_that("install_All attempts only missing CRAN packages", {
   expect_null(result)
   
   expect_identical(
-    installation_calls,
+    state$installation_calls,
     "missingPackage"
   )
 })
@@ -237,49 +244,52 @@ test_that("install_All reports CRAN installation failures safely", {
 })
 
 
-test_that("install_All handles missing GitHub packages without network access", {
-  github_calls <- character()
-  
-  testthat::local_mocked_bindings(
-    .getPackageList = function() {
-      character()
-    },
-    .getPackageGitHubList = function() {
-      c(
-        githubPackage = "example/exampleRepository"
-      )
-    },
-    .is.installed = function(n) {
-      n <- as.character(n)
-      
-      result <- rep(FALSE, length(n))
-      names(result) <- n
-      result
-    },
-    .installGitHub = function(repository) {
-      github_calls <<- c(
-        github_calls,
-        repository
-      )
-      
-      FALSE
-    },
-    .package = "camtrapReport"
-  )
-  
-  expect_output(
-    result <- install_All(update = FALSE),
-    "githubPackage",
-    fixed = TRUE
-  )
-  
-  expect_null(result)
-  
-  expect_identical(
-    github_calls,
-    "example/exampleRepository"
-  )
-})
+test_that(
+  "install_All handles missing GitHub packages without network access",
+  {
+    github_calls <- character()
+    
+    testthat::local_mocked_bindings(
+      .getPackageList = function() {
+        character()
+      },
+      .getPackageGitHubList = function() {
+        c(
+          githubPackage = "example/exampleRepository"
+        )
+      },
+      .is.installed = function(n) {
+        n <- as.character(n)
+        
+        result <- rep(FALSE, length(n))
+        names(result) <- n
+        result
+      },
+      .installGitHub = function(repository) {
+        github_calls <<- c(
+          github_calls,
+          repository
+        )
+        
+        FALSE
+      },
+      .package = "camtrapReport"
+    )
+    
+    expect_output(
+      result <- install_All(update = FALSE),
+      "githubPackage",
+      fixed = TRUE
+    )
+    
+    expect_null(result)
+    
+    expect_identical(
+      github_calls,
+      "example/exampleRepository"
+    )
+  }
+)
 
 
 test_that("install_All counts successful mocked GitHub installations", {
@@ -331,30 +341,31 @@ test_that("install_All counts successful mocked GitHub installations", {
 })
 
 
-test_that("install_All update mode handles an empty optional package list", {
-  testthat::local_mocked_bindings(
-    .getPackageList = function() {
-      character()
-    },
-    .getPackageGitHubList = function() {
-      character()
-    },
-    .package = "camtrapReport"
-  )
-  
-  expect_output(
-    result <- install_All(update = TRUE),
-    "There are no optional packages to update",
-    fixed = TRUE
-  )
-  
-  expect_null(result)
-})
+test_that(
+  "install_All update mode handles an empty optional package list",
+  {
+    testthat::local_mocked_bindings(
+      .getPackageList = function() {
+        character()
+      },
+      .getPackageGitHubList = function() {
+        character()
+      },
+      .package = "camtrapReport"
+    )
+    
+    expect_output(
+      result <- install_All(update = TRUE),
+      "There are no optional packages to update",
+      fixed = TRUE
+    )
+    
+    expect_null(result)
+  }
+)
 
 
 test_that("install_All update mode reinstalls mocked CRAN packages", {
-  detached_packages <- character()
-  removed_packages <- character()
   installation_calls <- character()
   reinstalled <- FALSE
   
@@ -364,14 +375,6 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
     },
     .getPackageGitHubList = function() {
       character()
-    },
-    .detachPackage = function(n, ...) {
-      detached_packages <<- c(
-        detached_packages,
-        as.character(n)
-      )
-      
-      invisible(NULL)
     },
     .is.installed = function(n) {
       n <- as.character(n)
@@ -385,21 +388,12 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
         logical(1)
       )
       
-      # After install.packages(), the package should appear installed.
       if (reinstalled) {
         result[n == "optionalPackage"] <- TRUE
       }
       
       names(result) <- n
       result
-    },
-    remove.packages = function(pkgs, ...) {
-      removed_packages <<- c(
-        removed_packages,
-        as.character(pkgs)
-      )
-      
-      invisible(NULL)
     },
     install.packages = function(pkgs, ...) {
       installation_calls <<- c(
@@ -422,82 +416,58 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
   expect_null(result)
   
   expect_identical(
-    detached_packages,
-    "optionalPackage"
-  )
-  
-  expect_identical(
-    removed_packages,
-    "optionalPackage"
-  )
-  
-  expect_identical(
     installation_calls,
     "optionalPackage"
   )
 })
 
 
-test_that("install_All update mode reports unsuccessful reinstallations", {
-  detached_packages <- character()
-  removal_calls <- character()
-  installation_calls <- character()
-  
-  testthat::local_mocked_bindings(
-    .getPackageList = function() {
+test_that(
+  "install_All update mode reports unsuccessful reinstallations",
+  {
+    installation_calls <- character()
+    
+    testthat::local_mocked_bindings(
+      .getPackageList = function() {
+        "optionalPackage"
+      },
+      .getPackageGitHubList = function() {
+        character()
+      },
+      .is.installed = function(n) {
+        n <- as.character(n)
+        
+        result <- rep(TRUE, length(n))
+        
+        if (length(installation_calls) > 0L) {
+          result[] <- FALSE
+        }
+        
+        names(result) <- n
+        result
+      },
+      install.packages = function(pkgs, ...) {
+        installation_calls <<- c(
+          installation_calls,
+          as.character(pkgs)
+        )
+        
+        stop("Synthetic reinstall failure")
+      },
+      .package = "camtrapReport"
+    )
+    
+    expect_output(
+      result <- install_All(update = TRUE),
+      "The following packages could not be installed:",
+      fixed = TRUE
+    )
+    
+    expect_null(result)
+    
+    expect_identical(
+      installation_calls,
       "optionalPackage"
-    },
-    .getPackageGitHubList = function() {
-      character()
-    },
-    .detachPackage = function(n, ...) {
-      detached_packages <<- c(
-        detached_packages,
-        as.character(n)
-      )
-      
-      invisible(NULL)
-    },
-    .is.installed = function(n) {
-      n <- as.character(n)
-      
-      result <- rep(TRUE, length(n))
-      
-      # The final check must report failure.
-      if (length(installation_calls) > 0L) {
-        result[] <- FALSE
-      }
-      
-      names(result) <- n
-      result
-    },
-    remove.packages = function(pkgs, ...) {
-      removal_calls <<- c(
-        removal_calls,
-        as.character(pkgs)
-      )
-      
-      invisible(NULL)
-    },
-    install.packages = function(pkgs, ...) {
-      installation_calls <<- c(
-        installation_calls,
-        as.character(pkgs)
-      )
-      
-      stop("Synthetic reinstall failure")
-    },
-    .package = "camtrapReport"
-  )
-  
-  expect_output(
-    result <- install_All(update = TRUE),
-    "The following packages could not be installed:",
-    fixed = TRUE
-  )
-  
-  expect_null(result)
-  expect_identical(detached_packages, "optionalPackage")
-  expect_identical(removal_calls, "optionalPackage")
-  expect_identical(installation_calls, "optionalPackage")
-})
+    )
+  }
+)
