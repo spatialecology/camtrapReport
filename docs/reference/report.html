@@ -11,7 +11,7 @@ data-status report summarising data completeness, structure, and quality."></hea
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.46</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,9 @@ data-status report summarising data completeness, structure, and quality.</p>
 <dd><p>An optional character string giving the output filename or
 file path without an extension. The default is <code>"report"</code> for <code>report()</code>
 and <code>"data_status"</code> for <code>status()</code>. Relative default filenames are written
-to the camera-trap data directory.</p></dd>
+file path without an extension. The default is <code>"report"</code> for <code>report()</code>
+and <code>"data_status"</code> for <code>status()</code>. If no output directory is explicitly
+supplied, files are written to the R session's temporary directory.</p></dd>
 
 
 <dt id="arg-view">view<a class="anchor" aria-label="anchor" href="#arg-view"></a></dt>
@@ -138,7 +140,7 @@ errors during report generation.</p>
 <span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown report ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpOIuKXD\camtrapReport-report-884468276c33.html</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\Rtmpuaz83c\camtrapReport-report-f8887ad35402.html</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">report_file</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
@@ -151,7 +153,7 @@ errors during report generation.</p>
 <span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown data_status report ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpOIuKXD\camtrapReport-status-88445bc97d1b.html</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\Rtmpuaz83c\camtrapReport-status-f8882cd55399.html</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">status_file</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>

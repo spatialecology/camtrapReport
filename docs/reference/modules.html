@@ -11,7 +11,7 @@ remove modules, restore deleted modules, and empty the module trash."></head><bo
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.46</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,17 +58,17 @@ remove modules, restore deleted modules, and empty the module trash.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_Module</span><span class="op">(</span><span class="va">x</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">test</span>, <span class="va">object</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_Module</span><span class="op">(</span><span class="va">x</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">test</span>, <span class="va">object</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">move_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">parent</span>, <span class="va">level0</span><span class="op">)</span></span>
+<span><span class="fu">move_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">parent</span>, <span class="va">level0</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">remove_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">recursive</span><span class="op">)</span></span>
+<span><span class="fu">remove_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">recursive</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">restore_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">batch_id</span>, <span class="va">test</span><span class="op">)</span></span>
+<span><span class="fu">restore_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">batch_id</span>, <span class="va">test</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">empty_trash</span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span><span class="op">)</span></span>
+<span><span class="fu">empty_trash</span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">list_Modules</span><span class="op">(</span><span class="va">tree</span>, <span class="va">brief</span>, <span class="va">include_trash</span>, <span class="va">validate</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">list_Modules</span><span class="op">(</span><span class="va">tree</span>, <span class="va">brief</span>, <span class="va">include_trash</span>, <span class="va">validate</span>, <span class="va">dir</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -101,6 +101,14 @@ For <code>restore_Module()</code>, the default is <code>TRUE</code>.</p></dd>
 <dd><p>An optional <code><a href="camReport-classes.html">camReport</a></code> object used when
 testing a module that requires access to report data. The default is
 <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-dir">dir<a class="anchor" aria-label="anchor" href="#arg-dir"></a></dt>
+<dd><p>An optional character string giving a module-registry directory.
+Read-only operations use the package's bundled registry when <code>dir = NULL</code>.
+Operations that add, move, remove, restore, or permanently delete modules
+require an explicit writable <code>dir</code> and never modify the installed package
+directory.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
@@ -165,7 +173,7 @@ information about the performed operation invisibly.</p>
     <p>camtrapReport uses a modular report architecture in which each report section
 is stored as a module. A module can contain section metadata, text,
 executable R code, required packages, and rendering settings.</p>
-<p><code>add_Module()</code> adds a new YAML-defined module to the package module directory.
+<p><code>add_Module()</code> adds a new YAML-defined module to an explicitly supplied writable module directory.
 The module can optionally be inserted before or after an existing module.</p>
 <p><code>move_Module()</code> changes the position or parent of an existing module within
 the hierarchical report structure.</p>
@@ -206,16 +214,18 @@ modules stored in the trash.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  5     location methods  TRUE     ok</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  6       effort methods  TRUE     ok</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># The operations below modify the installed module registry</span></span></span>
-<span class="r-in"><span><span class="co"># and are therefore not run automatically.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Mutating operations require an explicit writable module directory.</span></span></span>
+<span class="r-in"><span>  <span class="va">module_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-modules-"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">module_dir</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">add_Module</span><span class="op">(</span><span class="st">"new_module.yml"</span>, after <span class="op">=</span> <span class="st">"captures"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">move_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span>, after <span class="op">=</span> <span class="st">"richness"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">remove_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">restore_Module</span><span class="op">(</span><span class="st">"species_accumulation"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">empty_trash</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span>  <span class="va">bundled_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"reportSections"</span>, package <span class="op">=</span> <span class="st">"camtrapReport"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">bundled_dir</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="va">files</span>, <span class="va">module_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Example:</span></span></span>
+<span class="r-in"><span>  <span class="co"># add_Module("new_module.yml", after = "captures", dir = module_dir)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
