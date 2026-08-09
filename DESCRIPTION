@@ -26,7 +26,6 @@ Imports:
     terra
 Suggests:
     activity,
-    camtrapDensity,
     corrplot,
     Distance,
     dygraphs,
