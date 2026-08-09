@@ -1280,7 +1280,7 @@
     if (.require("spatstat")) {
       
       win <- .eval(
-        "owin(xrange = xr, yrange = yr)",
+        "spatstat.geom::owin(xrange = xr, yrange = yr)",
         env = environment()
       )
       
