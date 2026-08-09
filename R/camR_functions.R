@@ -1286,19 +1286,31 @@
       
       ppp_obj <- .eval(
         "spatstat.geom::ppp(
-          x = coords_xy[['longitude']],
-          y = coords_xy[['latitude']],
-          window = win
-        )",
+    x = coords_xy[['longitude']],
+    y = coords_xy[['latitude']],
+    window = win
+  )",
         env = environment()
       )
       
       qtest <- .eval(
-        "quadrat.test(ppp_obj, nx = 3, ny = 3)",
+        "spatstat.explore::quadrat.test(
+    ppp_obj,
+    nx = 3,
+    ny = 3
+  )",
         env = environment()
       )
       
       kres <- .eval(
+        "spatstat.explore::Kest(
+    ppp_obj,
+    correction = 'iso'
+  )",
+        env = environment()
+      )
+      
+    kres <- .eval(
         "Kest(ppp_obj, correction = 'iso')",
         env = environment()
       )
