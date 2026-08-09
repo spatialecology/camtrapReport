@@ -6,12 +6,11 @@ Authors@R: person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), 
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible
     data-status and ecological reports. The package supports data-quality
-    checks, ecological summaries, visualisations, maps, tables and modular
-    report sections for wildlife-monitoring applications. Optional functionality
-    retrieves taxonomic information from the Global Biodiversity Information
-    Facility (GBIF) <https://www.gbif.org/> and NCBI Taxonomy
-    <https://www.ncbi.nlm.nih.gov/taxonomy>, and can retrieve optional
-    dependencies from GitHub <https://github.com/>.
+    checks, ecological summaries, visualisations, maps, tables, and modular
+    report sections for wildlife-monitoring applications. Optional taxonomic
+    enrichment queries the Global Biodiversity Information Facility (GBIF)
+    Species API <https://techdocs.gbif.org/en/openapi/v1/species> through
+    'taxize'.
 License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
@@ -20,19 +19,15 @@ Depends:
 Imports:
     data.table,
     dplyr,
-    shiny,
     glue,
     jsonlite,
-    lubridate,
     knitr,
+    lubridate,
     methods,
     rmarkdown,
+    shiny,
     terra
 Suggests:
-    roxygen2,
-    remotes,
-    testthat (>= 3.1.7),
-    xml2,
     activity,
     corrplot,
     Distance,
@@ -47,13 +42,17 @@ Suggests:
     lutz,
     magick,
     readr,
+    remotes,
+    roxygen2,
     sbd,
     scales,
     sf,
     spatstat,
     suncalc,
     taxize,
+    testthat (>= 3.1.7),
     tidyr,
+    xml2,
     xts
 VignetteBuilder: knitr
 Encoding: UTF-8
