@@ -89,8 +89,6 @@ Once the input data have been prepared, a full ecological report can be generate
 report(cm, view = TRUE)  # Opens the report automatically after creation
 ```
 
-> **Tip:** Reports are saved in your current working directory.
-
 ## Customising the report
 
 The contents of the `camReport` object are extracted or inferred from the main dataset. These metadata can be viewed and modified using the `info()` function:

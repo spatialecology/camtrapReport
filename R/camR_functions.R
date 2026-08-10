@@ -1310,8 +1310,11 @@
         env = environment()
       )
       
-    kres <- .eval(
-        "Kest(ppp_obj, correction = 'iso')",
+      kres <- .eval(
+        "spatstat.explore::Kest(
+    ppp_obj,
+    correction = 'iso'
+  )",
         env = environment()
       )
       

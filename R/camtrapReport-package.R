@@ -52,4 +52,5 @@
 #' @exportClass camReport
 #' @importFrom spatstat.geom owin ppp
 #' @importFrom spatstat.explore quadrat.test
+#' #' @importFrom spatstat.explore quadrat.test Kest
 "_PACKAGE"
