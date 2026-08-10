@@ -332,7 +332,6 @@ camR <- setRefClass(
           for (.g in .n) {
             if (sp %in% get_speciesNames(.g)) {
               return(.g)
-              break
             }
           }
         }
