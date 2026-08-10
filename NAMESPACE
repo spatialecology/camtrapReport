@@ -51,6 +51,10 @@ importFrom(graphics,
   text
 )
 importFrom(lubridate,interval)
+importFrom(spatstat.explore,
+  Kest,
+  quadrat.test
+)
 importFrom(spatstat.geom,
   owin,
   ppp
