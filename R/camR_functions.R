@@ -1277,7 +1277,10 @@
     xr <- xr + diff(xr) * c(-buffer_ratio, buffer_ratio)
     yr <- yr + diff(yr) * c(-buffer_ratio, buffer_ratio)
     
-    if (.require("spatstat")) {
+    if (
+      .require("spatstat.geom") &&
+      .require("spatstat.explore")
+    ) {
       
       win <- .eval(
         "spatstat.geom::owin(xrange = xr, yrange = yr)",
@@ -1286,35 +1289,27 @@
       
       ppp_obj <- .eval(
         "spatstat.geom::ppp(
-    x = coords_xy[['longitude']],
-    y = coords_xy[['latitude']],
-    window = win
-  )",
+      x = coords_xy[['longitude']],
+      y = coords_xy[['latitude']],
+      window = win
+    )",
         env = environment()
       )
       
       qtest <- .eval(
         "spatstat.explore::quadrat.test(
-    ppp_obj,
-    nx = 3,
-    ny = 3
-  )",
+      ppp_obj,
+      nx = 3,
+      ny = 3
+    )",
         env = environment()
       )
       
       kres <- .eval(
         "spatstat.explore::Kest(
-    ppp_obj,
-    correction = 'iso'
-  )",
-        env = environment()
-      )
-      
-      kres <- .eval(
-        "spatstat.explore::Kest(
-    ppp_obj,
-    correction = 'iso'
-  )",
+      ppp_obj,
+      correction = 'iso'
+    )",
         env = environment()
       )
       
@@ -1343,7 +1338,8 @@
     } else {
       out$status_spatial <- paste0(
         w,
-        " spatstat is not installed; spatial pattern detection skipped."
+        " spatstat.geom and/or spatstat.explore are not installed; ",
+        "spatial pattern detection skipped."
       )
     }
     
