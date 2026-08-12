@@ -39,7 +39,7 @@ test_that("installation helpers validate and classify package names", {
     unname(
       load_lib(
         list(
-          c("methods"),
+          "methods",
           c("stats", "methods")
         )
       )
@@ -51,7 +51,7 @@ test_that("installation helpers validate and classify package names", {
     unname(
       load_lib(
         list(
-          c("a_package_that_does_not_exist_12345")
+          "a_package_that_does_not_exist_12345"
         )
       )
     )[1]

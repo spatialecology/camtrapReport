@@ -51,7 +51,7 @@
 #-------
 #-------
 .make_package_loader_chunk <- function(pkgs,
-                                       core = c("knitr"),
+                                       core = "knitr",
                                        attach_packages = TRUE) {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
   
@@ -843,7 +843,7 @@ camR <- setRefClass(
       if (!'wild_mammals' %in% names(.self$group_definition) && 'Mammalia' %in% .self$data$taxonomy$class 
           && 'domestic' %in% names(.self$group_definition)) {
         
-        .w <- .self$data$taxonomy$class == "Mammalia" & (!.self$data$taxonomy$scientificName %in% .self$group_definition$domestic$scientificName) & grepl(" ", .self$data$taxonomy$scientificName)
+        .w <- .self$data$taxonomy$class == "Mammalia" & (!.self$data$taxonomy$scientificName %in% .self$group_definition$domestic$scientificName) & grepl(" ", .self$data$taxonomy$scientificName, fixed = TRUE)
         if (length(.w) > 0) .self$group_definition[['wild_mammals']] <- list(scientificName = .self$data$taxonomy$scientificName[.w])
         
       }
@@ -1288,7 +1288,7 @@ camR <- setRefClass(
       
       if (length(.self$filterExclude) > 0 || length(.self$filterKeep) > 0 || length(.self$filterCount) > 0) {
         w1 <- w2 <- w3 <- w4 <- TRUE
-        if (length(.self$filterKeep) > 0 && 'order' %in% names(.self$filterKeep) && any(!is.na(.self$data$taxonomy$order))) {
+        if (length(.self$filterKeep) > 0 && 'order' %in% names(.self$filterKeep) && !all(is.na(.self$data$taxonomy$order))) {
           w1 <- .self$data$taxonomy$order %in% .self$filterKeep$order
         } 
         
@@ -2053,7 +2053,7 @@ camR <- setRefClass(
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$reportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
@@ -2126,7 +2126,7 @@ output:
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)

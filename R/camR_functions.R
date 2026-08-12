@@ -216,7 +216,7 @@
   }
   
   if ("Habitat_Type" %in% names(dep_loc)) {
-    dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type)
+    dep_loc$Habitat_Type <- gsub("_", " ", dep_loc$Habitat_Type, fixed = TRUE)
     dep_loc$Habitat_Type <- ifelse(
       dep_loc$Habitat_Type == "Other",
       "Unclassified Habitat",
@@ -557,9 +557,9 @@
   
   .n <- .nn <- colnames(df)[grepl('^vernacularName',colnames(df))]
   if (length(.n) > 0) {
-    .w <- which(sapply(.n,function(x) length(strsplit(x,'\\.')[[1]])) == 2)
+    .w <- which(sapply(.n,function(x) length(strsplit(x,'.', fixed = TRUE)[[1]])) == 2)
     if (length(.w) > 0) {
-      .nn[.w] <- paste0('species_list_',sapply(.n,function(x) strsplit(x,'\\.')[[1]][2]))
+      .nn[.w] <- paste0('species_list_',sapply(.n,function(x) strsplit(x,'.', fixed = TRUE)[[1]][2]))
     }
   }
   
@@ -755,11 +755,11 @@
   location_df2[["locationName"]][location_df2[["locationName"]] == ""] <- NA_character_
   
   location_df2[["longitude"]] <- suppressWarnings(
-    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["longitude"]]))))
+    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["longitude"]])), fixed = TRUE))
   )
   
   location_df2[["latitude"]] <- suppressWarnings(
-    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["latitude"]]))))
+    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["latitude"]])), fixed = TRUE))
   )
   
   complete_idx <- stats::complete.cases(
@@ -1801,7 +1801,7 @@
     pair_idx <- which(!is.na(lon_num) & !is.na(lat_num))
     if (!length(pair_idx)) return("")
     deg_like <- abs(lon_num[pair_idx]) <= 180 & abs(lat_num[pair_idx]) <= 90
-    if (all(deg_like) || all(!deg_like)) return("")
+    if (all(deg_like) || !any(deg_like)) return("")
     idx_deg    <- pair_idx[deg_like]
     idx_nondeg <- pair_idx[!deg_like]
     diff_rows  <- if (length(idx_deg) < length(idx_nondeg)) idx_deg else idx_nondeg
@@ -1944,7 +1944,7 @@
       if (is.na(col_count)) paste0(r, " Missing column: count")
     else .summ_status_counts(cm$data$observations[[col_count]], treat_blank = FALSE)
     
-    col_cb <- .pick_col(cm$data$observations, c("classifiedBy"))
+    col_cb <- .pick_col(cm$data$observations, "classifiedBy")
     if (is.na(col_cb)) {
       cm$data_status$Essentials$obs$classifiedBy_status <- paste0(r, " Missing column: classifiedBy")
     } else {
@@ -1972,7 +1972,7 @@
       n_animal <- sum(idx_animal)
       
       # taxonID: animals + unique
-      col_tax <- .pick_col(cm$data$observations, c("taxonID"))
+      col_tax <- .pick_col(cm$data$observations, "taxonID")
       if (is.na(col_tax)) {
         cm$data_status$Essentials$obs$taxonID <- paste0(r, " Missing column: taxonID")
       } else {
@@ -1998,13 +1998,13 @@
         obs_state$value[[key]] <- .animal_field_status(present_n, n_animal, label)
       }
       
-      .set_animal_field("behavior", c("behavior"), "behavior","chr")
-      .set_animal_field("sex", c("sex"),"sex", "chr")
-      .set_animal_field("lifeStage", c("lifeStage"), "lifeStage", "chr")
+      .set_animal_field("behavior", "behavior", "behavior","chr")
+      .set_animal_field("sex", "sex","sex", "chr")
+      .set_animal_field("lifeStage", "lifeStage", "lifeStage", "chr")
       .set_animal_field("angle", c("individualPositionAngle","angle"), "angle", "num")
       .set_animal_field("radius", c("individualPositionRadius","radius"), "radius", "num")
       .set_animal_field("speed", c("individualSpeed","speed"), "speed", "num")
-      .set_animal_field("individualID", c("individualID"), "individualID", "chr")
+      .set_animal_field("individualID", "individualID", "individualID", "chr")
       cm$data_status$Essentials$obs <- obs_state$value
     }
   }
@@ -2033,15 +2033,15 @@
     
     add_dep("depID", c("deploymentID","depID"), "counts", TRUE)
     add_dep("locID", c("locationID","locID"), "counts", TRUE)
-    add_dep("baitUse", c("baitUse"), "counts", TRUE)
-    add_dep("cameraHeight", c("cameraHeight"),"counts", FALSE)
-    add_dep("habitat", c("habitat"), "counts", TRUE)
+    add_dep("baitUse", "baitUse", "counts", TRUE)
+    add_dep("cameraHeight", "cameraHeight","counts", FALSE)
+    add_dep("habitat", "habitat", "counts", TRUE)
     add_dep("dep_interval", c("deployment_interval","dep_interval"), "dep_interval")
     add_dep("depStart", c("deploymentStart","depStart"), "timestamp")
     add_dep("depEnd", c("deploymentEnd","depEnd"),"timestamp")
     cm$data_status$Essentials$dep <- dep_state$value
     
-    col_sb <- .pick_col(cm$data$deployments, c("setupBy"))
+    col_sb <- .pick_col(cm$data$deployments, "setupBy")
     if (is.na(col_sb)) {
       cm$data_status$Essentials$dep$setupBy_status <- paste0(r, " Missing column: setupBy")
     } else {
@@ -2067,10 +2067,10 @@
       }
     }
     
-    add_media("comments", c("comments"), "counts", TRUE)
+    add_media("comments", "comments", "counts", TRUE)
     add_media("favourite", c("favourite","favorite"), "counts", FALSE)
     add_media("file.path", c("filePath","file.path","file_path"), "counts", TRUE)
-    add_media("timestamp", c("timestamp"), "timestamp", TRUE)
+    add_media("timestamp", "timestamp", "timestamp", TRUE)
   }
   #--------
   # SEQUENCES 
@@ -2084,15 +2084,15 @@
         cm$data_status$Essentials$seq[[key]] <- .summ_status_counts(cm$data$sequences[[col]], treat_blank = treat_blank)
       }
     }
-    add_seq("captureMethod", c("captureMethod"), TRUE)
-    add_seq("nrphotos", c("nrphotos"), FALSE)
+    add_seq("captureMethod", "captureMethod", TRUE)
+    add_seq("nrphotos", "nrphotos", FALSE)
   }
   #-----
   # TAXONOMY 
   
   if ("taxonomy" %in% names(cm$data) && is.data.frame(cm$data$taxonomy)) {
     
-    col_tid <- .pick_col(cm$data$taxonomy, c("taxonID"))
+    col_tid <- .pick_col(cm$data$taxonomy, "taxonID")
     if (is.na(col_tid)) {
       cm$data_status$Essentials$tax$taxonID <- paste0(r, " Missing column: taxonID")
     } else {
@@ -2111,7 +2111,7 @@
       }
     }
     
-    add_tax("scientificName", c("scientificName"))
+    add_tax("scientificName", "scientificName")
     add_tax("eng", c("eng", "vernacularNames.eng"))
     add_tax("nld", c("nld", "vernacularNames.nld"))
   }
@@ -2204,7 +2204,7 @@
   cm$data_status$Validation <- list()
   
   # required columns (observations)
-  col_method <- .pick_col(cm$data$observations, c("classificationMethod"))
+  col_method <- .pick_col(cm$data$observations, "classificationMethod")
   col_type   <- .pick_col(cm$data$observations, c("observationType", "obsType"))
   col_prob   <- .pick_col(cm$data$observations, c("classificationProbability", "classificationConfidence"))
   col_seq    <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
@@ -2229,14 +2229,14 @@
   
   captureMethod <- rep(NA_character_, nrow(cm$data$observations))
   
-  col_cap_obs <- .pick_col(cm$data$observations, c("captureMethod"))
+  col_cap_obs <- .pick_col(cm$data$observations, "captureMethod")
   if (!is.na(col_cap_obs)) {
     captureMethod <- .trim_chr(cm$data$observations[[col_cap_obs]])
   } else {
     # sequences join
     if (!is.na(col_seq) && "sequences" %in% names(cm$data) && is.data.frame(cm$data$sequences)) {
       col_seq_seq <- .pick_col(cm$data$sequences, c("sequenceID", "sequID"))
-      col_cap_seq <- .pick_col(cm$data$sequences, c("captureMethod"))
+      col_cap_seq <- .pick_col(cm$data$sequences, "captureMethod")
       if (!is.na(col_seq_seq) && !is.na(col_cap_seq)) {
         m <- match(.trim_chr(cm$data$observations[[col_seq]]), .trim_chr(cm$data$sequences[[col_seq_seq]]))
         captureMethod <- .trim_chr(cm$data$sequences[[col_cap_seq]][m])
@@ -2246,7 +2246,7 @@
     # media fallback
     if (all(is.na(captureMethod)) && !is.na(col_seq) && "media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
       col_seq_med <- .pick_col(cm$data$media, c("sequenceID", "sequID"))
-      col_cap_med <- .pick_col(cm$data$media, c("captureMethod"))
+      col_cap_med <- .pick_col(cm$data$media, "captureMethod")
       if (!is.na(col_seq_med) && !is.na(col_cap_med)) {
         key <- .trim_chr(cm$data$media[[col_seq_med]])
         first_idx <- !duplicated(key)
@@ -2413,13 +2413,13 @@
   }
   
   # B) Required columns in observations/sequences
-  col_tax_obs <- .pick_col(cm$data$observations, c("taxonID"))
-  col_cnt <- .pick_col(cm$data$observations, c("count"))
+  col_tax_obs <- .pick_col(cm$data$observations, "taxonID")
+  col_cnt <- .pick_col(cm$data$observations, "count")
   col_seq_obs <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
   col_ot <- .pick_col(cm$data$observations, c("observationType", "obsType"))
   
   col_seq_seq <- .pick_col(cm$data$sequences, c("sequenceID", "sequID"))
-  col_nrp <- .pick_col(cm$data$sequences, c("nrphotos"))
+  col_nrp <- .pick_col(cm$data$sequences, "nrphotos")
   
   miss <- character(0)
   if (is.na(col_tax_obs)) miss <- c(miss, "cm$data$observations$taxonID")
@@ -2509,7 +2509,7 @@
   # columns
   col_seq_obs <- .pick_col(obs, c("sequenceID", "sequID"))
   col_ot      <- .pick_col(obs, c("observationType", "obsType"))
-  col_cap_obs <- .pick_col(obs, c("captureMethod"))
+  col_cap_obs <- .pick_col(obs, "captureMethod")
   
   if (is.na(col_ot)) {
     cm$data_status$Visuals$capt_method$status <-
@@ -2587,7 +2587,7 @@
         source_df = cm$data$sequences,
         col_seq_obs = col_seq_obs,
         source_seq_candidates = c("sequenceID", "sequID"),
-        source_cap_candidates = c("captureMethod")
+        source_cap_candidates = "captureMethod"
       )
     }
     
@@ -2603,7 +2603,7 @@
         source_df = cm$data$media,
         col_seq_obs = col_seq_obs,
         source_seq_candidates = c("sequenceID", "sequID"),
-        source_cap_candidates = c("captureMethod")
+        source_cap_candidates = "captureMethod"
       )
     }
   }

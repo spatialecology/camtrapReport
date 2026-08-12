@@ -399,7 +399,7 @@
 #--------
 
 .rmChar <- function(x, rm, rmLast = FALSE) {
-  x <- strsplit(as.character(x), "")[[1]]
+  x <- strsplit(as.character(x), "", fixed = TRUE)[[1]]
   
   if (length(x) == 0) {
     return("")
@@ -920,7 +920,7 @@
   
   for (i in seq_along(.dtFormats)) {
     parsed <- suppressWarnings(as.POSIXct(x, format = .dtFormats[i], tz = "UTC"))
-    o[i] <- all(!is.na(parsed))
+    o[i] <- !any(is.na(parsed))
   }
   
   if (any(o)) {
@@ -1024,7 +1024,7 @@
     }
   }
   
-  w <- strsplit(basename(x), "\\.")[[1]]
+  w <- strsplit(basename(x), ".", fixed = TRUE)[[1]]
   
   if (length(w) > 1) {
     .filename <- paste(w[-length(w)], collapse = "_")
@@ -1071,7 +1071,7 @@
   }
   
   x <- .trim(x)
-  x <- strsplit(x, "")[[1]]
+  x <- strsplit(x, "", fixed = TRUE)[[1]]
   
   if (space) {
     length(x)
@@ -1162,7 +1162,7 @@
   }
   
   x <- as.character(x)
-  x <- gsub("_", " ", x)
+  x <- gsub("_", " ", x, fixed = TRUE)
   x <- gsub("\\s+", " ", x)
   x <- trimws(x)
   x <- x[!is.na(x) & nzchar(x)]

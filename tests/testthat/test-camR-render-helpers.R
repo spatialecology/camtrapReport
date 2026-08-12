@@ -248,15 +248,17 @@ test_that("package loader can check packages without attaching them", {
   
   expect_false(
     grepl(
-      "library\\(",
-      loader
+      "library(",
+      loader,
+      fixed = TRUE
     )
   )
   
   expect_false(
     grepl(
-      "lapply\\(",
-      loader
+      "lapply(",
+      loader,
+      fixed = TRUE
     )
   )
 })

@@ -148,7 +148,7 @@
 
   if (all(w == 0)) {
     dplyr::bind_rows(lapply(x, function(z) {
-      .x <- strsplit(z$taxonID, "/")[[1]]
+      .x <- strsplit(z$taxonID, "/", fixed = TRUE)[[1]]
 
       .x <- data.frame(
         taxonID = .x[length(.x)],
@@ -209,7 +209,7 @@
     dplyr::bind_rows(lapply(x, function(z) {
       .x <- .xx
 
-      .tmp <- strsplit(z$taxonID, "/")[[1]]
+      .tmp <- strsplit(z$taxonID, "/", fixed = TRUE)[[1]]
       .x$taxonID <- .tmp[length(.tmp)]
       .x$scientificName <- z$scientificName
       .x$family <- z$family
@@ -793,7 +793,7 @@ setMethod(
     )
 
     cm$filterKeep <- list(
-      observationType = c("animal"),
+      observationType = "animal",
       class = NULL
     )
 

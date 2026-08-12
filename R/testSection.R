@@ -23,7 +23,7 @@
   # Reuse the same package-loader helper used by generateReport()
   .env$pkg_chunk <- .make_package_loader_chunk(
     pkgs = module_pkgs,
-    core = c("knitr")
+    core = "knitr"
   )
   
   rmd_template <- glue::glue(
@@ -97,7 +97,7 @@ output:
   # Reuse the same package-loader helper used by generateReport()
   .env$pkg_chunk <- .make_package_loader_chunk(
     pkgs = module_pkgs,
-    core = c("knitr")
+    core = "knitr"
   )
   
   rmd_template <- glue::glue(

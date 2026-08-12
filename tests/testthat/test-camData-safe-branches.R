@@ -374,7 +374,7 @@ test_that("get_Taxonomic_DF handles unnamed vernacular values safely", {
       family = "Family one",
       order = "Order one",
       taxonRank = "species",
-      vernacularNames = c("Common one")
+      vernacularNames = "Common one"
     ),
     list(
       taxonID = "taxon/2",
@@ -382,7 +382,7 @@ test_that("get_Taxonomic_DF handles unnamed vernacular values safely", {
       family = "Family two",
       order = "Order two",
       taxonRank = "species",
-      vernacularNames = c("Common two")
+      vernacularNames = "Common two"
     )
   )
   

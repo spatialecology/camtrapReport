@@ -85,12 +85,12 @@
   )
   
   linkStructure <- list(
-    locations = c("locations"),
+    locations = "locations",
     deployments = c("locations", "deployments"),
     sequences = c("deployments", "sequences"),
     observations = c("sequences", "observations", "taxonomy"),
     media = c("sequences", "media"),
-    taxonomy = c("taxonomy")
+    taxonomy = "taxonomy"
   )
   
   #---------------- helper functions ----------------
@@ -498,9 +498,9 @@
   #---------------- choose capture unit ----------------
   
   if (capture_unit == "auto") {
-    if ("eventID" %in% names(y) && any(!is.na(y[["eventID"]]))) {
+    if ("eventID" %in% names(y) && !all(is.na(y[["eventID"]]))) {
       capture_unit <- "event"
-    } else if ("sequenceID" %in% names(y) && any(!is.na(y[["sequenceID"]]))) {
+    } else if ("sequenceID" %in% names(y) && !all(is.na(y[["sequenceID"]]))) {
       capture_unit <- "sequence"
     } else {
       capture_unit <- "observation"
@@ -665,7 +665,7 @@
     colnames(dat)[which(colnames(dat) == depvar)] <- 'distance'
     dat$distance <- abs(dat$distance)
   } else {
-    cats <- strsplit(as.character(dat[,depvar]),"-")
+    cats <- strsplit(as.character(dat[,depvar]), "-", fixed = TRUE)
     dat$distbegin <- unlist(lapply(cats, function(x) as.numeric(x[1])))
     dat$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
     dat$distance <- (dat$distbegin + dat$distend)/2
@@ -1099,19 +1099,19 @@
   
   if (substr(f$title,1,1) == "#") {
     .h <- 0
-    .w <- strsplit(f$title ,"")[[1]]
+    .w <- strsplit(f$title, "", fixed = TRUE)[[1]]
     for (i in 1:4) {
       if (.w[i] == '#') {
         .h <- .h + 1
       } else {
-        .w <- .w[-c(1:.h)]
+        .w <- .w[-(1:.h)]
         .w <- .trim(paste(.w,collapse = ''))
         break
       }
     }
     #------
     if (length(.w) > 1) {
-      .w <- .w[-c(1:.h)]
+      .w <- .w[-(1:.h)]
       .w <- .trim(paste(.w,collapse = ''))
       .h <- 3
     }
@@ -1121,11 +1121,11 @@
   #-----
   .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
   
-  if (length(which(grepl('code', names(f)))) == 1 && is.null(f[[which(grepl('code', names(f)))]])) {
+  if (length(which(grepl('code', names(f), fixed = TRUE))) == 1 && is.null(f[[which(grepl('code', names(f), fixed = TRUE))]])) {
     return(.txt)
-  } else if (length(which(grepl('code', names(f)))) > 0) {
+  } else if (length(which(grepl('code', names(f), fixed = TRUE))) > 0) {
     codeList <- list()
-    .w <- which(grepl('code', names(f)))
+    .w <- which(grepl('code', names(f), fixed = TRUE))
     for (i in .w) {
       
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
