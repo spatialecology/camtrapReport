@@ -19,7 +19,7 @@
 #' * Report bugs at <https://github.com/spatialecology/camtrapReport/issues>
 #'
 #' @keywords package
-#' @import methods
+#' @importFrom methods new setClass setGeneric setMethod setReplaceMethod signature
 #' @importFrom graphics abline legend par points lines boxplot barplot arrows segments text axis image polygon
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cor cov density quantile na.omit predict setNames time

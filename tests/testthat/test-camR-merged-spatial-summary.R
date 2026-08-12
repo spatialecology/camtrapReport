@@ -79,10 +79,10 @@ test_that("merged spatial summary returns the expected structure", {
     all(expected_columns %in% names(result))
   )
   
-  expect_false(any(is.na(result$locationID)))
-  expect_false(any(is.na(result$deploymentID)))
-  expect_false(any(is.na(result$Num_Deployments)))
-  expect_false(any(is.na(result$Total_Photos)))
+  expect_false(anyNA(result$locationID))
+  expect_false(anyNA(result$deploymentID))
+  expect_false(anyNA(result$Num_Deployments))
+  expect_false(anyNA(result$Total_Photos))
 })
 
 

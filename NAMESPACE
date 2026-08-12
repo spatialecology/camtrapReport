@@ -21,7 +21,6 @@ export(status)
 export(testSection)
 export(updateReportSection)
 exportClasses(camReport)
-import(methods)
 importFrom(data.table,data.table)
 importFrom(dplyr,
   bind_rows,
@@ -51,6 +50,14 @@ importFrom(graphics,
   text
 )
 importFrom(lubridate,interval)
+importFrom(methods,
+  new,
+  setClass,
+  setGeneric,
+  setMethod,
+  setReplaceMethod,
+  signature
+)
 importFrom(spatstat.explore,
   Kest,
   quadrat.test

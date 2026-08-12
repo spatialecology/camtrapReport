@@ -891,7 +891,7 @@
   pkgs <- pkgs[!is.na(pkgs) & nzchar(pkgs)]
   
   suppressWarnings(
-    all(unlist(lapply(pkgs, function(p) .require(p))))
+    all(unlist(lapply(pkgs, .require)))
   )
 }
 
