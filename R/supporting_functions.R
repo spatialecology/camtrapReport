@@ -1012,9 +1012,12 @@
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
   if (!all(required_rows %in% rownames(parameters)) | !all(required_cols %in% colnames(parameters))) 
-    stop(paste("parameters must have (at least) row names:", 
-               paste(required_rows, collapse = ", "), ";\nand (at least) column names:", 
-               paste(required_cols, collapse = ", ")))
+    stop(
+      "parameters must have (at least) row names: ",
+      toString(required_rows),
+      " ;\nand (at least) column names: ",
+      toString(required_cols)
+    )
   param <- .eval("camtrapDensity::convert_units(parameters[required_rows, ])",environment())
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
@@ -1400,7 +1403,11 @@
       #---------
       nn <- .check_parent(n)
       if (!is.null(nn)) {
-        warning(paste0('Some sections (',.paste_comma_and(nn),') are excluded because their parents are not available!'))
+        warning(
+          'Some sections (',
+          .paste_comma_and(nn),
+          ') are excluded because their parents are not available!'
+        )
         n <- n[!n %in% nn]
       }
       if (length(n) == 0) stop('No modules (report sections) are selected!')

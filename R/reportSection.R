@@ -260,7 +260,7 @@
     out <- c(
       out,
       paste0(
-        paste(rep("#", head_level), collapse = ""),
+        strrep("#", head_level),
         " ",
         title
       )

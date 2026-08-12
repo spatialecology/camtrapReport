@@ -281,11 +281,11 @@
         required_files <- c("datapackage.json", "deployments.csv", "observations.csv", "media.csv")
         .w <- !required_files %in% tolower(dir(file))
 
-        stop(paste0(
+        stop(
           "The standard data files (",
           paste(required_files[.w], collapse = ", "),
           ") are not available in the specified folder."
-        ))
+        )
       } else {
         stop("The specified folder does not have the standard Camtrap DP files.")
       }

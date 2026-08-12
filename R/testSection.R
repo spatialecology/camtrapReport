@@ -8,8 +8,8 @@
     rmd_file <- tempfile(fileext = ".Rmd")
     output_file <- tempfile(fileext = ".html")
   } else {
-    rmd_file <- paste0(path, "/test.Rmd")
-    output_file <- paste0(path, "/test.html")
+    rmd_file <- file.path(path, "test.Rmd")
+    output_file <- file.path(path, "test.html")
   }
   
   # Title environment for glue

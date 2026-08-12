@@ -111,7 +111,7 @@
     lines <- vapply(
       as.list(expr)[-1],
       function(e) {
-        paste(deparse(e), collapse = "\n")
+        deparse1(e, collapse = "\n")
       },
       character(1)
     )
@@ -126,7 +126,7 @@
   }
   
   # fallback: deparse expression
-  paste(deparse(expr), collapse = "\n")
+  deparse1(expr, collapse = "\n")
 }
 
 #--------
@@ -177,7 +177,7 @@
     }
   }
   
-  paste(deparse(expr), collapse = "")
+  deparse1(expr, collapse = "")
 }
 
 #--------
