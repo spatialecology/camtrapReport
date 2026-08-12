@@ -211,7 +211,7 @@ test_that(
       test_file
     )
 
-    expect_equal(
+    expect_identical(
       result$file_size,
       2048
     )
@@ -225,7 +225,7 @@ test_that(
       is.na(result$zip_uncompressed_size)
     )
 
-    expect_equal(
+    expect_identical(
       result$effective_size,
       2048
     )
@@ -293,12 +293,12 @@ test_that(
       test_dir
     )
 
-    expect_equal(
+    expect_identical(
       result$file_size,
       3000
     )
 
-    expect_equal(
+    expect_identical(
       result$effective_size,
       3000
     )
@@ -428,7 +428,7 @@ test_that(
       0
     )
 
-    expect_equal(
+    expect_identical(
       result$effective_size,
       max(
         result$file_size,

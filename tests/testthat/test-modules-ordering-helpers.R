@@ -18,8 +18,8 @@ test_that("empty_info returns the expected empty structure", {
   
   expect_s3_class(result, "data.frame")
   
-  expect_identical(
-    names(result),
+  expect_named(
+    result,
     c("ID", "name", "parent")
   )
   

@@ -226,12 +226,12 @@ test_that("merged spatial summary calculates photograph totals", {
     totals$locationID == "loc-2"
   ]
   
-  expect_equal(
+  expect_identical(
     as.numeric(loc1_total),
     9
   )
   
-  expect_equal(
+  expect_identical(
     as.numeric(loc2_total),
     5
   )

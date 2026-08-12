@@ -57,11 +57,11 @@ test_that("date, time, and filename helpers cover common input forms", {
   expect_identical(get_hour(as.POSIXlt("2024-01-01 04:15:00", tz = "UTC")), 4.25)
   expect_true(is.na(get_hour("not-a-date")))
 
-  expect_equal(
+  expect_identical(
     time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"),
     2
   )
-  expect_equal(
+  expect_identical(
     time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"),
     2
   )

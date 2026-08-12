@@ -74,8 +74,8 @@ test_that("camReport grouping and counters behave consistently", {
   expect_gt(length(group_species), 0L)
   expect_gt(length(cm$get_speciesNames(multiple_groups)), 0L)
   expect_true(all(cm$get_focus_group(group_species[1]) %in% names(cm$species_summary)))
-  expect_identical(
-    names(cm$get_focus_group(group_species[seq_len(min(2L, length(group_species)))])),
+  expect_named(
+    cm$get_focus_group(group_species[seq_len(min(2L, length(group_species)))]),
     group_species[seq_len(min(2L, length(group_species)))]
   )
   expect_error(cm$get_speciesNames(123), "group is unknown")

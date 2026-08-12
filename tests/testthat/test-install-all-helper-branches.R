@@ -7,8 +7,8 @@ test_that("is.installed preserves input order and names", {
     )
   )
   
-  expect_identical(
-    names(result),
+  expect_named(
+    result,
     c(
       "methods",
       "nonexistent_package_987654",

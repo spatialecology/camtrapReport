@@ -77,7 +77,7 @@ test_that("trap-rate data are calculated for a selected species", {
     )
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     2L
   )
@@ -104,12 +104,12 @@ test_that("trap-rate data are calculated for a selected species", {
     1
   )
   
-  expect_equal(
+  expect_identical(
     site_a$effort,
     1
   )
   
-  expect_equal(
+  expect_identical(
     site_b$effort,
     2
   )
@@ -160,12 +160,12 @@ test_that("trap-rate effort supports all available time units", {
       drop = FALSE
     ]
     
-    expect_equal(
+    expect_identical(
       site_a$effort,
       unname(multipliers[[unit_name]])
     )
     
-    expect_equal(
+    expect_identical(
       site_b$effort,
       2 * unname(multipliers[[unit_name]])
     )
@@ -191,7 +191,7 @@ test_that("trap-rate data automatically retain scientific names", {
     "data.frame"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     2L
   )
@@ -225,7 +225,7 @@ test_that("trap-rate data return an empty result when no species match", {
     "data.frame"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     0L
   )
@@ -275,7 +275,7 @@ test_that("trap-rate data return an empty result without observations", {
     "data.frame"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     0L
   )
@@ -310,7 +310,7 @@ test_that("trap-rate data handle an empty observations table", {
     unit = "day"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     0L
   )
@@ -370,7 +370,6 @@ test_that("trap-rate data validate observation columns", {
   dat <- make_traprate_test_data()
   
   missing_deployment_id <- dat
-  
   missing_deployment_id$observations$deploymentID <- NULL
   
   expect_error(
@@ -382,7 +381,6 @@ test_that("trap-rate data validate observation columns", {
   )
   
   missing_scientific_name <- dat
-  
   missing_scientific_name$observations$scientificName <- NULL
   
   expect_error(
@@ -477,7 +475,7 @@ test_that("trap-rate data handle missing location names", {
     unit = "day"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     2L
   )
@@ -497,7 +495,7 @@ test_that("trap-rate data handle missing location names", {
     1
   )
   
-  expect_equal(
+  expect_identical(
     missing_location$effort,
     2
   )
@@ -518,7 +516,7 @@ test_that("trap-rate joins handle internal row-name collisions", {
     unit = "day"
   )
   
-  expect_equal(
+  expect_identical(
     nrow(result),
     2L
   )

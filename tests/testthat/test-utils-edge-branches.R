@@ -127,8 +127,8 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   
   directory_result <- estimate_size(data_directory)
   
-  expect_equal(directory_result$file_size, 50)
-  expect_equal(directory_result$effective_size, 50)
+  expect_identical(directory_result$file_size, 50)
+  expect_identical(directory_result$effective_size, 50)
   expect_identical(directory_result$file_size_label, "50 B")
   expect_identical(directory_result$size_class, "small")
 })
@@ -332,12 +332,14 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(
-    is.function(render_environment$getFigureNumber)
+  expect_type(
+    render_environment$getFigureNumber,
+    "closure"
   )
   
-  expect_true(
-    is.function(render_environment$getTableNumber)
+  expect_type(
+    render_environment$getTableNumber,
+    "closure"
   )
   
   expect_true(

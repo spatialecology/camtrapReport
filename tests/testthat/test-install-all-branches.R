@@ -21,14 +21,12 @@ test_that("installation helpers validate and classify package names", {
   expect_true(unname(installed["methods"]))
   expect_true(unname(installed["stats"]))
   
-  expect_identical(
-    unname(installed[3]),
-    FALSE
+  expect_false(
+    unname(installed[3])
   )
   
-  expect_identical(
-    unname(installed[4]),
-    FALSE
+  expect_false(
+    unname(installed[4])
   )
   
   expect_false(
