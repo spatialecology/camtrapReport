@@ -483,7 +483,7 @@
     colnames(.d$observations)[colnames(.d$observations) == "individualPositionAngle"] <- "angle"
   }
 
-  .w <- which(grepl("^bbox", colnames(.d$observations)))
+  .w <- grep("^bbox", colnames(.d$observations))
   if (length(.w) > 0) {
     .d$observations <- .d$observations[, -.w, drop = FALSE]
   }

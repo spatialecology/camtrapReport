@@ -110,10 +110,9 @@
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
     lines <- vapply(
       as.list(expr)[-1],
-      function(e) {
-        deparse1(e, collapse = "\n")
-      },
-      character(1)
+      deparse1,
+      character(1),
+      collapse = "\n"
     )
     return(paste(lines, collapse = "\n"))
   }

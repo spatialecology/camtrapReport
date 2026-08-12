@@ -1074,9 +1074,10 @@ camR <- setRefClass(
         # 5-days*24h*60m*60s -> 432000 sec.
         
         # Count failed cameras (stopped >5 days before the latest end date)
-        failed_cameras <- deployments_grouped |>
-          dplyr::filter(end_date < (latest_end - (432000))) |>
-          nrow()
+        failed_cameras <- sum(
+          deployments_grouped$end_date < (latest_end - 432000),
+          na.rm = TRUE
+        )
         
         # Compute runtime in days
         deployments_grouped <- deployments_grouped |>

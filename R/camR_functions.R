@@ -1525,7 +1525,7 @@
   }
   
   .years_message <- function(years_chr) {
-    years_chr <- sort(unique(years_chr[grepl("^[0-9]{4}$", years_chr)]))
+    years_chr <- sort(unique(grep("^[0-9]{4}$", years_chr, value = TRUE)))
     if (!length(years_chr)) return(paste0("- ", ic$red))
     
     yrs <- sort(unique(as.integer(years_chr)))
@@ -1559,7 +1559,7 @@
   }
   
   .dep_month_coverage <- function(dep_ints, years_keep_chr) {
-    years_keep_chr <- sort(unique(years_keep_chr[grepl("^[0-9]{4}$", years_keep_chr)]))
+    years_keep_chr <- sort(unique(grep("^[0-9]{4}$", years_keep_chr, value = TRUE)))
     if (!nrow(dep_ints) || !length(years_keep_chr)) {
       return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
     }
