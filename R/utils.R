@@ -725,7 +725,7 @@
 
 #--------
 
-.get_projected_sf <- function(x) {
+.is.projected <- function(x) {
   if (!.require("sf")) {
     return(NULL)
   }
