@@ -40,7 +40,7 @@ test_that("camReport stores nested ecological report sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = FALSE)
 
   expect_named(tree, "root")
-  expect_true(is.list(tree$root))
+  expect_type(tree$root, "list")
   expect_true("child" %in% names(tree$root))
 })
 
@@ -49,7 +49,7 @@ test_that("camReport stores nested data-status sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = TRUE)
 
   expect_named(tree, "root")
-  expect_true(is.list(tree$root))
+  expect_type(tree$root, "list")
   expect_true("child" %in% names(tree$root))
 })
 

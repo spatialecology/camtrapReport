@@ -80,7 +80,7 @@ test_that("camData reads the bundled toy dataset into a complete camReport", {
     full.names = TRUE
   )
 
-  expect_true(length(cache_files) >= 1L)
+  expect_gte(length(cache_files), 1L)
   expect_true(all(file.exists(cache_files)))
 })
 test_that("camData reuses its saved camReport object", {

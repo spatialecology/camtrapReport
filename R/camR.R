@@ -1125,7 +1125,7 @@ camR <- setRefClass(
         
         # Filter Wild Mammals (excluding domestic species)
         wild_mammals <- .data_year$taxonomy |>
-          dplyr::filter(class == "Mammalia" & scientificName %in% .self$frequent_species$scientificName)
+          dplyr::filter(class == "Mammalia", scientificName %in% .self$frequent_species$scientificName)
         
         # Count unique wild mammals
         number_of_wild_mammals <- length(unique(wild_mammals$scientificName))
@@ -1250,7 +1250,7 @@ camR <- setRefClass(
       
       .self$reportObjectElements$Modules <- mods
       .self$reportObjectElements$Modules_info <- attributes(mods)$info
-      .self$reportObjectElements$Modules_info$tested <- as.logical(NA)
+      .self$reportObjectElements$Modules_info$tested <- NA
       #-----------
       .module_dir <- system.file("statusSections", package = "camtrapReport")
       
@@ -1265,7 +1265,7 @@ camR <- setRefClass(
       
       .self$reportObjectElements$Status_modules <- mods
       .self$reportObjectElements$Status_modules_info <- attributes(mods)$info
-      .self$reportObjectElements$Status_modules_info$tested <- as.logical(NA)
+      .self$reportObjectElements$Status_modules_info$tested <- NA
       
       
       message('Setup is done!')

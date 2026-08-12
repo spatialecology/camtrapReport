@@ -97,7 +97,7 @@ test_that("merged summary ignores invalid sequence structures", {
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expect_true(
     all(
@@ -123,7 +123,7 @@ test_that("merged summary ignores incomplete taxonomy", {
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expect_true(
     all(

@@ -86,7 +86,7 @@ test_that("section chunks can be created, patched, appended, and selected", {
     code_setting_missing = TRUE,
     packages_missing = TRUE
   )
-  expect_true(is.list(multiple@Rchunk))
+  expect_type(multiple@Rchunk, "list")
   expect_named(multiple@Rchunk, c("first", "second"))
 
   expect_error(

@@ -315,7 +315,7 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(is.environment(render_environment))
+  expect_type(render_environment, "environment")
   
   expect_identical(
     render_environment$object,
