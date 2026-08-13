@@ -5,7 +5,7 @@ test_that("report-section matching supports names, titles, and informative error
     path = c("intro", "methods / sampling", "methods / sampling_effort"),
     stringsAsFactors = FALSE
   )
-  match_section <- camtrapReport:::.matchReportSection
+  match_section <- ct_internal(".matchReportSection")
 
   expect_identical(match_section(catalog, "INTRO")$name, "intro")
   expect_identical(match_section(catalog, "Introduction", by = "title")$name, "intro")
@@ -23,8 +23,8 @@ test_that("report-section matching supports names, titles, and informative error
 })
 
 test_that("code and chunk settings are captured without evaluation side effects", {
-  capture_code <- camtrapReport:::.capture_code_text
-  capture_setting <- camtrapReport:::.capture_setting_text
+  capture_code <- ct_internal(".capture_code_text")
+  capture_setting <- ct_internal(".capture_setting_text")
   env <- list2env(list(code_value = c("x <- 1", "x + 1")), parent = baseenv())
 
   expect_match(capture_code(quote({x <- 1; x + 1})), "x <- 1", fixed = TRUE)
@@ -44,7 +44,7 @@ test_that("code and chunk settings are captured without evaluation side effects"
 })
 
 test_that("section chunks can be created, patched, appended, and selected", {
-  patch_section <- camtrapReport:::.update_section_chunk
+  patch_section <- ct_internal(".update_section_chunk")
   section <- reportSection("analysis", txt = "Analysis text")
 
   unchanged <- patch_section(

@@ -1,11 +1,6 @@
-# Internal-function accessor used only by the test suite.
-#
-# This avoids using the ::: operator repeatedly while retaining
-# access to non-exported package functions for unit tests.
+# Helper for testing internal camtrapReport functions.
+# Keeps internal functions internal while avoiding ::: in tests.
 
 ct_internal <- function(name) {
-  getFromNamespace(
-    name,
-    "camtrapReport"
-  )
+  getFromNamespace(name, "camtrapReport")
 }

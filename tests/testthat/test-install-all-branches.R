@@ -1,6 +1,6 @@
 test_that("installation helpers validate and classify package names", {
-  is_installed <- camtrapReport:::.is.installed
-  load_lib <- camtrapReport:::.loadLib
+  is_installed <- ct_internal(".is.installed")
+  load_lib <- ct_internal(".loadLib")
   
   empty_result <- is_installed(character())
   
