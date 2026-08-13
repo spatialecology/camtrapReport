@@ -364,7 +364,7 @@ setGeneric(
     append_text,
     append_code
   ) {
-    methods::standardGeneric("updateReportSection")
+    standardGeneric("updateReportSection")
   }
 )
 
