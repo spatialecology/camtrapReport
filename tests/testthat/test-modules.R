@@ -137,7 +137,7 @@ test_that("module inventory reports invalid and duplicate YAML files", {
   )
   validation <- camtrapReport:::.validate_module(invalid)
 
-  expect_true(!all(inventory$parse_ok))
+  expect_false(all(inventory$parse_ok))
   expect_true(any(inventory$duplicate_module_name))
   expect_true(any(listed$status == "parse_error"))
   expect_false(validation$parse_ok)

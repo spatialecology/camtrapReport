@@ -161,20 +161,40 @@ test_that("spatial helpers recognise geographic and projected terra objects", {
     crs = "EPSG:4326"
   )
   projected <- camtrapReport:::.get_projected_vect(geographic)
-
+  
   expect_false(camtrapReport:::.is.projected(geographic))
   expect_true(camtrapReport:::.is.projected(projected))
   expect_s4_class(projected, "SpatVector")
   expect_identical(camtrapReport:::.get_projected_vect(projected), projected)
 })
 
+test_that("sf study-area boundaries are projected automatically", {
+  testthat::skip_if_not_installed("sf")
+  
+  x <- sf::st_as_sf(
+    data.frame(
+      id = 1,
+      wkt = "POLYGON((4 52, 4.1 52, 4.1 52.1, 4 52.1, 4 52))"
+    ),
+    wkt = "wkt",
+    crs = 4326
+  )
+  
+  projected <- camtrapReport:::.get_projected_sf(x)
+  
+  expect_s3_class(projected, "sf")
+  expect_false(sf::st_is_longlat(projected))
+  expect_false(is.na(sf::st_crs(projected)))
+  expect_false(identical(sf::st_crs(projected)$epsg, 4326L))
+})
+
 test_that("the base correlation plot draws on a non-interactive device", {
   file <- tempfile(fileext = ".pdf")
   grDevices::pdf(file)
   on.exit(grDevices::dev.off(), add = TRUE)
-
+  
   x <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
   colnames(x) <- rownames(x) <- c("fox", "hare")
-
+  
   expect_type(camtrapReport:::.basic_corrplot(x), "list")
 })

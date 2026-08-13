@@ -764,7 +764,45 @@
 }
 
 #--------
+.get_projected_sf <- function(x) {
+  if (!.require("sf")) {
+    return(NULL)
+  }
+  
+  if (is.null(.eval('sf::st_crs(x)',environment()))) {
+    warning("Input sf object has no CRS; assuming EPSG:4326.")
+    .eval('sf::st_crs(x) <- 4326',environment())
+  }
+  
+  if (!identical(.eval('sf::st_crs(x)$epsg',environment()), 4326L)) {
+    x <- .eval('sf::st_transform(x, 4326)',environment())
+  }
+  
+  cen <- .eval('sf::st_coordinates(
+    sf::st_centroid(
+      sf::st_union(sf::st_geometry(x))
+    )
+  )',environment())
+  
+  lon <- cen[1]
+  lat <- cen[2]
+  
+  if (abs(lat) <= 84) {
+    .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
+    .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
+    .eval('sf::st_transform(x, .epsg)',environment())
+  } else {
+    proj4 <- sprintf(
+      "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
+      lat,
+      lon
+    )
+    
+    .eval('sf::st_transform(x, proj4)',environment())
+  }
+}
 
+#--------
 .is.projected <- function(x) {
   if (!requireNamespace("terra", quietly = TRUE)) {
     return(FALSE)

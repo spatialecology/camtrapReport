@@ -1190,13 +1190,15 @@ camR <- setRefClass(
       # Captures per species and site, with scientificName
       
       if (nrow(.self$habitat) > 0) {
+        taxonomy <- .self$data$taxonomy |>
+          dplyr::select(taxonID, scientificName)
+        
         caps_by_site <- .captures(.self$data, by = "locationName") |>
           dplyr::select(-scientificName) |>
           dplyr::left_join(
-            .self$data$taxonomy |> 
-              dplyr::select(taxonID, scientificName),
+            taxonomy,
             by = "taxonID"
-          ) 
+          )
         
         
         
