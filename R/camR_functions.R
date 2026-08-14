@@ -47,14 +47,14 @@
     if (length(missing_x) > 0) {
       stop(
         "Missing join column(s) in x: ",
-        paste(missing_x, collapse = ", ")
+        toString(missing_x)
       )
     }
     
     if (length(missing_y) > 0) {
       stop(
         "Missing join column(s) in y: ",
-        paste(missing_y, collapse = ", ")
+        toString(missing_y)
       )
     }
     
@@ -576,10 +576,10 @@
       .w <- which(df$observation_Year == .years[i])
       .df$total_observations[i] <- length(.w)
       .df$total_species[i] <- length(unique(df$scientificName[.w]))
-      .df$species_list_scientificName[i] <- paste(sort(unique(df$scientificName[.w])), collapse = ", ")
+      .df$species_list_scientificName[i] <- toString(sort(unique(df$scientificName[.w])))
       if (length(.nn) > 0) {
         for (j in seq_along(.nn)) {
-          .df[[.nn[j]]] <- paste(sort(unique(df[[.n[j]]][.w])), collapse = ", ")
+          .df[[.nn[j]]] <- toString(sort(unique(df[[.n[j]]][.w])))
         }
       }
     }
@@ -776,7 +776,7 @@
   } else {
     paste0(
       r, " ", length(missing_rows), " rows with missing data: [",
-      paste(missing_rows, collapse = ", "), "]"
+      toString(missing_rows), "]"
     )
   }
   
@@ -960,7 +960,7 @@
         " High-risk (",
         out$num_highrisk_outliers,
         "): ",
-        paste(high_names, collapse = ", ")
+        toString(high_names)
       )
     }
     
@@ -972,7 +972,7 @@
         " Medium-risk (",
         out$num_mediumrisk_outliers,
         "): ",
-        paste(med_names, collapse = ", ")
+        toString(med_names)
       )
     }
     
@@ -984,7 +984,7 @@
         " Low-risk (",
         out$num_lowrisk_outliers,
         "): ",
-        paste(low_names, collapse = ", ")
+        toString(low_names)
       )
     }
     
@@ -1506,7 +1506,7 @@
     
     out_years <- setdiff(y, clusters[[cand]])
     if (length(out_years)) {
-      paste0("Years: ", paste(out_years, collapse = ", "), " ", ic$yellow)
+      paste0("Years: ", toString(out_years), " ", ic$yellow)
     } else {
       paste("None", ic$green)
     }
@@ -1527,7 +1527,7 @@
     parts <- vapply(runs, function(r) {
       if (length(r) == 1) as.character(r[1]) else paste0(r[1], "-", r[length(r)])
     }, character(1))
-    paste(parts, collapse = ", ")
+    toString(parts)
   }
   
   .years_message <- function(years_chr) {
@@ -1561,7 +1561,7 @@
       else paste0(.month_abb(r[1]), "-", .month_abb(r[length(r)]))
     }, character(1))
     
-    paste(parts, collapse = ", ")
+    toString(parts)
   }
   
   .dep_month_coverage <- function(dep_ints, years_keep_chr) {
@@ -1628,8 +1628,8 @@
       paste0(ic$green, " Years in observations and deployments are the same")
     } else {
       parts2 <- character(0)
-      if (length(dep_not_obs)) parts2 <- c(parts2, paste0("Deployments exist, but observations are missing for: ", paste(dep_not_obs, collapse = ", ")))
-      if (length(obs_not_dep)) parts2 <- c(parts2, paste0("Observations exist, but deployments are missing for: ", paste(obs_not_dep, collapse = ", ")))
+      if (length(dep_not_obs)) parts2 <- c(parts2, paste0("Deployments exist, but observations are missing for: ", toString(dep_not_obs)))
+      if (length(obs_not_dep)) parts2 <- c(parts2, paste0("Observations exist, but deployments are missing for: ", toString(obs_not_dep)))
       paste0(ic$red, " Temporal inconsistency (", paste(parts2, collapse = " | "), ")")
     }
   }
@@ -1703,7 +1703,7 @@
   
   cm$data_status$Temporal$invalid_timestamp_format <- if (length(bad_fmt_idx)) {
     paste0(length(bad_fmt_idx), " timestamp(s) have invalid format ", ic$red,
-           " (rows: ", paste(head(bad_fmt_idx, 10), collapse = ", "),
+           " (rows: ", toString(head(bad_fmt_idx, 10)),
            if (length(bad_fmt_idx) > 10) ", ..." else "", ")")
   } else {
     paste("None", ic$green)
@@ -1714,7 +1714,7 @@
   
   cm$data_status$Temporal$obs_future_timestamps <- if (length(fut_idx)) {
     paste0(length(fut_idx), " observation(s) have future timestamps ", ic$red,
-           " (rows: ", paste(head(fut_idx, 10), collapse = ", "),
+           " (rows: ", toString(head(fut_idx, 10)),
            if (length(fut_idx) > 10) ", ..." else "", ")")
   } else {
     paste("None", ic$green)
@@ -1749,7 +1749,7 @@
     idx <- sort(unique(idx))
     if (!length(idx)) return("")
     shown <- head(idx, max_show)
-    s <- paste(shown, collapse = ", ")
+    s <- toString(shown)
     if (length(idx) > max_show) s <- paste0(s, ", ...")
     s
   }
@@ -2144,7 +2144,7 @@
   if (!all(req %in% names(cm$data$observations))) {
     cm$data_status$Annotation$Status <- paste0(
       .ct_icons()$red, " Missing required columns: ",
-      paste(req[!(req %in% names(cm$data$observations))], collapse = ", ")
+      toString(req[!(req %in% names(cm$data$observations))])
     )
     return(NULL)
   }
@@ -2222,7 +2222,7 @@
   
   if (length(miss)) {
     cm$data_status$Validation$status <- paste0(
-      "Missing required columns in observations: ", paste(miss, collapse = ", ")
+      "Missing required columns in observations: ", toString(miss)
     )
     cm$data_status$Validation$ClassificationSummary <- NULL
     cm$data_status$Validation$ValidationSummary <- NULL
@@ -2435,7 +2435,7 @@
   if (is.na(col_nrp)) miss <- c(miss, "cm$data$sequences$nrphotos")
   
   if (length(miss)) {
-    cm$data_status$Species$status <- paste0("Missing required columns: ", paste(miss, collapse = ", "))
+    cm$data_status$Species$status <- paste0("Missing required columns: ", toString(miss))
     cm$data_status$Species$Table <- data.frame()
     return(NULL)
   }
@@ -2788,7 +2788,7 @@
         n <- length(x)
         if (n == 1) return(x)
         if (n == 2) return(paste(x, collapse = " and "))
-        paste0(paste(x[1:(n - 1)], collapse = ", "), ", and ", x[n])
+        paste0(toString(x[1:(n - 1)]), ", and ", x[n])
       }
       
       descriptions <- list(
@@ -3132,7 +3132,7 @@
   }
   
   paste0(
-    paste(author_names[1:(n - 1)], collapse = ", "),
+    toString(author_names[1:(n - 1)]),
     ", and ",
     author_names[n]
   )
@@ -3303,7 +3303,7 @@
     if (length(missing_key_cols) > 0) {
       stop(
         "Missing key column(s) in station-level capture summary: ",
-        paste(missing_key_cols, collapse = ", ")
+        toString(missing_key_cols)
       )
     }
     

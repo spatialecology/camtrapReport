@@ -139,6 +139,7 @@ test_that("camData progress messages cover known and unknown datasets", {
   done_message <- ct_internal(".camdata_done_message")
   
   expect_message(
+    # nolint next: implicit_assignment_linter.
     size_info <- start_message("a-file-that-does-not-exist"),
     "The camReport object is being created",
     fixed = TRUE
@@ -150,6 +151,7 @@ test_that("camData progress messages cover known and unknown datasets", {
   )
   
   expect_message(
+    # nolint next: implicit_assignment_linter.
     result <- done_message(
       Sys.time() - 2,
       site_name = NULL
@@ -161,6 +163,7 @@ test_that("camData progress messages cover known and unknown datasets", {
   expect_true(result)
   
   expect_message(
+    # nolint next: implicit_assignment_linter.
     result_named <- done_message(
       Sys.time() - 2,
       site_name = "Veluwe"

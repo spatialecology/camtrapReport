@@ -4,6 +4,7 @@ test_that("section selectors validate partial and unknown selections", {
 
   expect_identical(section_names(keep = first), first)
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     kept <- section_names(keep = c(first, "unknown_section")),
     "not available"
   )
@@ -11,6 +12,7 @@ test_that("section selectors validate partial and unknown selections", {
   expect_error(section_names(keep = "unknown_section"), "None")
 
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     excluded <- section_names(exclude = c(first, "unknown_section")),
     "not available"
   )
@@ -22,10 +24,12 @@ test_that("sections handles invalid, partial, and failed module selections", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   known <- sections(cm)
 
+  # nolint next: implicit_assignment_linter.
   expect_warning(current <- sections(cm, 1), "should be character")
   expect_identical(current, known)
   expect_error(sections(cm, "unknown_section"), "None")
   expect_message(
+    # nolint next: implicit_assignment_linter.
     partial <- sections(cm, c(known[[1]], "unknown_section")),
     "unknown and ignored"
   )
@@ -37,6 +41,7 @@ test_that("metadata access validates fields and aliases", {
 
   defaults <- info(cm)
   expect_named(defaults, c("title", "subtitle", "authors", "institute", "siteName", "logoPath"))
+  # nolint next: implicit_assignment_linter.
   expect_warning(fallback <- info(cm, "not_a_field"), "default fields")
   expect_named(fallback, names(defaults))
 

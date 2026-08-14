@@ -48,6 +48,7 @@ test_that("section selectors expose and update valid modules", {
   selected <- attached[[1]]
 
   expect_message(
+    # nolint next: implicit_assignment_linter.
     result <- sections(cm, selected),
     "report sections are updated",
     fixed = TRUE

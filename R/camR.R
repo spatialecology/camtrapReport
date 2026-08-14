@@ -59,7 +59,7 @@
     return("```{r setup, include=FALSE}\n# no extra packages\n```\n")
   }
   
-  pkg_txt <- paste(sprintf('"%s"', pkgs), collapse = ", ")
+  pkg_txt <- toString(sprintf('"%s"', pkgs))
   
   if (attach_packages) {
     paste0(
@@ -406,8 +406,8 @@ camR <- setRefClass(
         .rich <- .d |> dplyr::group_by(locationID) |> 
           dplyr::summarise(
             Richness = length(unique(scientificName)),
-            Species_List = paste(sort(unique(scientificName)),collapse=', '),
-            Community_Composition = paste(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')')),collapse = ', '),
+            Species_List = toString(sort(unique(scientificName))),
+            Community_Composition = toString(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')'))),
             .groups = "drop"
           )  |> dplyr::left_join(.self$data$locations,by='locationID')
       } else {
@@ -417,8 +417,8 @@ camR <- setRefClass(
           .rich <- .d |> dplyr::group_by(locationID,year) |> 
             dplyr::summarise(
               Richness = length(unique(scientificName)),
-              Species_List = paste(sort(unique(scientificName)),collapse=', '),
-              Community_Composition = paste(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')')),collapse = ', '),
+              Species_List = toString(sort(unique(scientificName))),
+              Community_Composition = toString(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')'))),
               .groups = "drop"
             ) |> dplyr::left_join(.self$data$locations,by='locationID')
           

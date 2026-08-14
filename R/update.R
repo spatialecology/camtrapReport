@@ -158,9 +158,9 @@
           SIMPLIFY = TRUE,
           USE.NAMES = FALSE
         )
-        return(paste(parts, collapse = ", "))
+        return(toString(parts))
       } else {
-        return(paste(as.character(val), collapse = ", "))
+        return(toString(as.character(val)))
       }
     }
     
@@ -172,7 +172,7 @@
         SIMPLIFY = TRUE,
         USE.NAMES = FALSE
       )
-      return(paste(parts, collapse = ", "))
+      return(toString(parts))
     }
   }
   
