@@ -378,7 +378,7 @@
       stop(
         "Could not place these modules because their parent is missing ",
         "or circular: ",
-        paste(missing_in_info, collapse = ", ")
+        toString(missing_in_info)
       )
     }
   }
@@ -639,7 +639,7 @@
   if (length(x) == 0L) stop("No module names were supplied.")
   missing_names <- setdiff(x, info$name)
   if (length(missing_names) > 0L) {
-    stop("These module(s) are not in .info: ", paste(missing_names, collapse = ", "))
+    stop("These module(s) are not in .info: ", toString(missing_names))
   }
 
   to_delete <- character()
@@ -650,7 +650,7 @@
     if (length(kids) > 0L && !isTRUE(recursive)) {
       stop(
         "Module '", nm, "' has child module(s): ",
-        paste(kids, collapse = ", "),
+        toString(kids),
         ". Use recursive = TRUE to delete the whole subtree."
       )
     }
@@ -1215,7 +1215,7 @@
   if (length(bad_dup) > 0L) {
     stop(
       "Duplicate module names found across YML files: ",
-      paste(bad_dup, collapse = ", ")
+      toString(bad_dup)
     )
   }
 
