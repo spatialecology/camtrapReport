@@ -188,7 +188,7 @@
         "```{r ",
         chunk_name,
         ", ",
-        paste(setting, collapse = ", "),
+        toString(setting),
         "}"
       )
     }

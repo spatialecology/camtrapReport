@@ -283,7 +283,7 @@
 
         stop(
           "The standard data files (",
-          paste(required_files[.w], collapse = ", "),
+          toString(required_files[.w]),
           ") are not available in the specified folder."
         )
       } else {

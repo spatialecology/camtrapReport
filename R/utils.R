@@ -18,7 +18,7 @@
   if (length(x) == 2) return(paste(x, collapse = " and "))
   
   paste0(
-    paste(x[-length(x)], collapse = ", "),
+    toString(x[-length(x)]),
     ", and ",
     x[length(x)]
   )
@@ -1209,5 +1209,5 @@
   if (length(x) == 1) return(x)
   if (length(x) == 2) return(paste(x, collapse = " and "))
   
-  paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
+  paste0(toString(x[-length(x)]), ", and ", x[length(x)])
 }
