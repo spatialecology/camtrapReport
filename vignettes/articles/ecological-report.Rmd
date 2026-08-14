@@ -33,7 +33,9 @@ p.caption {
 </style>
 
 ```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
-knitr::include_graphics("figures/ecological-report/ecological-report-workflow.png")
+knitr::include_graphics(
+  "figures/ecological-report/ecological-report-workflow.png"
+)
 ```
 
 
