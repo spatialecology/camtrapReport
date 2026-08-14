@@ -94,14 +94,14 @@ test_that("trap-rate data are calculated for a selected species", {
     drop = FALSE
   ]
   
-  expect_equal(
+  expect_identical(
     site_a$n,
-    2
+    2L
   )
   
-  expect_equal(
+  expect_identical(
     site_b$n,
-    1
+    1L
   )
   
   expect_identical(
@@ -196,9 +196,9 @@ test_that("trap-rate data automatically retain scientific names", {
     2L
   )
   
-  expect_equal(
+  expect_identical(
     sum(result$n),
-    3
+    3L
   )
   
   expect_false(
@@ -490,9 +490,9 @@ test_that("trap-rate data handle missing location names", {
     drop = FALSE
   ]
   
-  expect_equal(
+  expect_identical(
     missing_location$n,
-    1
+    1L
   )
   
   expect_identical(
@@ -521,9 +521,9 @@ test_that("trap-rate joins handle internal row-name collisions", {
     2L
   )
   
-  expect_equal(
+  expect_identical(
     sum(result$n),
-    3
+    3L
   )
 })
 
