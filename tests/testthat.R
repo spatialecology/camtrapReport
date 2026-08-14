@@ -6,7 +6,7 @@
 # * https://r-pkgs.org/testing-design.html#sec-tests-files-overview
 # * https://testthat.r-lib.org/articles/special-files.html
 
-library(testthat) # nolint: undesirable_function_linter.
-library(camtrapReport) # nolint: undesirable_function_linter.
+library(testthat) # nolint
+library(camtrapReport) # nolint
 
 test_check("camtrapReport")
