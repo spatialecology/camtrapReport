@@ -359,7 +359,12 @@ test_that("merged spatial summary handles missing observations", {
 })
 
 
-test_that("merged spatial summary handles missing optional deployment columns", {
+test_that(
+  paste0(
+    "merged spatial summary handles missing optional ",
+    "deployment columns"
+  ),
+  {
   cm <- make_merged_summary_fixture()
   
   cm$data$deployments$setupBy <- NULL

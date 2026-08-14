@@ -88,7 +88,12 @@
 .format_duration <- function(seconds) {
   seconds <- suppressWarnings(as.numeric(seconds))
   
-  if (length(seconds) == 0 || is.na(seconds) || !is.finite(seconds) || seconds < 0) {
+  if (
+    length(seconds) == 0 ||
+      is.na(seconds) ||
+      !is.finite(seconds) ||
+      seconds < 0
+  ) {
     return("unknown time")
   }
   
@@ -141,7 +146,12 @@
 #--------
 
 .estimate_camdata_size <- function(data) {
-  if (is.null(data) || length(data) == 0 || is.na(data[1]) || !file.exists(data[1])) {
+  if (
+    is.null(data) ||
+      length(data) == 0 ||
+      is.na(data[1]) ||
+      !file.exists(data[1])
+  ) {
     return(list(
       file_size = NA_real_,
       file_size_label = "unknown size",
@@ -177,7 +187,12 @@
     }
   }
   
-  effective_size <- suppressWarnings(max(c(file_size, zip_uncompressed_size), na.rm = TRUE))
+  effective_size <- suppressWarnings(
+    max(
+      c(file_size, zip_uncompressed_size),
+      na.rm = TRUE
+    )
+  )
   
   if (!is.finite(effective_size)) {
     effective_size <- NA_real_
@@ -226,15 +241,42 @@
   }
   
   if (identical(size_info$size_class, "small")) {
-    message("File size looks modest, but full object creation may still take several minutes depending on the number of records.")
+    message(
+      paste0(
+        "File size looks modest, but full object creation may still take ",
+        "several minutes depending on the number of records."
+      )
+    )
   } else if (identical(size_info$size_class, "medium")) {
-    message("This may take several minutes. Progress updates will be shown below.")
+    message(
+      paste0(
+        "This may take several minutes. ",
+        "Progress updates will be shown below."
+      )
+    )
   } else if (identical(size_info$size_class, "large")) {
-    message("This is a large dataset. Object creation may take some time. Progress updates will be shown below.")
+    message(
+      paste0(
+        "This is a large dataset. Object creation may take some time. ",
+        "Progress updates will be shown below."
+      )
+    )
   } else if (identical(size_info$size_class, "very_large")) {
-    message("This is a very large dataset. Please keep R running; creating the camReport object may take some time. Progress updates will be shown below.")
+    message(
+      paste0(
+        "This is a very large dataset. Please keep R running; ",
+        "creating the camReport object may take some time. ",
+        "Progress updates will be shown below."
+      )
+    )
   } else {
-    message("Creating the camReport object may take some time, depending on file size, number of records, and enabled analyses. Progress updates will be shown below.")
+    message(
+      paste0(
+        "Creating the camReport object may take some time, depending ",
+        "on file size, number of records, and enabled analyses. ",
+        "Progress updates will be shown below."
+      )
+    )
   }
   
   invisible(size_info)
@@ -245,7 +287,12 @@
 .camdata_done_message <- function(start_time, site_name = NULL) {
   elapsed <- difftime(Sys.time(), start_time, units = "secs")
   
-  if (is.null(site_name) || length(site_name) == 0 || is.na(site_name[1]) || !nzchar(site_name[1])) {
+  if (
+    is.null(site_name) ||
+      length(site_name) == 0 ||
+      is.na(site_name[1]) ||
+      !nzchar(site_name[1])
+  ) {
     site_name <- "your study site"
   }
   
@@ -331,7 +378,11 @@
 
 #--------
 
-.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
+.make_safe_module_code <- function(
+  code,
+  module_name = NULL,
+  show_note_in_report = TRUE
+) {
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
     return("")
   }
@@ -486,7 +537,15 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        .eval(
+          paste0(
+            "taxize::get_gbifid(x, rows = 1, ask = FALSE, ",
+            "messages = FALSE)"
+          ),
+          environment()
+        )
+      ),
       silent = TRUE
     )
     
@@ -499,7 +558,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "gbif")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -567,7 +632,15 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        .eval(
+          paste0(
+            "taxize::get_uid(x, rows = 1, ask = FALSE, ",
+            "messages = FALSE)"
+          ),
+          environment()
+        )
+      ),
       silent = TRUE
     )
     
@@ -580,7 +653,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "ncbi")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -957,7 +1036,13 @@
   o <- logical(length(.dtFormats))
   
   for (i in seq_along(.dtFormats)) {
-    parsed <- suppressWarnings(as.POSIXct(x, format = .dtFormats[i], tz = "UTC"))
+    parsed <- suppressWarnings(
+      as.POSIXct(
+        x,
+        format = .dtFormats[i],
+        tz = "UTC"
+      )
+    )
     o[i] <- !anyNA(parsed)
   }
   
@@ -1047,7 +1132,11 @@
 
 .file_info <- function(x) {
   if (is.null(x) || length(x) == 0 || is.na(x[1])) {
-    return(list(path = ".", filename = NA_character_, extension = NA_character_))
+    return(list(
+      path = ".",
+      filename = NA_character_,
+      extension = NA_character_
+    ))
   }
   
   x <- as.character(x[1])

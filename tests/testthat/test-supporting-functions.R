@@ -74,7 +74,12 @@ test_that("base left join handles equal and differently named keys", {
   expect_error(ct_internal(".left_join")(left, right, "missing"))
 })
 
-test_that("the internal pivot helper supports tidy-style column specifications", {
+test_that(
+  paste0(
+    "the internal pivot helper supports tidy-style ",
+    "column specifications"
+  ),
+  {
   data <- data.frame(
     location = c("A", "A", "B"),
     species = c("fox", "hare", "fox"),

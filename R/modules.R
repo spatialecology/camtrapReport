@@ -255,18 +255,28 @@
   }
 
   # Allowed insertion range for a child of `parent`
-  start_pos <- if (identical(parent, ".root")) 1L else match(parent, info$name) + 1L
+  start_pos <- if (identical(parent, ".root")) {
+    1L
+  } else {
+    match(parent, info$name) + 1L
+  }
   end_pos <- .subtree_end(info, parent)
   max_pos <- end_pos + 1L
 
   if (!is.null(before)) {
     before <- as.character(before)[1]
-    if (!before %in% info$name) stop("'before' was not found in .info: ", before)
+    if (!before %in% info$name) {
+      stop("'before' was not found in .info: ", before)
+    }
 
     insert_pos <- match(before, info$name)
 
     if (insert_pos < start_pos || insert_pos > max_pos) {
-      stop("'before' is outside the subtree allowed by parent = '", parent, "'.")
+      stop(
+        "'before' is outside the subtree allowed by parent = '",
+        parent,
+        "'."
+      )
     }
 
   } else if (!is.null(after)) {
@@ -423,14 +433,31 @@
   if (isTRUE(test)) {
     vv <- .QuickTestReportSection(m,object,path = NULL)
     if (!isTRUE(vv)) {
-      if (is.null(object)) stop("Testing of the module caused error...(does the test require the camReport object?!)")
-      else stop("Testing of the module caused error...!")
+      if (is.null(object)) {
+        stop(
+          paste0(
+            "Testing of the module caused error...",
+            "(does the test require the camReport object?!)"
+          )
+        )
+      } else {
+        stop("Testing of the module caused error...!")
+      }
     }
   }
 
   # active file scan by internal module name
-  inv <- .scan_module_files_from_dir(module_dir, include_trash = FALSE, validate = FALSE)
-  active_names <- unique(inv$module_name[!is.na(inv$module_name) & nzchar(inv$module_name)])
+  inv <- .scan_module_files_from_dir(
+    module_dir,
+    include_trash = FALSE,
+    validate = FALSE
+  )
+  active_names <- unique(
+    inv$module_name[
+      !is.na(inv$module_name) &
+        nzchar(inv$module_name)
+    ]
+  )
 
   if (m@name %in% info$name || m@name %in% active_names) {
     stop("A module with the same internal name already exists: ", m@name)
@@ -555,8 +582,11 @@
 
 .unique_trash_file <- function(trash_dir, original_basename, name = NULL) {
   stamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  base <- if (!is.null(name)) paste0(name, "__", stamp, "__", original_basename) else
+  base <- if (!is.null(name)) {
+    paste0(name, "__", stamp, "__", original_basename)
+  } else {
     paste0(stamp, "__", original_basename)
+  }
 
   out <- file.path(trash_dir, base)
   i <- 1L
@@ -659,7 +689,11 @@
   }
 
   to_delete <- unique(.order_names_by_info(info, to_delete))
-  batch_id <- paste0(format(Sys.time(), "%Y%m%d%H%M%S"), "_", sample(10000:99999, 1))
+  batch_id <- paste0(
+    format(Sys.time(), "%Y%m%d%H%M%S"),
+    "_",
+    sample(10000:99999, 1)
+  )
   deleted_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 
   rows <- vector("list", length(to_delete))
@@ -690,8 +724,16 @@
       name = nm,
       parent = info$parent[match(nm, info$name)],
       original_id = info$ID[match(nm, info$name)],
-      before_anchor = ifelse(is.na(anchors$before_anchor), "", anchors$before_anchor),
-      after_anchor = ifelse(is.na(anchors$after_anchor),  "", anchors$after_anchor),
+      before_anchor = ifelse(
+        is.na(anchors$before_anchor),
+        "",
+        anchors$before_anchor
+      ),
+      after_anchor = ifelse(
+        is.na(anchors$after_anchor),
+        "",
+        anchors$after_anchor
+      ),
       original_file = ifelse(is.na(original_file), "", original_file),
       trash_file = ifelse(is.na(trash_file), "", trash_file),
       deleted_at = deleted_at,
@@ -767,23 +809,38 @@
     if (!nzchar(row$parent)) row$parent <- ".root"
     parent <- .norm_parent(row$parent)
 
-    if (!(identical(parent, ".root") || parent %in% info$name || parent %in% recovered_names)) {
+    if (!(
+      identical(parent, ".root") ||
+        parent %in% info$name ||
+        parent %in% recovered_names
+    )) {
       skipped[[nm]] <- paste0("Parent not available during recovery: ", parent)
       next
     }
 
-    trash_file <- if (nzchar(row$trash_file)) file.path(trash_dir, row$trash_file) else NULL
+    trash_file <- if (nzchar(row$trash_file)) {
+      file.path(trash_dir, row$trash_file)
+    } else {
+      NULL
+    }
     if (!is.null(trash_file) && !file.exists(trash_file)) {
       skipped[[nm]] <- paste0("Trash file is missing for module: ", nm)
       next
     }
 
-    dest_basename <- if (nzchar(row$original_file)) row$original_file else paste0(nm, ".yml")
+    dest_basename <- if (nzchar(row$original_file)) {
+      row$original_file
+    } else {
+      paste0(nm, ".yml")
+    }
     dest <- file.path(module_dir, dest_basename)
 
     if (!is.null(trash_file)) {
       if (file.exists(dest)) {
-        skipped[[nm]] <- paste0("Destination file already exists: ", dest_basename)
+        skipped[[nm]] <- paste0(
+          "Destination file already exists: ",
+          dest_basename
+        )
         next
       }
       .safe_file_move(trash_file, dest)
@@ -1001,7 +1058,11 @@
   out
 }
 #----
-.list_Trash <- function(package = "camtrapReport", dir = NULL, active_only = TRUE) {
+.list_Trash <- function(
+  package = "camtrapReport",
+  dir = NULL,
+  active_only = TRUE
+) {
   module_dir <- .section_dir(package = package, dir = dir)
   idx <- .read_trash_index(module_dir, create_if_missing = FALSE)
 
@@ -1038,8 +1099,16 @@
     inventory = inv,
     in_info_not_file = setdiff(info$name, valid_named$module_name),
     in_file_not_info = setdiff(valid_named$module_name, info$name),
-    duplicate_module_names = unique(valid_named$module_name[valid_named$duplicate_module_name]),
-    parse_errors = inv[!inv$parse_ok, c("filename", "path", "error"), drop = FALSE],
+    duplicate_module_names = unique(
+      valid_named$module_name[
+        valid_named$duplicate_module_name
+      ]
+    ),
+    parse_errors = inv[
+      !inv$parse_ok,
+      c("filename", "path", "error"),
+      drop = FALSE
+    ],
     filename_mismatch = valid_named[
       valid_named$file_stem != valid_named$module_name,
       c("module_name", "filename", "parent", "path"),
@@ -1175,8 +1244,22 @@
       valid = valid,
       duplicate_module_name = FALSE,
       error = err,
-      source = if (normalizePath(dirname(p), winslash = "/", mustWork = FALSE) ==
-                   normalizePath(td, winslash = "/", mustWork = FALSE)) "trash" else "active",
+      source = if (
+        normalizePath(
+          dirname(p),
+          winslash = "/",
+          mustWork = FALSE
+        ) ==
+          normalizePath(
+            td,
+            winslash = "/",
+            mustWork = FALSE
+          )
+      ) {
+        "trash"
+      } else {
+        "active"
+      },
       stringsAsFactors = FALSE
     )
   })
@@ -1184,7 +1267,10 @@
   out <- do.call(rbind, rows)
 
   named <- !is.na(out$module_name) & nzchar(out$module_name)
-  dup <- duplicated(out$module_name) | duplicated(out$module_name, fromLast = TRUE)
+  dup <- (
+    duplicated(out$module_name) |
+      duplicated(out$module_name, fromLast = TRUE)
+  )
   out$duplicate_module_name <- named & dup
 
   out
@@ -1344,7 +1430,10 @@
 
     if (inherits(rr, "try-error")) {
       out$render_ok <- FALSE
-      out$messages <- c(out$messages, paste0("render error: ", as.character(rr)))
+      out$messages <- c(
+        out$messages,
+        paste0("render error: ", as.character(rr))
+      )
     } else {
       out$render_ok <- TRUE
     }
@@ -1375,8 +1464,9 @@ setGeneric(
 #' is stored as a module. A module can contain section metadata, text,
 #' executable R code, required packages, and rendering settings.
 #'
-#' `add_Module()` adds a new YAML-defined module to an explicitly supplied writable module directory.
-#' The module can optionally be inserted before or after an existing module.
+#' `add_Module()` adds a new YAML-defined module to an explicitly
+#' supplied writable module directory. The module can optionally be
+#' inserted before or after an existing module.
 #'
 #' `move_Module()` changes the position or parent of an existing module within
 #' the hierarchical report structure.
@@ -1453,7 +1543,14 @@ setGeneric(
 #'
 #' list_Modules(tree, brief, include_trash, validate, dir)
 #' @name modules
-#' @aliases add_Module move_Module remove_Module empty_trash restore_Module list_Modules add_Module,character-method move_Module,character-method remove_Module,character-method empty_trash,ANY-method restore_Module,character-method list_Modules,ANY-method
+#' @aliases add_Module move_Module remove_Module empty_trash
+#' @aliases restore_Module list_Modules
+#' @aliases add_Module,character-method
+#' @aliases move_Module,character-method
+#' @aliases remove_Module,character-method
+#' @aliases empty_trash,ANY-method
+#' @aliases restore_Module,character-method
+#' @aliases list_Modules,ANY-method
 #'
 #' @examples
 #' # List modules as a hierarchical tree
@@ -1637,7 +1734,12 @@ setGeneric(
 
 setMethod(
   "list_Modules",
-  signature(tree = "ANY", brief = "ANY", include_trash = "ANY", validate = "ANY"),
+  signature(
+    tree = "ANY",
+    brief = "ANY",
+    include_trash = "ANY",
+    validate = "ANY"
+  ),
   function(tree, brief, include_trash, validate, dir) {
 
     if (missing(tree)) tree <- TRUE

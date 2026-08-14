@@ -42,8 +42,8 @@ setGeneric(
 #'   file path without an extension. The default is `"report"` for `report()`
 #'   and `"data_status"` for `status()`. If no output directory is explicitly
 #'   supplied, files are written to the R session's temporary directory.
-#' @param view A logical value (default `FALSE`) specifying whether the generated
-#'   HTML report is opened after rendering.
+#' @param view A logical value (default `FALSE`) specifying whether
+#'   the generated HTML report is opened after rendering.
 #' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
 #'   tested when ecological report generation fails, helping identify
 #'   problematic modules.
@@ -187,7 +187,10 @@ setMethod(
           )
           
           message(
-            "\nTesting is done; the modules are attached, and the report generation is started...!"
+            paste0(
+              "\nTesting is done; the modules are attached, ",
+              "and the report generation is started...!"
+            )
           )
           
           return(report(object, filename = filename, view = view, test = FALSE))
@@ -202,16 +205,29 @@ setMethod(
               ]
             )
 
-            return(report(object, filename = filename, view = view, test = FALSE))
+            return(report(
+              object,
+              filename = filename,
+              view = view,
+              test = FALSE
+            ))
           }
 
-          stop("Although all sections are tested, the report cannot be generated...!")
+          stop(
+            paste0(
+              "Although all sections are tested, ",
+              "the report cannot be generated...!"
+            )
+          )
         }
         
       } else {
         
         message(
-          "Report generation is stopped because of an error; add `test = TRUE` to exclude the modules that cause error!"
+          paste0(
+            "Report generation is stopped because of an error; ",
+            "add `test = TRUE` to exclude the modules that cause error!"
+          )
         )
         
         return(w)

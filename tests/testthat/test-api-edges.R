@@ -40,7 +40,17 @@ test_that("metadata access validates fields and aliases", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
   defaults <- info(cm)
-  expect_named(defaults, c("title", "subtitle", "authors", "institute", "siteName", "logoPath"))
+  expect_named(
+    defaults,
+    c(
+      "title",
+      "subtitle",
+      "authors",
+      "institute",
+      "siteName",
+      "logoPath"
+    )
+  )
   # nolint next: implicit_assignment_linter.
   expect_warning(fallback <- info(cm, "not_a_field"), "default fields")
   expect_named(fallback, names(defaults))
@@ -54,7 +64,10 @@ test_that("metadata access validates fields and aliases", {
   info(cm, "study area") <- "Updated study-area description"
   expect_identical(cm$description, "Updated study-area description")
   info(cm, "acknowledgement") <- "Updated acknowledgement"
-  acknowledgement <- find_test_report_section(cm$reportObjects, "acknowledgements")
+  acknowledgement <- find_test_report_section(
+    cm$reportObjects,
+    "acknowledgements"
+  )
   expect_identical(acknowledgement@txt, "Updated acknowledgement")
 })
 
@@ -85,7 +98,10 @@ test_that("small camReport summary helpers cover alternative labels", {
   expect_match(ct_internal(".format_area")(0.5), "m")
   expect_match(ct_internal(".format_area")(50), "km")
   expect_match(ct_internal(".format_area")(5000), "km")
-  expect_identical(ct_internal(".round_capture_metric")(c(1.234, NA)), c(1.23, NA))
+  expect_identical(
+    ct_internal(".round_capture_metric")(c(1.234, NA)),
+    c(1.23, NA)
+  )
   expect_identical(
     ct_internal(".pick_station_col")(list(
       locations = NULL,

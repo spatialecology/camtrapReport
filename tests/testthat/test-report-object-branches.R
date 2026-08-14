@@ -203,7 +203,12 @@ test_that("third-level report sections can be added and replaced", {
 })
 
 
-test_that("root report chunks can be added, converted to a list, and replaced", {
+test_that(
+  paste0(
+    "root report chunks can be added, converted to a list, ",
+    "and replaced"
+  ),
+  {
   for (status in c(FALSE, TRUE)) {
     api <- new_report_object_test_api(status)
     add <- api$add
