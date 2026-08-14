@@ -54,7 +54,10 @@ test_that("date, time, and filename helpers cover common input forms", {
     list(c(2022, 2024), numeric())
   )
   expect_identical(get_hour("2024-01-01T13:30:00", tz = "UTC"), 13.5)
-  expect_identical(get_hour(as.POSIXlt("2024-01-01 04:15:00", tz = "UTC")), 4.25)
+  expect_identical(
+    get_hour(as.POSIXlt("2024-01-01 04:15:00", tz = "UTC")),
+    4.25
+  )
   expect_true(is.na(get_hour("not-a-date")))
 
   expect_identical(
@@ -86,16 +89,25 @@ test_that("small data helpers return stable base objects", {
   expect_named(bound, c("a", "b"))
 
   expect_identical(get_match("FOX", c("fox", "hare")), "fox")
-  expect_identical(get_match("fox", c("fox", "hare"), case_sensitive = TRUE), "fox")
+  expect_identical(
+    get_match("fox", c("fox", "hare"), case_sensitive = TRUE),
+    "fox"
+  )
   expect_true(is.na(get_match("deer", c("fox", "hare"))))
   expect_true(is.na(get_match(NULL, "fox")))
 
-  expect_identical(ct_internal(".pick_col")(data.frame(a = 1), c("b", "a")), "a")
+  expect_identical(
+    ct_internal(".pick_col")(data.frame(a = 1), c("b", "a")),
+    "a"
+  )
   expect_true(is.na(ct_internal(".pick_col")(NULL, "a")))
   expect_identical(unname(ct_internal(".charN")(c("two words", ""))), c(9, 0))
   expect_identical(ct_internal(".charN")("two words", space = FALSE), 8L)
   expect_identical(unname(ct_internal(".wordN")(c("two words", ""))), c(2, 0))
-  expect_identical(ct_internal(".word")("one two three", 2, 3), c("two", "three"))
+  expect_identical(
+    ct_internal(".word")("one two three", 2, 3),
+    c("two", "three")
+  )
   expect_identical(ct_internal(".word")("one two three", -2), c("two", "three"))
   expect_warning(ct_internal(".word")("one two", 2, 1), "cannot be lower")
 })
@@ -138,7 +150,9 @@ test_that("evaluation and package helpers are safe for core packages", {
   )
 })
 
-test_that("nested section and empty taxonomy helpers return stable structures", {
+test_that(
+  "nested section and empty taxonomy helpers return stable structures",
+  {
   section <- reportSection("child", parent = "parent", txt = "text")
   tree <- list(root = list(child = section))
   found <- ct_internal(".findParent")(tree, "parent")

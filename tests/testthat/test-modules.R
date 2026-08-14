@@ -31,7 +31,12 @@ test_that("module tree helpers preserve parent-child ordering", {
   )
   expect_identical(before$name[2], "locations")
   expect_error(
-    ct_internal(".insert_module_info")(before, "bad", before = "methods", after = "results"),
+    ct_internal(".insert_module_info")(
+      before,
+      "bad",
+      before = "methods",
+      after = "results"
+    ),
     "only one"
   )
   expect_error(ct_internal(".subtree_end")(info, "unknown"), "Unknown parent")
@@ -47,7 +52,12 @@ test_that("the public module listing supports tree and table views", {
   expect_true(is.data.frame(full) || is.list(full))
 })
 
-test_that("modules can be added, deleted, restored, and purged in a temporary library", {
+test_that(
+  paste0(
+    "modules can be added, deleted, restored, and purged ",
+    "in a temporary library"
+  ),
+  {
   module_dir <- copy_camtrap_module_library()
   parent_file <- write_test_module(
     tempfile("test_parent_", fileext = ".yml"),
@@ -87,7 +97,11 @@ test_that("modules can be added, deleted, restored, and purged in a temporary li
   expect_setequal(located$module_name, c("test_parent", "test_child"))
   expect_length(audit$in_file_not_info, 0L)
   expect_error(
-    ct_internal(".delete_Module")("test_parent", recursive = FALSE, dir = module_dir),
+    ct_internal(".delete_Module")(
+      "test_parent",
+      recursive = FALSE,
+      dir = module_dir
+    ),
     "has child"
   )
 
@@ -142,7 +156,10 @@ test_that("module inventory reports invalid and duplicate YAML files", {
   expect_true(any(listed$status == "parse_error"))
   expect_false(validation$parse_ok)
   expect_s3_class(validation, "camtrap_module_validation")
-  expect_error(ct_internal(".module_file_map")(module_dir), "Duplicate module names")
+  expect_error(
+    ct_internal(".module_file_map")(module_dir),
+    "Duplicate module names"
+  )
 
   unlink(duplicate)
   valid <- ct_internal(".validate_module")(intro, render = "parse")
