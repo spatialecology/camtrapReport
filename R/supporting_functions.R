@@ -6,7 +6,11 @@
 # Effort = deployment duration
 # Returns both effort in requested units and raw seconds
 # ------------------------------------------------------------------
-.calc_effort <- function(x, by = NULL, unit = c("day", "hour", "minute", "second", "week")) {
+.calc_effort <- function(
+  x,
+  by = NULL,
+  unit = c("day", "hour", "minute", "second", "week")
+) {
   unit <- match.arg(unit)
   
   dep <- x$deployments
@@ -15,17 +19,22 @@
   # start_col <- .first_existing(dep, c("deploymentStart", "start"))
   # end_col   <- .first_existing(dep, c("deploymentEnd", "end"))
   
+  # nolint start: line_length_linter.
   dep <- .eval('dep |>
     dplyr::mutate(
       effort_seconds = as.numeric(difftime(.data[["deploymentEnd"]], .data[["deploymentStart"]], units = "secs"))
     ) |>
     dplyr::filter(!is.na(.data$effort_seconds), .data$effort_seconds >= 0)',environment())
+  # nolint end
   
   if (!is.null(x$locations) &&
       nrow(x$locations) > 0 &&
       "locationID" %in% names(dep) &&
       "locationID" %in% names(x$locations)) {
-    dep <- .eval('dplyr::left_join(dep, x$locations, by = "locationID", multiple = "all")',environment())
+    dep <- .eval(
+      'dplyr::left_join(dep, x$locations, by = "locationID", multiple = "all")',
+      environment()
+    )
   }
   
   divisor <- c(
@@ -72,7 +81,8 @@
 
 
 #---------------
-# a customised version of the merige_tibbles in the ctdp package (developed by: Henjo de Knegt)
+# a customised version of the merige_tibbles in the ctdp package
+# (developed by: Henjo de Knegt)
 .merge_data <- function(x, dropMedia = TRUE) {
   
   keys <- list(
@@ -232,28 +242,49 @@
   
   #---------------- select columns ----------------
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$media], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$media],
+    use.names = FALSE
+  )
   y1 <- .drop_any_of(x$media, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$sequences], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$sequences],
+    use.names = FALSE
+  )
   y2 <- .drop_any_of(x$sequences, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$observations], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$observations],
+    use.names = FALSE
+  )
   y3 <- .drop_any_of(x$observations, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$deployments], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$deployments],
+    use.names = FALSE
+  )
   y4 <- .drop_any_of(x$deployments, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$locations], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$locations],
+    use.names = FALSE
+  )
   y5 <- .drop_any_of(x$locations, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$taxonomy], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$taxonomy],
+    use.names = FALSE
+  )
   y6 <- .drop_any_of(x$taxonomy, as.character(omitKeys))
   
   #---------------- nested media, only when requested ----------------
   
   if (!dropMedia) {
-    omitKeys <- unlist(keys[!names(keys) %in% linkStructure$media], use.names = FALSE)
+    omitKeys <- unlist(
+      keys[!names(keys) %in% linkStructure$media],
+      use.names = FALSE
+    )
     
     lc_media <- .drop_any_of(x$media, as.character(omitKeys))
     lc_media <- .move_to_front(lc_media, "sequenceID")
@@ -267,7 +298,12 @@
   y <- .safe_left_join(y, y5, by = keys$locations)
   y <- .safe_left_join(y, y6, by = keys$taxonomy)
   
-  key_order <- as.character(unlist(keys[names(keys) != "media"], use.names = FALSE))
+  key_order <- as.character(
+    unlist(
+      keys[names(keys) != "media"],
+      use.names = FALSE
+    )
+  )
   key_order <- key_order[key_order %in% names(y)]
   
   y <- .move_to_front(y, key_order)
@@ -305,7 +341,8 @@
 
 #-----------
 # x: list of camera-trap data.frames
-# only_species -> T (exclude families, etc., keeps only species with names at the species level)
+# only_species -> T (exclude families, etc., keeps only species
+# with names at the species level)
 # exlude_sp. -> T (exclude names with pattern "genus_name sp.")
 .get_species <- function(x,count=TRUE,only_species=TRUE,exclude_sp.=TRUE) {
   .x <- table(x$observations$scientificName)
@@ -345,8 +382,19 @@
                       class = NULL,
                       species = NULL,
                       by = NULL,
-                      capture_unit = c("auto", "event", "sequence", "observation"),
-                      effort_unit = c("day", "hour", "minute", "second", "week"),
+                      capture_unit = c(
+                        "auto",
+                        "event",
+                        "sequence",
+                        "observation"
+                      ),
+                      effort_unit = c(
+                        "day",
+                        "hour",
+                        "minute",
+                        "second",
+                        "week"
+                      ),
                       rate_multiplier = 100) {
   
   capture_unit <- match.arg(capture_unit)
@@ -515,7 +563,11 @@
   )
   
   if (!id_col %in% names(y)) {
-    stop("Capture unit '", capture_unit, "' is not available in the merged data.")
+    stop(
+      "Capture unit '",
+      capture_unit,
+      "' is not available in the merged data."
+    )
   }
   
   tax_cols <- intersect(
@@ -592,13 +644,19 @@
   
   if (is.null(by)) {
     
-    effort_value <- if ("effort" %in% names(effort_tbl) && nrow(effort_tbl) > 0) {
+    effort_value <- if (
+      "effort" %in% names(effort_tbl) &&
+        nrow(effort_tbl) > 0
+    ) {
       effort_tbl[["effort"]][1]
     } else {
       NA_real_
     }
     
-    effort_day_value <- if ("effort_days" %in% names(effort_day) && nrow(effort_day) > 0) {
+    effort_day_value <- if (
+      "effort_days" %in% names(effort_day) &&
+        nrow(effort_day) > 0
+    ) {
       effort_day[["effort_days"]][1]
     } else {
       NA_real_
@@ -625,7 +683,8 @@
   
   if ("individuals" %in% names(cap)) {
     cap[["individual_rate"]] <- cap[["individuals"]] / cap[["effort"]]
-    cap[["individual_rai"]] <- rate_multiplier * cap[["individuals"]] / cap[["effort_days"]]
+    cap[["individual_rai"]] <-
+      rate_multiplier * cap[["individuals"]] / cap[["effort_days"]]
   }
   
   rownames(cap) <- NULL
@@ -636,18 +695,28 @@
 
 #---------
 # adjusted from the package camtrapDensity:
-# copied (and adjusted) from the fit_detmodel function in the camtrapDensity package:
-.fit_detmodel <- function (formula, dat, species = NULL, newdata = NULL, unit = c("m", "km", "cm", "degree", "radian"), ...) {
+# copied (and adjusted) from the fit_detmodel function
+# in the camtrapDensity package:
+.fit_detmodel <- function (
+  formula,
+  dat,
+  species = NULL,
+  newdata = NULL,
+  unit = c("m", "km", "cm", "degree", "radian"),
+  ...
+) {
   unit <- match.arg(unit)
   allvars <- all.vars(formula)
   depvar <- allvars[1]
   covars <- tail(allvars, -1)
   
   if (is.null(species)) stop('species is not specified!')
-  else if (!species %in% dat$scientificName) stop('species is not available in the dataset!')
+  else if (!species %in% dat$scientificName)
+    stop('species is not available in the dataset!')
   
   #dat <- package$data$observations
-  if (!all(allvars %in% names(dat))) stop("Can't find all model variables in data")
+  if (!all(allvars %in% names(dat)))
+    stop("Can't find all model variables in data")
   
   #if ("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   if ("useDeployment" %in% names(dat)) {
@@ -673,7 +742,14 @@
   type <- if (unit %in% c("m", "km", "cm")) "point" else "line"
   args <- c(list(data = dat, formula = formula[-2], transect = type), list(...))
   
-  mod <- suppressWarnings(suppressMessages(.eval('do.call(Distance::ds,args)$ddf',environment())))
+  mod <- suppressWarnings(
+    suppressMessages(
+      .eval(
+        'do.call(Distance::ds,args)$ddf',
+        environment()
+      )
+    )
+  )
   
   if (length(covars) == 0) newdata <- data.frame(x = 0)
   else {
@@ -704,13 +780,27 @@
 
 #-----------------
 # adjusted from the package camtrapDensity:
-.fit_speedmodel <- function (dat, species = NULL, newdata = NULL, formula=speed~1,
-                             reps = 1000, distUnit = c("m", "km", "cm"), timeUnit = c("second", "minute", "hour", "day"), ...) {
+.fit_speedmodel <- function (
+  dat,
+  species = NULL,
+  newdata = NULL,
+  formula = speed ~ 1,
+  reps = 1000,
+  distUnit = c("m", "km", "cm"),
+  timeUnit = c("second", "minute", "hour", "day"),
+  ...
+) {
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
   varnms <- 'speed'
   
-  dat <- dat[dat$scientificName %in% species & dat$speed > 0.01 & dat$speed < 10,varnms,drop=FALSE]
+  dat <- dat[
+    dat$scientificName %in% species &
+      dat$speed > 0.01 &
+      dat$speed < 10,
+    varnms,
+    drop = FALSE
+  ]
   dat <- as.data.frame(na.omit(dat))
   if (nrow(dat) == 0) stop("There are no usable speed data")
   
@@ -722,10 +812,25 @@
 }
 #-------------
 # adjusted from the package camtrapDensity:
-.fit_actmodel <- function (dat, species = NULL, reps = 999, obsdef = c("individual","sequence")) {
+.fit_actmodel <- function (
+  dat,
+  species = NULL,
+  reps = 999,
+  obsdef = c("individual", "sequence")
+) {
   obsdef <- match.arg(obsdef)
   
-  obs <- dat[dat$scientificName %in% species,c("deploymentID","sequenceID", "timestamp",  "latitude", "longitude","count")]
+  obs <- dat[
+    dat$scientificName %in% species,
+    c(
+      "deploymentID",
+      "sequenceID",
+      "timestamp",
+      "latitude",
+      "longitude",
+      "count"
+    )
+  ]
   
   i <- switch(
     obsdef,
@@ -736,10 +841,13 @@
   obs <- obs[i, ]
   
   if (nrow(obs) > 1) {
-    suntimes <- .eval('activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',environment())
+    suntimes <- .eval(
+      'activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',
+      environment()
+    )
     timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
     
-    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment())
+    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment()) # nolint: line_length_linter.
     obs$solartime <- .eval('with(obs,
           activity::wrap(
             activity::solartime(timestamp, latitude, longitude, 0)$solar + timeshift
