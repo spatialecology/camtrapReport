@@ -249,7 +249,10 @@
   
   #---------------- deployment-to-location mapping ----------------
   
-  deployment_to_location <- dep_loc[, c("deploymentID", "locationID"), drop = FALSE]
+  deployment_to_location <- dep_loc[
+    , c("deploymentID", "locationID"),
+    drop = FALSE
+  ]
   deployment_to_location <- .camr_unique_rows(
     deployment_to_location,
     cols = c("deploymentID", "locationID")
@@ -263,8 +266,15 @@
     all(c("deploymentID", "captureMethod") %in% names(cm$data$sequences))
   ) {
     
-    seq_cap <- cm$data$sequences[, c("deploymentID", "captureMethod"), drop = FALSE]
-    seq_cap <- .camr_base_left_join(seq_cap, deployment_to_location, by = "deploymentID")
+    seq_cap <- cm$data$sequences[
+      , c("deploymentID", "captureMethod"),
+      drop = FALSE
+    ]
+    seq_cap <- .camr_base_left_join(
+      seq_cap,
+      deployment_to_location,
+      by = "deploymentID"
+    )
     
     capture_methods_per_location <- .camr_summary_by_location(
       seq_cap,
@@ -298,7 +308,10 @@
     all(c("sequenceID", "deploymentID") %in% names(cm$data$sequences))
   ) {
     
-    sequence_to_deployment <- cm$data$sequences[, c("sequenceID", "deploymentID"), drop = FALSE]
+    sequence_to_deployment <- cm$data$sequences[
+      , c("sequenceID", "deploymentID"),
+      drop = FALSE
+    ]
     sequence_to_deployment <- .camr_unique_rows(
       sequence_to_deployment,
       cols = c("sequenceID", "deploymentID")
@@ -495,7 +508,11 @@
   .d <- dep_loc
   
   .d <- .camr_base_left_join(.d, deployments_per_location, by = "locationID")
-  .d <- .camr_base_left_join(.d, capture_methods_per_location, by = "locationID")
+  .d <- .camr_base_left_join(
+    .d,
+    capture_methods_per_location,
+    by = "locationID"
+  )
   .d <- .camr_base_left_join(.d, setup_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, Classify_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, bait_use_per_location, by = "locationID")
@@ -510,29 +527,56 @@
 #############
 
 
-.summarize_species <- function(cm,df, class = NULL,order=NULL,domestic=FALSE,scientificName=NULL,.filterCount=TRUE,observationType=NULL) {
-  # To summarise, either scientificName, OR other criteria (one or combination of class, order, etc.) is provided!
-  # .filterCount = T -> the count threshold (if specified in cm$filterCount) is applied
-  
-  if (!is.null(observationType) && is.character(observationType)) df <- df[df$observationType %in% observationType,]
+.summarize_species <- function(
+  cm,
+  df,
+  class = NULL,
+  order = NULL,
+  domestic = FALSE,
+  scientificName = NULL,
+  .filterCount = TRUE,
+  observationType = NULL
+) {
+  # To summarise, either scientificName, OR other criteria
+  # (one or combination of class, order, etc.) is provided!
+  # .filterCount = T -> the count threshold
+  # (if specified in cm$filterCount) is applied
+
+  if (!is.null(observationType) && is.character(observationType))
+    df <- df[df$observationType %in% observationType,]
   
   if (is.null(scientificName) || length(scientificName) == 0) {
     df <- df[grepl("\\s", df$scientificName),]
     df <- df[!grepl(" sp.$", df$scientificName),]
     
     
-    # if domestic is FALSE, they are excluded, if TRUE, summary is for domestic (NULL: all are considered)
-    # both only if the scientificName vector is provided by user in cm$filterExclude$scientificName
+    # if domestic is FALSE, they are excluded, if TRUE,
+    # summary is for domestic (NULL: all are considered)
+    # both only if the scientificName vector is provided by user
+    # in cm$filterExclude$scientificName
     # or when domestic group is defined in the group_definition!
-    if (!is.null(cm$filterExclude$scientificName) && is.character(cm$filterExclude$scientificName)) {
+    if (
+      !is.null(cm$filterExclude$scientificName) &&
+        is.character(cm$filterExclude$scientificName)
+    ) {
       if (!is.null(domestic)) {
         if (domestic) {
-          if ('domestic' %in% names(cm$group_definition)) df <- df[df$scientificName %in% cm$group_definition$domestic$scientificName,]
-          else if (scientificName %in% names(cm$filterExclude)) df <- df[df$scientificName %in% cm$filterExclude$scientificName,]
+          if ('domestic' %in% names(cm$group_definition))
+            df <- df[
+              df$scientificName %in%
+                cm$group_definition$domestic$scientificName,
+            ]
+          else if (scientificName %in% names(cm$filterExclude))
+            df <- df[df$scientificName %in% cm$filterExclude$scientificName,]
           else warning('domestic group is not defined!')
         } else {
-          if ('domestic' %in% names(cm$group_definition)) df <- df[!df$scientificName %in% cm$group_definition$domestic$scientificName,]
-          else if (scientificName %in% names(cm$filterExclude)) df <- df[!df$scientificName %in% cm$filterExclude$scientificName,]
+          if ('domestic' %in% names(cm$group_definition))
+            df <- df[
+              !df$scientificName %in%
+                cm$group_definition$domestic$scientificName,
+            ]
+          else if (scientificName %in% names(cm$filterExclude))
+            df <- df[!df$scientificName %in% cm$filterExclude$scientificName,]
         }
       }
     }
@@ -548,8 +592,17 @@
     df <- df[df$scientificName %in% scientificName,]
   }
   #--------------
-  if (.filterCount && length(cm$filterCount) > 0 && nrow(cm$observed_counts) > 0) {
-    df <- df[df$scientificName %in% cm$observed_counts$scientificName[cm$observed_counts$count > cm$filterCount[1]], ]
+  if (
+    .filterCount &&
+      length(cm$filterCount) > 0 &&
+      nrow(cm$observed_counts) > 0
+  ) {
+    df <- df[
+      df$scientificName %in%
+        cm$observed_counts$scientificName[
+          cm$observed_counts$count > cm$filterCount[1]
+        ],
+    ]
   }
   #---------
   .years <- unique(df$observation_Year)
@@ -557,9 +610,22 @@
   
   .n <- .nn <- colnames(df)[grepl('^vernacularName',colnames(df))]
   if (length(.n) > 0) {
-    .w <- which(vapply(.n,function(x) length(strsplit(x,'.', fixed = TRUE)[[1]]), integer(1)) == 2)
+    .w <- which(
+      vapply(
+        .n,
+        function(x) length(strsplit(x,'.', fixed = TRUE)[[1]]),
+        integer(1)
+      ) == 2
+    )
     if (length(.w) > 0) {
-      .nn[.w] <- paste0('species_list_',vapply(.n,function(x) strsplit(x,'.', fixed = TRUE)[[1]][2], character(1)))
+      .nn[.w] <- paste0(
+        'species_list_',
+        vapply(
+          .n,
+          function(x) strsplit(x,'.', fixed = TRUE)[[1]][2],
+          character(1)
+        )
+      )
     }
   }
   
@@ -568,7 +634,12 @@
       seq_along(.years),
       c("observation_Year", "count", "scientificName", .n)
     ]
-    colnames(.df) <- c('observation_Year','total_species','species_list_scientificName',.nn)
+    colnames(.df) <- c(
+      'observation_Year',
+      'total_species',
+      'species_list_scientificName',
+      .nn
+    )
     .df$total_observations <- 0
     .df$observation_Year <- as.numeric(.years)
     
@@ -576,7 +647,9 @@
       .w <- which(df$observation_Year == .years[i])
       .df$total_observations[i] <- length(.w)
       .df$total_species[i] <- length(unique(df$scientificName[.w]))
-      .df$species_list_scientificName[i] <- toString(sort(unique(df$scientificName[.w])))
+      .df$species_list_scientificName[i] <- toString(
+        sort(unique(df$scientificName[.w]))
+      )
       if (length(.nn) > 0) {
         for (j in seq_along(.nn)) {
           .df[[.nn[j]]] <- toString(sort(unique(df[[.n[j]]][.w])))
@@ -684,7 +757,13 @@
   
   .dup_status <- function(n_groups, n_extra, icon, label) {
     if (n_extra > 0) {
-      sprintf("%s %d duplicated %s (%d extra rows).", icon, n_groups, label, n_extra)
+      sprintf(
+        "%s %d duplicated %s (%d extra rows).",
+        icon,
+        n_groups,
+        label,
+        n_extra
+      )
     } else {
       sprintf("%s No duplicated %s", g, label)
     }
@@ -720,7 +799,10 @@
   if (length(sp) == 0 || is.na(sp) || !nzchar(trimws(sp))) {
     out$spatial_pattern <- "Not indicated in metadata"
   } else {
-    out$spatial_pattern <- paste0(trimws(sp), " (indicated explicitly in metadata)")
+    out$spatial_pattern <- paste0(
+      trimws(sp),
+      " (indicated explicitly in metadata)"
+    )
   }
   
   #---------------- 1. initial cleaning ----------------
