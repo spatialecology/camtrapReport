@@ -195,19 +195,17 @@ setMethod(
         } else {
           
           if (!all(object$reportObjectElements$Modules_info$tested)) {
-            
             .attach_modules(
               object,
               n = object$reportObjectElements$Modules_info$name[
                 which(object$reportObjectElements$Modules_info$tested)
               ]
             )
-            
+
             return(report(object, filename = filename, view = view, test = FALSE))
-            
-          } else {
-            stop("Although all sections are tested, the report cannot be generated...!")
           }
+
+          stop("Although all sections are tested, the report cannot be generated...!")
         }
         
       } else {

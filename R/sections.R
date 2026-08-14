@@ -187,11 +187,11 @@ setMethod("sections",signature(x = "camReport"),
           stop(
             "None of the specified section names are known. Use section_names() to get the correct names of available sections."
           )
-        } else {
-          message(
-            "\nSome of the specified section names are unknown and ignored. Use section_names() to get the correct names of available sections."
-          )
         }
+
+        message(
+          "\nSome of the specified section names are unknown and ignored. Use section_names() to get the correct names of available sections."
+        )
       }
     }
     

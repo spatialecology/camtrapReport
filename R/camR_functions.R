@@ -1505,8 +1505,11 @@
     } else cand <- cand[1]
     
     out_years <- setdiff(y, clusters[[cand]])
-    if (!length(out_years)) paste("None", ic$green)
-    else paste0("Years: ", paste(out_years, collapse = ", "), " ", ic$yellow)
+    if (length(out_years)) {
+      paste0("Years: ", paste(out_years, collapse = ", "), " ", ic$yellow)
+    } else {
+      paste("None", ic$green)
+    }
   }
   
   .dep_zero_length <- function(ints) {
@@ -1537,10 +1540,10 @@
     
     range_label <- paste0(min(yrs), " - ", max(yrs))
     
-    if (!length(missing)) {
-      paste0(range_label, " (", ic$green, " complete)")
-    } else {
+    if (length(missing)) {
       paste0(range_label, " (", ic$red, " missing: ", .missing_years_label(missing), ")")
+    } else {
+      paste0(range_label, " (", ic$green, " complete)")
     }
   }
   
@@ -1645,7 +1648,7 @@
   obs_max <- suppressWarnings(max(obs_time_posix, na.rm = TRUE))
   
   # guard against all-NA cases (min/max -> Inf/-Inf)
-  fix_inf <- function(x) if (!is.finite(x)) NA else x
+  fix_inf <- function(x) if (is.finite(x)) x else NA
   dep_min <- fix_inf(dep_min)
   dep_max <- fix_inf(dep_max)
   dep_end_last <- fix_inf(dep_end_last)
@@ -1698,23 +1701,23 @@
   ts_raw <- cm$data$observations$timestamp
   bad_fmt_idx <- which(!is.na(ts_raw) & nzchar(.trim_chr(ts_raw)) & !.is_iso_prefix(ts_raw))
   
-  cm$data_status$Temporal$invalid_timestamp_format <- if (!length(bad_fmt_idx)) {
-    paste("None", ic$green)
-  } else {
+  cm$data_status$Temporal$invalid_timestamp_format <- if (length(bad_fmt_idx)) {
     paste0(length(bad_fmt_idx), " timestamp(s) have invalid format ", ic$red,
            " (rows: ", paste(head(bad_fmt_idx, 10), collapse = ", "),
            if (length(bad_fmt_idx) > 10) ", ..." else "", ")")
+  } else {
+    paste("None", ic$green)
   }
   
   now_utc <- as.POSIXct(Sys.time(), tz = "UTC")
   fut_idx <- which(!is.na(obs_time_posix) & obs_time_posix > now_utc)
   
-  cm$data_status$Temporal$obs_future_timestamps <- if (!length(fut_idx)) {
-    paste("None", ic$green)
-  } else {
+  cm$data_status$Temporal$obs_future_timestamps <- if (length(fut_idx)) {
     paste0(length(fut_idx), " observation(s) have future timestamps ", ic$red,
            " (rows: ", paste(head(fut_idx, 10), collapse = ", "),
            if (length(fut_idx) > 10) ", ..." else "", ")")
+  } else {
+    paste("None", ic$green)
   }
   
 }

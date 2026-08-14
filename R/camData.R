@@ -747,13 +747,13 @@ setMethod(
         if (file.exists(study_area)) {
           .v <- try(terra::vect(study_area), silent = TRUE)
 
-          if (!inherits(.v, "try-error")) {
+          if (inherits(.v, "try-error")) {
+            warning("The specified study_area file could not be read.")
+          } else {
             terra::saveRDS(.v, study_area_file)
             cm$study_area$path <- study_area_file
             cm$study_area$object <- .v
             rm(.v)
-          } else {
-            warning("The specified study_area file could not be read.")
           }
         } else {
           warning("study_area filename is not available and was ignored.")

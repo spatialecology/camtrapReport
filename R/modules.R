@@ -914,11 +914,26 @@
   out$file_matches_name[hit] <- valid_named$file_stem[m[hit]] == out$name[hit]
   out$duplicate_module_name[hit] <- valid_named$duplicate_module_name[m[hit]]
 
-  out$status[hit] <- ifelse(
-    out$duplicate_module_name[hit],
-    "duplicate_module_name",
-    ifelse(out$valid[hit], "ok", "invalid_yml")
-  )
+  duplicate_status <- out$duplicate_module_name[hit]
+  valid_status <- out$valid[hit]
+
+  status <- rep(NA_character_, length(hit))
+
+  status[
+    !is.na(duplicate_status) & duplicate_status
+  ] <- "duplicate_module_name"
+
+  status[
+    !is.na(duplicate_status) & !duplicate_status &
+      !is.na(valid_status) & valid_status
+  ] <- "ok"
+
+  status[
+    !is.na(duplicate_status) & !duplicate_status &
+      !is.na(valid_status) & !valid_status
+  ] <- "invalid_yml"
+
+  out$status[hit] <- status
 
   # unlisted but readable files
   if (isTRUE(include_unlisted)) {

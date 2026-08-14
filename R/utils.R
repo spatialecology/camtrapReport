@@ -824,27 +824,27 @@
     stop("The terra package is required for spatial projection.")
   }
   
-  if (!.is.projected(x)) {
-    cen <- colMeans(terra::crds(x), na.rm = TRUE)
-    
-    lon <- cen[1]
-    lat <- cen[2]
-    
-    if (abs(lat) <= 84) {
-      .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
-      .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-      terra::project(x, paste0("EPSG:", .epsg))
-    } else {
-      proj4 <- sprintf(
-        "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
-        lat,
-        lon
-      )
-      
-      terra::project(x, proj4)
-    }
+  if (.is.projected(x)) {
+    return(x)
+  }
+
+  cen <- colMeans(terra::crds(x), na.rm = TRUE)
+
+  lon <- cen[1]
+  lat <- cen[2]
+
+  if (abs(lat) <= 84) {
+    .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
+    .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
+    terra::project(x, paste0("EPSG:", .epsg))
   } else {
-    x
+    proj4 <- sprintf(
+      "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
+      lat,
+      lon
+    )
+
+    terra::project(x, proj4)
   }
 }
 
@@ -1014,31 +1014,31 @@
     return(NA)
   }
   
-  if (!case_sensitive) {
+  if (case_sensitive) {
+    xx <- try(match.arg(x, y, several.ok = several), silent = TRUE)
+
+    if (inherits(xx, "try-error")) {
+      NA
+    } else {
+      xx
+    }
+  } else {
     .x <- tolower(x)
     .y <- tolower(y)
-    
+
     .yy <- try(match.arg(.x, .y, several.ok = several), silent = TRUE)
-    
-    if (!inherits(.yy, "try-error")) {
+
+    if (inherits(.yy, "try-error")) {
+      NA
+    } else {
       o <- character()
-      
+
       for (n in .yy) {
         w <- which(.y == n)
         o <- c(o, y[w])
       }
-      
+
       o
-    } else {
-      NA
-    }
-  } else {
-    xx <- try(match.arg(x, y, several.ok = several), silent = TRUE)
-    
-    if (!inherits(xx, "try-error")) {
-      xx
-    } else {
-      NA
     }
   }
 }
