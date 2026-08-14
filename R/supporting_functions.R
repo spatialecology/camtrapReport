@@ -1387,7 +1387,7 @@
   ml <- list_Modules()
   ml <- ml[ml$name %in% n,]
   #-----
-  .x <- c()
+  .x <- NULL
   for (i in seq_len(nrow(ml))) {
     if (ml$parent[i] == '.root') next
     else if (ml$parent[i] %in% ml$name) next

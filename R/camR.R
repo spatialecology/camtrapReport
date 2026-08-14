@@ -317,7 +317,7 @@ camR <- setRefClass(
       if (length(.n) > 0) {
         .n <- .n[.n != 'count']
         if (length(sp) > 1) {
-          .o <- c()
+          .o <- NULL
           for (.s in sp) {
             for (.g in .n) {
               if (.s %in% get_speciesNames(.g)) {
@@ -357,7 +357,7 @@ camR <- setRefClass(
             } else stop('group is unknown!')
           }
         } else {
-          .n <- c()
+          .n <- NULL
           for (.g in group) {
             if (.g %in% names(.self$species_summary)) {
               .n <- c(.n,unique(.self$species_summary[[.g]]$site_list$scientificName))
@@ -450,7 +450,7 @@ camR <- setRefClass(
         .ext <- as.vector(.ext)
         if (!is.null(.crop)) {
           if (xr[1] < .ext[1] | xr[2] > .ext[2] | yr[1] < .ext[3] | yr[2] > .ext[4]) {
-            .ww <- c()
+            .ww <- NULL
             .w <- xr[1] - .ext[1]
             if (.w < 0) .ww <- c(.ww,abs(.w))
             .w <- xr[2] - .ext[2]
