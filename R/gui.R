@@ -151,7 +151,7 @@ setMethod("gui",signature(object = "camReport"),
     if (is.null(x) || length(x) == 0) return("")
     x <- as.character(x)
     x <- x[!is.na(x)]
-    paste(x, collapse = ", ")
+    toString(x)
   }
 
   .copy_upload <- function(upload) {
@@ -972,10 +972,10 @@ setMethod("gui",signature(object = "camReport"),
           "Site: ", .safe(cm$siteName, "unknown"),
           shiny::br(),
           "Focus group: ",
-          paste(.safe(cm$setting$focus_groups, "unknown"), collapse = ", "),
+          toString(.safe(cm$setting$focus_groups, "unknown")),
           shiny::br(),
           "Years: ",
-          paste(.safe(cm$years, "not set"), collapse = ", "),
+          toString(.safe(cm$years, "not set")),
           shiny::br(),
           "Filter count: ",
           .safe(cm$filterCount, "not set")
