@@ -142,9 +142,9 @@
 #--------
 
 .get_Taxonomic_DF <- function(x) {
-  w <- sapply(x, function(z) {
+  w <- vapply(x, function(z) {
     length(names(z$vernacularNames))
-  })
+  }, integer(1))
 
   if (all(w == 0)) {
     dplyr::bind_rows(lapply(x, function(z) {

@@ -858,7 +858,7 @@
   if (is.null(y)) {
     x <- as.character(x)
     
-    out <- sapply(x, function(z) {
+    out <- vapply(x, function(z) {
       if (is.na(z) || !nzchar(z) || !grepl("--", z, fixed = TRUE)) {
         return(NA_real_)
       }
@@ -877,7 +877,7 @@
       }
       
       as.numeric(difftime(end, start, units = unit))
-    })
+    }, numeric(1))
     
     names(out) <- NULL
     out
@@ -1101,7 +1101,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .charN, space = space))
+    return(vapply(x, .charN, numeric(1), space = space))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {
@@ -1128,7 +1128,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .wordN))
+    return(vapply(x, .wordN, numeric(1)))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {

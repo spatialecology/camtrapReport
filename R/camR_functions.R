@@ -557,9 +557,9 @@
   
   .n <- .nn <- colnames(df)[grepl('^vernacularName',colnames(df))]
   if (length(.n) > 0) {
-    .w <- which(sapply(.n,function(x) length(strsplit(x,'.', fixed = TRUE)[[1]])) == 2)
+    .w <- which(vapply(.n,function(x) length(strsplit(x,'.', fixed = TRUE)[[1]]), integer(1)) == 2)
     if (length(.w) > 0) {
-      .nn[.w] <- paste0('species_list_',sapply(.n,function(x) strsplit(x,'.', fixed = TRUE)[[1]][2]))
+      .nn[.w] <- paste0('species_list_',vapply(.n,function(x) strsplit(x,'.', fixed = TRUE)[[1]][2], character(1)))
     }
   }
   
