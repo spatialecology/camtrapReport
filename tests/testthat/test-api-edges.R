@@ -84,7 +84,7 @@ test_that("small camReport summary helpers cover alternative labels", {
   expect_identical(
     ct_internal(".pick_station_col")(list(
       locations = NULL,
-      deployments = data.frame(locationID = "A")
+      deployments = data.frame(locationID = "A", stringsAsFactors = FALSE)
     )),
     "locationID"
   )

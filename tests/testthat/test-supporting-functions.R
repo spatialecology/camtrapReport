@@ -49,9 +49,21 @@ test_that("effort helpers aggregate deployments and draw with base graphics", {
 })
 
 test_that("base left join handles equal and differently named keys", {
-  left <- data.frame(id = c(1, 2), value = c("a", "b"))
-  right <- data.frame(id = 2, extra = "x")
-  right2 <- data.frame(other_id = 2, extra = "x")
+  left <- data.frame(
+    id = c(1, 2),
+    value = c("a", "b"),
+    stringsAsFactors = FALSE
+  )
+  right <- data.frame(
+    id = 2,
+    extra = "x",
+    stringsAsFactors = FALSE
+  )
+  right2 <- data.frame(
+    other_id = 2,
+    extra = "x",
+    stringsAsFactors = FALSE
+  )
 
   joined <- ct_internal(".left_join")(left, right, "id")
   joined2 <- ct_internal(".left_join")(left, right2, c("id", "other_id"))
@@ -66,7 +78,8 @@ test_that("the internal pivot helper supports tidy-style column specifications",
   data <- data.frame(
     location = c("A", "A", "B"),
     species = c("fox", "hare", "fox"),
-    count = c(2, 1, 3)
+    count = c(2, 1, 3),
+    stringsAsFactors = FALSE
   )
 
   wide_bare <- ct_internal(".pivot_wider")(

@@ -334,7 +334,8 @@ setMethod("gui",signature(object = "camReport"),
     if (!is.data.frame(obs) || !"scientificName" %in% names(obs)) {
       return(data.frame(
         scientificName = character(),
-        records = integer()
+        records = integer(),
+        stringsAsFactors = FALSE
       ))
     }
 

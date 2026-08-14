@@ -1022,7 +1022,10 @@
   } else {
     
     loc <- NULL
-    land_extract <- data.frame(name = character())
+    land_extract <- data.frame(
+      name = character(),
+      stringsAsFactors = FALSE
+    )
     sea_outlier_status <- paste0(w, " No valid locations available for land/sea check.")
   }
   

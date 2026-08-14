@@ -174,7 +174,8 @@ test_that("sf study-area boundaries are projected automatically", {
   x <- sf::st_as_sf(
     data.frame(
       id = 1,
-      wkt = "POLYGON((4 52, 4.1 52, 4.1 52.1, 4 52.1, 4 52))"
+      wkt = "POLYGON((4 52, 4.1 52, 4.1 52.1, 4 52.1, 4 52))",
+      stringsAsFactors = FALSE
     ),
     wkt = "wkt",
     crs = 4326
