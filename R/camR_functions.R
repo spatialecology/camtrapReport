@@ -3028,10 +3028,9 @@
   }
   
   # Pattern for likely organizations / non-person entries
-  org_pattern <- paste(
+  org_pattern <- paste0(
     "university|universiteit|institute|institution|center|centre|research|admin|",
-    "observatory|consortium|network|project|laboratory|lab|group|team",
-    sep = ""
+    "observatory|consortium|network|project|laboratory|lab|group|team"
   )
   
   title_values <- as.character(contributors_df[["title"]])
