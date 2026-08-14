@@ -53,7 +53,7 @@
     if (length(missing_by) > 0) {
       stop(
         "Grouping columns not found in deployments/locations: ",
-        paste(missing_by, collapse = ", ")
+        toString(missing_by)
       )
     }
     
@@ -134,11 +134,11 @@
     missing_rhs <- setdiff(by, names(rhs))
     
     if (length(missing_lhs) > 0) {
-      stop("Missing join column(s) in left table: ", paste(missing_lhs, collapse = ", "))
+      stop("Missing join column(s) in left table: ", toString(missing_lhs))
     }
     
     if (length(missing_rhs) > 0) {
-      stop("Missing join column(s) in right table: ", paste(missing_rhs, collapse = ", "))
+      stop("Missing join column(s) in right table: ", toString(missing_rhs))
     }
     
     lhs_id <- ".camr_lhs_row_id__"
@@ -536,7 +536,7 @@
   if (length(missing_group_cols) > 0) {
     stop(
       "Grouping column(s) not found in merged data: ",
-      paste(missing_group_cols, collapse = ", ")
+      toString(missing_group_cols)
     )
   }
   
@@ -771,10 +771,10 @@
     missing_y <- setdiff(by, names(y))
     
     if (length(missing_x) > 0) {
-      stop("Missing join column(s) in x: ", paste(missing_x, collapse = ", "))
+      stop("Missing join column(s) in x: ", toString(missing_x))
     }
     if (length(missing_y) > 0) {
-      stop("Missing join column(s) in y: ", paste(missing_y, collapse = ", "))
+      stop("Missing join column(s) in y: ", toString(missing_y))
     }
     
     row_id <- ".camr_row_id__"
@@ -834,7 +834,7 @@
   if (length(missing_obs) > 0) {
     stop(
       "Missing required column(s) in dat$observations: ",
-      paste(missing_obs, collapse = ", ")
+      toString(missing_obs)
     )
   }
   
@@ -904,7 +904,7 @@
   if (length(missing_res) > 0) {
     stop(
       "Missing required column(s) after joins: ",
-      paste(missing_res, collapse = ", ")
+      toString(missing_res)
     )
   }
   
@@ -1143,7 +1143,7 @@
         if (is.null(code$setting$name)) code$setting$name <- paste0(f$name,'__code')
         else code$setting$name <- paste0(f$name,'__',code$setting$name)
         #---
-        if (!is.null(code$setting$setting)) code$setting$setting <- paste(code$setting$setting,collapse = ', ')
+        if (!is.null(code$setting$setting)) code$setting$setting <- toString(code$setting$setting)
         else code$setting$setting <- NULL
         
         codeList[[code$setting$name]] <- new('.Rchunk',parent = f$name,name = code$setting$name,setting = code$setting$setting,packages=code$setting$packages,code=code$code)
