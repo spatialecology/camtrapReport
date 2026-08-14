@@ -180,9 +180,10 @@
       n <- rep(NA, .w)
 
       for (i in seq_len(.w)) {
-        n[i] <- names(sort(table(sapply(x, function(z) {
-          names(z$vernacularNames)[i]
-        })), decreasing = TRUE))[1]
+        n[i] <- names(sort(table(vapply(x, function(z) {
+          nm <- names(z$vernacularNames)
+          if (length(nm) >= i) nm[i] else NA_character_
+        }, character(1))), decreasing = TRUE))[1]
       }
     } else {
       ww <- which.max(w)

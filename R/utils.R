@@ -517,7 +517,7 @@
       x <- x[-w]
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else if (is.data.frame(z) && nrow(z) >= 3) {
@@ -525,9 +525,9 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else if (is.data.frame(z) && nrow(z) >= 4) {
@@ -535,7 +535,7 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
@@ -591,21 +591,21 @@
       ))
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
