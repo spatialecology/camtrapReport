@@ -848,12 +848,19 @@
     timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
     
     #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment()) # nolint: line_length_linter.
+    # nolint start: line_length_linter.
     obs$solartime <- .eval('with(obs,
           activity::wrap(
             activity::solartime(timestamp, latitude, longitude, 0)$solar + timeshift
           ))',environment())
+    # nolint end
     
-    .eval('activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',environment())
+    # nolint start: line_length_linter.
+    .eval(
+      'activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',
+      environment()
+    )
+    # nolint end
   }
   else NULL
 }
@@ -1047,7 +1054,14 @@
 }
 #-------
 # adjusted from the package camtrapDensity:
-.get_parameter_table <- function (traprate_data, radius_model, angle_model, speed_model, activity_model, reps = 999) {
+.get_parameter_table <- function (
+  traprate_data,
+  radius_model,
+  angle_model,
+  speed_model,
+  activity_model,
+  reps = 999
+) {
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
   spd <- dplyr::select(speed_model$estimate, dplyr::all_of(c("est", "se")))
@@ -1063,9 +1077,24 @@
   res$n <- c(nrow(radius_model$data), nrow(angle_model$data), 
              nrow(speed_model$data), length(activity_model@data), 
              NA)
-  res$unit <- c(radius_model$unit, angle_model$unit, speed_model$unit, "none", speed_model$unit)
-  rownames(res) <- c("radius", "angle", "active_speed", "activity_level", "overall_speed")
-  traprate <- .eval('camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',environment())
+  res$unit <- c(
+    radius_model$unit,
+    angle_model$unit,
+    speed_model$unit,
+    "none",
+    speed_model$unit
+  )
+  rownames(res) <- c(
+    "radius",
+    "angle",
+    "active_speed",
+    "activity_level",
+    "overall_speed"
+  )
+  traprate <- .eval(
+    'camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',
+    environment()
+  )
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
@@ -1119,21 +1148,32 @@
 .rem <- function (parameters) {
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
-  if (!all(required_rows %in% rownames(parameters)) | !all(required_cols %in% colnames(parameters))) 
+  if (
+    !all(required_rows %in% rownames(parameters)) |
+      !all(required_cols %in% colnames(parameters))
+  )
     stop(
       "parameters must have (at least) row names: ",
       toString(required_rows),
       " ;\nand (at least) column names: ",
       toString(required_cols)
     )
-  param <- .eval("camtrapDensity::convert_units(parameters[required_rows, ])",environment())
+  param <- .eval(
+    "camtrapDensity::convert_units(parameters[required_rows, ])",
+    environment()
+  )
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
   CVs <- param$se/wtd_est
   density <- pi * prod(pwr_est)
   cv <- sqrt(sum(CVs^2))
   se <- density * cv
-  ci <- unname(.eval("camtrapDensity::lnorm_confint(density, se)",environment()))
+  ci <- unname(
+    .eval(
+      "camtrapDensity::lnorm_confint(density, se)",
+      environment()
+    )
+  )
   parameters["density", "estimate"] <- density
   parameters["density", "se"] <- se
   if ("cv" %in% names(parameters)) parameters["density", "cv"] <- cv
@@ -1163,14 +1203,18 @@
     m$title <- m$name
   }
   
-  if (!is.null(m$parent) && identical(tolower(as.character(m$parent)), "null")) m$parent <- NULL
+  if (
+    !is.null(m$parent) &&
+      identical(tolower(as.character(m$parent)), "null")
+  ) m$parent <- NULL
   
   m
 }
 #------
 
 
-# the following, reads the setting lines (setting, name, packages, etc.) in the code
+# the following, reads the setting lines
+# (setting, name, packages, etc.) in the code
 # the setting lines in the template can be started with #|
 #   #| setting: echo=FALSE, results='asis'
 #   #| packages: echo=FALSE, results='asis'
@@ -1230,7 +1274,13 @@
     f$title <- .w
   } else .h <- 1
   #-----
-  .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
+  .txt <- .getTextObj(
+    name = f$name,
+    title = f$title,
+    parent = f$parent,
+    headLevel = .h,
+    txt = f$text
+  )
   
   .w <- grep(
     "code",
@@ -1248,13 +1298,22 @@
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
       #---
       if (!is.null(code)) {
-        if (is.null(code$setting$name)) code$setting$name <- paste0(f$name,'__code')
+        if (is.null(code$setting$name)) code$setting$name <-
+          paste0(f$name,'__code')
         else code$setting$name <- paste0(f$name,'__',code$setting$name)
         #---
-        if (!is.null(code$setting$setting)) code$setting$setting <- toString(code$setting$setting)
+        if (!is.null(code$setting$setting)) code$setting$setting <-
+          toString(code$setting$setting)
         else code$setting$setting <- NULL
         
-        codeList[[code$setting$name]] <- new('.Rchunk',parent = f$name,name = code$setting$name,setting = code$setting$setting,packages=code$setting$packages,code=code$code)
+        codeList[[code$setting$name]] <- new(
+          '.Rchunk',
+          parent = f$name,
+          name = code$setting$name,
+          setting = code$setting$setting,
+          packages = code$setting$packages,
+          code = code$code
+        )
       }
     }
     #---
@@ -1333,7 +1392,10 @@
   
   z <- na.omit(z)
   if (dynamic) {
-    series <- .eval('xts(z$nrCams, order.by = z$time, tz = "GMT")',env=environment())
+    series <- .eval(
+      'xts(z$nrCams, order.by = z$time, tz = "GMT")',
+      env = environment()
+    )
     .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |> 
       dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
       dyRangeSelector()",env=environment())
@@ -1349,10 +1411,18 @@
 #--------
 .left_join <- function(d1,d2,by) {
   if (length(by) == 1) {
-    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
+    if (
+      !by %in% colnames(d1) &
+        by %in% colnames(d2)
+    )
+      stop('the "by" column does not exist in both data!')
     merge(d1,d2,by=by,all.x=TRUE)
   } else if (length(by) == 2) {
-    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
+    if (
+      !by[1] %in% colnames(d1) &
+        by[2] %in% colnames(d2)
+    )
+      stop('the "by" columns do not exist in the data!')
     merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
   }
 }
@@ -1426,7 +1496,12 @@
   
   names_from  <- .parse_colspec(names_from_expr,  data, caller_env)
   values_from <- .parse_colspec(values_from_expr, data, caller_env)
-  id_cols     <- .parse_colspec(id_cols_expr,     data, caller_env, allow_null = TRUE)
+  id_cols <- .parse_colspec(
+    id_cols_expr,
+    data,
+    caller_env,
+    allow_null = TRUE
+  )
   
   if (length(names_from) != 1L) {
     stop("'names_from' should specify exactly one column.")
@@ -1555,7 +1630,10 @@
       nn <- cm$reportObjectElements$Status_modules_info$name
       n <- nn[nn %in% n]
       
-      if (length(n) == 0) stop('No data status modules (status_report sections) are selected!')
+      if (length(n) == 0)
+        stop(
+          'No data status modules (status_report sections) are selected!'
+        )
     }
   }
   #------
