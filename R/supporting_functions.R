@@ -1124,11 +1124,17 @@
   #-----
   .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
   
-  if (length(which(grepl('code', names(f), fixed = TRUE))) == 1 && is.null(f[[which(grepl('code', names(f), fixed = TRUE))]])) {
+  .w <- grep(
+    "code",
+    names(f),
+    fixed = TRUE
+  )
+  
+  if (length(.w) == 1L && is.null(f[[.w]])) {
     return(.txt)
-  } else if (length(which(grepl('code', names(f), fixed = TRUE))) > 0) {
+  } else if (length(.w) > 0L) {
     codeList <- list()
-    .w <- which(grepl('code', names(f), fixed = TRUE))
+    
     for (i in .w) {
       
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
