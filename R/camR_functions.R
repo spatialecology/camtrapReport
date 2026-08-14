@@ -813,8 +813,13 @@
     out$total_locationsrow <- 0L
     out$total_unique_locations <- 0L
     out$message_missing <- paste0(r, " No valid cm$data$locations table found.")
-    out$status_spatial <- paste0(w, " Too few locations to detect a spatial pattern")
+    out$status_spatial <- paste0(
+      w,
+      " Too few locations to detect a spatial pattern"
+    )
+    # nolint start: line_length_linter.
     out$status_MCArea <- "No valid camera-location coordinates were available, so study-area size could not be estimated."
+    # nolint end
     
     cm$data_status$Spatial <- out
     return(out)
@@ -830,18 +835,40 @@
   
   location_df2[["row"]] <- seq_len(nrow(location_df2))
   
-  location_df2[["locationID"]] <- trimws(as.character(location_df2[["locationID"]]))
-  location_df2[["locationID"]][location_df2[["locationID"]] == ""] <- NA_character_
+  location_df2[["locationID"]] <- trimws(
+    as.character(location_df2[["locationID"]])
+  )
+  location_df2[["locationID"]][
+    location_df2[["locationID"]] == ""
+  ] <- NA_character_
   
-  location_df2[["locationName"]] <- trimws(as.character(location_df2[["locationName"]]))
-  location_df2[["locationName"]][location_df2[["locationName"]] == ""] <- NA_character_
+  location_df2[["locationName"]] <- trimws(
+    as.character(location_df2[["locationName"]])
+  )
+  location_df2[["locationName"]][
+    location_df2[["locationName"]] == ""
+  ] <- NA_character_
   
   location_df2[["longitude"]] <- suppressWarnings(
-    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["longitude"]])), fixed = TRUE))
+    as.numeric(
+      gsub(
+        ",",
+        ".",
+        trimws(as.character(location_df2[["longitude"]])),
+        fixed = TRUE
+      )
+    )
   )
   
   location_df2[["latitude"]] <- suppressWarnings(
-    as.numeric(gsub(",", ".", trimws(as.character(location_df2[["latitude"]])), fixed = TRUE))
+    as.numeric(
+      gsub(
+        ",",
+        ".",
+        trimws(as.character(location_df2[["latitude"]])),
+        fixed = TRUE
+      )
+    )
   )
   
   complete_idx <- stats::complete.cases(
@@ -895,10 +922,19 @@
   #---------------- 3. duplicated coordinates ----------------
   
   if (nrow(location_cleaned) > 0) {
-    location_cleaned[["lon_round"]] <- round(location_cleaned[["longitude"]], coord_round)
-    location_cleaned[["lat_round"]] <- round(location_cleaned[["latitude"]], coord_round)
+    location_cleaned[["lon_round"]] <- round(
+      location_cleaned[["longitude"]],
+      coord_round
+    )
+    location_cleaned[["lat_round"]] <- round(
+      location_cleaned[["latitude"]],
+      coord_round
+    )
     
-    ckey <- .coord_key(location_cleaned[["lon_round"]], location_cleaned[["lat_round"]])
+    ckey <- .coord_key(
+      location_cleaned[["lon_round"]],
+      location_cleaned[["lat_round"]]
+    )
     ctab <- table(ckey, useNA = "ifany")
     
     dup_coord_groups <- sum(ctab > 1)
@@ -927,8 +963,15 @@
   #---------------- 4. unique locations ----------------
   
   if (nrow(location_cleaned) > 0) {
-    xy_key <- .coord_key(location_cleaned[["longitude"]], location_cleaned[["latitude"]])
-    total_unique_locations_df <- location_cleaned[!duplicated(xy_key), , drop = FALSE]
+    xy_key <- .coord_key(
+      location_cleaned[["longitude"]],
+      location_cleaned[["latitude"]]
+    )
+    total_unique_locations_df <- location_cleaned[
+      !duplicated(xy_key),
+      ,
+      drop = FALSE
+    ]
   } else {
     total_unique_locations_df <- location_cleaned[0, , drop = FALSE]
   }
@@ -963,7 +1006,10 @@
     
     w3 <- which(nn_dist > q_threshold + ((minD + 2) * mean_within))
     w2 <- setdiff(which(nn_dist > q_threshold + ((minD + 1) * mean_within)), w3)
-    w1 <- setdiff(which(nn_dist > q_threshold + (minD * mean_within)), c(w2, w3))
+    w1 <- setdiff(
+      which(nn_dist > q_threshold + (minD * mean_within)),
+      c(w2, w3)
+    )
     
     min_idx <- which(
       dist_matrix == min(dist_matrix, na.rm = TRUE),
@@ -1002,10 +1048,12 @@
     out$num_mediumrisk_outliers <- 0L
     out$num_highrisk_outliers <- 0L
     
+    # nolint start: line_length_linter.
     distance_outlier_summary <- paste0(
       y,
       " Only one unique location - distance-based spatial outlier analysis skipped"
     )
+    # nolint end
     
   } else {
     
@@ -1026,7 +1074,13 @@
         return(character(0))
       }
       
-      sort(unique(stats::na.omit(total_unique_locations_df[["locationName"]][idxs])))
+      sort(
+        unique(
+          stats::na.omit(
+            total_unique_locations_df[["locationName"]][idxs]
+          )
+        )
+      )
     }
     
     low_names <- safe_names(outlier_res$low_prob)
@@ -1108,7 +1162,10 @@
       name = character(),
       stringsAsFactors = FALSE
     )
-    sea_outlier_status <- paste0(w, " No valid locations available for land/sea check.")
+    sea_outlier_status <- paste0(
+      w,
+      " No valid locations available for land/sea check."
+    )
   }
   
   out$outliers_status <- paste(
@@ -1123,14 +1180,22 @@
   
   if (nrow(total_unique_locations_df) > 0) {
     keep_area <- .valid_coord_rows(total_unique_locations_df)
-    unique_locations_area <- total_unique_locations_df[keep_area, , drop = FALSE]
+    unique_locations_area <- total_unique_locations_df[
+      keep_area,
+      ,
+      drop = FALSE
+    ]
     
     area_key <- .coord_key(
       unique_locations_area[["longitude"]],
       unique_locations_area[["latitude"]]
     )
     
-    unique_locations_area <- unique_locations_area[!duplicated(area_key), , drop = FALSE]
+    unique_locations_area <- unique_locations_area[
+      !duplicated(area_key),
+      ,
+      drop = FALSE
+    ]
   } else {
     unique_locations_area <- total_unique_locations_df[0, , drop = FALSE]
   }
@@ -1173,7 +1238,10 @@
     )
     
     out$MCArea <- area_km2
-    out$MCArea_method <- paste0(buffer_m / 1000, " km buffer around one camera location")
+    out$MCArea_method <- paste0(
+      buffer_m / 1000,
+      " km buffer around one camera location"
+    )
     
     out$MCArea_text <- paste0(
       .format_area(area_km2),
@@ -1182,6 +1250,7 @@
       " km buffer around one camera location)"
     )
     
+    # nolint start: line_length_linter.
     out$status_MCArea <- paste0(
       "The dataset contains one distinct camera location. ",
       "Because a minimum convex polygon cannot be calculated from a single point, ",
@@ -1191,6 +1260,7 @@
       .format_area(area_km2),
       "."
     )
+    # nolint end
   }
   
   if (n_area_locations == 2) {
@@ -1203,7 +1273,10 @@
     )
     
     out$MCArea <- area_km2
-    out$MCArea_method <- paste0(buffer_m / 1000, " km buffers around two camera locations")
+    out$MCArea_method <- paste0(
+      buffer_m / 1000,
+      " km buffers around two camera locations"
+    )
     
     out$MCArea_text <- paste0(
       .format_area(area_km2),
@@ -1212,6 +1285,7 @@
       " km buffers around two camera locations)"
     )
     
+    # nolint start: line_length_linter.
     out$status_MCArea <- paste0(
       "The dataset contains two distinct camera locations. ",
       "Because a minimum convex polygon cannot be calculated from two points, ",
@@ -1221,6 +1295,7 @@
       .format_area(area_km2),
       "."
     )
+    # nolint end
   }
   
   if (n_area_locations >= 3) {
