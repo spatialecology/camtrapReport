@@ -1,4 +1,3 @@
-library(testthat)
 capture_report_conditions <- function(expr) {
   state <- new.env(parent = emptyenv())
   state$messages <- character()
