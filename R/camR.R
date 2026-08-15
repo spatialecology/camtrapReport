@@ -1207,48 +1207,166 @@ camR <- setRefClass(
           ) {
             if ('class' %in% names(.self$group_definition[[n]])) {
               if ('order' %in% names(.self$group_definition[[n]])) {
-                if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
-                  if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                if (
+                  'domestic' %in%
+                    names(.self$group_definition[[n]]) &&
+                  is.logical(
+                    .self$group_definition[[n]]$domestic
+                  )
+                ) {
+                  if (
+                    "observationType" %in%
+                      names(.self$group_definition[[n]])
+                  ) {
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        order = .self$group_definition[[n]]$order,
+                        domestic =
+                          .self$group_definition[[n]]$domestic,
+                        observationType =
+                          .self$group_definition[[n]]$observationType
+                      )
                   } else {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        order = .self$group_definition[[n]]$order,
+                        domestic =
+                          .self$group_definition[[n]]$domestic
+                      )
                   }
                   
                 } else {
-                  if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
+                  if (
+                    "observationType" %in%
+                      names(.self$group_definition[[n]])
+                  ) {
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        order = .self$group_definition[[n]]$order,
+                        observationType =
+                          .self$group_definition[[n]]$observationType
+                      )
                   } else {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,order = .self$group_definition[[n]]$order)
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        order = .self$group_definition[[n]]$order
+                      )
                   }
                 }
               } else {
-                if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
-                  if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                if (
+                  'domestic' %in%
+                    names(.self$group_definition[[n]]) &&
+                  is.logical(
+                    .self$group_definition[[n]]$domestic
+                  )
+                ) {
+                  if (
+                    "observationType" %in%
+                      names(.self$group_definition[[n]])
+                  ) {
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        domestic =
+                          .self$group_definition[[n]]$domestic,
+                        observationType =
+                          .self$group_definition[[n]]$observationType
+                      )
                   } else {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,domestic = .self$group_definition[[n]]$domestic)
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        domestic =
+                          .self$group_definition[[n]]$domestic
+                      )
                   }
                   
                 } else {
-                  if ("observationType" %in% names(.self$group_definition[[n]])) {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class,observationType=.self$group_definition[[n]]$observationType)
+                  if (
+                    "observationType" %in%
+                      names(.self$group_definition[[n]])
+                  ) {
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class,
+                        observationType =
+                          .self$group_definition[[n]]$observationType
+                      )
                   } else {
-                    .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,class = .self$group_definition[[n]]$class)
+                    .self$species_summary[[n]] <-
+                      .summarize_species(
+                        .self,
+                        .tax_obs,
+                        class = .self$group_definition[[n]]$class
+                      )
                   }
                 }
               }
             } else {
-              if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
+              if (
+                'domestic' %in%
+                  names(.self$group_definition[[n]]) &&
+                is.logical(
+                  .self$group_definition[[n]]$domestic
+                )
+              ) {
                 if ("observationType" %in% names(.self$group_definition[[n]])) {
-                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic,observationType=.self$group_definition[[n]]$observationType)
+                  .self$species_summary[[n]] <-
+                    .summarize_species(
+                      .self,
+                      .tax_obs,
+                      order = .self$group_definition[[n]]$order,
+                      domestic =
+                        .self$group_definition[[n]]$domestic,
+                      observationType =
+                        .self$group_definition[[n]]$observationType
+                    )
                 } else {
-                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,domestic = .self$group_definition[[n]]$domestic)
+                  .self$species_summary[[n]] <-
+                    .summarize_species(
+                      .self,
+                      .tax_obs,
+                      order = .self$group_definition[[n]]$order,
+                      domestic =
+                        .self$group_definition[[n]]$domestic
+                    )
                 }
               } else {
                 if ("observationType" %in% names(.self$group_definition[[n]])) {
-                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order,observationType=.self$group_definition[[n]]$observationType)
+                  .self$species_summary[[n]] <-
+                    .summarize_species(
+                      .self,
+                      .tax_obs,
+                      order = .self$group_definition[[n]]$order,
+                      observationType =
+                        .self$group_definition[[n]]$observationType
+                    )
                 } else {
-                  .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,order = .self$group_definition[[n]]$order)
+                  .self$species_summary[[n]] <-
+                    .summarize_species(
+                      .self,
+                      .tax_obs,
+                      order = .self$group_definition[[n]]$order
+                    )
                 }
                 
               }
@@ -1259,7 +1377,14 @@ camR <- setRefClass(
       
       #=============================
       # Attach summary counts to species_summary object
-      .self$species_summary$count <- data.frame(Group=names(.self$species_summary),Count=vapply(.self$species_summary,function(x) nrow(x$site_list), integer(1)))
+      .self$species_summary$count <- data.frame(
+        Group = names(.self$species_summary),
+        Count = vapply(
+          .self$species_summary,
+          function(x) nrow(x$site_list),
+          integer(1)
+        )
+      )
       
       # add a Name column to be used in the report text:
       .self$species_summary$count$Name <- .self$species_summary$count$Group
@@ -1270,7 +1395,8 @@ camR <- setRefClass(
       if (length(.w) > 0) .self$species_summary$count$Name[.w] <- 'mammals'
       
       .w <- which(.self$species_summary$count$Group == 'large_mammals')
-      if (length(.w) > 0) .self$species_summary$count$Name[.w] <- 'large mammals'
+      if (length(.w) > 0)
+        .self$species_summary$count$Name[.w] <- 'large mammals'
       #------
       ####################
       
@@ -1310,16 +1436,44 @@ camR <- setRefClass(
           Locations
         )
       
-      rm(process_capture_data, capture_data_total, capture_df, .station_col, .year_keys)
+      rm(
+        process_capture_data,
+        capture_data_total,
+        capture_df,
+        .station_col,
+        .year_keys
+      )
       gc()
       #-----------
       ############################
       # setting the focus_groups:
       if (!is.null(.self$setting$focus_groups) 
-          && any(.self$setting$focus_groups %in% .self$species_summary$count$Group)) {
-        .self$setting$focus_groups <- .self$species_summary$count$Group[.self$species_summary$count$Group %in% .self$setting$focus_groups]
-      } else if (any(c('wild_mammals','large_mammals','birds','amphibians','reptiles') %in% .self$species_summary$count$Group)) {
-        .self$setting$focus_groups <- .self$species_summary$count$Group[.self$species_summary$count$Group %in% c('wild_mammals','large_mammals','birds','amphibians','reptiles')]
+          && any(
+            .self$setting$focus_groups %in%
+              .self$species_summary$count$Group
+          )
+      ) {
+        .self$setting$focus_groups <-
+          .self$species_summary$count$Group[
+            .self$species_summary$count$Group %in%
+              .self$setting$focus_groups
+          ]
+      } else if (
+        any(
+          c(
+            'wild_mammals', 'large_mammals', 'birds',
+            'amphibians', 'reptiles'
+          ) %in% .self$species_summary$count$Group
+        )
+      ) {
+        .self$setting$focus_groups <-
+          .self$species_summary$count$Group[
+            .self$species_summary$count$Group %in%
+              c(
+                'wild_mammals', 'large_mammals', 'birds',
+                'amphibians', 'reptiles'
+              )
+          ]
       }
       ############################
       if (!is.null(.self$setting$focus_groups)) {
@@ -1328,7 +1482,11 @@ camR <- setRefClass(
         if (length(.self$.any_data_for_rem) == 0) {
           .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
         }
-        .sp2 <- names(.self$.any_data_for_rem[.sp][.self$.any_data_for_rem[.sp]])
+        .sp2 <- names(
+          .self$.any_data_for_rem[.sp][
+            .self$.any_data_for_rem[.sp]
+          ]
+        )
         #----
         if (length(.sp) > 0) {
           for (n in .sp) {
@@ -1369,13 +1527,31 @@ camR <- setRefClass(
         
         # Compute runtime in days
         deployments_grouped <- deployments_grouped |>
-          dplyr::mutate(runtime_days = as.numeric(end_date - start_date, units = "days"))
+          dplyr::mutate(
+            runtime_days = as.numeric(
+              end_date - start_date,
+              units = "days"
+            )
+          )
         
         # Calculate key statistics
-        average_runtime <- mean(deployments_grouped$runtime_days, na.rm = TRUE) |> round(0)
-        runtime_range <- range(deployments_grouped$runtime_days, na.rm = TRUE) |> round(0)
+        average_runtime <- mean(
+          deployments_grouped$runtime_days,
+          na.rm = TRUE
+        ) |>
+          round(0)
+        runtime_range <- range(
+          deployments_grouped$runtime_days,
+          na.rm = TRUE
+        ) |>
+          round(0)
         runtime_range <- paste(runtime_range[1], "-", runtime_range[2])
-        total_runtime_days <- round(sum(deployments_grouped$runtime_days, na.rm = TRUE))
+        total_runtime_days <- round(
+          sum(
+            deployments_grouped$runtime_days,
+            na.rm = TRUE
+          )
+        )
         total_runtime_years <- round(total_runtime_days / 365, 2)
         
         # Return statistics as a list
@@ -1396,10 +1572,21 @@ camR <- setRefClass(
         .data_year <- .self$get_data_subset(x)
         list(
           year = as.numeric(x),
-          number_of_photos = nrow(.data_year$media),  # Total number of photos (media files)
-          number_of_observations = dplyr::n_distinct(.data_year$observations$observationID),  # Unique observations
-          number_of_sequences = dplyr::n_distinct(.data_year$observations$sequenceID),  # Unique sequences
-          number_of_animals = sum(.data_year$observations$observationType == "animal", na.rm = TRUE)  # Animal observations
+          # Total number of photos (media files)
+          number_of_photos = nrow(.data_year$media),
+          # Unique observations
+          number_of_observations = dplyr::n_distinct(
+            .data_year$observations$observationID
+          ),
+          # Unique sequences
+          number_of_sequences = dplyr::n_distinct(
+            .data_year$observations$sequenceID
+          ),
+          # Animal observations
+          number_of_animals = sum(
+            .data_year$observations$observationType == "animal",
+            na.rm = TRUE
+          )
         )
       })
       
@@ -1414,7 +1601,11 @@ camR <- setRefClass(
         
         # Filter Wild Mammals (excluding domestic species)
         wild_mammals <- .data_year$taxonomy |>
-          dplyr::filter(class == "Mammalia", scientificName %in% .self$frequent_species$scientificName)
+          dplyr::filter(
+            class == "Mammalia",
+            scientificName %in%
+              .self$frequent_species$scientificName
+          )
         
         # Count unique wild mammals
         number_of_wild_mammals <- length(unique(wild_mammals$scientificName))
@@ -1431,8 +1622,10 @@ camR <- setRefClass(
       #----------------------
       ###### Average sun time:
       if (.require('suncalc')) {
+        # nolint start: line_length_linter.
         #.s <- sapply(as.character(.self$data$deployments$deployment_interval),function(x) strsplit(x,'--')[[1]][1])
         #.e <- sapply(as.character(.self$data$deployments$deployment_interval),function(x) strsplit(x,'--')[[1]][2])
+        # nolint end
         .s <- as.character(.self$data$deployments$deploymentStart)
         .e <- as.character(.self$data$deployments$deploymentEnd)
         #names(.s) <- names(.e) <-NULL
@@ -1445,12 +1638,18 @@ camR <- setRefClass(
         
         # Build sun_input and compute sunlight times
         sun_input <- data.frame(
-          date = seq(min(deploy_dates$start, na.rm = TRUE), max(deploy_dates$end, na.rm = TRUE), by = "day"),
+          date = seq(
+            min(deploy_dates$start, na.rm = TRUE),
+            max(deploy_dates$end, na.rm = TRUE),
+            by = "day"
+          ),
           lat = mean(.self$data$locations$latitude, na.rm = TRUE),
           lon = mean(.self$data$locations$longitude, na.rm = TRUE)
         )
         #====
+        # nolint start: line_length_linter.
         .sun_times <- .eval('suncalc::getSunlightTimes(data = sun_input, keep = c("sunrise", "sunset"), tz = .self$setting$tz)',env=environment()) 
+        # nolint end
         
         # Convert to numeric hours
         .sun_times$sunrise_hour <- .get_hour(.sun_times$sunrise)
@@ -1470,7 +1669,9 @@ camR <- setRefClass(
         rm(avg_sun_times,.sun_times,sun_input,deploy_dates,.s,.e)
         
       } else {
+        # nolint start: line_length_linter.
         warning('The "suncalc" package is not installed; it is required for the analysis of activity patterns...')
+        # nolint end
       }
       #------------
       
@@ -1521,7 +1722,9 @@ camR <- setRefClass(
           ) |>
           dplyr::arrange(scientificName, Habitat_Type)
         
-        .self$species_summary_by_habitat <- as.data.frame(summary_by_species_habitat)
+        .self$species_summary_by_habitat <- as.data.frame(
+          summary_by_species_habitat
+        )
         
         rm(caps_by_site,obs_with_habitat,summary_by_species_habitat)
         gc()
@@ -1565,21 +1768,60 @@ camR <- setRefClass(
     show = function() {
       cat('Camera trap Object for the site :' , .self$siteName, '\n')
       cat('=====================================================','\n')
-      cat('Total number of sequences       : ' ,sum(.self$observation_stats$number_of_sequences,na.rm=TRUE), '\n')
-      cat('Total number of observations    : ' ,sum(.self$observation_stats$number_of_observations,na.rm=TRUE), '\n')
-      cat('Total number of animals         : ' ,sum(.self$observation_stats$number_of_animals,na.rm=TRUE), '\n')
-      cat('Total number of detected species: ' , .self$data_status$Species$Keep_sp_n, '\n')
-      cat('Date/time (years) with data     : ' ,.paste_comma_and(.self$observation_stats$year),'\n')
+      cat(
+        'Total number of sequences       : ',
+        sum(
+          .self$observation_stats$number_of_sequences,
+          na.rm = TRUE
+        ),
+        '\n'
+      )
+      cat(
+        'Total number of observations    : ',
+        sum(
+          .self$observation_stats$number_of_observations,
+          na.rm = TRUE
+        ),
+        '\n'
+      )
+      cat(
+        'Total number of animals         : ',
+        sum(
+          .self$observation_stats$number_of_animals,
+          na.rm = TRUE
+        ),
+        '\n'
+      )
+      cat(
+        'Total number of detected species: ',
+        .self$data_status$Species$Keep_sp_n,
+        '\n'
+      )
+      cat(
+        'Date/time (years) with data     : ',
+        .paste_comma_and(.self$observation_stats$year),
+        '\n'
+      )
       cat('-----------------------------------------------------\n')
     },
     filter = function() {
-      # filter uses the conditions to keep or exclude (also filterCount) to extract
+      # filter uses the conditions to keep or exclude
+      # (also filterCount) to extract
       # frequent_species data.frame (assigned to the field with the same name)
-      # later, the names of these species will be used to subset data in analyses
+      # later, the names of these species will be used
+      # to subset data in analyses
       
-      if (length(.self$filterExclude) > 0 || length(.self$filterKeep) > 0 || length(.self$filterCount) > 0) {
+      if (
+        length(.self$filterExclude) > 0 ||
+          length(.self$filterKeep) > 0 ||
+          length(.self$filterCount) > 0
+      ) {
         w1 <- w2 <- w3 <- w4 <- TRUE
-        if (length(.self$filterKeep) > 0 && 'order' %in% names(.self$filterKeep) && !all(is.na(.self$data$taxonomy$order))) {
+        if (
+          length(.self$filterKeep) > 0 &&
+            'order' %in% names(.self$filterKeep) &&
+            !all(is.na(.self$data$taxonomy$order))
+        ) {
           w1 <- .self$data$taxonomy$order %in% .self$filterKeep$order
         } 
         
@@ -1588,32 +1830,62 @@ camR <- setRefClass(
           .n <- .n[.n %in% colnames(.self$data$taxonomy)]
           if (length(.n) > 0) {
             for (nn in .n) {
-              w2 <- w2 & !(.self$data$taxonomy[[nn]] %in% .self$filterExclude[[nn]])
+              w2 <- w2 & !(
+                .self$data$taxonomy[[nn]] %in%
+                  .self$filterExclude[[nn]]
+              )
             }
           }
         }
         #----
+        # nolint start: line_length_linter.
         # if (length(.self$filterKeep) > 0 && 'observationType' %in% names(.self$filterKeep)) {
         #   w3 <- .self$data$observations[['observationType']] %in% .self$filterKeep$observationType
+        # nolint end
         # }
         
-        if (length(.self$filterKeep) > 0 && any(names(.self$filterKeep) %in% colnames(.self$data$observations))) {
+        if (
+          length(.self$filterKeep) > 0 &&
+            any(
+              names(.self$filterKeep) %in%
+                colnames(.self$data$observations)
+            )
+        ) {
           for (.n in names(.self$filterKeep)) {
-            if (.n %in% colnames(.self$data$observations) && !is.null(.self$filterKeep[[.n]])) {
-              w3 <- w3 & (.self$data$observations[[.n]] %in% .self$filterKeep[[.n]])
+            if (
+              .n %in% colnames(.self$data$observations) &&
+                !is.null(.self$filterKeep[[.n]])
+            ) {
+              w3 <- w3 & (
+                .self$data$observations[[.n]] %in%
+                  .self$filterKeep[[.n]]
+              )
             }
           }
         }
         #---
         
-        w3 <- .self$data$taxonomy$taxonID %in% .self$data$observations$taxonID[w3]
+        w3 <- .self$data$taxonomy$taxonID %in%
+          .self$data$observations$taxonID[w3]
         if (length(.self$filterCount) > 0) {
-          w4 <- .self$data$taxonomy$taxonID %in% (.self$observed_counts$taxonID[.self$observed_counts$count > .self$filterCount[1]])
+          w4 <- .self$data$taxonomy$taxonID %in% (
+            .self$observed_counts$taxonID[
+              .self$observed_counts$count >
+                .self$filterCount[1]
+            ]
+          )
         }
         w <- w1 & w2 & w3 & w4
-        .self$frequent_species <- data.frame(scientificName=.self$data$taxonomy$scientificName[w],vernacularNames.eng=.self$data$taxonomy$vernacularNames.eng[w])
+        .self$frequent_species <- data.frame(
+          scientificName =
+            .self$data$taxonomy$scientificName[w],
+          vernacularNames.eng =
+            .self$data$taxonomy$vernacularNames.eng[w]
+        )
         
+      # nolint start: line_length_linter.
       } else warning('\nNo filtering condition is specified in the "filterExclude" or "filterKeep" fields!')
+      # nolint end
     },
     addReportObject = function(x) {
       # add either text or Rchunk object to reportObjects list
@@ -1621,7 +1893,8 @@ camR <- setRefClass(
       if (inherits(x,'.textSection')) {
         if (is.null(x@parent) || x@parent == "" || x@parent == ".root") {
           x@headLevel <- 1
-          if (is.list(.self$reportObjects[[x@name]])) .self$reportObjects[[x@name]][[x@name]] <- x
+          if (is.list(.self$reportObjects[[x@name]]))
+            .self$reportObjects[[x@name]][[x@name]] <- x
           else .self$reportObjects[[x@name]] <- x
           .done <- TRUE
         } else {
@@ -1632,7 +1905,9 @@ camR <- setRefClass(
               .done <- TRUE
             } else {
               .tmp <- list()
-              .tmp[[.self$reportObjects[[x@parent]]@name]] <- .self$reportObjects[[x@parent]]
+              .tmp[[
+                .self$reportObjects[[x@parent]]@name
+              ]] <- .self$reportObjects[[x@parent]]
               .self$reportObjects[[x@parent]] <- .tmp
               .self$reportObjects[[x@parent]][[x@name]] <- x
               .done <- TRUE
@@ -1649,7 +1924,10 @@ camR <- setRefClass(
                     .done <- TRUE
                   } else {
                     .tmp <- list()
-                    .tmp[[.self$reportObjects[[.n]][[x@parent]]@name]] <- .self$reportObjects[[.n]][[x@parent]]
+                    .tmp[[
+                      .self$reportObjects[[.n]][[x@parent]]@name
+                    ]] <-
+                      .self$reportObjects[[.n]][[x@parent]]
                     .self$reportObjects[[.n]][[x@parent]] <- .tmp
                     .self$reportObjects[[.n]][[x@parent]][[x@name]] <- x
                     .done <- TRUE
@@ -1659,7 +1937,9 @@ camR <- setRefClass(
                 if (x@parent == .tmp@name) {
                   x@headLevel <- 2
                   .tmp <- list()
-                  .tmp[[.self$reportObjects[[.n]]@name]] <- .self$reportObjects[[.n]]
+                  .tmp[[
+                    .self$reportObjects[[.n]]@name
+                  ]] <- .self$reportObjects[[.n]]
                   .self$reportObjects[[.n]] <- .tmp
                   .self$reportObjects[[.n]][[x@parent]][[x@name]] <- x
                   .done <- TRUE
@@ -1669,13 +1949,21 @@ camR <- setRefClass(
           } 
         }
         
-        if (!.done) stop('The text section is not added (the "parent" is unknown...)!')
+        if (!.done)
+          stop(
+            'The text section is not added (the "parent" is unknown...)!'
+          )
         
       } else if (inherits(x,'.Rchunk')) {
         .added <- FALSE
         if (x@parent %in% names(.self$reportObjects)) {
           if (is.list(.self$reportObjects[[x@parent]])) {
-            .tmp <- simplify2array(lapply(.self$reportObjects[[x@parent]], function(.x) .x@name))
+            .tmp <- simplify2array(
+              lapply(
+                .self$reportObjects[[x@parent]],
+                function(.x) .x@name
+              )
+            )
             .w <- which(.tmp == x@parent)
             if (length(.w) > 1) {
               if (is.null(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1683,17 +1971,38 @@ camR <- setRefClass(
                 .added <- TRUE
               } else {
                 if (is.list(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
-                  if (length(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                    .n <- simplify2array(lapply(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
+                  if (
+                    length(
+                      .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk
+                    ) > 0
+                  ) {
+                    .n <- simplify2array(
+                      lapply(
+                        .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk,
+                        function(x) x@name
+                      )
+                    )
                     if (x@name %in% .n) {
-                      .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .n)]] <- x
+                      .self$reportObjects[[x@parent]][[
+                        .w[1]
+                      ]]@Rchunk[[
+                        match(x@name, .n)
+                      ]] <- x
                       .added <- TRUE
                     } else {
-                      .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                      .self$reportObjects[[x@parent]][[
+                        .w[1]
+                      ]]@Rchunk[[
+                        x@name
+                      ]] <- x
                       .added <- TRUE
                     }
                   } else {
-                    .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    .self$reportObjects[[x@parent]][[
+                      .w[1]
+                    ]]@Rchunk[[
+                      x@name
+                    ]] <- x
                     .added <- TRUE
                   }
                 } else {
@@ -1704,7 +2013,11 @@ camR <- setRefClass(
                     .tmp <- list()
                     .tmp[[.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk
                     .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk <- .tmp
-                    .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    .self$reportObjects[[x@parent]][[
+                      .w[1]
+                    ]]@Rchunk[[
+                      x@name
+                    ]] <- x
                     .added <- TRUE
                   }
                 }
@@ -2020,7 +2333,10 @@ camR <- setRefClass(
           } 
         }
         
-        if (!.done) stop('The text section is not added (the "parent" is unknown...)!')
+        if (!.done)
+          stop(
+            'The text section is not added (the "parent" is unknown...)!'
+          )
         
       } else if (inherits(x,'.Rchunk')) {
         .added <- FALSE
