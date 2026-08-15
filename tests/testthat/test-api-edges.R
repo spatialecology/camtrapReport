@@ -4,6 +4,7 @@ test_that("section selectors validate partial and unknown selections", {
 
   expect_identical(section_names(keep = first), first)
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     kept <- section_names(keep = c(first, "unknown_section")),
     "not available"
   )
@@ -11,6 +12,7 @@ test_that("section selectors validate partial and unknown selections", {
   expect_error(section_names(keep = "unknown_section"), "None")
 
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     excluded <- section_names(exclude = c(first, "unknown_section")),
     "not available"
   )
@@ -22,10 +24,12 @@ test_that("sections handles invalid, partial, and failed module selections", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   known <- sections(cm)
 
+  # nolint next: implicit_assignment_linter.
   expect_warning(current <- sections(cm, 1), "should be character")
   expect_identical(current, known)
   expect_error(sections(cm, "unknown_section"), "None")
   expect_message(
+    # nolint next: implicit_assignment_linter.
     partial <- sections(cm, c(known[[1]], "unknown_section")),
     "unknown and ignored"
   )
@@ -36,7 +40,18 @@ test_that("metadata access validates fields and aliases", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
   defaults <- info(cm)
-  expect_named(defaults, c("title", "subtitle", "authors", "institute", "siteName", "logoPath"))
+  expect_named(
+    defaults,
+    c(
+      "title",
+      "subtitle",
+      "authors",
+      "institute",
+      "siteName",
+      "logoPath"
+    )
+  )
+  # nolint next: implicit_assignment_linter.
   expect_warning(fallback <- info(cm, "not_a_field"), "default fields")
   expect_named(fallback, names(defaults))
 
@@ -49,12 +64,15 @@ test_that("metadata access validates fields and aliases", {
   info(cm, "study area") <- "Updated study-area description"
   expect_identical(cm$description, "Updated study-area description")
   info(cm, "acknowledgement") <- "Updated acknowledgement"
-  acknowledgement <- find_test_report_section(cm$reportObjects, "acknowledgements")
+  acknowledgement <- find_test_report_section(
+    cm$reportObjects,
+    "acknowledgements"
+  )
   expect_identical(acknowledgement@txt, "Updated acknowledgement")
 })
 
 test_that("datetime parsing accepts Camtrap DP date variants", {
-  parse_time <- camtrapReport:::.parse_cam_datetime
+  parse_time <- ct_internal(".parse_cam_datetime")
   original <- as.POSIXct("2024-01-01 12:30:00", tz = "UTC")
   parsed <- parse_time(c(
     "2024-01-01T12:30:00Z",
@@ -68,23 +86,26 @@ test_that("datetime parsing accepts Camtrap DP date variants", {
   expect_true(is.na(parse_time(NULL)))
   expect_false(anyNA(parsed[1:3]))
   expect_true(is.na(parsed[4]))
-  expect_identical(camtrapReport:::.first_non_missing(c(NA, "a", "a")), "a")
-  expect_true(is.na(camtrapReport:::.first_non_missing(c(NA, NA))))
-  expect_true(is.na(camtrapReport:::.safe_min_time(as.POSIXct(character()))))
-  expect_true(is.na(camtrapReport:::.safe_max_time(as.POSIXct(character()))))
+  expect_identical(ct_internal(".first_non_missing")(c(NA, "a", "a")), "a")
+  expect_true(is.na(ct_internal(".first_non_missing")(c(NA, NA))))
+  expect_true(is.na(ct_internal(".safe_min_time")(as.POSIXct(character()))))
+  expect_true(is.na(ct_internal(".safe_max_time")(as.POSIXct(character()))))
 })
 
 test_that("small camReport summary helpers cover alternative labels", {
-  expect_identical(camtrapReport:::.ct_icons(FALSE)$green, "[OK]")
-  expect_false(identical(camtrapReport:::.ct_icons(TRUE)$green, "[OK]"))
-  expect_match(camtrapReport:::.format_area(0.5), "m")
-  expect_match(camtrapReport:::.format_area(50), "km")
-  expect_match(camtrapReport:::.format_area(5000), "km")
-  expect_identical(camtrapReport:::.round_capture_metric(c(1.234, NA)), c(1.23, NA))
+  expect_identical(ct_internal(".ct_icons")(FALSE)$green, "[OK]")
+  expect_false(identical(ct_internal(".ct_icons")(TRUE)$green, "[OK]"))
+  expect_match(ct_internal(".format_area")(0.5), "m")
+  expect_match(ct_internal(".format_area")(50), "km")
+  expect_match(ct_internal(".format_area")(5000), "km")
   expect_identical(
-    camtrapReport:::.pick_station_col(list(
+    ct_internal(".round_capture_metric")(c(1.234, NA)),
+    c(1.23, NA)
+  )
+  expect_identical(
+    ct_internal(".pick_station_col")(list(
       locations = NULL,
-      deployments = data.frame(locationID = "A")
+      deployments = data.frame(locationID = "A", stringsAsFactors = FALSE)
     )),
     "locationID"
   )

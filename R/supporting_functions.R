@@ -6,7 +6,11 @@
 # Effort = deployment duration
 # Returns both effort in requested units and raw seconds
 # ------------------------------------------------------------------
-.calc_effort <- function(x, by = NULL, unit = c("day", "hour", "minute", "second", "week")) {
+.calc_effort <- function(
+  x,
+  by = NULL,
+  unit = c("day", "hour", "minute", "second", "week")
+) {
   unit <- match.arg(unit)
   
   dep <- x$deployments
@@ -15,17 +19,22 @@
   # start_col <- .first_existing(dep, c("deploymentStart", "start"))
   # end_col   <- .first_existing(dep, c("deploymentEnd", "end"))
   
+  # nolint start: line_length_linter.
   dep <- .eval('dep |>
     dplyr::mutate(
       effort_seconds = as.numeric(difftime(.data[["deploymentEnd"]], .data[["deploymentStart"]], units = "secs"))
     ) |>
     dplyr::filter(!is.na(.data$effort_seconds), .data$effort_seconds >= 0)',environment())
+  # nolint end
   
   if (!is.null(x$locations) &&
       nrow(x$locations) > 0 &&
       "locationID" %in% names(dep) &&
       "locationID" %in% names(x$locations)) {
-    dep <- .eval('dplyr::left_join(dep, x$locations, by = "locationID", multiple = "all")',environment())
+    dep <- .eval(
+      'dplyr::left_join(dep, x$locations, by = "locationID", multiple = "all")',
+      environment()
+    )
   }
   
   divisor <- c(
@@ -53,7 +62,7 @@
     if (length(missing_by) > 0) {
       stop(
         "Grouping columns not found in deployments/locations: ",
-        paste(missing_by, collapse = ", ")
+        toString(missing_by)
       )
     }
     
@@ -72,7 +81,8 @@
 
 
 #---------------
-# a customised version of the merige_tibbles in the ctdp package (developed by: Henjo de Knegt)
+# a customised version of the merige_tibbles in the ctdp package
+# (developed by: Henjo de Knegt)
 .merge_data <- function(x, dropMedia = TRUE) {
   
   keys <- list(
@@ -134,11 +144,11 @@
     missing_rhs <- setdiff(by, names(rhs))
     
     if (length(missing_lhs) > 0) {
-      stop("Missing join column(s) in left table: ", paste(missing_lhs, collapse = ", "))
+      stop("Missing join column(s) in left table: ", toString(missing_lhs))
     }
     
     if (length(missing_rhs) > 0) {
-      stop("Missing join column(s) in right table: ", paste(missing_rhs, collapse = ", "))
+      stop("Missing join column(s) in right table: ", toString(missing_rhs))
     }
     
     lhs_id <- ".camr_lhs_row_id__"
@@ -232,28 +242,49 @@
   
   #---------------- select columns ----------------
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$media], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$media],
+    use.names = FALSE
+  )
   y1 <- .drop_any_of(x$media, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$sequences], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$sequences],
+    use.names = FALSE
+  )
   y2 <- .drop_any_of(x$sequences, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$observations], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$observations],
+    use.names = FALSE
+  )
   y3 <- .drop_any_of(x$observations, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$deployments], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$deployments],
+    use.names = FALSE
+  )
   y4 <- .drop_any_of(x$deployments, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$locations], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$locations],
+    use.names = FALSE
+  )
   y5 <- .drop_any_of(x$locations, as.character(omitKeys))
   
-  omitKeys <- unlist(keys[!names(keys) %in% linkStructure$taxonomy], use.names = FALSE)
+  omitKeys <- unlist(
+    keys[!names(keys) %in% linkStructure$taxonomy],
+    use.names = FALSE
+  )
   y6 <- .drop_any_of(x$taxonomy, as.character(omitKeys))
   
   #---------------- nested media, only when requested ----------------
   
   if (!dropMedia) {
-    omitKeys <- unlist(keys[!names(keys) %in% linkStructure$media], use.names = FALSE)
+    omitKeys <- unlist(
+      keys[!names(keys) %in% linkStructure$media],
+      use.names = FALSE
+    )
     
     lc_media <- .drop_any_of(x$media, as.character(omitKeys))
     lc_media <- .move_to_front(lc_media, "sequenceID")
@@ -267,7 +298,12 @@
   y <- .safe_left_join(y, y5, by = keys$locations)
   y <- .safe_left_join(y, y6, by = keys$taxonomy)
   
-  key_order <- as.character(unlist(keys[names(keys) != "media"], use.names = FALSE))
+  key_order <- as.character(
+    unlist(
+      keys[names(keys) != "media"],
+      use.names = FALSE
+    )
+  )
   key_order <- key_order[key_order %in% names(y)]
   
   y <- .move_to_front(y, key_order)
@@ -305,7 +341,8 @@
 
 #-----------
 # x: list of camera-trap data.frames
-# only_species -> T (exclude families, etc., keeps only species with names at the species level)
+# only_species -> T (exclude families, etc., keeps only species
+# with names at the species level)
 # exlude_sp. -> T (exclude names with pattern "genus_name sp.")
 .get_species <- function(x,count=TRUE,only_species=TRUE,exclude_sp.=TRUE) {
   .x <- table(x$observations$scientificName)
@@ -345,8 +382,19 @@
                       class = NULL,
                       species = NULL,
                       by = NULL,
-                      capture_unit = c("auto", "event", "sequence", "observation"),
-                      effort_unit = c("day", "hour", "minute", "second", "week"),
+                      capture_unit = c(
+                        "auto",
+                        "event",
+                        "sequence",
+                        "observation"
+                      ),
+                      effort_unit = c(
+                        "day",
+                        "hour",
+                        "minute",
+                        "second",
+                        "week"
+                      ),
                       rate_multiplier = 100) {
   
   capture_unit <- match.arg(capture_unit)
@@ -515,7 +563,11 @@
   )
   
   if (!id_col %in% names(y)) {
-    stop("Capture unit '", capture_unit, "' is not available in the merged data.")
+    stop(
+      "Capture unit '",
+      capture_unit,
+      "' is not available in the merged data."
+    )
   }
   
   tax_cols <- intersect(
@@ -536,7 +588,7 @@
   if (length(missing_group_cols) > 0) {
     stop(
       "Grouping column(s) not found in merged data: ",
-      paste(missing_group_cols, collapse = ", ")
+      toString(missing_group_cols)
     )
   }
   
@@ -592,13 +644,19 @@
   
   if (is.null(by)) {
     
-    effort_value <- if ("effort" %in% names(effort_tbl) && nrow(effort_tbl) > 0) {
+    effort_value <- if (
+      "effort" %in% names(effort_tbl) &&
+        nrow(effort_tbl) > 0
+    ) {
       effort_tbl[["effort"]][1]
     } else {
       NA_real_
     }
     
-    effort_day_value <- if ("effort_days" %in% names(effort_day) && nrow(effort_day) > 0) {
+    effort_day_value <- if (
+      "effort_days" %in% names(effort_day) &&
+        nrow(effort_day) > 0
+    ) {
       effort_day[["effort_days"]][1]
     } else {
       NA_real_
@@ -625,7 +683,8 @@
   
   if ("individuals" %in% names(cap)) {
     cap[["individual_rate"]] <- cap[["individuals"]] / cap[["effort"]]
-    cap[["individual_rai"]] <- rate_multiplier * cap[["individuals"]] / cap[["effort_days"]]
+    cap[["individual_rai"]] <-
+      rate_multiplier * cap[["individuals"]] / cap[["effort_days"]]
   }
   
   rownames(cap) <- NULL
@@ -636,18 +695,28 @@
 
 #---------
 # adjusted from the package camtrapDensity:
-# copied (and adjusted) from the fit_detmodel function in the camtrapDensity package:
-.fit_detmodel <- function (formula, dat, species = NULL, newdata = NULL, unit = c("m", "km", "cm", "degree", "radian"), ...) {
+# copied (and adjusted) from the fit_detmodel function
+# in the camtrapDensity package:
+.fit_detmodel <- function (
+  formula,
+  dat,
+  species = NULL,
+  newdata = NULL,
+  unit = c("m", "km", "cm", "degree", "radian"),
+  ...
+) {
   unit <- match.arg(unit)
   allvars <- all.vars(formula)
   depvar <- allvars[1]
   covars <- tail(allvars, -1)
   
   if (is.null(species)) stop('species is not specified!')
-  else if (!species %in% dat$scientificName) stop('species is not available in the dataset!')
+  else if (!species %in% dat$scientificName)
+    stop('species is not available in the dataset!')
   
   #dat <- package$data$observations
-  if (!all(allvars %in% names(dat))) stop("Can't find all model variables in data")
+  if (!all(allvars %in% names(dat)))
+    stop("Can't find all model variables in data")
   
   #if ("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   if ("useDeployment" %in% names(dat)) {
@@ -673,7 +742,14 @@
   type <- if (unit %in% c("m", "km", "cm")) "point" else "line"
   args <- c(list(data = dat, formula = formula[-2], transect = type), list(...))
   
-  mod <- suppressWarnings(suppressMessages(.eval('do.call(Distance::ds,args)$ddf',environment())))
+  mod <- suppressWarnings(
+    suppressMessages(
+      .eval(
+        'do.call(Distance::ds,args)$ddf',
+        environment()
+      )
+    )
+  )
   
   if (length(covars) == 0) newdata <- data.frame(x = 0)
   else {
@@ -704,28 +780,57 @@
 
 #-----------------
 # adjusted from the package camtrapDensity:
-.fit_speedmodel <- function (dat, species = NULL, newdata = NULL, formula=speed~1,
-                             reps = 1000, distUnit = c("m", "km", "cm"), timeUnit = c("second", "minute", "hour", "day"), ...) {
+.fit_speedmodel <- function (
+  dat,
+  species = NULL,
+  newdata = NULL,
+  formula = speed ~ 1,
+  reps = 1000,
+  distUnit = c("m", "km", "cm"),
+  timeUnit = c("second", "minute", "hour", "day"),
+  ...
+) {
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
   varnms <- 'speed'
   
-  dat <- dat[dat$scientificName %in% species & dat$speed > 0.01 & dat$speed < 10,varnms,drop=FALSE]
+  dat <- dat[
+    dat$scientificName %in% species &
+      dat$speed > 0.01 &
+      dat$speed < 10,
+    varnms,
+    drop = FALSE
+  ]
   dat <- as.data.frame(na.omit(dat))
   if (nrow(dat) == 0) stop("There are no usable speed data")
   
   args <- c(list(formula = formula,data=dat),list(...))
   res <- .eval('do.call(sbd::sbm,args)',environment())
   
-  res$unit <- paste(distUnit, timeUnit, sep = "/")
+  res$unit <- paste0(distUnit, "/", timeUnit) # nolint
   res
 }
 #-------------
 # adjusted from the package camtrapDensity:
-.fit_actmodel <- function (dat, species = NULL, reps = 999, obsdef = c("individual","sequence")) {
+.fit_actmodel <- function (
+  dat,
+  species = NULL,
+  reps = 999,
+  obsdef = c("individual", "sequence")
+) {
   obsdef <- match.arg(obsdef)
   
-  obs <- dat[dat$scientificName %in% species,c("deploymentID","sequenceID", "timestamp",  "latitude", "longitude","count")]
+  obs <- dat[
+    dat$scientificName %in% species,
+    c(
+      "deploymentID",
+      "sequenceID",
+      "timestamp",
+      "latitude",
+      "longitude",
+      "count"
+    )
+  ]
   
   i <- switch(
     obsdef,
@@ -736,16 +841,26 @@
   obs <- obs[i, ]
   
   if (nrow(obs) > 1) {
-    suntimes <- .eval('activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',environment())
+    suntimes <- .eval(
+      'activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',
+      environment()
+    )
     timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
     
-    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment())
+    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment()) # nolint: line_length_linter.
+    # nolint start: line_length_linter.
     obs$solartime <- .eval('with(obs,
           activity::wrap(
             activity::solartime(timestamp, latitude, longitude, 0)$solar + timeshift
           ))',environment())
+    # nolint end
     
-    .eval('activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',environment())
+    # nolint start: line_length_linter.
+    .eval(
+      'activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',
+      environment()
+    )
+    # nolint end
   }
   else NULL
 }
@@ -771,10 +886,10 @@
     missing_y <- setdiff(by, names(y))
     
     if (length(missing_x) > 0) {
-      stop("Missing join column(s) in x: ", paste(missing_x, collapse = ", "))
+      stop("Missing join column(s) in x: ", toString(missing_x))
     }
     if (length(missing_y) > 0) {
-      stop("Missing join column(s) in y: ", paste(missing_y, collapse = ", "))
+      stop("Missing join column(s) in y: ", toString(missing_y))
     }
     
     row_id <- ".camr_row_id__"
@@ -834,7 +949,7 @@
   if (length(missing_obs) > 0) {
     stop(
       "Missing required column(s) in dat$observations: ",
-      paste(missing_obs, collapse = ", ")
+      toString(missing_obs)
     )
   }
   
@@ -904,7 +1019,7 @@
   if (length(missing_res) > 0) {
     stop(
       "Missing required column(s) after joins: ",
-      paste(missing_res, collapse = ", ")
+      toString(missing_res)
     )
   }
   
@@ -939,7 +1054,14 @@
 }
 #-------
 # adjusted from the package camtrapDensity:
-.get_parameter_table <- function (traprate_data, radius_model, angle_model, speed_model, activity_model, reps = 999) {
+.get_parameter_table <- function (
+  traprate_data,
+  radius_model,
+  angle_model,
+  speed_model,
+  activity_model,
+  reps = 999
+) {
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
   spd <- dplyr::select(speed_model$estimate, dplyr::all_of(c("est", "se")))
@@ -955,9 +1077,24 @@
   res$n <- c(nrow(radius_model$data), nrow(angle_model$data), 
              nrow(speed_model$data), length(activity_model@data), 
              NA)
-  res$unit <- c(radius_model$unit, angle_model$unit, speed_model$unit, "none", speed_model$unit)
-  rownames(res) <- c("radius", "angle", "active_speed", "activity_level", "overall_speed")
-  traprate <- .eval('camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',environment())
+  res$unit <- c(
+    radius_model$unit,
+    angle_model$unit,
+    speed_model$unit,
+    "none",
+    speed_model$unit
+  )
+  rownames(res) <- c(
+    "radius",
+    "angle",
+    "active_speed",
+    "activity_level",
+    "overall_speed"
+  )
+  traprate <- .eval(
+    'camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',
+    environment()
+  )
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
@@ -1011,21 +1148,32 @@
 .rem <- function (parameters) {
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
-  if (!all(required_rows %in% rownames(parameters)) | !all(required_cols %in% colnames(parameters))) 
+  if (
+    !all(required_rows %in% rownames(parameters)) |
+      !all(required_cols %in% colnames(parameters))
+  )
     stop(
       "parameters must have (at least) row names: ",
       toString(required_rows),
       " ;\nand (at least) column names: ",
       toString(required_cols)
     )
-  param <- .eval("camtrapDensity::convert_units(parameters[required_rows, ])",environment())
+  param <- .eval(
+    "camtrapDensity::convert_units(parameters[required_rows, ])",
+    environment()
+  )
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
   CVs <- param$se/wtd_est
   density <- pi * prod(pwr_est)
   cv <- sqrt(sum(CVs^2))
   se <- density * cv
-  ci <- unname(.eval("camtrapDensity::lnorm_confint(density, se)",environment()))
+  ci <- unname(
+    .eval(
+      "camtrapDensity::lnorm_confint(density, se)",
+      environment()
+    )
+  )
   parameters["density", "estimate"] <- density
   parameters["density", "se"] <- se
   if ("cv" %in% names(parameters)) parameters["density", "cv"] <- cv
@@ -1055,14 +1203,18 @@
     m$title <- m$name
   }
   
-  if (!is.null(m$parent) && identical(tolower(as.character(m$parent)), "null")) m$parent <- NULL
+  if (
+    !is.null(m$parent) &&
+      identical(tolower(as.character(m$parent)), "null")
+  ) m$parent <- NULL
   
   m
 }
 #------
 
 
-# the following, reads the setting lines (setting, name, packages, etc.) in the code
+# the following, reads the setting lines
+# (setting, name, packages, etc.) in the code
 # the setting lines in the template can be started with #|
 #   #| setting: echo=FALSE, results='asis'
 #   #| packages: echo=FALSE, results='asis'
@@ -1122,25 +1274,46 @@
     f$title <- .w
   } else .h <- 1
   #-----
-  .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
+  .txt <- .getTextObj(
+    name = f$name,
+    title = f$title,
+    parent = f$parent,
+    headLevel = .h,
+    txt = f$text
+  )
   
-  if (length(which(grepl('code', names(f), fixed = TRUE))) == 1 && is.null(f[[which(grepl('code', names(f), fixed = TRUE))]])) {
+  .w <- grep(
+    "code",
+    names(f),
+    fixed = TRUE
+  )
+  
+  if (length(.w) == 1L && is.null(f[[.w]])) {
     return(.txt)
-  } else if (length(which(grepl('code', names(f), fixed = TRUE))) > 0) {
+  } else if (length(.w) > 0L) {
     codeList <- list()
-    .w <- which(grepl('code', names(f), fixed = TRUE))
+    
     for (i in .w) {
       
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
       #---
       if (!is.null(code)) {
-        if (is.null(code$setting$name)) code$setting$name <- paste0(f$name,'__code')
+        if (is.null(code$setting$name)) code$setting$name <-
+          paste0(f$name,'__code')
         else code$setting$name <- paste0(f$name,'__',code$setting$name)
         #---
-        if (!is.null(code$setting$setting)) code$setting$setting <- paste(code$setting$setting,collapse = ', ')
+        if (!is.null(code$setting$setting)) code$setting$setting <-
+          toString(code$setting$setting)
         else code$setting$setting <- NULL
         
-        codeList[[code$setting$name]] <- new('.Rchunk',parent = f$name,name = code$setting$name,setting = code$setting$setting,packages=code$setting$packages,code=code$code)
+        codeList[[code$setting$name]] <- new(
+          '.Rchunk',
+          parent = f$name,
+          name = code$setting$name,
+          setting = code$setting$setting,
+          packages = code$setting$packages,
+          code = code$code
+        )
       }
     }
     #---
@@ -1219,7 +1392,10 @@
   
   z <- na.omit(z)
   if (dynamic) {
-    series <- .eval('xts(z$nrCams, order.by = z$time, tz = "GMT")',env=environment())
+    series <- .eval(
+      'xts(z$nrCams, order.by = z$time, tz = "GMT")',
+      env = environment()
+    )
     .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |> 
       dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
       dyRangeSelector()",env=environment())
@@ -1235,10 +1411,18 @@
 #--------
 .left_join <- function(d1,d2,by) {
   if (length(by) == 1) {
-    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
+    if (
+      !by %in% colnames(d1) &
+        by %in% colnames(d2)
+    )
+      stop('the "by" column does not exist in both data!')
     merge(d1,d2,by=by,all.x=TRUE)
   } else if (length(by) == 2) {
-    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
+    if (
+      !by[1] %in% colnames(d1) &
+        by[2] %in% colnames(d2)
+    )
+      stop('the "by" columns do not exist in the data!')
     merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
   }
 }
@@ -1312,7 +1496,12 @@
   
   names_from  <- .parse_colspec(names_from_expr,  data, caller_env)
   values_from <- .parse_colspec(values_from_expr, data, caller_env)
-  id_cols     <- .parse_colspec(id_cols_expr,     data, caller_env, allow_null = TRUE)
+  id_cols <- .parse_colspec(
+    id_cols_expr,
+    data,
+    caller_env,
+    allow_null = TRUE
+  )
   
   if (length(names_from) != 1L) {
     stop("'names_from' should specify exactly one column.")
@@ -1381,7 +1570,7 @@
   ml <- list_Modules()
   ml <- ml[ml$name %in% n,]
   #-----
-  .x <- c()
+  .x <- NULL
   for (i in seq_len(nrow(ml))) {
     if (ml$parent[i] == '.root') next
     else if (ml$parent[i] %in% ml$name) next
@@ -1441,7 +1630,10 @@
       nn <- cm$reportObjectElements$Status_modules_info$name
       n <- nn[nn %in% n]
       
-      if (length(n) == 0) stop('No data status modules (status_report sections) are selected!')
+      if (length(n) == 0)
+        stop(
+          'No data status modules (status_report sections) are selected!'
+        )
     }
   }
   #------

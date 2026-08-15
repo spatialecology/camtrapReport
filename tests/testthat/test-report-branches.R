@@ -163,6 +163,7 @@ test_that("report falls back from a nonexistent requested directory", {
   )
   
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     output <- report(
       cm,
       filename = requested_file,
@@ -219,6 +220,7 @@ test_that("status falls back from a nonexistent requested directory", {
   )
   
   expect_warning(
+    # nolint next: implicit_assignment_linter.
     output <- status(
       cm,
       filename = requested_file,
@@ -267,11 +269,12 @@ test_that("report sends the generated file to the configured viewer", {
     )
   )
   
-  viewed_file <- NULL
+  viewer_state <- new.env(parent = emptyenv())
+  viewer_state$file <- NULL
   
   old_options <- options(
     viewer = function(path) {
-      viewed_file <<- path
+      viewer_state$file <- path
     }
   )
   
@@ -281,6 +284,7 @@ test_that("report sends the generated file to the configured viewer", {
   )
   
   expect_message(
+    # nolint next: implicit_assignment_linter.
     output <- report(
       cm,
       filename = "viewer-report",
@@ -291,7 +295,7 @@ test_that("report sends the generated file to the configured viewer", {
   )
   
   expect_identical(
-    normalise_test_path(viewed_file),
+    normalise_test_path(viewer_state$file),
     normalise_test_path(output)
   )
   
@@ -325,11 +329,12 @@ test_that("status sends the generated file to the configured viewer", {
     )
   )
   
-  viewed_file <- NULL
+  viewer_state <- new.env(parent = emptyenv())
+  viewer_state$file <- NULL
   
   old_options <- options(
     viewer = function(path) {
-      viewed_file <<- path
+      viewer_state$file <- path
     }
   )
   
@@ -339,6 +344,7 @@ test_that("status sends the generated file to the configured viewer", {
   )
   
   expect_message(
+    # nolint next: implicit_assignment_linter.
     output <- status(
       cm,
       filename = "viewer-status",
@@ -348,7 +354,7 @@ test_that("status sends the generated file to the configured viewer", {
   )
   
   expect_identical(
-    normalise_test_path(viewed_file),
+    normalise_test_path(viewer_state$file),
     normalise_test_path(output)
   )
   

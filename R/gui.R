@@ -151,7 +151,7 @@ setMethod("gui",signature(object = "camReport"),
     if (is.null(x) || length(x) == 0) return("")
     x <- as.character(x)
     x <- x[!is.na(x)]
-    paste(x, collapse = ", ")
+    toString(x)
   }
 
   .copy_upload <- function(upload) {
@@ -173,7 +173,10 @@ setMethod("gui",signature(object = "camReport"),
     )
 
     if (!isTRUE(ok)) {
-      stop("Could not copy the uploaded file to temporary storage.", call. = FALSE)
+      stop(
+        "Could not copy the uploaded file to temporary storage.",
+        call. = FALSE
+      )
     }
 
     normalizePath(out, winslash = "/", mustWork = TRUE)
@@ -334,7 +337,8 @@ setMethod("gui",signature(object = "camReport"),
     if (!is.data.frame(obs) || !"scientificName" %in% names(obs)) {
       return(data.frame(
         scientificName = character(),
-        records = integer()
+        records = integer(),
+        stringsAsFactors = FALSE
       ))
     }
 
@@ -641,7 +645,10 @@ setMethod("gui",signature(object = "camReport"),
               shiny::h3("Create or update focus group"),
 
               shiny::p(
-                "Define a group using one field. Typical fields are scientificName, class, order, or observationType."
+                paste0(
+                  "Define a group using one field. Typical fields are ",
+                  "scientificName, class, order, or observationType."
+                )
               ),
 
               shiny::textInput(
@@ -653,7 +660,12 @@ setMethod("gui",signature(object = "camReport"),
               shiny::selectInput(
                 "group_field",
                 "Field used to define the group",
-                choices = c("scientificName", "class", "order", "observationType"),
+                choices = c(
+                  "scientificName",
+                  "class",
+                  "order",
+                  "observationType"
+                ),
                 selected = "scientificName"
               ),
 
@@ -673,7 +685,9 @@ setMethod("gui",signature(object = "camReport"),
             shiny::div(
               class = "card",
               shiny::h3("Unique species in the dataset"),
-              shiny::p("This table is read directly from the loaded camReport object."),
+              shiny::p(
+                "This table is read directly from the loaded camReport object."
+              ),
               shiny::tableOutput("species_table")
             )
           ),
@@ -741,8 +755,11 @@ setMethod("gui",signature(object = "camReport"),
               ),
 
               shiny::p(
-                "Choose where generated reports and saved objects should be written. ",
-                "The session temporary directory is used by default."
+                paste0(
+                  "Choose where generated reports and saved objects ",
+                  "should be written. ",
+                  "The session temporary directory is used by default."
+                )
               ),
 
               shiny::actionButton(
@@ -781,11 +798,31 @@ setMethod("gui",signature(object = "camReport"),
       inf <- .get_info(cm)
 
       shiny::updateTextInput(session, "meta_title", value = inf$title %||% "")
-      shiny::updateTextInput(session, "meta_subtitle", value = inf$subtitle %||% "")
-      shiny::updateTextInput(session, "meta_authors", value = inf$authors %||% "")
-      shiny::updateTextInput(session, "meta_institute", value = inf$institute %||% "")
-      shiny::updateTextInput(session, "meta_siteName", value = inf$siteName %||% "")
-      shiny::updateTextInput(session, "meta_logoPath", value = inf$logoPath %||% "")
+      shiny::updateTextInput(
+        session,
+        "meta_subtitle",
+        value = inf$subtitle %||% ""
+      )
+      shiny::updateTextInput(
+        session,
+        "meta_authors",
+        value = inf$authors %||% ""
+      )
+      shiny::updateTextInput(
+        session,
+        "meta_institute",
+        value = inf$institute %||% ""
+      )
+      shiny::updateTextInput(
+        session,
+        "meta_siteName",
+        value = inf$siteName %||% ""
+      )
+      shiny::updateTextInput(
+        session,
+        "meta_logoPath",
+        value = inf$logoPath %||% ""
+      )
 
       shiny::updateTextAreaInput(
         session,
@@ -971,10 +1008,10 @@ setMethod("gui",signature(object = "camReport"),
           "Site: ", .safe(cm$siteName, "unknown"),
           shiny::br(),
           "Focus group: ",
-          paste(.safe(cm$setting$focus_groups, "unknown"), collapse = ", "),
+          toString(.safe(cm$setting$focus_groups, "unknown")),
           shiny::br(),
           "Years: ",
-          paste(.safe(cm$years, "not set"), collapse = ", "),
+          toString(.safe(cm$years, "not set")),
           shiny::br(),
           "Filter count: ",
           .safe(cm$filterCount, "not set")

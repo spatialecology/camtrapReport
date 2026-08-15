@@ -18,7 +18,7 @@
   if (length(x) == 2) return(paste(x, collapse = " and "))
   
   paste0(
-    paste(x[-length(x)], collapse = ", "),
+    toString(x[-length(x)]),
     ", and ",
     x[length(x)]
   )
@@ -88,7 +88,12 @@
 .format_duration <- function(seconds) {
   seconds <- suppressWarnings(as.numeric(seconds))
   
-  if (length(seconds) == 0 || is.na(seconds) || !is.finite(seconds) || seconds < 0) {
+  if (
+    length(seconds) == 0 ||
+      is.na(seconds) ||
+      !is.finite(seconds) ||
+      seconds < 0
+  ) {
     return("unknown time")
   }
   
@@ -141,7 +146,12 @@
 #--------
 
 .estimate_camdata_size <- function(data) {
-  if (is.null(data) || length(data) == 0 || is.na(data[1]) || !file.exists(data[1])) {
+  if (
+    is.null(data) ||
+      length(data) == 0 ||
+      is.na(data[1]) ||
+      !file.exists(data[1])
+  ) {
     return(list(
       file_size = NA_real_,
       file_size_label = "unknown size",
@@ -177,7 +187,12 @@
     }
   }
   
-  effective_size <- suppressWarnings(max(c(file_size, zip_uncompressed_size), na.rm = TRUE))
+  effective_size <- suppressWarnings(
+    max(
+      c(file_size, zip_uncompressed_size),
+      na.rm = TRUE
+    )
+  )
   
   if (!is.finite(effective_size)) {
     effective_size <- NA_real_
@@ -226,15 +241,32 @@
   }
   
   if (identical(size_info$size_class, "small")) {
-    message("File size looks modest, but full object creation may still take several minutes depending on the number of records.")
+    message(
+      "File size looks modest, but full object creation may still take ",
+      "several minutes depending on the number of records."
+    )
   } else if (identical(size_info$size_class, "medium")) {
-    message("This may take several minutes. Progress updates will be shown below.")
+    message(
+      "This may take several minutes. ",
+      "Progress updates will be shown below."
+    )
   } else if (identical(size_info$size_class, "large")) {
-    message("This is a large dataset. Object creation may take some time. Progress updates will be shown below.")
+    message(
+      "This is a large dataset. Object creation may take some time. ",
+      "Progress updates will be shown below."
+    )
   } else if (identical(size_info$size_class, "very_large")) {
-    message("This is a very large dataset. Please keep R running; creating the camReport object may take some time. Progress updates will be shown below.")
+    message(
+      "This is a very large dataset. Please keep R running; ",
+      "creating the camReport object may take some time. ",
+      "Progress updates will be shown below."
+    )
   } else {
-    message("Creating the camReport object may take some time, depending on file size, number of records, and enabled analyses. Progress updates will be shown below.")
+    message(
+      "Creating the camReport object may take some time, depending ",
+      "on file size, number of records, and enabled analyses. ",
+      "Progress updates will be shown below."
+    )
   }
   
   invisible(size_info)
@@ -245,7 +277,12 @@
 .camdata_done_message <- function(start_time, site_name = NULL) {
   elapsed <- difftime(Sys.time(), start_time, units = "secs")
   
-  if (is.null(site_name) || length(site_name) == 0 || is.na(site_name[1]) || !nzchar(site_name[1])) {
+  if (
+    is.null(site_name) ||
+      length(site_name) == 0 ||
+      is.na(site_name[1]) ||
+      !nzchar(site_name[1])
+  ) {
     site_name <- "your study site"
   }
   
@@ -331,7 +368,11 @@
 
 #--------
 
-.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
+.make_safe_module_code <- function(
+  code,
+  module_name = NULL,
+  show_note_in_report = TRUE
+) {
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
     return("")
   }
@@ -486,7 +527,15 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        .eval(
+          paste0(
+            "taxize::get_gbifid(x, rows = 1, ask = FALSE, ",
+            "messages = FALSE)"
+          ),
+          environment()
+        )
+      ),
       silent = TRUE
     )
     
@@ -499,7 +548,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "gbif")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -517,7 +572,7 @@
       x <- x[-w]
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else if (is.data.frame(z) && nrow(z) >= 3) {
@@ -525,9 +580,9 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else if (is.data.frame(z) && nrow(z) >= 4) {
@@ -535,7 +590,7 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
@@ -567,7 +622,15 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        .eval(
+          paste0(
+            "taxize::get_uid(x, rows = 1, ask = FALSE, ",
+            "messages = FALSE)"
+          ),
+          environment()
+        )
+      ),
       silent = TRUE
     )
     
@@ -580,7 +643,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "ncbi")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -591,21 +660,21 @@
       ))
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
@@ -824,27 +893,27 @@
     stop("The terra package is required for spatial projection.")
   }
   
-  if (!.is.projected(x)) {
-    cen <- colMeans(terra::crds(x), na.rm = TRUE)
-    
-    lon <- cen[1]
-    lat <- cen[2]
-    
-    if (abs(lat) <= 84) {
-      .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
-      .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-      terra::project(x, paste0("EPSG:", .epsg))
-    } else {
-      proj4 <- sprintf(
-        "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
-        lat,
-        lon
-      )
-      
-      terra::project(x, proj4)
-    }
+  if (.is.projected(x)) {
+    return(x)
+  }
+
+  cen <- colMeans(terra::crds(x), na.rm = TRUE)
+
+  lon <- cen[1]
+  lat <- cen[2]
+
+  if (abs(lat) <= 84) {
+    .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
+    .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
+    terra::project(x, paste0("EPSG:", .epsg))
   } else {
-    x
+    proj4 <- sprintf(
+      "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
+      lat,
+      lon
+    )
+
+    terra::project(x, proj4)
   }
 }
 
@@ -858,7 +927,7 @@
   if (is.null(y)) {
     x <- as.character(x)
     
-    out <- sapply(x, function(z) {
+    out <- vapply(x, function(z) {
       if (is.na(z) || !nzchar(z) || !grepl("--", z, fixed = TRUE)) {
         return(NA_real_)
       }
@@ -877,7 +946,7 @@
       }
       
       as.numeric(difftime(end, start, units = unit))
-    })
+    }, numeric(1))
     
     names(out) <- NULL
     out
@@ -957,7 +1026,13 @@
   o <- logical(length(.dtFormats))
   
   for (i in seq_along(.dtFormats)) {
-    parsed <- suppressWarnings(as.POSIXct(x, format = .dtFormats[i], tz = "UTC"))
+    parsed <- suppressWarnings(
+      as.POSIXct(
+        x,
+        format = .dtFormats[i],
+        tz = "UTC"
+      )
+    )
     o[i] <- !anyNA(parsed)
   }
   
@@ -1014,31 +1089,31 @@
     return(NA)
   }
   
-  if (!case_sensitive) {
+  if (case_sensitive) {
+    xx <- try(match.arg(x, y, several.ok = several), silent = TRUE)
+
+    if (inherits(xx, "try-error")) {
+      NA
+    } else {
+      xx
+    }
+  } else {
     .x <- tolower(x)
     .y <- tolower(y)
-    
+
     .yy <- try(match.arg(.x, .y, several.ok = several), silent = TRUE)
-    
-    if (!inherits(.yy, "try-error")) {
+
+    if (inherits(.yy, "try-error")) {
+      NA
+    } else {
       o <- character()
-      
+
       for (n in .yy) {
         w <- which(.y == n)
         o <- c(o, y[w])
       }
-      
+
       o
-    } else {
-      NA
-    }
-  } else {
-    xx <- try(match.arg(x, y, several.ok = several), silent = TRUE)
-    
-    if (!inherits(xx, "try-error")) {
-      xx
-    } else {
-      NA
     }
   }
 }
@@ -1047,7 +1122,11 @@
 
 .file_info <- function(x) {
   if (is.null(x) || length(x) == 0 || is.na(x[1])) {
-    return(list(path = ".", filename = NA_character_, extension = NA_character_))
+    return(list(
+      path = ".",
+      filename = NA_character_,
+      extension = NA_character_
+    ))
   }
   
   x <- as.character(x[1])
@@ -1101,7 +1180,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .charN, space = space))
+    return(vapply(x, .charN, numeric(1), space = space))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {
@@ -1128,7 +1207,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .wordN))
+    return(vapply(x, .wordN, numeric(1)))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {
@@ -1209,5 +1288,5 @@
   if (length(x) == 1) return(x)
   if (length(x) == 2) return(paste(x, collapse = " and "))
   
-  paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
+  paste0(toString(x[-length(x)]), ", and ", x[length(x)])
 }

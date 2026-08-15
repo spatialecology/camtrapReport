@@ -60,6 +60,7 @@ camtrap_test_report <- function() {
     
     invisible(
       capture.output(
+        # nolint next: implicit_assignment_linter.
         object <- withCallingHandlers(
           suppressMessages(
             camData(

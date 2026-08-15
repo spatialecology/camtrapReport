@@ -287,7 +287,7 @@ setMethod(
       if (length(failed_packages) > 0L) {
         cat(
           "The following packages could not be installed:\n",
-          paste(failed_packages, collapse = ", "),
+          toString(failed_packages),
           "\n",
           sep = ""
         )
@@ -391,7 +391,7 @@ setMethod(
     if (length(failed_packages) > 0L) {
       cat(
         "The following packages could not be installed:\n",
-        paste(failed_packages, collapse = ", "),
+        toString(failed_packages),
         "\n",
         sep = ""
       )

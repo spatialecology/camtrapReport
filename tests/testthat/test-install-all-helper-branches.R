@@ -1,5 +1,5 @@
 test_that("is.installed preserves input order and names", {
-  result <- camtrapReport:::.is.installed(
+  result <- ct_internal(".is.installed")(
     c(
       "methods",
       "nonexistent_package_987654",
@@ -24,7 +24,7 @@ test_that("is.installed preserves input order and names", {
 
 
 test_that("is.installed handles duplicate and invalid values", {
-  result <- camtrapReport:::.is.installed(
+  result <- ct_internal(".is.installed")(
     c(
       "methods",
       "methods",
@@ -42,7 +42,7 @@ test_that("is.installed handles duplicate and invalid values", {
 
 
 test_that("package loader handles empty and valid package groups", {
-  result <- camtrapReport:::.loadLib(
+  result <- ct_internal(".loadLib")(
     list(
       character(),
       "methods",
@@ -58,9 +58,9 @@ test_that("package loader handles empty and valid package groups", {
 
 
 test_that("package configuration helpers return stable vectors", {
-  package_list <- camtrapReport:::.getPackageList()
-  github_list <- camtrapReport:::.getPackageGitHubList()
-  gitlab_list <- camtrapReport:::.getPackageGitLabList()
+  package_list <- ct_internal(".getPackageList")()
+  github_list <- ct_internal(".getPackageGitHubList")()
+  gitlab_list <- ct_internal(".getPackageGitLabList")()
   
   expect_type(package_list, "character")
   expect_false(anyNA(package_list))
@@ -72,11 +72,11 @@ test_that("package configuration helpers return stable vectors", {
 
 
 test_that("require helper rejects invalid package names", {
-  require_package <- camtrapReport:::.require
+  require_package <- ct_internal(".require")
   
   expect_false(require_package(character()))
   test_that("require helper handles valid and invalid package names", {
-    require_package <- camtrapReport:::.require
+    require_package <- ct_internal(".require")
     
     expect_false(require_package(character()))
     expect_false(require_package(NA_character_))
@@ -106,7 +106,7 @@ test_that("eval helper evaluates code in supplied environment", {
   env$x <- 4
   
   expect_identical(
-    camtrapReport:::.eval(
+    ct_internal(".eval")(
       "x * 3",
       env
     ),

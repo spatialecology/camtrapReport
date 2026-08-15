@@ -45,7 +45,9 @@ setGeneric(
 #'
 #' sections(x, n)
 #' @name section_names
-#' @aliases section_names sections section_names,ANY-method sections,camReport-method
+#' @aliases section_names sections
+#' @aliases section_names,ANY-method
+#' @aliases sections,camReport-method
 #'
 #' @examples
 #' # List all available report-section names
@@ -87,12 +89,15 @@ setMethod("section_names",signature(keep = "ANY"),
       if (!all(w)) {
         if (!any(w)) {
           stop(
-            "None of the specified section/module names in 'keep' are available; use section_names() to get a list of existing modules."
+            "None of the specified section/module names in 'keep' ",
+            "are available; use section_names() to get a list ",
+            "of existing modules."
           )
         }
         
         warning(
-          "Several section/module names specified in 'keep' are not available: ",
+          "Several section/module names specified in 'keep' ",
+          "are not available: ",
           .paste_comma_and(keep[!w])
         )
       }
@@ -115,12 +120,15 @@ setMethod("section_names",signature(keep = "ANY"),
       if (!all(w)) {
         if (!any(w)) {
           stop(
-            "None of the specified section/module names in 'exclude' are available; use section_names() to get a list of existing modules."
+            "None of the specified section/module names in 'exclude' ",
+            "are available; use section_names() to get a list ",
+            "of existing modules."
           )
         }
         
         warning(
-          "Several section/module names specified in 'exclude' are not available: ",
+          "Several section/module names specified in 'exclude' ",
+          "are not available: ",
           .paste_comma_and(exclude[!w])
         )
       }
@@ -178,20 +186,25 @@ setMethod("sections",signature(x = "camReport"),
       if (all(n %in% x$reportObjectElements$Modules_info$name)) {
         
         message(
-          "\nSome of the specified sections are excluded because their test results were problematic."
+          "\nSome of the specified sections are excluded because ",
+          "their test results were problematic."
         )
         
       } else {
         
         if (!any(n %in% nn)) {
           stop(
-            "None of the specified section names are known. Use section_names() to get the correct names of available sections."
-          )
-        } else {
-          message(
-            "\nSome of the specified section names are unknown and ignored. Use section_names() to get the correct names of available sections."
+            "None of the specified section names are known. ",
+            "Use section_names() to get the correct names ",
+            "of available sections."
           )
         }
+
+        message(
+          "\nSome of the specified section names are unknown ",
+          "and ignored. Use section_names() to get the correct ",
+          "names of available sections."
+        )
       }
     }
     

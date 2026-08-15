@@ -39,9 +39,9 @@ setGeneric(
 #'   the default report-information fields are returned.
 #' @param value The new value to assign to the specified field.
 #'
-#' @return `info()` returns an object of class `camInfo` containing the requested
-#'   fields. The replacement method returns the updated `camReport` object
-#'   invisibly.
+#' @return `info()` returns an object of class `camInfo`
+#'   containing the requested fields. The replacement method returns the
+#'   updated `camReport` object invisibly.
 #'
 #' @seealso [camData()], [report()], [status()], [updateReportSection()]
 #' @family report metadata
@@ -99,7 +99,8 @@ setMethod(
       
       if (length(name) == 0) {
         warning(
-          "The specified name(s) are not identified or available in the camReport object; the default fields are used."
+          "The specified name(s) are not identified or available ",
+          "in the camReport object; the default fields are used."
         )
         name <- .default_cam_info_names
       }
@@ -180,7 +181,8 @@ setReplaceMethod(
       
       if (length(name) == 0) {
         stop(
-          "The specified name is not identified or available in the camReport object."
+          "The specified name is not identified or available ",
+          "in the camReport object."
         )
       }
       

@@ -1,6 +1,6 @@
 test_that("installation helpers validate and classify package names", {
-  is_installed <- camtrapReport:::.is.installed
-  load_lib <- camtrapReport:::.loadLib
+  is_installed <- ct_internal(".is.installed")
+  load_lib <- ct_internal(".loadLib")
   
   empty_result <- is_installed(character())
   
@@ -93,7 +93,8 @@ test_that("install_All rejects invalid arguments before installation", {
 
 
 test_that("install_All reports when all requested packages are installed", {
-  checked_packages <- character()
+  state <- new.env(parent = emptyenv())
+  state$checked_packages <- character()
   
   testthat::local_mocked_bindings(
     .getPackageList = function() {
@@ -105,9 +106,9 @@ test_that("install_All reports when all requested packages are installed", {
     .is.installed = function(n) {
       n <- as.character(n)
       
-      checked_packages <<- unique(
+      state$checked_packages <- unique(
         c(
-          checked_packages,
+          state$checked_packages,
           n
         )
       )
@@ -120,6 +121,7 @@ test_that("install_All reports when all requested packages are installed", {
   )
   
   expect_output(
+    # nolint next: implicit_assignment_linter.
     result <- install_All(
       pkgs = c(" methods ", "", "stats"),
       update = FALSE
@@ -132,7 +134,7 @@ test_that("install_All reports when all requested packages are installed", {
   
   expect_true(
     all(
-      c("methods", "stats") %in% checked_packages
+      c("methods", "stats") %in% state$checked_packages
     )
   )
 })
@@ -185,6 +187,7 @@ test_that("install_All attempts only missing CRAN packages", {
   )
   
   expect_output(
+    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
     fixed = TRUE
@@ -200,7 +203,8 @@ test_that("install_All attempts only missing CRAN packages", {
 
 
 test_that("install_All reports CRAN installation failures safely", {
-  installation_calls <- character()
+  state <- new.env(parent = emptyenv())
+  state$installation_calls <- character()
   
   testthat::local_mocked_bindings(
     .getPackageList = function() {
@@ -217,8 +221,8 @@ test_that("install_All reports CRAN installation failures safely", {
       result
     },
     install.packages = function(pkgs, ...) {
-      installation_calls <<- c(
-        installation_calls,
+      state$installation_calls <- c(
+        state$installation_calls,
         as.character(pkgs)
       )
       
@@ -228,6 +232,7 @@ test_that("install_All reports CRAN installation failures safely", {
   )
   
   expect_output(
+    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "The following packages could not be installed:",
     fixed = TRUE
@@ -236,7 +241,7 @@ test_that("install_All reports CRAN installation failures safely", {
   expect_null(result)
   
   expect_setequal(
-    installation_calls,
+    state$installation_calls,
     c("missingOne", "missingTwo")
   )
 })
@@ -245,7 +250,8 @@ test_that("install_All reports CRAN installation failures safely", {
 test_that(
   "install_All handles missing GitHub packages without network access",
   {
-    github_calls <- character()
+    state <- new.env(parent = emptyenv())
+    state$github_calls <- character()
     
     testthat::local_mocked_bindings(
       .getPackageList = function() {
@@ -264,8 +270,8 @@ test_that(
         result
       },
       .installGitHub = function(repository) {
-        github_calls <<- c(
-          github_calls,
+        state$github_calls <- c(
+          state$github_calls,
           repository
         )
         
@@ -275,6 +281,7 @@ test_that(
     )
     
     expect_output(
+      # nolint next: implicit_assignment_linter.
       result <- install_All(update = FALSE),
       "githubPackage",
       fixed = TRUE
@@ -283,7 +290,7 @@ test_that(
     expect_null(result)
     
     expect_identical(
-      github_calls,
+      state$github_calls,
       "example/exampleRepository"
     )
   }
@@ -291,7 +298,8 @@ test_that(
 
 
 test_that("install_All counts successful mocked GitHub installations", {
-  github_installed <- FALSE
+  state <- new.env(parent = emptyenv())
+  state$github_installed <- FALSE
   
   testthat::local_mocked_bindings(
     .getPackageList = function() {
@@ -309,7 +317,7 @@ test_that("install_All counts successful mocked GitHub installations", {
         n,
         function(package) {
           identical(package, "githubPackage") &&
-            github_installed
+            state$github_installed
         },
         logical(1)
       )
@@ -323,13 +331,14 @@ test_that("install_All counts successful mocked GitHub installations", {
         "example/exampleRepository"
       )
       
-      github_installed <<- TRUE
+      state$github_installed <- TRUE
       TRUE
     },
     .package = "camtrapReport"
   )
   
   expect_output(
+    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
     fixed = TRUE
@@ -353,6 +362,7 @@ test_that(
     )
     
     expect_output(
+      # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "There are no optional packages to update",
       fixed = TRUE
@@ -364,8 +374,9 @@ test_that(
 
 
 test_that("install_All update mode reinstalls mocked CRAN packages", {
-  installation_calls <- character()
-  reinstalled <- FALSE
+  state <- new.env(parent = emptyenv())
+  state$installation_calls <- character()
+  state$reinstalled <- FALSE
   
   testthat::local_mocked_bindings(
     .getPackageList = function() {
@@ -381,12 +392,12 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
         n,
         function(package) {
           identical(package, "optionalPackage") &&
-            !reinstalled
+            !state$reinstalled
         },
         logical(1)
       )
       
-      if (reinstalled) {
+      if (state$reinstalled) {
         result[n == "optionalPackage"] <- TRUE
       }
       
@@ -394,18 +405,19 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
       result
     },
     install.packages = function(pkgs, ...) {
-      installation_calls <<- c(
-        installation_calls,
+      state$installation_calls <- c(
+        state$installation_calls,
         as.character(pkgs)
       )
       
-      reinstalled <<- TRUE
+      state$reinstalled <- TRUE
       invisible(NULL)
     },
     .package = "camtrapReport"
   )
   
   expect_output(
+    # nolint next: implicit_assignment_linter.
     result <- install_All(update = TRUE),
     "successfully reinstalled",
     fixed = TRUE
@@ -414,7 +426,7 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
   expect_null(result)
   
   expect_identical(
-    installation_calls,
+    state$installation_calls,
     "optionalPackage"
   )
 })
@@ -423,7 +435,8 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
 test_that(
   "install_All update mode reports unsuccessful reinstallations",
   {
-    installation_calls <- character()
+    state <- new.env(parent = emptyenv())
+    state$installation_calls <- character()
     
     testthat::local_mocked_bindings(
       .getPackageList = function() {
@@ -437,7 +450,7 @@ test_that(
         
         result <- rep(TRUE, length(n))
         
-        if (length(installation_calls) > 0L) {
+        if (length(state$installation_calls) > 0L) {
           result[] <- FALSE
         }
         
@@ -445,8 +458,8 @@ test_that(
         result
       },
       install.packages = function(pkgs, ...) {
-        installation_calls <<- c(
-          installation_calls,
+        state$installation_calls <- c(
+          state$installation_calls,
           as.character(pkgs)
         )
         
@@ -456,6 +469,7 @@ test_that(
     )
     
     expect_output(
+      # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "The following packages could not be installed:",
       fixed = TRUE
@@ -464,7 +478,7 @@ test_that(
     expect_null(result)
     
     expect_identical(
-      installation_calls,
+      state$installation_calls,
       "optionalPackage"
     )
   }

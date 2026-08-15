@@ -135,7 +135,11 @@
   if (is.null(expr)) return(NULL)
   
   # setting passed as { c(...) }
-  if (is.call(expr) && identical(expr[[1]], as.name("{")) && length(expr) == 2L) {
+  if (
+    is.call(expr) &&
+      identical(expr[[1]], as.name("{")) &&
+      length(expr) == 2L
+  ) {
     expr <- expr[[2]]
   }
   
@@ -158,9 +162,9 @@
           SIMPLIFY = TRUE,
           USE.NAMES = FALSE
         )
-        return(paste(parts, collapse = ", "))
+        return(toString(parts))
       } else {
-        return(paste(as.character(val), collapse = ", "))
+        return(toString(as.character(val)))
       }
     }
     
@@ -172,7 +176,7 @@
         SIMPLIFY = TRUE,
         USE.NAMES = FALSE
       )
-      return(paste(parts, collapse = ", "))
+      return(toString(parts))
     }
   }
   
@@ -208,7 +212,11 @@
                                   packages = NULL,
                                   append_code = FALSE) {
   
-  wants_chunk_update <- (!code_missing) || (!code_setting_missing) || (!packages_missing)
+  wants_chunk_update <- (
+    !code_missing ||
+      !code_setting_missing ||
+      !packages_missing
+  )
   
   if (!wants_chunk_update) {
     return(sec)
@@ -371,12 +379,13 @@ setGeneric(
 #' Update report sections
 #'
 #' Update the content of a report section in a
-#' [`camReport`][camReport-classes] object, or list the report sections currently
-#' attached to the object.
+#' [`camReport`][camReport-classes] object, or list the report
+#' sections currently attached to the object.
 #'
 #' Report sections can be identified using either their name or title.
-#' `listReportSections()` lists the sections attached to a `camReport` object and
-#' can be used to find the exact section names before updating them.
+#' `listReportSections()` lists the sections attached to a
+#' `camReport` object and can be used to find the exact section names
+#' before updating them.
 #'
 #' `updateReportSection()` is useful for adapting the default report content to
 #' project-specific needs, including changing section titles, replacing or
@@ -427,7 +436,9 @@ setGeneric(
 #'
 #' listReportSections(x)
 #' @name updateReportSection
-#' @aliases updateReportSection listReportSections updateReportSection,camReport-method listReportSections,camReport-method
+#' @aliases updateReportSection listReportSections
+#' @aliases updateReportSection,camReport-method
+#' @aliases listReportSections,camReport-method
 #'
 #' @examples
 #' example_dataset <- system.file(
@@ -498,7 +509,10 @@ setMethod("updateReportSection",signature(x = "camReport"),
     if (missing(append_text)) append_text <- FALSE
     
     if (missing(section) || !is.character(section) || length(section) != 1L) {
-      stop("'section' should be a single character string, either a section name or title.")
+      stop(
+        "'section' should be a single character string, ",
+        "either a section name or title."
+      )
     }
     
     catalog <- .reportSection_catalog(x$reportObjects)
@@ -521,7 +535,10 @@ setMethod("updateReportSection",signature(x = "camReport"),
     }
     
     if (!code_setting_missing) {
-      code_setting <- .capture_setting_text(code_setting_expr, env = parent.frame())
+      code_setting <- .capture_setting_text(
+        code_setting_expr,
+        env = parent.frame()
+      )
     }
     
     updater <- function(sec) {
