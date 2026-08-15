@@ -2019,16 +2019,26 @@
     years_keep_chr = cm$data_status$Temporal$dep_years
   )
   
-  cm$data_status$Temporal$dep_month_coverage_lines <- if (nrow(cm$data_status$Temporal$dep_month_coverage) == 0) {
+  cm$data_status$Temporal$dep_month_coverage_lines <- if (
+    nrow(cm$data_status$Temporal$dep_month_coverage) == 0
+  ) {
     character(0)
   } else {
-    paste0(cm$data_status$Temporal$dep_month_coverage$Year, ": ", cm$data_status$Temporal$dep_month_coverage$MonthSpan)
+    paste0(
+      cm$data_status$Temporal$dep_month_coverage$Year,
+      ": ",
+      cm$data_status$Temporal$dep_month_coverage$MonthSpan
+    )
   }
   
   # D) Observations QA: invalid format + future timestamps
   
   ts_raw <- cm$data$observations$timestamp
-  bad_fmt_idx <- which(!is.na(ts_raw) & nzchar(.trim_chr(ts_raw)) & !.is_iso_prefix(ts_raw))
+  bad_fmt_idx <- which(
+    !is.na(ts_raw) &
+      nzchar(.trim_chr(ts_raw)) &
+      !.is_iso_prefix(ts_raw)
+  )
   
   cm$data_status$Temporal$invalid_timestamp_format <- if (length(bad_fmt_idx)) {
     paste0(length(bad_fmt_idx), " timestamp(s) have invalid format ", ic$red,
@@ -2105,8 +2115,10 @@
   .status_rows <- function(bad_idx, total, all_empty = FALSE) {
     if (is.na(total) || total <= 0) return(paste0(y, " No data"))
     if (!length(bad_idx)) return(paste0(g, " Complete"))
-    if (length(bad_idx) == total && all_empty) return(paste0(r, " Incomplete (all rows empty)"))
-    if (length(bad_idx) == total) return(paste0(r, " Incomplete (all rows missing/invalid)"))
+    if (length(bad_idx) == total && all_empty)
+      return(paste0(r, " Incomplete (all rows empty)"))
+    if (length(bad_idx) == total)
+      return(paste0(r, " Incomplete (all rows missing/invalid)"))
     paste0(y, " Partial (row: ", .row_list(bad_idx), ")")
   }
   
@@ -2127,7 +2139,11 @@
     bad_idx    <- sort(unique(c(empty_idx, nonnum_idx, range_idx)))
     
     list(
-      status = .status_rows(bad_idx, total, all_empty = (length(empty_idx) == total)),
+      status = .status_rows(
+        bad_idx,
+        total,
+        all_empty = (length(empty_idx) == total)
+      ),
       num    = x_num
     )
   }
@@ -2139,12 +2155,21 @@
     if (all(deg_like) || !any(deg_like)) return("")
     idx_deg    <- pair_idx[deg_like]
     idx_nondeg <- pair_idx[!deg_like]
-    diff_rows  <- if (length(idx_deg) < length(idx_nondeg)) idx_deg else idx_nondeg
+    diff_rows <- if (
+      length(idx_deg) < length(idx_nondeg)
+    ) idx_deg else idx_nondeg
     plural <- if (length(diff_rows) == 1) "row" else "rows"
-    paste0(" | ", plural, " ", .row_list(diff_rows), " use a different coordinate system")
+    paste0(
+      " | ",
+      plural,
+      " ",
+      .row_list(diff_rows),
+      " use a different coordinate system"
+    )
   }
   
-  .is_iso_prefix <- function(x) grepl("^\\d{4}-\\d{2}-\\d{2}(\\s|T)", .trim_chr(x))
+  .is_iso_prefix <- function(x)
+    grepl("^\\d{4}-\\d{2}-\\d{2}(\\s|T)", .trim_chr(x))
   
   .timestamp_status <- function(x) {
     x_chr <- .trim_chr(x)
@@ -2155,14 +2180,19 @@
     invalid_fmt_n <- sum(non_missing & !.is_iso_prefix(x_chr))
     
     x_posix <- suppressWarnings(as.POSIXct(x_chr, tz = "UTC"))
-    future_n <- sum(!is.na(x_posix) & x_posix > as.POSIXct(Sys.time(), tz = "UTC"))
+    future_n <- sum(
+      !is.na(x_posix) &
+        x_posix > as.POSIXct(Sys.time(), tz = "UTC")
+    )
     
     status <- .status_counts(missing_n + invalid_fmt_n, total)
     
     note <- character(0)
-    if (invalid_fmt_n > 0) note <- c(note, paste0("invalid format: ", invalid_fmt_n))
+    if (invalid_fmt_n > 0)
+      note <- c(note, paste0("invalid format: ", invalid_fmt_n))
     if (future_n > 0)      note <- c(note, paste0("future: ", future_n))
-    if (length(note)) status <- paste0(status, " | ", paste(note, collapse = "; "))
+    if (length(note))
+      status <- paste0(status, " | ", paste(note, collapse = "; "))
     
     status
   }
@@ -2173,8 +2203,16 @@
     missing_n <- sum(is.na(x) | x == "")
     
     parts <- strsplit(ifelse(is.na(x), "", x), "--", fixed = TRUE)
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
     
     start_ok <- grepl("^\\d{4}-\\d{2}-\\d{2}", start_raw)
     end_ok   <- grepl("^\\d{4}-\\d{2}-\\d{2}", end_raw)
@@ -2203,11 +2241,29 @@
     if (total_animals <= 0) return(paste0(y, " No animal observations"))
     pct <- 100 * present_n / total_animals
     if (present_n == 0) {
-      sprintf("%s Incomplete (%s recorded for 0 of %d animals; 0%%)", r, label, total_animals)
+      sprintf(
+        "%s Incomplete (%s recorded for 0 of %d animals; 0%%)",
+        r,
+        label,
+        total_animals
+      )
     } else if (present_n == total_animals) {
-      sprintf("%s Complete (%s recorded for %d of %d animals; 100%%)", g, label, total_animals, total_animals)
+      sprintf(
+        "%s Complete (%s recorded for %d of %d animals; 100%%)",
+        g,
+        label,
+        total_animals,
+        total_animals
+      )
     } else {
-      sprintf("%s Partial (%s recorded for %d of %d animals; %.2f%%)", y, label, present_n, total_animals, pct)
+      sprintf(
+        "%s Partial (%s recorded for %d of %d animals; %.2f%%)",
+        y,
+        label,
+        present_n,
+        total_animals,
+        pct
+      )
     }
   }
   
@@ -2215,18 +2271,34 @@
   # LOCATIONS 
   
   if (!("locations" %in% names(cm$data)) || !is.data.frame(cm$data$locations)) {
-    cm$data_status$Essentials$loc$long     <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$lat      <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$locID    <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$locnName <- paste0(r, " Incomplete (missing cm$data$locations)")
+    cm$data_status$Essentials$loc$long <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$lat <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$locID <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$locnName <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
   } else {
     col_lon <- .pick_col(cm$data$locations, c("longitude","long","lon"))
     col_lat <- .pick_col(cm$data$locations, c("latitude","lat"))
     col_id  <- .pick_col(cm$data$locations, c("locationID","locID"))
-    col_nm  <- .pick_col(cm$data$locations, c("locationName","locnName","locationnName"))
+    col_nm <- .pick_col(
+      cm$data$locations,
+      c("locationName", "locnName", "locationnName")
+    )
     
     cm$data_status$Essentials$loc$locID <-
-      if (is.na(col_id)) paste0(r, " Incomplete (missing locationID/locID column)")
+      if (is.na(col_id))
+        paste0(r, " Incomplete (missing locationID/locID column)")
     else .loc_chr_status(cm$data$locations[[col_id]])
     
     cm$data_status$Essentials$loc$locnName <-
@@ -2253,63 +2325,109 @@
   
   # OBSERVATIONS
   
-  if (!("observations" %in% names(cm$data)) || !is.data.frame(cm$data$observations)) {
-    cm$data_status$Essentials$obs$status <- paste0(r, " Missing table: cm$data$observations")
+  if (
+    !("observations" %in% names(cm$data)) ||
+      !is.data.frame(cm$data$observations)
+  ) {
+    cm$data_status$Essentials$obs$status <- paste0(
+      r,
+      " Missing table: cm$data$observations"
+    )
   } else {
     
-    col_ts <- .pick_col(cm$data$observations, c("timestamp","observation_timestamp","eventStart"))
+    col_ts <- .pick_col(
+      cm$data$observations,
+      c("timestamp", "observation_timestamp", "eventStart")
+    )
     cm$data_status$Essentials$obs$timestamp <-
       if (is.na(col_ts)) paste0(r, " Missing column: timestamp")
     else .timestamp_status(cm$data$observations[[col_ts]])
     
     col_ot <- .pick_col(cm$data$observations, c("observationType","obsType"))
     if (is.na(col_ot)) {
-      cm$data_status$Essentials$obs$obsType_status <- paste0(r, " Missing column: observationType/obsType")
+      cm$data_status$Essentials$obs$obsType_status <- paste0(
+        r,
+        " Missing column: observationType/obsType"
+      )
     } else {
       x <- cm$data$observations[[col_ot]]
       cm$data_status$Essentials$obs$obsType_table  <- table(x, useNA = "ifany")
       total <- length(x)
-      n_unclassified <- sum(tolower(.trim_chr(x)) == "unclassified", na.rm = TRUE)
-      n_unknown      <- sum(tolower(.trim_chr(x)) == "unknown",      na.rm = TRUE)
-      cm$data_status$Essentials$obs$obsType_status <- .status_counts(n_unclassified + n_unknown, total)
+      n_unclassified <- sum(
+        tolower(.trim_chr(x)) == "unclassified",
+        na.rm = TRUE
+      )
+      n_unknown <- sum(
+        tolower(.trim_chr(x)) == "unknown",
+        na.rm = TRUE
+      )
+      cm$data_status$Essentials$obs$obsType_status <- .status_counts(
+        n_unclassified + n_unknown,
+        total
+      )
     }
     
     col_count <- .pick_col(cm$data$observations, c("count","observationCount"))
     cm$data_status$Essentials$obs$count <-
       if (is.na(col_count)) paste0(r, " Missing column: count")
-    else .summ_status_counts(cm$data$observations[[col_count]], treat_blank = FALSE)
+    else .summ_status_counts(
+      cm$data$observations[[col_count]],
+      treat_blank = FALSE
+    )
     
     col_cb <- .pick_col(cm$data$observations, "classifiedBy")
     if (is.na(col_cb)) {
-      cm$data_status$Essentials$obs$classifiedBy_status <- paste0(r, " Missing column: classifiedBy")
+      cm$data_status$Essentials$obs$classifiedBy_status <- paste0(
+        r,
+        " Missing column: classifiedBy"
+      )
     } else {
       x_all <- cm$data$observations[[col_cb]]
-      cm$data_status$Essentials$obs$classifiedBy_table <- table(x_all, useNA = "ifany")
+      cm$data_status$Essentials$obs$classifiedBy_table <- table(
+        x_all,
+        useNA = "ifany"
+      )
       
       x_use <- x_all
       if ("classificationMethod" %in% names(cm$data$observations)) {
-        filt <- cm$data$observations$classificationMethod %in% c("human","machine")
+        filt <- cm$data$observations$classificationMethod %in%
+          c("human", "machine")
         filt[is.na(filt)] <- FALSE
         x_use <- x_all[filt]
       }
-      cm$data_status$Essentials$obs$classifiedBy_status <- .summ_status_counts(x_use, treat_blank = TRUE)
+      cm$data_status$Essentials$obs$classifiedBy_status <-
+        .summ_status_counts(
+          x_use,
+          treat_blank = TRUE
+        )
     }
     
     # Animal-only benchmark fields
     if (is.na(col_ot)) {
-      msg <- paste0(r, " Missing column: observationType (cannot filter animals)")
-      for (k in c("taxonID","behavior","sex","lifeStage","angle","radius","speed","individualID")) {
+      msg <- paste0(
+        r,
+        " Missing column: observationType (cannot filter animals)"
+      )
+      for (k in c(
+        "taxonID", "behavior", "sex", "lifeStage",
+        "angle", "radius", "speed", "individualID"
+      )) {
         cm$data_status$Essentials$obs[[k]] <- msg
       }
     } else {
-      idx_animal <- tolower(.trim_chr(cm$data$observations[[col_ot]])) == "animal"
+      idx_animal <- tolower(
+        .trim_chr(cm$data$observations[[col_ot]])
+      ) == "animal"
       idx_animal[is.na(idx_animal)] <- FALSE
       n_animal <- sum(idx_animal)
       
       # taxonID: animals + unique
       col_tax <- .pick_col(cm$data$observations, "taxonID")
       if (is.na(col_tax)) {
-        cm$data_status$Essentials$obs$taxonID <- paste0(r, " Missing column: taxonID")
+        cm$data_status$Essentials$obs$taxonID <- paste0(
+          r,
+          " Missing column: taxonID"
+        )
       } else {
         x_tax <- .trim_chr(cm$data$observations[[col_tax]][idx_animal])
         present_n <- sum(!is.na(x_tax) & x_tax != "")
@@ -2320,7 +2438,9 @@
         )
       }
       
-      obs_state <- new.env(parent = emptyenv()); obs_state$value <- cm$data_status$Essentials$obs
+      obs_state <- new.env(
+        parent = emptyenv()
+      ); obs_state$value <- cm$data_status$Essentials$obs
       .set_animal_field <- function(key, candidates, label, type = c("chr","num")) {
         type <- match.arg(type)
         col <- .pick_col(cm$data$observations, candidates)
