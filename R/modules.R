@@ -435,10 +435,8 @@
     if (!isTRUE(vv)) {
       if (is.null(object)) {
         stop(
-          paste0(
-            "Testing of the module caused error...",
-            "(does the test require the camReport object?!)"
-          )
+          "Testing of the module caused error...",
+          "(does the test require the camReport object?!)"
         )
       } else {
         stop("Testing of the module caused error...!")

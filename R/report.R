@@ -187,10 +187,8 @@ setMethod(
           )
           
           message(
-            paste0(
-              "\nTesting is done; the modules are attached, ",
-              "and the report generation is started...!"
-            )
+            "\nTesting is done; the modules are attached, ",
+            "and the report generation is started...!"
           )
           
           return(report(object, filename = filename, view = view, test = FALSE))
@@ -214,20 +212,16 @@ setMethod(
           }
 
           stop(
-            paste0(
-              "Although all sections are tested, ",
-              "the report cannot be generated...!"
-            )
+            "Although all sections are tested, ",
+            "the report cannot be generated...!"
           )
         }
         
       } else {
         
         message(
-          paste0(
-            "Report generation is stopped because of an error; ",
-            "add `test = TRUE` to exclude the modules that cause error!"
-          )
+          "Report generation is stopped because of an error; ",
+          "add `test = TRUE` to exclude the modules that cause error!"
         )
         
         return(w)

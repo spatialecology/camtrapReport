@@ -242,40 +242,30 @@
   
   if (identical(size_info$size_class, "small")) {
     message(
-      paste0(
-        "File size looks modest, but full object creation may still take ",
-        "several minutes depending on the number of records."
-      )
+      "File size looks modest, but full object creation may still take ",
+      "several minutes depending on the number of records."
     )
   } else if (identical(size_info$size_class, "medium")) {
     message(
-      paste0(
-        "This may take several minutes. ",
-        "Progress updates will be shown below."
-      )
+      "This may take several minutes. ",
+      "Progress updates will be shown below."
     )
   } else if (identical(size_info$size_class, "large")) {
     message(
-      paste0(
-        "This is a large dataset. Object creation may take some time. ",
-        "Progress updates will be shown below."
-      )
+      "This is a large dataset. Object creation may take some time. ",
+      "Progress updates will be shown below."
     )
   } else if (identical(size_info$size_class, "very_large")) {
     message(
-      paste0(
-        "This is a very large dataset. Please keep R running; ",
-        "creating the camReport object may take some time. ",
-        "Progress updates will be shown below."
-      )
+      "This is a very large dataset. Please keep R running; ",
+      "creating the camReport object may take some time. ",
+      "Progress updates will be shown below."
     )
   } else {
     message(
-      paste0(
-        "Creating the camReport object may take some time, depending ",
-        "on file size, number of records, and enabled analyses. ",
-        "Progress updates will be shown below."
-      )
+      "Creating the camReport object may take some time, depending ",
+      "on file size, number of records, and enabled analyses. ",
+      "Progress updates will be shown below."
     )
   }
   

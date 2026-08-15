@@ -510,10 +510,8 @@ setMethod("updateReportSection",signature(x = "camReport"),
     
     if (missing(section) || !is.character(section) || length(section) != 1L) {
       stop(
-        paste0(
-          "'section' should be a single character string, ",
-          "either a section name or title."
-        )
+        "'section' should be a single character string, ",
+        "either a section name or title."
       )
     }
     
