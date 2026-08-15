@@ -2313,15 +2313,25 @@ camR <- setRefClass(
                               break
                             }
                           } else {
+                            # nolint start: line_length_linter.
                             if (.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name == x@name) {
+                            # nolint end
+                              # nolint start: line_length_linter.
                               .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
+                              # nolint end
                               .added <- TRUE
                               break
                             } else {
                               .tmp <- list()
+                              # nolint start: line_length_linter.
                               .tmp[[.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name]] <- .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk
+                              # nolint end
+                              # nolint start: line_length_linter.
                               .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- .tmp
+                              # nolint end
+                              # nolint start: line_length_linter.
                               .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                              # nolint end
                               .added <- TRUE
                               break
                             }
@@ -2341,9 +2351,13 @@ camR <- setRefClass(
                 } else {
                   if (is.list(.self$reportObjects[[.n]]@Rchunk)) {
                     if (length(.self$reportObjects[[.n]]@Rchunk) > 0) {
+                      # nolint start: line_length_linter.
                       .nn <- simplify2array(lapply(.self$reportObjects[[.n]]@Rchunk, function(x) x@name))
+                      # nolint end
                       if (x@name %in% .nn) {
+                        # nolint start: line_length_linter.
                         .self$reportObjects[[.n]]@Rchunk[[.nn[.nn == x@name]]] <- x
+                        # nolint end
                         .added <- TRUE
                         break
                       } else {
@@ -2363,7 +2377,9 @@ camR <- setRefClass(
                       break
                     } else {
                       .tmp <- list()
+                      # nolint start: line_length_linter.
                       .tmp[[.self$reportObjects[[.n]]@Rchunk@name]] <- .self$reportObjects[[.n]]@Rchunk
+                      # nolint end
                       .self$reportObjects[[.n]]@Rchunk <- .tmp
                       .self$reportObjects[[.n]]@Rchunk[[x@name]] <- x
                       .added <- TRUE
@@ -2376,7 +2392,9 @@ camR <- setRefClass(
           }
         }
         #----
+        # nolint start: line_length_linter.
         # if (!.added) message('\nthe parent .textSection is not found... The R chunk is NOT added!!')
+        # nolint end
         # else message('\n...Done!')
       }
       
@@ -2387,7 +2405,9 @@ camR <- setRefClass(
       if (inherits(x,'.textSection')) {
         if (is.null(x@parent) || x@parent == "" || x@parent == ".root") {
           x@headLevel <- 1
+          # nolint start: line_length_linter.
           if (is.list(.self$statusReportObjects[[x@name]])) .self$statusReportObjects[[x@name]][[x@name]] <- x
+          # nolint end
           else .self$statusReportObjects[[x@name]] <- x
           .done <- TRUE
         } else {
@@ -2398,7 +2418,9 @@ camR <- setRefClass(
               .done <- TRUE
             } else {
               .tmp <- list()
+              # nolint start: line_length_linter.
               .tmp[[.self$statusReportObjects[[x@parent]]@name]] <- .self$statusReportObjects[[x@parent]]
+              # nolint end
               .self$statusReportObjects[[x@parent]] <- .tmp
               .self$statusReportObjects[[x@parent]][[x@name]] <- x
               .done <- TRUE
@@ -2415,7 +2437,9 @@ camR <- setRefClass(
                     .done <- TRUE
                   } else {
                     .tmp <- list()
+                    # nolint start: line_length_linter.
                     .tmp[[.self$statusReportObjects[[.n]][[x@parent]]@name]] <- .self$statusReportObjects[[.n]][[x@parent]]
+                    # nolint end
                     .self$statusReportObjects[[.n]][[x@parent]] <- .tmp
                     .self$statusReportObjects[[.n]][[x@parent]][[x@name]] <- x
                     .done <- TRUE
@@ -2425,7 +2449,9 @@ camR <- setRefClass(
                 if (x@parent == .tmp@name) {
                   x@headLevel <- 2
                   .tmp <- list()
+                  # nolint start: line_length_linter.
                   .tmp[[.self$statusReportObjects[[.n]]@name]] <- .self$statusReportObjects[[.n]]
+                  # nolint end
                   .self$statusReportObjects[[.n]] <- .tmp
                   .self$statusReportObjects[[.n]][[x@parent]][[x@name]] <- x
                   .done <- TRUE
@@ -2444,41 +2470,66 @@ camR <- setRefClass(
         .added <- FALSE
         if (x@parent %in% names(.self$statusReportObjects)) {
           if (is.list(.self$statusReportObjects[[x@parent]])) {
-            .tmp <- simplify2array(lapply(.self$statusReportObjects[[x@parent]], function(.x) .x@name))
+            .tmp <- simplify2array(lapply(.self$statusReportObjects[[x@parent]],
+                function(.x) .x@name))
             .w <- which(.tmp == x@parent)
             if (length(.w) > 1) {
-              if (is.null(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
+              if (
+                is.null(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)
+              ) {
                 .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
                 .added <- TRUE
               } else {
-                if (is.list(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
+                if (
+                  is.list(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)
+                ) {
+                  # nolint start: line_length_linter.
                   if (length(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                  # nolint end
+                    # nolint start: line_length_linter.
                     .n <- simplify2array(lapply(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
+                    # nolint end
                     if (x@name %in% .n) {
+                      # nolint start: line_length_linter.
                       .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .n)]] <- x
+                      # nolint end
                       .added <- TRUE
                     } else {
+                      # nolint start: line_length_linter.
                       .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                      # nolint end
                       .added <- TRUE
                     }
                   } else {
+                    # nolint start: line_length_linter.
                     .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    # nolint end
                     .added <- TRUE
                   }
                 } else {
+                  # nolint start: line_length_linter.
                   if (.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                  # nolint end
                     .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
                     .added <- TRUE
                   } else {
                     .tmp <- list()
+                    # nolint start: line_length_linter.
                     .tmp[[.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                    # nolint end
+                    # nolint start: line_length_linter.
                     .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                    # nolint end
+                    # nolint start: line_length_linter.
                     .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                    # nolint end
                     .added <- TRUE
                   }
                 }
               }
+            # nolint start: line_length_linter.
             } #else message('Error: the parent does not available; code is NOT added!')
+            # nolint end
           } else {
             if (is.null(.self$statusReportObjects[[x@parent]]@Rchunk)) {
               .self$statusReportObjects[[x@parent]]@Rchunk <- x
@@ -2486,9 +2537,12 @@ camR <- setRefClass(
             } else {
               if (is.list(.self$statusReportObjects[[x@parent]]@Rchunk)) {
                 if (length(.self$statusReportObjects[[x@parent]]@Rchunk) > 0) {
+                  # nolint start: line_length_linter.
                   .n <- simplify2array(lapply(.self$statusReportObjects[[x@parent]]@Rchunk, function(x) x@name))
+                  # nolint end
                   if (x@name %in% .n) {
-                    .self$statusReportObjects[[x@parent]]@Rchunk[[match(x@name, .n)]] <- x
+                    .self$statusReportObjects[[x@parent]]@Rchunk[[match(x@name,
+                        .n)]] <- x
                     .added <- TRUE
                   } else {
                     .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
@@ -2499,12 +2553,16 @@ camR <- setRefClass(
                   .added <- TRUE
                 }
               } else {
-                if (.self$statusReportObjects[[x@parent]]@Rchunk@name == x@name) {
+                if (
+                  .self$statusReportObjects[[x@parent]]@Rchunk@name == x@name
+                ) {
                   .self$statusReportObjects[[x@parent]]@Rchunk <- x
                   .added <- TRUE
                 } else {
                   .tmp <- list()
+                  # nolint start: line_length_linter.
                   .tmp[[.self$statusReportObjects[[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]]@Rchunk
+                  # nolint end
                   .self$statusReportObjects[[x@parent]]@Rchunk <- .tmp
                   .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
                   .added <- TRUE
@@ -2517,41 +2575,69 @@ camR <- setRefClass(
             if (is.list(.self$statusReportObjects[[.n]])) {
               if (x@parent %in% names(.self$statusReportObjects[[.n]])) {
                 if (is.list(.self$statusReportObjects[[.n]][[x@parent]])) {
+                  # nolint start: line_length_linter.
                   .tmp <- simplify2array(lapply(.self$statusReportObjects[[.n]][[x@parent]], function(.x) .x@name))
+                  # nolint end
                   .w <- which(.tmp == x@parent)
                   if (length(.w) > 1) {
+                    # nolint start: line_length_linter.
                     if (is.null(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
+                    # nolint end
+                      # nolint start: line_length_linter.
                       .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
+                      # nolint end
                       .added <- TRUE
                       break
                     } else {
+                      # nolint start: line_length_linter.
                       if (is.list(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
+                      # nolint end
+                        # nolint start: line_length_linter.
                         if (length(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                        # nolint end
+                          # nolint start: line_length_linter.
                           .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
+                          # nolint end
                           if (x@name %in% .nn) {
+                            # nolint start: line_length_linter.
                             .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nn)]] <- x
+                            # nolint end
                             .added <- TRUE
                             break
                           } else {
+                            # nolint start: line_length_linter.
                             .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                            # nolint end
                             .added <- TRUE
                             break
                           }
                         } else {
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         }
                       } else {
+                        # nolint start: line_length_linter.
                         if (.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                        # nolint end
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         } else {
                           .tmp <- list()
+                          # nolint start: line_length_linter.
                           .tmp[[.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                          # nolint end
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                          # nolint end
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         }
@@ -2559,38 +2645,60 @@ camR <- setRefClass(
                     }
                   }
                 } else {
-                  if (is.null(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
+                  if (
+                    is.null(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)
+                  ) {
                     .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- x
                     .added <- TRUE
                     break
                   } else {
+                    # nolint start: line_length_linter.
                     if (is.list(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
+                    # nolint end
+                      # nolint start: line_length_linter.
                       if (length(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk) > 0) {
+                      # nolint end
+                        # nolint start: line_length_linter.
                         .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk, function(x) x@name))
+                        # nolint end
                         if (x@name %in% .nn) {
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[.nn[.nn == x@name]]] <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         } else {
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         }
                       } else {
+                        # nolint start: line_length_linter.
                         .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                        # nolint end
                         .added <- TRUE
                         break
                       }
                     } else {
+                      # nolint start: line_length_linter.
                       if (.self$statusReportObjects[[.n]][[x@parent]]@Rchunk@name == x@name) {
+                      # nolint end
                         .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- x
                         .added <- TRUE
                         break
                       } else {
                         .tmp <- list()
+                        # nolint start: line_length_linter.
                         .tmp[[.self$statusReportObjects[[.n]][[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[.n]][[x@parent]]@Rchunk
+                        # nolint end
+                        # nolint start: line_length_linter.
                         .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- .tmp
+                        # nolint end
+                        # nolint start: line_length_linter.
                         .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[x@name]] <- x
+                        # nolint end
                         .added <- TRUE
                         break
                       }
@@ -2600,43 +2708,75 @@ camR <- setRefClass(
               } else {
                 for (.nn in names(.self$statusReportObjects[[.n]])) {
                   if (is.list(.self$statusReportObjects[[.n]][[.nn]])) {
+                    # nolint start: line_length_linter.
                     if (x@parent %in% names(.self$statusReportObjects[[.n]][[.nn]])) {
+                    # nolint end
+                      # nolint start: line_length_linter.
                       if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]])) {
+                      # nolint end
+                        # nolint start: line_length_linter.
                         .tmp <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]], function(.x) .x@name))
+                        # nolint end
                         .w <- which(.tmp == x@parent)
                         if (length(.w) > 1) {
+                          # nolint start: line_length_linter.
                           if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
+                          # nolint end
+                            # nolint start: line_length_linter.
                             .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
+                            # nolint end
                             .added <- TRUE
                             break
                           } else {
+                            # nolint start: line_length_linter.
                             if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
+                            # nolint end
+                              # nolint start: line_length_linter.
                               if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
+                              # nolint end
+                                # nolint start: line_length_linter.
                                 .nnn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
+                                # nolint end
                                 if (x@name %in% .nnn) {
+                                  # nolint start: line_length_linter.
                                   .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nnn)]] <- x
+                                  # nolint end
                                   .added <- TRUE
                                   break
                                 } else {
+                                  # nolint start: line_length_linter.
                                   .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                  # nolint end
                                   .added <- TRUE
                                   break
                                 }
                               } else {
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                # nolint end
                                 .added <- TRUE
                                 break
                               }
                             } else {
+                              # nolint start: line_length_linter.
                               if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
+                              # nolint end
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
+                                # nolint end
                                 .added <- TRUE
                                 break
                               } else {
                                 .tmp <- list()
+                                # nolint start: line_length_linter.
                                 .tmp[[.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name]] <- .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk
+                                # nolint end
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- .tmp
+                                # nolint end
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[x@name]] <- x
+                                # nolint end
                                 .added <- TRUE
                                 break
                               }
@@ -2644,38 +2784,64 @@ camR <- setRefClass(
                           }
                         }
                       } else {
+                        # nolint start: line_length_linter.
                         if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
+                        # nolint end
+                          # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
+                          # nolint end
                           .added <- TRUE
                           break
                         } else {
+                          # nolint start: line_length_linter.
                           if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
+                          # nolint end
+                            # nolint start: line_length_linter.
                             if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
+                            # nolint end
+                              # nolint start: line_length_linter.
                               .nnn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk, function(x) x@name))
+                              # nolint end
                               if (x@name %in% .nnn) {
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[.nnn[.nnn == x@name]]] <- x
+                                # nolint end
                                 .added <- TRUE
                                 break
                               } else {
+                                # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                                # nolint end
                                 .added <- TRUE
                                 break
                               }
                             } else {
+                              # nolint start: line_length_linter.
                               .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                              # nolint end
                               .added <- TRUE
                               break
                             }
                           } else {
+                            # nolint start: line_length_linter.
                             if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name == x@name) {
+                            # nolint end
+                              # nolint start: line_length_linter.
                               .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
+                              # nolint end
                               .added <- TRUE
                               break
                             } else {
                               .tmp <- list()
+                              # nolint start: line_length_linter.
                               .tmp[[.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name]] <- .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk
+                              # nolint end
+                              # nolint start: line_length_linter.
                               .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- .tmp
+                              # nolint end
+                              # nolint start: line_length_linter.
                               .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[x@name]] <- x
+                              # nolint end
                               .added <- TRUE
                               break
                             }
@@ -2695,9 +2861,12 @@ camR <- setRefClass(
                 } else {
                   if (is.list(.self$statusReportObjects[[.n]]@Rchunk)) {
                     if (length(.self$statusReportObjects[[.n]]@Rchunk) > 0) {
+                      # nolint start: line_length_linter.
                       .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]]@Rchunk, function(x) x@name))
+                      # nolint end
                       if (x@name %in% .nn) {
-                        .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn == x@name]]] <- x
+                        .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn ==
+                            x@name]]] <- x
                         .added <- TRUE
                         break
                       } else {
@@ -2717,7 +2886,9 @@ camR <- setRefClass(
                       break
                     } else {
                       .tmp <- list()
+                      # nolint start: line_length_linter.
                       .tmp[[.self$statusReportObjects[[.n]]@Rchunk@name]] <- .self$statusReportObjects[[.n]]@Rchunk
+                      # nolint end
                       .self$statusReportObjects[[.n]]@Rchunk <- .tmp
                       .self$statusReportObjects[[.n]]@Rchunk[[x@name]] <- x
                       .added <- TRUE
@@ -2730,7 +2901,9 @@ camR <- setRefClass(
           }
         }
         #----
+        # nolint start: line_length_linter.
         # if (!.added) message('\nthe parent .textSection is not found... The R chunk is NOT added!!')
+        # nolint end
         # else message('\n...Done!')
       }
       
@@ -2741,23 +2914,37 @@ camR <- setRefClass(
       if (length(.w) > 0) {
         .d <- list()
         .d$deployments <- .self$data$deployments[.w,]
+        # nolint start: line_length_linter.
         .d$media <- .self$data$media[.self$data$media$deploymentID %in% .d$deployments$deploymentID, ]
+        # nolint end
+        # nolint start: line_length_linter.
         .d$observations <- .self$data$observations[.self$data$observations$deploymentID %in% .d$deployments$deploymentID,]
+        # nolint end
+        # nolint start: line_length_linter.
         .d$locations <- .self$data$locations[.self$data$locations$locationID %in% .d$deployments$locationID,]
+        # nolint end
+        # nolint start: line_length_linter.
         .d$taxonomy <- .self$data$taxonomy[.self$data$taxonomy$scientificName %in% .d$observations$scientificName,]
+        # nolint end
+        # nolint start: line_length_linter.
         .d$sequences <- .self$data$sequences[.self$data$sequences$deploymentID %in% .d$deployments$deploymentID,]
+        # nolint end
         .d
       }
       
     },
     extractYears = function(update=FALSE) {
       if (update || length(.self$years) == 0) {
+        # nolint start: line_length_linter.
         .self$years <- sort(as.numeric(unique(.getYear(.self$data$deployments$deployment_interval))))
+        # nolint end
       }
       #-----
       .self$years
     },
+    # nolint start: line_length_linter.
     generateReport = function(output_file = file.path(tempdir(), "cam_report.html"), rmd_file = file.path(tempdir(), "cam_report.Rmd")) {
+    # nolint end
       .self$recetFigTabNumber()
       render_env <- .make_render_env(.self)
       
@@ -2801,14 +2988,18 @@ output:
             if (is.list(.xx)) {
               for (.nnn in names(.self$reportObjects[[.n]][[.nn]])) {
                 .xxx <- .self$reportObjects[[.n]][[.nn]][[.nnn]]
+                # nolint start: line_length_linter.
                 rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xxx,.envir = .self))
+                # nolint end
               }
             } else {
-              rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xx,.envir = .self))
+              rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
+                  .envir = .self))
             }
           }
         } else {
-          rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.x,.envir = .self))
+          rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
+              .envir = .self))
         }
       }
       
@@ -2816,7 +3007,9 @@ output:
       cat(rmd_template, file = rmd_file, sep = "\n")
       
       # Render the R Markdown file
+      # nolint start: line_length_linter.
       # We can pass an environment so that the Rmd sees the object fields directly
+      # nolint end
       # One approach: pass the entire object as 'object' in the environment
       
       
@@ -2831,7 +3024,9 @@ output:
       message("Report generated at: ", normalizePath(out))
       return(invisible(out))
     },
+    # nolint start: line_length_linter.
     generateStatusReport = function(output_file = file.path(tempdir(), "data_status_report.html"), rmd_file = file.path(tempdir(), "data_status_report.Rmd")) {
+    # nolint end
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
@@ -2874,14 +3069,18 @@ output:
             if (is.list(.xx)) {
               for (.nnn in names(.self$statusReportObjects[[.n]][[.nn]])) {
                 .xxx <- .self$statusReportObjects[[.n]][[.nn]][[.nnn]]
+                # nolint start: line_length_linter.
                 rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xxx,.envir = .self))
+                # nolint end
               }
             } else {
-              rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xx,.envir = .self))
+              rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
+                  .envir = .self))
             }
           }
         } else {
-          rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.x,.envir = .self))
+          rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
+              .envir = .self))
         }
       }
       
