@@ -2441,23 +2441,42 @@
       obs_state <- new.env(
         parent = emptyenv()
       ); obs_state$value <- cm$data_status$Essentials$obs
-      .set_animal_field <- function(key, candidates, label, type = c("chr","num")) {
+      .set_animal_field <- function(
+        key, candidates, label,
+        type = c("chr", "num")
+      ) {
         type <- match.arg(type)
         col <- .pick_col(cm$data$observations, candidates)
         if (is.na(col)) {
-          obs_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse = " / "))
+          obs_state$value[[key]] <- paste0(
+            r,
+            " Missing column: ",
+            paste(candidates, collapse = " / ")
+          )
           return()
         }
         x <- cm$data$observations[[col]][idx_animal]
         present_n <- if (type == "num") .present_num(x) else .present_chr(x)
-        obs_state$value[[key]] <- .animal_field_status(present_n, n_animal, label)
+        obs_state$value[[key]] <- .animal_field_status(
+          present_n,
+          n_animal,
+          label
+        )
       }
       
       .set_animal_field("behavior", "behavior", "behavior","chr")
       .set_animal_field("sex", "sex","sex", "chr")
       .set_animal_field("lifeStage", "lifeStage", "lifeStage", "chr")
-      .set_animal_field("angle", c("individualPositionAngle","angle"), "angle", "num")
-      .set_animal_field("radius", c("individualPositionRadius","radius"), "radius", "num")
+      .set_animal_field(
+        "angle",
+        c("individualPositionAngle", "angle"),
+        "angle", "num"
+      )
+      .set_animal_field(
+        "radius",
+        c("individualPositionRadius", "radius"),
+        "radius", "num"
+      )
       .set_animal_field("speed", c("individualSpeed","speed"), "speed", "num")
       .set_animal_field("individualID", "individualID", "individualID", "chr")
       cm$data_status$Essentials$obs <- obs_state$value
@@ -2466,15 +2485,30 @@
   #------
   # DEPLOYMENTS 
   
-  if (!("deployments" %in% names(cm$data)) || !is.data.frame(cm$data$deployments)) {
-    cm$data_status$Essentials$dep$status <- paste0(r, " Missing table: cm$data$deployments")
+  if (
+    !("deployments" %in% names(cm$data)) ||
+      !is.data.frame(cm$data$deployments)
+  ) {
+    cm$data_status$Essentials$dep$status <- paste0(
+      r,
+      " Missing table: cm$data$deployments"
+    )
   } else {
-    dep_state <- new.env(parent = emptyenv()); dep_state$value <- cm$data_status$Essentials$dep
-    add_dep <- function(key, candidates, kind = c("counts","timestamp","dep_interval"), treat_blank = TRUE) {
+    dep_state <- new.env(parent = emptyenv())
+    dep_state$value <- cm$data_status$Essentials$dep
+    add_dep <- function(
+      key, candidates,
+      kind = c("counts", "timestamp", "dep_interval"),
+      treat_blank = TRUE
+    ) {
       kind <- match.arg(kind)
       col <- .pick_col(cm$data$deployments, candidates)
       if (is.na(col)) {
-        dep_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        dep_state$value[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
         return()
       }
       dep_state$value[[key]] <- if (kind == "timestamp") {
@@ -2482,7 +2516,10 @@
       } else if (kind == "dep_interval") {
         .dep_interval_status(cm$data$deployments[[col]])
       } else {
-        .summ_status_counts(cm$data$deployments[[col]], treat_blank = treat_blank)
+        .summ_status_counts(
+          cm$data$deployments[[col]],
+          treat_blank = treat_blank
+        )
       }
     }
     
@@ -2491,28 +2528,50 @@
     add_dep("baitUse", "baitUse", "counts", TRUE)
     add_dep("cameraHeight", "cameraHeight","counts", FALSE)
     add_dep("habitat", "habitat", "counts", TRUE)
-    add_dep("dep_interval", c("deployment_interval","dep_interval"), "dep_interval")
+    add_dep(
+      "dep_interval",
+      c("deployment_interval", "dep_interval"),
+      "dep_interval"
+    )
     add_dep("depStart", c("deploymentStart","depStart"), "timestamp")
     add_dep("depEnd", c("deploymentEnd","depEnd"),"timestamp")
     cm$data_status$Essentials$dep <- dep_state$value
     
     col_sb <- .pick_col(cm$data$deployments, "setupBy")
     if (is.na(col_sb)) {
-      cm$data_status$Essentials$dep$setupBy_status <- paste0(r, " Missing column: setupBy")
+      cm$data_status$Essentials$dep$setupBy_status <- paste0(
+        r,
+        " Missing column: setupBy"
+      )
     } else {
-      cm$data_status$Essentials$dep$setupBy_table  <- table(cm$data$deployments[[col_sb]], useNA = "ifany")
-      cm$data_status$Essentials$dep$setupBy_status <- .summ_status_counts(cm$data$deployments[[col_sb]], treat_blank = TRUE)
+      cm$data_status$Essentials$dep$setupBy_table <- table(
+        cm$data$deployments[[col_sb]],
+        useNA = "ifany"
+      )
+      cm$data_status$Essentials$dep$setupBy_status <-
+        .summ_status_counts(
+          cm$data$deployments[[col_sb]],
+          treat_blank = TRUE
+        )
     }
   }
   #----
   
   # MEDIA 
   if ("media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
-    add_media <- function(key, candidates, kind = c("counts","timestamp"), treat_blank = TRUE) {
+    add_media <- function(
+      key, candidates,
+      kind = c("counts", "timestamp"),
+      treat_blank = TRUE
+    ) {
       kind <- match.arg(kind)
       col <- .pick_col(cm$data$media, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$media[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$media[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
         return()
       }
       cm$data_status$Essentials$media[[key]] <- if (kind == "timestamp") {
@@ -2524,7 +2583,12 @@
     
     add_media("comments", "comments", "counts", TRUE)
     add_media("favourite", c("favourite","favorite"), "counts", FALSE)
-    add_media("file.path", c("filePath","file.path","file_path"), "counts", TRUE)
+    add_media(
+      "file.path",
+      c("filePath", "file.path", "file_path"),
+      "counts",
+      TRUE
+    )
     add_media("timestamp", "timestamp", "timestamp", TRUE)
   }
   #--------
@@ -2534,9 +2598,16 @@
     add_seq <- function(key, candidates, treat_blank = TRUE) {
       col <- .pick_col(cm$data$sequences, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$seq[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$seq[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
       } else {
-        cm$data_status$Essentials$seq[[key]] <- .summ_status_counts(cm$data$sequences[[col]], treat_blank = treat_blank)
+        cm$data_status$Essentials$seq[[key]] <- .summ_status_counts(
+          cm$data$sequences[[col]],
+          treat_blank = treat_blank
+        )
       }
     }
     add_seq("captureMethod", "captureMethod", TRUE)
@@ -2549,20 +2620,33 @@
     
     col_tid <- .pick_col(cm$data$taxonomy, "taxonID")
     if (is.na(col_tid)) {
-      cm$data_status$Essentials$tax$taxonID <- paste0(r, " Missing column: taxonID")
+      cm$data_status$Essentials$tax$taxonID <- paste0(
+        r,
+        " Missing column: taxonID"
+      )
     } else {
       x <- .trim_chr(cm$data$taxonomy[[col_tid]])
       keep <- !is.na(x) & x != ""
       uniq <- length(unique(x[keep]))
-      cm$data_status$Essentials$tax$taxonID <- paste0(uniq, " unique taxonID identified")
+      cm$data_status$Essentials$tax$taxonID <- paste0(
+        uniq,
+        " unique taxonID identified"
+      )
     }
     
     add_tax <- function(key, candidates) {
       col <- .pick_col(cm$data$taxonomy, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$tax[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$tax[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
       } else {
-        cm$data_status$Essentials$tax[[key]] <- .summ_status_counts(cm$data$taxonomy[[col]], treat_blank = TRUE)
+        cm$data_status$Essentials$tax[[key]] <- .summ_status_counts(
+          cm$data$taxonomy[[col]],
+          treat_blank = TRUE
+        )
       }
     }
     
@@ -2602,7 +2686,15 @@
   .safe_quantile <- function(x, q) {
     x <- x[!is.na(x)]
     if (!length(x)) return(NA_real_)
-    as.numeric(stats::quantile(x, probs = q, na.rm = TRUE, names = FALSE, type = 7))
+    as.numeric(
+      stats::quantile(
+        x,
+        probs = q,
+        na.rm = TRUE,
+        names = FALSE,
+        type = 7
+      )
+    )
   }
   
   # helper: summary table
@@ -2661,13 +2753,17 @@
   # required columns (observations)
   col_method <- .pick_col(cm$data$observations, "classificationMethod")
   col_type   <- .pick_col(cm$data$observations, c("observationType", "obsType"))
-  col_prob   <- .pick_col(cm$data$observations, c("classificationProbability", "classificationConfidence"))
+  col_prob <- .pick_col(
+    cm$data$observations,
+    c("classificationProbability", "classificationConfidence")
+  )
   col_seq    <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
   
   miss <- character(0)
   if (is.na(col_method)) miss <- c(miss, "classificationMethod")
   if (is.na(col_type)) miss <- c(miss, "observationType/obsType")
-  if (is.na(col_prob)) miss <- c(miss, "classificationProbability/classificationConfidence")
+  if (is.na(col_prob))
+    miss <- c(miss, "classificationProbability/classificationConfidence")
   
   if (length(miss)) {
     cm$data_status$Validation$status <- paste0(
@@ -2689,17 +2785,29 @@
     captureMethod <- .trim_chr(cm$data$observations[[col_cap_obs]])
   } else {
     # sequences join
-    if (!is.na(col_seq) && "sequences" %in% names(cm$data) && is.data.frame(cm$data$sequences)) {
+    if (
+      !is.na(col_seq) &&
+        "sequences" %in% names(cm$data) &&
+        is.data.frame(cm$data$sequences)
+    ) {
       col_seq_seq <- .pick_col(cm$data$sequences, c("sequenceID", "sequID"))
       col_cap_seq <- .pick_col(cm$data$sequences, "captureMethod")
       if (!is.na(col_seq_seq) && !is.na(col_cap_seq)) {
-        m <- match(.trim_chr(cm$data$observations[[col_seq]]), .trim_chr(cm$data$sequences[[col_seq_seq]]))
+        m <- match(
+          .trim_chr(cm$data$observations[[col_seq]]),
+          .trim_chr(cm$data$sequences[[col_seq_seq]])
+        )
         captureMethod <- .trim_chr(cm$data$sequences[[col_cap_seq]][m])
       }
     }
     
     # media fallback
-    if (all(is.na(captureMethod)) && !is.na(col_seq) && "media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
+    if (
+      all(is.na(captureMethod)) &&
+        !is.na(col_seq) &&
+        "media" %in% names(cm$data) &&
+        is.data.frame(cm$data$media)
+    ) {
       col_seq_med <- .pick_col(cm$data$media, c("sequenceID", "sequID"))
       col_cap_med <- .pick_col(cm$data$media, "captureMethod")
       if (!is.na(col_seq_med) && !is.na(col_cap_med)) {
@@ -2718,9 +2826,15 @@
   method[method == ""] <- NA_character_
   
   type_raw <- tolower(.trim_chr(cm$data$observations[[col_type]]))
-  is_animal <- !is.na(type_raw) & (type_raw == "animal" | grepl("\\banimal\\b", type_raw))
+  is_animal <-
+    !is.na(type_raw) &
+    (type_raw == "animal" | grepl("\\banimal\\b", type_raw))
   
-  prob <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[col_prob]])))
+  prob <- suppressWarnings(
+    as.numeric(
+      .trim_chr(cm$data$observations[[col_prob]])
+    )
+  )
   
   # VALIDATION RULE:
   # currently: validated == (prob == 1)
@@ -2743,8 +2857,14 @@
   for (i in seq_along(cm_levels)) {
     cm_i <- cm_levels[i]
     idx <- captureMethod == cm_i
-    classification_summary$Human[i] <- sum(method[idx] == "human",   na.rm = TRUE)
-    classification_summary$Machine[i] <- sum(method[idx] == "machine", na.rm = TRUE)
+    classification_summary$Human[i] <- sum(
+      method[idx] == "human",
+      na.rm = TRUE
+    )
+    classification_summary$Machine[i] <- sum(
+      method[idx] == "machine",
+      na.rm = TRUE
+    )
     classification_summary$NA_Classification[i] <- sum(is.na(method[idx]))
     classification_summary$Total[i] <- sum(idx)
   }
@@ -2784,16 +2904,24 @@
     validation_summary$Machine_Animal[i] <- m_animal
     validation_summary$Validated_Animal[i] <- v_animal
     
-    machine_n <- classification_summary$Machine[classification_summary$captureMethod == cm_i]
+    machine_n <- classification_summary$Machine[
+      classification_summary$captureMethod == cm_i
+    ]
     machine_n <- if (length(machine_n)) machine_n else 0L
     
-    validation_summary$Machine_Animal_pr[i] <- round(100 * m_animal / pmax(machine_n, 1), 1)
-    validation_summary$Validated_Animal_pr[i] <- if (m_animal > 0) round(100 * v_animal / m_animal, 1) else NA_real_
+    validation_summary$Machine_Animal_pr[i] <- round(
+      100 * m_animal / pmax(machine_n, 1),
+      1
+    )
+    validation_summary$Validated_Animal_pr[i] <- if (m_animal > 0)
+      round(100 * v_animal / m_animal, 1) else NA_real_
   }
   
   total_m_animal <- sum(validation_summary$Machine_Animal)
   total_v_animal <- sum(validation_summary$Validated_Animal)
-  total_machine  <- classification_summary$Machine[classification_summary$captureMethod == "TOTAL"]
+  total_machine <- classification_summary$Machine[
+    classification_summary$captureMethod == "TOTAL"
+  ]
   
   validation_summary <- rbind(
     validation_summary,
@@ -2801,8 +2929,12 @@
       captureMethod  = "TOTAL",
       Machine_Animal = total_m_animal,
       Validated_Animal = total_v_animal,
-      Machine_Animal_pr = round(100 * total_m_animal / pmax(total_machine, 1), 1),
-      Validated_Animal_pr = if (total_m_animal > 0) round(100 * total_v_animal / total_m_animal, 1) else NA_real_,
+      Machine_Animal_pr = round(
+        100 * total_m_animal / pmax(total_machine, 1),
+        1
+      ),
+      Validated_Animal_pr = if (total_m_animal > 0)
+        round(100 * total_v_animal / total_m_animal, 1) else NA_real_,
       stringsAsFactors = FALSE
     )
   )
@@ -2813,7 +2945,14 @@
                        by = "captureMethod", all.x = TRUE, sort = FALSE)
   
   # enforce same order as classification_summary
-  final_table <- final_table[match(classification_summary$captureMethod, final_table$captureMethod), , drop = FALSE]
+  final_table <- final_table[
+    match(
+      classification_summary$captureMethod,
+      final_table$captureMethod
+    ),
+    ,
+    drop = FALSE
+  ]
   
   fmt_pct <- function(n, total) {
     p <- ifelse(total > 0, round(100 * n / total, 1), NA_real_)
@@ -2825,12 +2964,21 @@
     Machine  <- fmt_pct(Machine, Total)
     NA_Classification <- fmt_pct(NA_Classification, Total)
     Machine_Animal <- paste0(Machine_Animal, " (", Machine_Animal_pr, "%)")
-    Validated_Animal <- paste0(Validated_Animal, " (", Validated_Animal_pr, "%)")
+    Validated_Animal <- paste0(
+      Validated_Animal,
+      " (",
+      Validated_Animal_pr,
+      "%)"
+    )
     Total <- as.character(Total)
   })
   
   final_table_formatted <- final_table_formatted[
-    , c("captureMethod", "Human", "Machine", "NA_Classification", "Total", "Machine_Animal", "Validated_Animal"),
+    , c(
+      "captureMethod", "Human", "Machine",
+      "NA_Classification", "Total",
+      "Machine_Animal", "Validated_Animal"
+    ),
     drop = FALSE
   ]
   
@@ -2855,7 +3003,9 @@
   idx_species <- tolower(.trim_chr(cm$data$taxonomy$taxonRank)) == "species"
   idx_species[is.na(idx_species)] <- FALSE
   
-  idx_human <- tolower(.trim_chr(cm$data$taxonomy$scientificName)) == "homo sapiens"
+  idx_human <- tolower(
+    .trim_chr(cm$data$taxonomy$scientificName)
+  ) == "homo sapiens"
   idx_human[is.na(idx_human)] <- FALSE
   
   Keep_sp <- cm$data$taxonomy[idx_species & !idx_human, , drop = FALSE]
@@ -2884,7 +3034,10 @@
   if (is.na(col_nrp)) miss <- c(miss, "cm$data$sequences$nrphotos")
   
   if (length(miss)) {
-    cm$data_status$Species$status <- paste0("Missing required columns: ", toString(miss))
+    cm$data_status$Species$status <- paste0(
+      "Missing required columns: ",
+      toString(miss)
+    )
     cm$data_status$Species$Table <- data.frame()
     return(NULL)
   }
@@ -2900,17 +3053,26 @@
   
   obs_tax <- .trim_chr(cm$data$observations[[col_tax_obs]])[idx_animal]
   obs_seq <- .trim_chr(cm$data$observations[[col_seq_obs]])[idx_animal]
-  obs_cnt <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[col_cnt]])))[idx_animal]
+  obs_cnt <- suppressWarnings(
+    as.numeric(
+      .trim_chr(cm$data$observations[[col_cnt]])
+    )
+  )[idx_animal]
   obs_cnt[is.na(obs_cnt)] <- 0
   
   seq_id_all <- .trim_chr(cm$data$sequences[[col_seq_seq]])
-  nrphotos <- suppressWarnings(as.numeric(.trim_chr(cm$data$sequences[[col_nrp]])))
+  nrphotos <- suppressWarnings(
+    as.numeric(
+      .trim_chr(cm$data$sequences[[col_nrp]])
+    )
+  )
   nrphotos[is.na(nrphotos)] <- 0
   
   # D) Output table
   out <- data.frame(
     scientificName = .trim_chr(Keep_sp$scientificName),
-    family  = if ("family" %in% names(Keep_sp)) .trim_chr(Keep_sp$family) else NA_character_,
+    family = if ("family" %in% names(Keep_sp))
+      .trim_chr(Keep_sp$family) else NA_character_,
     order = if ("order"  %in% names(Keep_sp)) .trim_chr(Keep_sp$order)  else NA_character_,
     class = if ("class"  %in% names(Keep_sp)) .trim_chr(Keep_sp$class)  else NA_character_,
     obs_records_count = 0,
