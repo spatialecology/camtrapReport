@@ -730,6 +730,7 @@ camR <- setRefClass(
             !is.list(.self$.act_models[[sp]])
         ) {
           x <- try({
+            # nolint start: nested_pipe_linter.
             dat <- .self$data$observations |>
               dplyr::left_join(
                 .self$data$deployments |>
@@ -739,6 +740,7 @@ camR <- setRefClass(
                   ),
                 'deploymentID'
               )
+            # nolint end
             activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
             
             rm(dat)
@@ -785,6 +787,7 @@ camR <- setRefClass(
               species = sp
             )
             
+            # nolint start: nested_pipe_linter.
             dat <- .self$data$observations |>
               dplyr::left_join(
                 .self$data$deployments |>
@@ -794,6 +797,7 @@ camR <- setRefClass(
                   ),
                 'deploymentID'
               )
+            # nolint end
             
             activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
             
