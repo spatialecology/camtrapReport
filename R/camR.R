@@ -65,7 +65,9 @@
     paste0(
       "```{r setup, include=FALSE}\n",
       "pkgs <- c(", pkg_txt, ")\n",
+      # nolint start: line_length_linter.
       "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
+      # nolint end
       "if (length(missing_pkgs) > 0) {\n",
       "  stop('Missing package(s): ', paste(missing_pkgs, collapse = ', '))\n",
       "}\n",
@@ -78,7 +80,9 @@
     paste0(
       "```{r setup, include=FALSE}\n",
       "pkgs <- c(", pkg_txt, ")\n",
+      # nolint start: line_length_linter.
       "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
+      # nolint end
       "if (length(missing_pkgs) > 0) {\n",
       "  stop('Missing package(s): ', paste(missing_pkgs, collapse = ', '))\n",
       "}\n",
@@ -185,9 +189,12 @@
 
 #---------
 
-# in group_definition, the groups like large_mammals, wild_mammals can be defined
-# each group can be specified based on data columns (e.g., order, class, scientificNames)
-# domestic group can be defined based on which the wild_animals also defined (species NOT in domestic)
+# in group_definition, the groups like large_mammals, wild_mammals
+# can be defined
+# each group can be specified based on data columns
+# (e.g., order, class, scientificNames)
+# domestic group can be defined based on which the wild_animals also
+# defined (species NOT in domestic)
 
 camR <- setRefClass(
   "camReport",
@@ -229,11 +236,14 @@ camR <- setRefClass(
     rem = "list",
     .rem_params  = "list",
     .act_models = "list",
-    .any_data_for_rem  = 'logical', # a vector of species names for which REM could not be fitted!
+    # a vector of species names for which REM could not be fitted!
+    .any_data_for_rem  = 'logical',
     .tempObjects  = "list",
     reportTextElements = "list",
     reportObjectElements = "list",
-    statusReportObjects = "list", # a list of .txtSection and .Rchunk objects (for data_status report!)
+    # a list of .txtSection and .Rchunk objects
+    # (for data_status report!)
+    statusReportObjects = "list",
     reportObjects    = "list" # a list of .txtSection and .Rchunk objects
   ),
   
@@ -241,16 +251,23 @@ camR <- setRefClass(
     initialize = function() {
       #.loadlib()
       
-      .self$setting <- list(locationLegend = FALSE,color=c("#CA6A28","#6C9100","#00A383","#008ADF","#D44CBF"))
+      .self$setting <- list(
+        locationLegend = FALSE,
+        color = c("#CA6A28", "#6C9100", "#00A383", "#008ADF", "#D44CBF")
+      )
       
       
       .self$filterDuration <- 5
       
       .self$siteName <-  "**an unspecified location**"
       
+      # nolint start: line_length_linter.
       .self$description <- "No discription has been provided for this site. The report object can be updated by overriding the 'description' field!"
+      # nolint end
       
+      # nolint start: line_length_linter.
       #.self$sampling <- "Description of sampling method has NOT been provided. The 'sampling' field can be updated by the user. More details on camera trap deployments can be found in the summarized information table below (Table 1)!"
+      # nolint end
       .self$title <- 'Report generated using the camtrapReport package'
       .self$authors <- "Monitoring team"
       .self$logoPath <- ''
@@ -263,9 +280,12 @@ camR <- setRefClass(
         "#6D904F", "#F6C85F", "#B276B2", "#DECF3F", "#FAA43A", "#60BD68",
         "#F15854", "#4D4D4D", "#B2912F", "#7B615C", "#1F77B4", "#FF7F0E",
         "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#17BECF",
-        "#0000FF", "#FF0000", "#00FF00", "#000033", "#FF00B6", "#005300", "#FFD300", "#009FFF", "#9A4D42",
-        "#00FFBE", "#783FC1", "#1F9698", "#FFACFD", "#B1CC71", "#F1085C", "#FE8F42", "#DD00FF", "#201A01",
-        "#720055", "#766C95", "#02AD24", "#C8FF00", "#886C00", "#FFB79F", "#858567", "#A10300", "#14F9FF",
+        "#0000FF", "#FF0000", "#00FF00", "#000033", "#FF00B6",
+        "#005300", "#FFD300", "#009FFF", "#9A4D42",
+        "#00FFBE", "#783FC1", "#1F9698", "#FFACFD", "#B1CC71",
+        "#F1085C", "#FE8F42", "#DD00FF", "#201A01",
+        "#720055", "#766C95", "#02AD24", "#C8FF00", "#886C00",
+        "#FFB79F", "#858567", "#A10300", "#14F9FF",
         "#00479E", "#DC5E93", "#93D4FF", "#004CFF"
       )
       
@@ -276,9 +296,11 @@ camR <- setRefClass(
         "#A52A2A", "#9370DB", "#4682B4", "#FF1493", "#20B2AA"
       )
       
-      .self$reportObjectElements$acadia_colors <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", 
-                                                    "#526A83", "#625377", "#68855C", "#9C9C5E", 
-                                                    "#A06177", "#8C785D", "#467378", "#7C7C7C")
+      .self$reportObjectElements$acadia_colors <- c(
+        "#855C75", "#D9AF6B", "#AF6458", "#736F4C",
+        "#526A83", "#625377", "#68855C", "#9C9C5E",
+        "#A06177", "#8C785D", "#467378", "#7C7C7C"
+      )
       .self$.tempObjects$fig.n <- 1
       .self$.tempObjects$tab.n <- 1
     },
@@ -287,7 +309,15 @@ camR <- setRefClass(
       # x should be a named list
       if (!is.list(x)) stop('x should be a named list...!')
       
-      if (!any(c('order','class','scientificName','observationType') %in% names(x))) stop('Currently, only items from c("order","class","scientificName","observationType") are allowed to define a group!')
+      if (!any(
+        c('order', 'class', 'scientificName', 'observationType') %in%
+          names(x)
+      ))
+        stop(
+          # nolint start: line_length_linter.
+          'Currently, only items from c("order","class","scientificName","observationType") are allowed to define a group!'
+          # nolint end
+        )
       
       .self$group_definition[[name]] <- x
       
@@ -300,13 +330,19 @@ camR <- setRefClass(
         x <- x[x %in% .self$species_summary$count$Group]
         if (length(x) > 0) {
           .self$setting$focus_groups <- x
-        } else stop('the specified groups are not defined (or there is no match)...!')
+        } else
+          stop(
+            'the specified groups are not defined (or there is no match)...!'
+          )
       } else {
         if (length(names(.self$group_definition)) > 0) {
           x <- x[x %in% names(.self$group_definition)]
           if (length(x) > 0) {
             .self$setting$focus_groups <- x
-          } else stop('the specified groups are not defined (or there is no match)...!')
+          } else
+            stop(
+              'the specified groups are not defined (or there is no match)...!'
+            )
         }
       }
       
@@ -342,17 +378,27 @@ camR <- setRefClass(
       # if all = T -> all species (without accounting for filtering is returned)
       if (all) return(unique(.self$data$observations$scientificName))
       #-------------------------------
-      if (length(.self$species_summary) == 0) stop('No species summay information...run "setup" first...')
+      if (length(.self$species_summary) == 0)
+        stop('No species summay information...run "setup" first...')
       #----
       if (is.null(group)) {
-        unique(unlist(lapply(.self$species_summary,function(x) x$site_list$scientificName)))
+        unique(
+          unlist(
+            lapply(
+              .self$species_summary,
+              function(x) x$site_list$scientificName
+            )
+          )
+        )
       } else if (is.character(group)) {
         if (length(group) == 1) {
           if (group %in% names(.self$species_summary)) {
             unique(.self$species_summary[[group]]$site_list$scientificName)
           } else {
             if (group %in% .self$species_summary$count$Name) {
-              .g <- .self$species_summary$count$Group[.self$species_summary$count$Name == group]
+              .g <- .self$species_summary$count$Group[
+                .self$species_summary$count$Name == group
+              ]
               unique(.self$species_summary[[.g]]$site_list$scientificName)
             } else stop('group is unknown!')
           }
@@ -360,11 +406,23 @@ camR <- setRefClass(
           .n <- NULL
           for (.g in group) {
             if (.g %in% names(.self$species_summary)) {
-              .n <- c(.n,unique(.self$species_summary[[.g]]$site_list$scientificName))
+              .n <- c(
+                .n,
+                unique(
+                  .self$species_summary[[.g]]$site_list$scientificName
+                )
+              )
             } else {
               if (.g %in% .self$species_summary$count$Name) {
-                .gg <- .self$species_summary$count$Group[.self$species_summary$count$Name == .g]
-                .n <- c(.n,unique(.self$species_summary[[.gg]]$site_list$scientificName))
+                .gg <- .self$species_summary$count$Group[
+                  .self$species_summary$count$Name == .g
+                ]
+                .n <- c(
+                  .n,
+                  unique(
+                    .self$species_summary[[.gg]]$site_list$scientificName
+                  )
+                )
               }
             }
           }
@@ -392,7 +450,8 @@ camR <- setRefClass(
     },
     richness=function(year=NULL,spList = NULL) {
       # if year is NULL -> total
-      # spList can be a vector of scientificNames (e.g., related to a focus_group); if NULL --> all species
+      # spList can be a vector of scientificNames
+      # (e.g., related to a focus_group); if NULL --> all species
       
       .d <- .self$data$observations |> 
         dplyr::filter(!is.na(scientificName)) |> 
@@ -407,7 +466,15 @@ camR <- setRefClass(
           dplyr::summarise(
             Richness = length(unique(scientificName)),
             Species_List = toString(sort(unique(scientificName))),
-            Community_Composition = toString(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')'))),
+            Community_Composition = toString(
+              paste0(
+                paste0(sort(unique(scientificName)), ' ('),
+                paste0(
+                  table(scientificName)[sort(unique(scientificName))],
+                  ')'
+                )
+              )
+            ),
             .groups = "drop"
           )  |> dplyr::left_join(.self$data$locations,by='locationID')
       } else {
@@ -418,7 +485,15 @@ camR <- setRefClass(
             dplyr::summarise(
               Richness = length(unique(scientificName)),
               Species_List = toString(sort(unique(scientificName))),
-              Community_Composition = toString(paste0(paste0(sort(unique(scientificName)),' ('),paste0(table(scientificName)[sort(unique(scientificName))],')'))),
+              Community_Composition = toString(
+                paste0(
+                  paste0(sort(unique(scientificName)), ' ('),
+                  paste0(
+                    table(scientificName)[sort(unique(scientificName))],
+                    ')'
+                  )
+                )
+              ),
               .groups = "drop"
             ) |> dplyr::left_join(.self$data$locations,by='locationID')
           
@@ -426,15 +501,23 @@ camR <- setRefClass(
       }
       .rich
     },
-    spatial_density=function(x=NULL,species=NULL,year=NULL,.crs=NULL,.ext=NULL,.crop=NULL) {
+    spatial_density = function(
+      x = NULL, species = NULL, year = NULL,
+      .crs = NULL, .ext = NULL, .crop = NULL
+    ) {
       # spatial density raster map
       # x: the output of species_summary_by_location wit cor_matrix=F
-      # if x is null -> species_summary_by_location will be called with other arguments
+      # if x is null -> species_summary_by_location will be called
+      # with other arguments
       # .crop: projected study_area used to crop the density map
       #---------
       
       if (is.null(x)) {
-        x <- .self$species_summary_by_location(year=year,spList=species,cor_matrix=FALSE)
+        x <- .self$species_summary_by_location(
+          year = year,
+          spList = species,
+          cor_matrix = FALSE
+        )
         x$lon <- x$longitude
         x$lat <- x$latitude
         x <- vect(x,geom=c('lon','lat'),crs=crs(rast()))
@@ -449,7 +532,12 @@ camR <- setRefClass(
       if (!is.null(.ext) && length(as.vector(.ext)) == 4) {
         .ext <- as.vector(.ext)
         if (!is.null(.crop)) {
-          if (xr[1] < .ext[1] | xr[2] > .ext[2] | yr[1] < .ext[3] | yr[2] > .ext[4]) {
+          if (
+            xr[1] < .ext[1] |
+              xr[2] > .ext[2] |
+              yr[1] < .ext[3] |
+              yr[2] > .ext[4]
+          ) {
             .ww <- NULL
             .w <- xr[1] - .ext[1]
             if (.w < 0) .ww <- c(.ww,abs(.w))
@@ -477,7 +565,9 @@ camR <- setRefClass(
       #     .ext <- as.vector(ext(.crop))
       #   } else {
       #     if (.is.projected(.self$study_area$object)) {
+      # nolint start: line_length_linter.
       #       .crop <- .get_projected_vect(project(.self$study_area$object,crs(rast())))
+      # nolint end
       #       .crs <- crs(.crop)
       #       .ext <- as.vector(ext(.crop))
       #     } else {
@@ -525,10 +615,16 @@ camR <- setRefClass(
       if (!is.null(.crop)) r <- crop(r, .crop, mask=TRUE)
       r
     },
-    species_summary_by_location=function(year=NULL,spList=NULL,cor_matrix=TRUE,PA=TRUE) {
-      # cor_matrix = T -> cor of co-occurrence matrix across locations will be returned
-      # otherwise, species summary across locations (count, total observations) will be generated
-      # PA = T -> co-occurrence matrix will be based on P/A, otherwise, based on count
+    species_summary_by_location = function(
+      year = NULL, spList = NULL,
+      cor_matrix = TRUE, PA = TRUE
+    ) {
+      # cor_matrix = T -> cor of co-occurrence matrix across
+      # locations will be returned
+      # otherwise, species summary across locations
+      # (count, total observations) will be generated
+      # PA = T -> co-occurrence matrix will be based on P/A,
+      # otherwise, based on count
       #-----------------------
       if (is.null(spList)) {
         .d <- .self$data$observations |> 
@@ -546,7 +642,9 @@ camR <- setRefClass(
       #----
       if (!is.null(.self$observed_counts$scientificName)) {
         .d <- .d |>
-          dplyr::filter(scientificName %in% .self$observed_counts$scientificName)
+          dplyr::filter(
+            scientificName %in% .self$observed_counts$scientificName
+          )
       }
       #----
       if (!is.null(year)) {
@@ -565,7 +663,11 @@ camR <- setRefClass(
             total_count        = sum(count, na.rm = TRUE),
             .groups = "drop"
           ) |>
-          dplyr::left_join(.self$data$locations, by = "locationID",multiple = "any")
+          dplyr::left_join(
+            .self$data$locations,
+            by = "locationID",
+            multiple = "any"
+          )
         
         
         #----
@@ -574,7 +676,11 @@ camR <- setRefClass(
             .d <- .d |>
               dplyr::group_by(locationID, scientificName) |>
               dplyr::summarise(count = dplyr::n(), .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, fill = 0)
+              .pivot_wider(
+                names_from = scientificName,
+                values_from = count,
+                fill = 0
+              )
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -587,7 +693,11 @@ camR <- setRefClass(
             .d <- .d |>
               dplyr::group_by(locationID, scientificName) |>
               dplyr::summarise(count = total_count, .groups = "drop") |>
-              .pivot_wider(names_from = scientificName, values_from = count, fill = 0)
+              .pivot_wider(
+                names_from = scientificName,
+                values_from = count,
+                fill = 0
+              )
             
             sp_mat <- as.matrix(.d[, -1])  
             rownames(sp_mat) <- .d$locationID
@@ -595,7 +705,12 @@ camR <- setRefClass(
             sp_mat <- sp_mat[ , colSums(sp_mat) > 1, drop = FALSE]
             
             
-            if (ncol(sp_mat) > 1) cor(sp_mat, use = "pairwise.complete.obs",method = 'spearman')
+            if (ncol(sp_mat) > 1)
+              cor(
+                sp_mat,
+                use = "pairwise.complete.obs",
+                method = 'spearman'
+              )
           }
           
         } else .d
@@ -610,9 +725,20 @@ camR <- setRefClass(
           return(.self$.rem_params[[sp]])
         }
         
-        if (is.null(.self$.act_models[[sp]]) || !is.list(.self$.act_models[[sp]])) {
+        if (
+          is.null(.self$.act_models[[sp]]) ||
+            !is.list(.self$.act_models[[sp]])
+        ) {
           x <- try({
-            dat <- .self$data$observations |> dplyr::left_join(.self$data$deployments |> dplyr::left_join(.self$data$locations,by='locationID'),'deploymentID')
+            dat <- .self$data$observations |>
+              dplyr::left_join(
+                .self$data$deployments |>
+                  dplyr::left_join(
+                    .self$data$locations,
+                    by = 'locationID'
+                  ),
+                'deploymentID'
+              )
             activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
             
             rm(dat)
@@ -632,16 +758,42 @@ camR <- setRefClass(
           return(.self$.act_models[[sp]])
         } 
       } else {
-        if ((is.null(.self$.rem_params[[sp]]) || !is.list(.self$.rem_params[[sp]])) && .require('camtrapDensity')) {
+        if (
+          (is.null(.self$.rem_params[[sp]]) ||
+            !is.list(.self$.rem_params[[sp]])) &&
+            .require('camtrapDensity')
+        ) {
           
           x <- try({
             
-            radius_model <- .fit_detmodel(radius ~ 1, .self$data$observations, species = sp, truncation = "5%",quiet=TRUE)
-            angle_model <- .fit_detmodel(angle ~ 1, .self$data$observations, species = sp, unit = "radian",quiet=TRUE)
-            speed_model <- .fit_speedmodel(.self$data$observations, species = sp)
+            radius_model <- .fit_detmodel(
+              radius ~ 1,
+              .self$data$observations,
+              species = sp,
+              truncation = "5%",
+              quiet = TRUE
+            )
+            angle_model <- .fit_detmodel(
+              angle ~ 1,
+              .self$data$observations,
+              species = sp,
+              unit = "radian",
+              quiet = TRUE
+            )
+            speed_model <- .fit_speedmodel(
+              .self$data$observations,
+              species = sp
+            )
             
             dat <- .self$data$observations |>
-              dplyr::left_join(.self$data$deployments |> dplyr::left_join(.self$data$locations,by='locationID'),'deploymentID')
+              dplyr::left_join(
+                .self$data$deployments |>
+                  dplyr::left_join(
+                    .self$data$locations,
+                    by = 'locationID'
+                  ),
+                'deploymentID'
+              )
             
             activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
             
@@ -680,21 +832,29 @@ camR <- setRefClass(
           if (!is.null(species_params)) {
             x <- try({
               trdat <- .get_traprate_data(dat, species = sp)
-              .parameters <- .get_parameter_table(trdat, 
-                                                  radius_model = species_params$radius_model, 
-                                                  angle_model = species_params$angle_model, 
-                                                  speed_model = species_params$speed_model, 
-                                                  activity_model = species_params$activity_model, 
-                                                  reps = 10)
+              .parameters <- .get_parameter_table(
+                trdat,
+                radius_model = species_params$radius_model,
+                angle_model = species_params$angle_model,
+                speed_model = species_params$speed_model,
+                activity_model = species_params$activity_model,
+                reps = 10
+              )
               .density_estimates <- .rem(.parameters)
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", 
+              # nolint start: line_length_linter.
+              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")",
+              # nolint end
                                           environment())
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == 
+                english_name <-
+                  dat$taxonomy$vernacularNames.eng[
+                    dat$taxonomy$scientificName ==
                                                                    sp]
               }
               else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == 
+                english_name <-
+                  dat$taxonomy$vernacularNames[
+                    dat$taxonomy$scientificName ==
                                                                sp]
               }
               else english_name <- "Unknown"
@@ -722,18 +882,28 @@ camR <- setRefClass(
           if (!is.null(species_params)) {
             x <- try({
               trdat <- .get_traprate_data(dat, species = sp)
-              .parameters <- .get_parameter_table(trdat, 
-                                                  radius_model = species_params$radius_model, 
-                                                  angle_model = species_params$angle_model, 
-                                                  speed_model = species_params$speed_model, 
-                                                  activity_model = species_params$activity_model, 
-                                                  reps = 10)
+              .parameters <- .get_parameter_table(
+                trdat,
+                radius_model = species_params$radius_model,
+                angle_model = species_params$angle_model,
+                speed_model = species_params$speed_model,
+                activity_model = species_params$activity_model,
+                reps = 10
+              )
               .density_estimates <- .rem(.parameters)
+              # nolint start: line_length_linter.
               .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", environment())
+              # nolint end
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames.eng[dat$taxonomy$scientificName == sp]
+                english_name <-
+                  dat$taxonomy$vernacularNames.eng[
+                    dat$taxonomy$scientificName == sp
+                  ]
               } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                english_name <- dat$taxonomy$vernacularNames[dat$taxonomy$scientificName == sp]
+                english_name <-
+                  dat$taxonomy$vernacularNames[
+                    dat$taxonomy$scientificName == sp
+                  ]
               } else english_name <- "Unknown"
               if (length(english_name) == 0) english_name <- "Unknown"
               data.frame(scientificName = sp, EnglishName = english_name, 
@@ -759,12 +929,25 @@ camR <- setRefClass(
       # extract REM results for a species from .self$rem
       # if not available, fit_REM is called!
       
-      if (length(.sp) > 1) stop('length(.sp) > 1; a single species name should be provided to get_REM!')
+      if (length(.sp) > 1)
+        stop(
+          # nolint start: line_length_linter.
+          'length(.sp) > 1; a single species name should be provided to get_REM!'
+          # nolint end
+        )
       
-      if (length(.self$.any_data_for_rem) == 0) .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-      else if (!.sp %in% names(.self$.any_data_for_rem)) .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+      if (length(.self$.any_data_for_rem) == 0)
+        .self$.any_data_for_rem <-
+          .any_data_for_rem(.self$data)
+      else if (!.sp %in% names(.self$.any_data_for_rem))
+        .self$.any_data_for_rem <-
+          .any_data_for_rem(.self$data)
       #-------------
-      if (length(.self$.any_data_for_rem) > 0 && .sp %in% names(.self$.any_data_for_rem) && .self$.any_data_for_rem[.sp]) {
+      if (
+        length(.self$.any_data_for_rem) > 0 &&
+          .sp %in% names(.self$.any_data_for_rem) &&
+          .self$.any_data_for_rem[.sp]
+      ) {
         .g <- .self$get_focus_group(.sp)
         if (.g %in% names(.self$rem)) {
           .n <- names(.self$rem[[.g]])
@@ -790,7 +973,8 @@ camR <- setRefClass(
       # add tz (time zone) to setting:
       if (is.null(tz)) {
         if (is.null(.self$setting$tz)) {
-          if (!is.null(.self$data$settings$tz)) .self$setting$tz <- .self$data$settings$tz
+          if (!is.null(.self$data$settings$tz))
+            .self$setting$tz <- .self$data$settings$tz
           else .self$setting$tz <- "CET"
         }
       } else {
@@ -798,7 +982,9 @@ camR <- setRefClass(
       }
       #------------------------
       # adding new column (Year) to deployments data.frame:
-      .self$data$deployments$Year <- .getYear(.self$data$deployments$deployment_interval) 
+      .self$data$deployments$Year <- .getYear(
+        .self$data$deployments$deployment_interval
+      )
       #----
       .y <- sort(.self$extractYears())
       ################
@@ -806,60 +992,129 @@ camR <- setRefClass(
       # from GBIF (it needs the taxize package)
       
       .w <- table(.self$data$observations$taxonID)
-      .self$observed_counts <- dplyr::left_join(data.frame(taxonID=names(.w),count=as.numeric(.w)),.self$data$taxonomy,by='taxonID')
+      .self$observed_counts <- dplyr::left_join(
+        data.frame(
+          taxonID = names(.w),
+          count = as.numeric(.w)
+        ),
+        .self$data$taxonomy,
+        by = 'taxonID'
+      )
       #-----
       .self$filter()
       ####################
       if (!'large_mammals' %in% names(.self$group_definition)) {
         if (any(c("Artiodactyla","Carnivora") %in% .self$data$taxonomy$order)) {
-          .self$group_definition[['large_mammals']] <- list(order=c("Artiodactyla","Carnivora"),domestic=FALSE,observationType='animal')
+          .self$group_definition[['large_mammals']] <- list(
+            order = c("Artiodactyla", "Carnivora"),
+            domestic = FALSE,
+            observationType = 'animal'
+          )
         }
       }
       #-----
       if (!'domestic' %in% names(.self$group_definition)) {
-        .self$group_definition[['domestic']] <- list(scientificName=c("Homo sapiens", "Canis lupus familiaris", "Felis catus",
-                                                                      "Ovis aries", "Bos taurus", "Equus caballus", "Capra hircus",
-                                                                      "Sus scrofa domesticus", "Equus africanus asinus", "Oryctolagus cuniculus",
-                                                                      "Camelus dromedarius", "Camelus bactrianus", "Rangifer tarandus domesticus"))
+        .self$group_definition[['domestic']] <- list(
+          scientificName = c(
+            "Homo sapiens", "Canis lupus familiaris", "Felis catus",
+            "Ovis aries", "Bos taurus", "Equus caballus",
+            "Capra hircus", "Sus scrofa domesticus",
+            "Equus africanus asinus", "Oryctolagus cuniculus",
+            "Camelus dromedarius", "Camelus bactrianus",
+            "Rangifer tarandus domesticus"
+          )
+        )
         
       }
       #------
-      if (!'wild_animals' %in% names(.self$group_definition) && 'domestic' %in% names(.self$group_definition)) {
-        .self$group_definition[['wild_animals']] <- list(scientificName = .self$data$taxonomy$scientificName[!.self$data$taxonomy$scientificName %in% .self$group_definition$domestic$scientificName])
+      if (
+        !'wild_animals' %in% names(.self$group_definition) &&
+          'domestic' %in% names(.self$group_definition)
+      ) {
+        .self$group_definition[['wild_animals']] <- list(
+          scientificName = .self$data$taxonomy$scientificName[
+            !.self$data$taxonomy$scientificName %in%
+              .self$group_definition$domestic$scientificName
+          ]
+        )
       }
       #-----
-      if (!'birds' %in% names(.self$group_definition) && 'Aves' %in% .self$data$taxonomy$class) {
-        .self$group_definition[['birds']] <- list(class='Aves',observationType='animal')
+      if (
+        !'birds' %in% names(.self$group_definition) &&
+          'Aves' %in% .self$data$taxonomy$class
+      ) {
+        .self$group_definition[['birds']] <- list(
+          class = 'Aves',
+          observationType = 'animal'
+        )
       }
       
-      if (!'reptiles' %in% names(.self$group_definition) && 'Reptilia' %in% .self$data$taxonomy$class) {
-        .self$group_definition[['reptiles']] <- list(class='Reptilia',observationType='animal')
+      if (
+        !'reptiles' %in% names(.self$group_definition) &&
+          'Reptilia' %in% .self$data$taxonomy$class
+      ) {
+        .self$group_definition[['reptiles']] <- list(
+          class = 'Reptilia',
+          observationType = 'animal'
+        )
       }
       
-      if (!'amphibians' %in% names(.self$group_definition) && 'Amphibia' %in% .self$data$taxonomy$class) {
-        .self$group_definition[['amphibians']] <- list(class='Amphibia',observationType='animal')
+      if (
+        !'amphibians' %in% names(.self$group_definition) &&
+          'Amphibia' %in% .self$data$taxonomy$class
+      ) {
+        .self$group_definition[['amphibians']] <- list(
+          class = 'Amphibia',
+          observationType = 'animal'
+        )
       }
       
-      if (!'wild_mammals' %in% names(.self$group_definition) && 'Mammalia' %in% .self$data$taxonomy$class 
+      if (
+        !'wild_mammals' %in% names(.self$group_definition) &&
+          'Mammalia' %in% .self$data$taxonomy$class
           && 'domestic' %in% names(.self$group_definition)) {
         
-        .w <- .self$data$taxonomy$class == "Mammalia" & (!.self$data$taxonomy$scientificName %in% .self$group_definition$domestic$scientificName) & grepl(" ", .self$data$taxonomy$scientificName, fixed = TRUE)
-        if (length(.w) > 0) .self$group_definition[['wild_mammals']] <- list(scientificName = .self$data$taxonomy$scientificName[.w])
+        .w <- .self$data$taxonomy$class == "Mammalia" &
+          (!.self$data$taxonomy$scientificName %in%
+            .self$group_definition$domestic$scientificName) &
+          grepl(" ", .self$data$taxonomy$scientificName, fixed = TRUE)
+        if (length(.w) > 0)
+          .self$group_definition[['wild_mammals']] <- list(
+            scientificName = .self$data$taxonomy$scientificName[.w]
+          )
         
       }
       #---
-      if (!'human_observation' %in% names(.self$group_definition) && "Homo sapiens" %in% .self$data$taxonomy$scientificName) {
-        .self$group_definition[['human_observation']] <- list(scientificName="Homo sapiens",observationType='human')
+      if (
+        !'human_observation' %in% names(.self$group_definition) &&
+          "Homo sapiens" %in% .self$data$taxonomy$scientificName
+      ) {
+        .self$group_definition[['human_observation']] <- list(
+          scientificName = "Homo sapiens",
+          observationType = 'human'
+        )
       }
       
       #####################
       
       #----------------- #Locations with Habitat --------------------------
       
-      if (nrow(.self$habitat) > 0 &&  !any(c('habitat','Habitat','Habitat_Type') %in% colnames(.self$data$locations))) {
-        .self$data$locations <- .left_join(.self$data$locations,.self$habitat, by = "locationName")
+      if (
+        nrow(.self$habitat) > 0 &&
+          !any(
+            c('habitat', 'Habitat', 'Habitat_Type') %in%
+              colnames(.self$data$locations)
+          )
+      ) {
+        .self$data$locations <- .left_join(
+          .self$data$locations,
+          .self$habitat,
+          by = "locationName"
+        )
         if ('habitat' %in% tolower(colnames(.self$data$locations))) {
-          colnames(.self$data$locations)[tolower(colnames(.self$data$locations)) == "habitat"] <- "Habitat_Type"
+          colnames(.self$data$locations)[
+            tolower(colnames(.self$data$locations)) == "habitat"
+          ] <- "Habitat_Type"
         }
         
       }
@@ -878,7 +1133,11 @@ camR <- setRefClass(
           # Group deployments by location and find min/max dates
           deployments <- .data_year$deployments |>
             dplyr::group_by(locationID) |>
-            dplyr::summarise(start_date = min(deploymentStart,na.rm=TRUE), end_date = max(deploymentEnd,na.rm=TRUE), .groups = "drop")
+            dplyr::summarise(
+              start_date = min(deploymentStart, na.rm = TRUE),
+              end_date = max(deploymentEnd, na.rm = TRUE),
+              .groups = "drop"
+            )
           
           # Find the earliest and latest deployment dates
           earliest_start <- min(deployments$start_date,na.rm=TRUE)
@@ -886,7 +1145,10 @@ camR <- setRefClass(
           if (!is.null(.self$filterDuration) && .self$filterDuration > 0) {
             .fdur <- .self$filterDuration * 86400 # (24* 60 * 60) seconds!
             
-            valid_end_dates <- deployments |> dplyr::filter(end_date >= (latest_end - .fdur))
+            valid_end_dates <- deployments |>
+              dplyr::filter(
+                end_date >= (latest_end - .fdur)
+              )
             earliest_end <- min(valid_end_dates$end_date,na.rm=TRUE)
           } else earliest_end <- min(deployments$end_date,na.rm=TRUE)
           
@@ -894,9 +1156,21 @@ camR <- setRefClass(
           list(
             year = as.numeric(x),
             number_camtraps = number_camtraps,
-            deployment_period = paste(format(earliest_start, "%Y-%m-%d"), "-", format(latest_end, "%Y-%m-%d")),
-            setup_period = paste(format(earliest_start, "%d %B"), "-", format(max(deployments$start_date), "%d %B")),
-            pickup_period = paste(format(earliest_end, "%B %d"), "-", format(latest_end, "%B %d"))
+            deployment_period = paste(
+              format(earliest_start, "%Y-%m-%d"),
+              "-",
+              format(latest_end, "%Y-%m-%d")
+            ),
+            setup_period = paste(
+              format(earliest_start, "%d %B"),
+              "-",
+              format(max(deployments$start_date), "%d %B")
+            ),
+            pickup_period = paste(
+              format(earliest_end, "%B %d"),
+              "-",
+              format(latest_end, "%B %d")
+            )
           )
         }
         
@@ -919,8 +1193,18 @@ camR <- setRefClass(
       if (!is.null(names(.self$group_definition))) {
         for (n in names(.self$group_definition)) {
           if ('scientificName' %in%  names(.self$group_definition[[n]])) {
-            .self$species_summary[[n]] <- .summarize_species(.self,.tax_obs,scientificName = .self$group_definition[[n]]$scientificName)
-          } else if (any(c('class','order') %in% names(.self$group_definition[[n]]))) {
+            .self$species_summary[[n]] <- .summarize_species(
+              .self,
+              .tax_obs,
+              scientificName =
+                .self$group_definition[[n]]$scientificName
+            )
+          } else if (
+            any(
+              c('class', 'order') %in%
+                names(.self$group_definition[[n]])
+            )
+          ) {
             if ('class' %in% names(.self$group_definition[[n]])) {
               if ('order' %in% names(.self$group_definition[[n]])) {
                 if ('domestic' %in% names(.self$group_definition[[n]]) && is.logical(.self$group_definition[[n]]$domestic)) {
@@ -1064,7 +1348,11 @@ camR <- setRefClass(
         # Group deployments by location
         deployments_grouped <- .data_year$deployments |>
           dplyr::group_by(locationID) |>
-          dplyr::summarise(start_date = min(deploymentStart,na.rm=TRUE), end_date = max(deploymentEnd,na.rm=TRUE), .groups = "drop")
+          dplyr::summarise(
+            start_date = min(deploymentStart, na.rm = TRUE),
+            end_date = max(deploymentEnd, na.rm = TRUE),
+            .groups = "drop"
+          )
         
         # Identify latest deployment end date
         latest_end <- max(deployments_grouped$end_date,na.rm=TRUE)
