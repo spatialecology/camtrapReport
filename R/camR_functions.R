@@ -3073,8 +3073,10 @@
     scientificName = .trim_chr(Keep_sp$scientificName),
     family = if ("family" %in% names(Keep_sp))
       .trim_chr(Keep_sp$family) else NA_character_,
-    order = if ("order"  %in% names(Keep_sp)) .trim_chr(Keep_sp$order)  else NA_character_,
-    class = if ("class"  %in% names(Keep_sp)) .trim_chr(Keep_sp$class)  else NA_character_,
+    order = if ("order" %in% names(Keep_sp))
+      .trim_chr(Keep_sp$order) else NA_character_,
+    class = if ("class" %in% names(Keep_sp))
+      .trim_chr(Keep_sp$class) else NA_character_,
     obs_records_count = 0,
     n_sequences  = 0L,
     stringsAsFactors = FALSE
@@ -3276,8 +3278,10 @@
   
   if (length(txt) > 0 && any(grepl("\\beow\\b", txt, ignore.case = TRUE))) {
     cm$reportTextElements$name <- "EOW"
+    # nolint start: line_length_linter.
     cm$reportTextElements$message <- "This survey is part of the [European Observatory of Wildlife](https://wildlifeobservatory.org/), an international project in which institutions monitor protected areas across European countries."
     cm$reportTextElements$Intro_text <- "The [European Observatory of Wildlife (EOW)](https://wildlifeobservatory.org/) is a standardized camera-trapping network operating across more than 100 study areas in Europe. It is coordinated by the [ENETWILD](https://enetwild.com/) consortium and funded by the [European Food Safety Authority (EFSA)](https://www.efsa.europa.eu/en). Images collected by camera traps within this network are processed and archived in Agouti, exported in the [Camtrap DP](https://camtrap-dp.tdwg.org/) standard format, and included in annual monitoring reports submitted to EFSA. A key feature of the EOW protocol is the use of the [Random Encounter Model (REM)](https://github.com/MarcusRowcliffe/camtrapDensity) to estimate population density from camera-trap detections (*Rowcliffe et al., 2014*). As a result, the entire workflow follows an established and standardized framework."
+    # nolint end
     cm$info[["is.EOW"]] <- TRUE
   } else {
     cm$reportTextElements$name <- "Non-EOW"
@@ -3313,7 +3317,9 @@
       )
     } else {
       cm$reportTextElements$habitat_text <- paste0(
-        "The area is a mosaic of ", .paste_comma_and(hab_vals), " habitat types."
+        "The area is a mosaic of ",
+        .paste_comma_and(hab_vals),
+        " habitat types."
       )
     }
   }
@@ -3337,14 +3343,19 @@
       drop = FALSE
     ]
     
-    sp_table <- sp_table[order(sp_table$captures, decreasing = TRUE), , drop = FALSE]
+    sp_table <- sp_table[
+      order(sp_table$captures, decreasing = TRUE),
+      ,
+      drop = FALSE
+    ]
     
     top5_names <- head(sp_table$scientificName, 5)
     
     cm$data_status$Species$most_observed_sp <- top5_names
     
     top5_names_italic <- paste0("*", top5_names, "*")
-    cm$reportTextElements$most_observed_sp_text <- .paste_comma_and(top5_names_italic)
+    cm$reportTextElements$most_observed_sp_text <-
+      .paste_comma_and(top5_names_italic)
     
   } else {
     cm$data_status$Species$most_observed_sp <- character(0)
@@ -3352,7 +3363,9 @@
   }
   #-------- Image processing source
   if (!is.null(cm$info$json$sources) &&
-      length(cm$info$json$sources) > 0 && !is.null(cm$info$json$sources[[1]]$title)) {
+      length(cm$info$json$sources) > 0 &&
+      !is.null(cm$info$json$sources[[1]]$title)
+  ) {
     cm$reportTextElements$data_source <- cm$info$json$sources[[1]]$title
   } else {
     cm$reportTextElements$data_source <- ""
@@ -3364,19 +3377,32 @@
   p1 <- p2 <- p3 <- ""
   if (!is.null(cm$info$is.EOW) && cm$info$is.EOW) {
     p1 <- paste(
+      # nolint start: line_length_linter.
       "Based on the [EOW camera-trap protocol](https://enetwild.com/ct-protocol-for-wild-boar),",
       "at least 40 unbaited camera traps were deployed per survey on a 1 km grid for a minimum of one month.",
       "This design ensures unbiased sampling of natural wildlife movements and provides representative ecological data",
       "for the study area, enabling trend analyses and spatiotemporal comparisons.",
       "The EOW protocol also includes camera calibration procedures, allowing researchers to georeference image pixels",
       "for precise spatial analyses."
+      # nolint end
     )
   }
   #-----
   # p2:
-  if (!is.null(cm$info$json) && !is.null(cm$info$json$project$samplingDesign) && length(cm$info$json$project$samplingDesign) > 0) {
-    sampling_design <- unique(trimws(as.character(cm$info$json$project$samplingDesign)))
-    sampling_design <- sampling_design[!is.na(sampling_design) & sampling_design != ""]
+  if (
+    !is.null(cm$info$json) &&
+      !is.null(cm$info$json$project$samplingDesign) &&
+      length(cm$info$json$project$samplingDesign) > 0
+  ) {
+    sampling_design <- unique(
+      trimws(
+        as.character(cm$info$json$project$samplingDesign)
+      )
+    )
+    sampling_design <- sampling_design[
+      !is.na(sampling_design) &
+        sampling_design != ""
+    ]
     #-----
     if (length(sampling_design) > 0) {
       
@@ -3393,7 +3419,11 @@
         )
       }
       
-      pretty_labels <- vapply(sampling_design, pretty_label_for, FUN.VALUE = character(1))
+      pretty_labels <- vapply(
+        sampling_design,
+        pretty_label_for,
+        FUN.VALUE = character(1)
+      )
       
       format_nice_list <- function(x) {
         n <- length(x)
@@ -3404,13 +3434,16 @@
       
       descriptions <- list(
         simpleRandom = paste(
+          # nolint start: line_length_linter.
           "In a simple random design, camera locations are placed purely at random within the study area,",
           "which minimizes spatial bias but can lead to uneven coverage in some regions."
         ),
         systematicRandom = paste(
           "In a systematic random design, camera locations are initially chosen at random but then arranged in a regular pattern, such as a grid,",
           "providing more even spatial coverage while retaining a random starting point."
+          # nolint end
         ),
+        # nolint start: line_length_linter.
         clusteredRandom = paste(
           "In a clustered random design, cameras are grouped into clusters or arrays, and the positions of these clusters",
           "and/or cameras within them are chosen at random, which is useful when logistical efficiency or local-scale questions require grouped sampling."
@@ -3426,6 +3459,7 @@
         opportunistic = paste(
           "In an opportunistic design, cameras are deployed in an ad hoc way, often without a predefined sampling frame,",
           "which can yield useful records but is generally not suitable for rigorous population- or community-level inference."
+          # nolint end
         )
       )
       
@@ -3433,10 +3467,15 @@
       known_desc <- desc_vec[!vapply(desc_vec, is.null, logical(1))]
       
       if (length(pretty_labels) == 1) {
-        intro <- sprintf("The sampling design at this site is %s.", pretty_labels)
+        intro <- sprintf(
+          "The sampling design at this site is %s.",
+          pretty_labels
+        )
       } else {
         intro <- sprintf(
+          # nolint start: line_length_linter.
           "The sampling design at this site combines the following approaches: %s.",
+          # nolint end
           format_nice_list(pretty_labels)
         )
       }
@@ -3485,7 +3524,9 @@
     
     if (length(vals) <= 3) {
       paste0(
+        # nolint start: line_length_linter.
         "Camera surveys at this site were conducted using the following camera model",
+        # nolint end
         ifelse(length(vals) > 1, "s: ", ": "),
         .paste_comma_and(vals), "."
       )
@@ -3505,7 +3546,9 @@
     } else if (identical(sort(vals), "TRUE")) {
       "Bait was used in this survey."
     } else if (all(c("TRUE", "FALSE") %in% vals)) {
+      # nolint start: line_length_linter.
       "A mixture of baited and unbaited camera deployments was used in this survey."
+      # nolint end
     } else {
       ""
     }
@@ -3555,20 +3598,28 @@
     if (length(vals) == 0) return("")
     
     if (identical(sort(vals), "FALSE")) {
+      # nolint start: line_length_linter.
       "This project was not specifically designed to identify individual animals, but rather to support broader wildlife monitoring."
     } else if (identical(sort(vals), "TRUE")) {
       "This project was designed to support the identification and monitoring of individual animals."
     } else if (all(c("TRUE", "FALSE") %in% vals)) {
       "This project supports both the identification of individual animals and broader wildlife monitoring."
+      # nolint end
     } else {
       ""
     }
   }
   
   # Extract source values
-  cam_models <- if ("cameraModel" %in% names(cm$data$deployments)) cm$data$deployments$cameraModel else NULL
-  bait_vals  <- if ("baitUse" %in% names(cm$data$deployments)) cm$data$deployments$baitUse else NULL
-  height_vals <- if ("cameraHeight" %in% names(cm$data$deployments)) cm$data$deployments$cameraHeight else NULL
+  cam_models <- if (
+    "cameraModel" %in% names(cm$data$deployments)
+  ) cm$data$deployments$cameraModel else NULL
+  bait_vals <- if (
+    "baitUse" %in% names(cm$data$deployments)
+  ) cm$data$deployments$baitUse else NULL
+  height_vals <- if (
+    "cameraHeight" %in% names(cm$data$deployments)
+  ) cm$data$deployments$cameraHeight else NULL
   
   capture_methods <- cm$info$json$project$captureMethod
   individual_animals <- cm$info$json$project$individualAnimals
@@ -3586,7 +3637,10 @@
   
   p3 <- paste(p3, collapse = " ")
   #---------
-  cm$reportTextElements$sampling <- paste(list(p1=p1,p2=p2,p3=p3),collapse = '\n')
+  cm$reportTextElements$sampling <- paste(
+    list(p1 = p1, p2 = p2, p3 = p3),
+    collapse = '\n'
+  )
   
 }
 #--------
@@ -3618,7 +3672,12 @@
     
     rows <- lapply(x, function(row) {
       
-      out <- as.list(stats::setNames(rep(NA_character_, length(all_names)), all_names))
+      out <- as.list(
+        stats::setNames(
+          rep(NA_character_, length(all_names)),
+          all_names
+        )
+      )
       
       if (!is.null(row) && length(row) > 0) {
         for (nm in intersect(names(row), all_names)) {
@@ -3646,7 +3705,9 @@
   
   # Pattern for likely organizations / non-person entries
   org_pattern <- paste0(
+    # nolint start: line_length_linter.
     "university|universiteit|institute|institution|center|centre|research|admin|",
+    # nolint end
     "observatory|consortium|network|project|laboratory|lab|group|team"
   )
   
@@ -3766,7 +3827,8 @@
   
   # always remove Agouti Admins
   x <- x[tolower(x$title) != "agouti admins", , drop = FALSE]
-  # helper: get affiliation for a given person by searching all rows of that person
+  # helper: get affiliation for a given person by searching all rows
+  # of that person
   get_affiliation_for_person <- function(person_name) {
     aff <- x$organization[
       x$title == person_name &
@@ -3825,7 +3887,10 @@
 .pick_station_col <- function(data) {
   if (!is.null(data$locations) && "locationName" %in% names(data$locations)) {
     "locationName"
-  } else if (!is.null(data$deployments) && "locationID" %in% names(data$deployments)) {
+  } else if (
+    !is.null(data$deployments) &&
+      "locationID" %in% names(data$deployments)
+  ) {
     "locationID"
   } else {
     "deploymentID"
