@@ -1317,7 +1317,10 @@
       )
       
       out$MCArea <- area_km2
-      out$MCArea_method <- paste0(buffer_m / 1000, " km buffered camera-location area")
+      out$MCArea_method <- paste0(
+        buffer_m / 1000,
+        " km buffered camera-location area"
+      )
       
       out$MCArea_text <- paste0(
         .format_area(area_km2),
@@ -1326,6 +1329,7 @@
         " km buffers around camera locations)"
       )
       
+      # nolint start: line_length_linter.
       out$status_MCArea <- paste0(
         "The ",
         n_area_locations,
@@ -1337,6 +1341,7 @@
         .format_area(area_km2),
         "."
       )
+      # nolint end
       
     } else {
       
@@ -1344,6 +1349,7 @@
       out$MCArea_method <- "Minimum convex polygon"
       out$MCArea_text <- .format_area(area_km2)
       
+      # nolint start: line_length_linter.
       out$status_MCArea <- paste0(
         "The ",
         n_area_locations,
@@ -1351,6 +1357,7 @@
         out$MCArea_text,
         "."
       )
+      # nolint end
     }
   }
   
@@ -1358,7 +1365,9 @@
   
   if (!is.null(loc)) {
     country_values <- unique(terra::extract(wrld, loc)[["name"]])
-    country_values <- country_values[!is.na(country_values) & country_values != ""]
+    country_values <- country_values[
+      !is.na(country_values) & country_values != ""
+    ]
     out$country <- .paste_comma_and(country_values)
   } else {
     out$country <- NA_character_
@@ -1416,7 +1425,10 @@
   #---------------- 9. spatial pattern detection ----------------
   
   if (nrow(total_unique_locations_df) > 0) {
-    coords_xy <- total_unique_locations_df[, c("longitude", "latitude"), drop = FALSE]
+    coords_xy <- total_unique_locations_df[
+      , c("longitude", "latitude"),
+      drop = FALSE
+    ]
     coords_xy <- coords_xy[stats::complete.cases(coords_xy), , drop = FALSE]
     
     xy_key <- .coord_key(coords_xy[["longitude"]], coords_xy[["latitude"]])
@@ -1504,7 +1516,10 @@
     }
     
   } else {
-    out$status_spatial <- paste0(w, " Too few locations to detect a spatial pattern")
+    out$status_spatial <- paste0(
+      w,
+      " Too few locations to detect a spatial pattern"
+    )
   }
   
   # Keep original behavior: assignment returns out
@@ -1550,8 +1565,16 @@
     di <- .trim_chr(deployments_df$deployment_interval)
     parts <- strsplit(ifelse(is.na(di), "", di), "--", fixed = TRUE)
     
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
     
     start_d <- .as_date(start_raw)
     end_d   <- .as_date(end_raw)
@@ -1566,7 +1589,12 @@
       tmp <- start_d[swap]; start_d[swap] <- end_d[swap]; end_d[swap] <- tmp
     }
     
-    data.frame(deploymentID = depid, start_d = start_d, end_d = end_d, stringsAsFactors = FALSE)
+    data.frame(
+      deploymentID = depid,
+      start_d = start_d,
+      end_d = end_d,
+      stringsAsFactors = FALSE
+    )
   }
   
   .covered_days <- function(ints) {
@@ -1612,7 +1640,12 @@
     }
     
     i_max <- pos[which.max(gap_days[pos])]
-    max_gap <- sprintf("%d days (from %s to %s)", gap_days[i_max], this_end[i_max] + 1, next_start[i_max] - 1)
+    max_gap <- sprintf(
+      "%d days (from %s to %s)",
+      gap_days[i_max],
+      this_end[i_max] + 1,
+      next_start[i_max] - 1
+    )
     
     if (length(pos) == 1) {
       min_gap <- paste0("Same as max gap (only one gap detected) ", ic$green)
@@ -1620,7 +1653,12 @@
     }
     
     i_min <- pos[which.min(gap_days[pos])]
-    min_gap <- sprintf("%d days (from %s to %s)", gap_days[i_min], this_end[i_min] + 1, next_start[i_min] - 1)
+    min_gap <- sprintf(
+      "%d days (from %s to %s)",
+      gap_days[i_min],
+      this_end[i_min] + 1,
+      next_start[i_min] - 1
+    )
     
     list(max_gap = max_gap, min_gap = min_gap, n_gaps = length(pos))
   }
@@ -1630,8 +1668,16 @@
     is_blank <- is.na(x) | !nzchar(x)
     
     parts <- strsplit(ifelse(is_blank, "", x), "--", fixed = TRUE)
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
     
     start_d <- .as_date(start_raw)
     end_d   <- .as_date(end_raw)
@@ -1639,7 +1685,11 @@
     valid <- !is_blank & !is.na(start_d) & !is.na(end_d) & (end_d >= start_d)
     n_bad <- sum(!valid)
     
-    if (n_bad == 0) paste("None", ic$green) else sprintf("%d invalid/empty interval(s) %s", n_bad, ic$red)
+    if (n_bad == 0) paste("None", ic$green) else sprintf(
+      "%d invalid/empty interval(s) %s",
+      n_bad,
+      ic$red
+    )
   }
   
   .temporal_outliers <- function(years_raw, max_gap = 10) {
@@ -1672,7 +1722,11 @@
   .dep_zero_length <- function(ints) {
     if (!nrow(ints)) return(paste("None", ic$green))
     n_zero <- sum(ints$start_d == ints$end_d, na.rm = TRUE)
-    if (n_zero == 0) paste("None", ic$green) else paste0(n_zero, " zero-length interval(s) ", ic$yellow)
+    if (n_zero == 0) paste("None", ic$green) else paste0(
+      n_zero,
+      " zero-length interval(s) ",
+      ic$yellow
+    )
   }
   
   # ---- missing years label compressor: "2000-2021, 2023, 2025"
@@ -1682,7 +1736,8 @@
     if (!length(y)) return("")
     runs <- split(y, cumsum(c(1, diff(y) != 1)))
     parts <- vapply(runs, function(r) {
-      if (length(r) == 1) as.character(r[1]) else paste0(r[1], "-", r[length(r)])
+      if (length(r) == 1)
+        as.character(r[1]) else paste0(r[1], "-", r[length(r)])
     }, character(1))
     toString(parts)
   }
@@ -1698,7 +1753,14 @@
     range_label <- paste0(min(yrs), " - ", max(yrs))
     
     if (length(missing)) {
-      paste0(range_label, " (", ic$red, " missing: ", .missing_years_label(missing), ")")
+      paste0(
+        range_label,
+        " (",
+        ic$red,
+        " missing: ",
+        .missing_years_label(missing),
+        ")"
+      )
     } else {
       paste0(range_label, " (", ic$green, " complete)")
     }
@@ -1709,7 +1771,11 @@
   
   .months_to_label <- function(months_int) {
     months_int <- sort(unique(months_int))
-    months_int <- months_int[!is.na(months_int) & months_int >= 1 & months_int <= 12]
+    months_int <- months_int[
+      !is.na(months_int) &
+        months_int >= 1 &
+        months_int <= 12
+    ]
     if (!length(months_int)) return("-")
     
     runs <- split(months_int, cumsum(c(1, diff(months_int) != 1)))
@@ -1722,9 +1788,19 @@
   }
   
   .dep_month_coverage <- function(dep_ints, years_keep_chr) {
-    years_keep_chr <- sort(unique(grep("^[0-9]{4}$", years_keep_chr, value = TRUE)))
+    years_keep_chr <- sort(
+      unique(
+        grep("^[0-9]{4}$", years_keep_chr, value = TRUE)
+      )
+    )
     if (!nrow(dep_ints) || !length(years_keep_chr)) {
-      return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
+      return(
+        data.frame(
+          Year = character(0),
+          MonthSpan = character(0),
+          stringsAsFactors = FALSE
+        )
+      )
     }
     
     all_year <- character(0)
@@ -1744,10 +1820,20 @@
     }
     
     if (!length(all_year)) {
-      return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
+      return(
+        data.frame(
+          Year = character(0),
+          MonthSpan = character(0),
+          stringsAsFactors = FALSE
+        )
+      )
     }
     
-    out <- data.frame(Year = years_keep_chr, MonthSpan = "-", stringsAsFactors = FALSE)
+    out <- data.frame(
+      Year = years_keep_chr,
+      MonthSpan = "-",
+      stringsAsFactors = FALSE
+    )
     for (yy in years_keep_chr) {
       m <- all_mon[all_year == yy]
       if (length(m)) out$MonthSpan[out$Year == yy] <- .months_to_label(m)
@@ -1762,7 +1848,12 @@
   di <- .trim_chr(cm$data$deployments$deployment_interval)
   parts <- strsplit(ifelse(is.na(di), "", di), "--", fixed = TRUE)
   
-  dep_start_year <- vapply(parts, function(z) if (length(z) >= 1) substr(trimws(z[1]), 1, 4) else NA_character_, character(1))
+  dep_start_year <- vapply(
+    parts,
+    function(z) if (length(z) >= 1)
+      substr(trimws(z[1]), 1, 4) else NA_character_,
+    character(1)
+  )
   dep_end_year   <- vapply(parts, function(z) if (length(z) >= 2) substr(trimws(z[2]), 1, 4) else NA_character_, character(1))
   
   cm$data_status$Temporal$dep_years <- sort(unique(c(dep_start_year, dep_end_year)))
