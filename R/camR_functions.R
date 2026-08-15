@@ -1854,19 +1854,46 @@
       substr(trimws(z[1]), 1, 4) else NA_character_,
     character(1)
   )
-  dep_end_year   <- vapply(parts, function(z) if (length(z) >= 2) substr(trimws(z[2]), 1, 4) else NA_character_, character(1))
+  dep_end_year <- vapply(
+    parts,
+    function(z) if (length(z) >= 2)
+      substr(trimws(z[2]), 1, 4) else NA_character_,
+    character(1)
+  )
   
-  cm$data_status$Temporal$dep_years <- sort(unique(c(dep_start_year, dep_end_year)))
-  cm$data_status$Temporal$dep_years <- cm$data_status$Temporal$dep_years[grepl("^[0-9]{4}$", cm$data_status$Temporal$dep_years)]
+  cm$data_status$Temporal$dep_years <- sort(
+    unique(c(dep_start_year, dep_end_year))
+  )
+  cm$data_status$Temporal$dep_years <-
+    cm$data_status$Temporal$dep_years[
+      grepl("^[0-9]{4}$", cm$data_status$Temporal$dep_years)
+    ]
   
-  cm$data_status$Temporal$obs_years <- sort(unique(.year4(cm$data$observations$timestamp)))
-  cm$data_status$Temporal$obs_years <- cm$data_status$Temporal$obs_years[!is.na(cm$data_status$Temporal$obs_years)]
+  cm$data_status$Temporal$obs_years <- sort(
+    unique(.year4(cm$data$observations$timestamp))
+  )
+  cm$data_status$Temporal$obs_years <-
+    cm$data_status$Temporal$obs_years[
+      !is.na(cm$data_status$Temporal$obs_years)
+    ]
   
-  cm$data_status$Temporal$dep_years_message <- .years_message(cm$data_status$Temporal$dep_years)
-  cm$data_status$Temporal$obs_years_message <- .years_message(cm$data_status$Temporal$obs_years)
+  cm$data_status$Temporal$dep_years_message <-
+    .years_message(cm$data_status$Temporal$dep_years)
+  cm$data_status$Temporal$obs_years_message <-
+    .years_message(cm$data_status$Temporal$obs_years)
   
-  cm$data_status$Temporal$years_in_dep_not_obs <- sort(setdiff(cm$data_status$Temporal$dep_years, cm$data_status$Temporal$obs_years))
-  cm$data_status$Temporal$years_in_obs_not_dep <- sort(setdiff(cm$data_status$Temporal$obs_years, cm$data_status$Temporal$dep_years))
+  cm$data_status$Temporal$years_in_dep_not_obs <- sort(
+    setdiff(
+      cm$data_status$Temporal$dep_years,
+      cm$data_status$Temporal$obs_years
+    )
+  )
+  cm$data_status$Temporal$years_in_obs_not_dep <- sort(
+    setdiff(
+      cm$data_status$Temporal$obs_years,
+      cm$data_status$Temporal$dep_years
+    )
+  )
   
   cm$data_status$Temporal$temporal_inconsistency <- {
     dep_not_obs <- cm$data_status$Temporal$years_in_dep_not_obs
@@ -1876,21 +1903,57 @@
       paste0(ic$green, " Years in observations and deployments are the same")
     } else {
       parts2 <- character(0)
-      if (length(dep_not_obs)) parts2 <- c(parts2, paste0("Deployments exist, but observations are missing for: ", toString(dep_not_obs)))
-      if (length(obs_not_dep)) parts2 <- c(parts2, paste0("Observations exist, but deployments are missing for: ", toString(obs_not_dep)))
-      paste0(ic$red, " Temporal inconsistency (", paste(parts2, collapse = " | "), ")")
+      if (length(dep_not_obs))
+        parts2 <- c(
+          parts2,
+          paste0(
+            "Deployments exist, but observations are missing for: ",
+            toString(dep_not_obs)
+          )
+        )
+      if (length(obs_not_dep))
+        parts2 <- c(
+          parts2,
+          paste0(
+            "Observations exist, but deployments are missing for: ",
+            toString(obs_not_dep)
+          )
+        )
+      paste0(
+        ic$red,
+        " Temporal inconsistency (",
+        paste(parts2, collapse = " | "),
+        ")"
+      )
     }
   }
   
-  # B) First/Last deployments & observations + last day of last deployment + message
+  # B) First/Last deployments & observations + last day of last
+  # deployment + message
   
-  dep_start_posix <- suppressWarnings(as.POSIXct(cm$data$deployments$deploymentStart, tz = "UTC"))
-  dep_end_posix   <- suppressWarnings(as.POSIXct(cm$data$deployments$deploymentEnd,   tz = "UTC"))
+  dep_start_posix <- suppressWarnings(
+    as.POSIXct(
+      cm$data$deployments$deploymentStart,
+      tz = "UTC"
+    )
+  )
+  dep_end_posix <- suppressWarnings(
+    as.POSIXct(
+      cm$data$deployments$deploymentEnd,
+      tz = "UTC"
+    )
+  )
   obs_time_posix  <- .as_posix_utc(cm$data$observations$timestamp)
   
   dep_min      <- suppressWarnings(min(dep_start_posix, na.rm = TRUE))
-  dep_max      <- suppressWarnings(max(dep_start_posix, na.rm = TRUE))   # latest setup/start
-  dep_end_last <- suppressWarnings(max(dep_end_posix,   na.rm = TRUE))   # latest end
+  # latest setup/start
+  dep_max <- suppressWarnings(
+    max(dep_start_posix, na.rm = TRUE)
+  )
+  # latest end
+  dep_end_last <- suppressWarnings(
+    max(dep_end_posix, na.rm = TRUE)
+  )
   
   obs_min <- suppressWarnings(min(obs_time_posix, na.rm = TRUE))
   obs_max <- suppressWarnings(max(obs_time_posix, na.rm = TRUE))
@@ -1904,21 +1967,34 @@
   obs_max <- fix_inf(obs_max)
   
   cm$data_status$Temporal$dep_end_last <- dep_end_last
-  cm$data_status$Temporal$dep_first_last_setup <- paste(dep_min, dep_max, sep = " - ")
+  cm$data_status$Temporal$dep_first_last_setup <- paste(
+    dep_min,
+    dep_max,
+    sep = " - "
+  )
   cm$data_status$Temporal$obs_first_last <- paste(obs_min, obs_max, sep = " - ")
   
   
   if (is.finite(dep_min) && is.finite(obs_min) && obs_min < dep_min) {
     cm$data_status$Temporal$message_first_last <- paste0(
+      # nolint start: line_length_linter.
       ic$red, " Earliest observation is earlier than the first deployment start date (check timestamps or timezone). ", ic$alarm
+      # nolint end
     )
   } else if (is.finite(dep_min) && is.finite(obs_min)) {
-    cm$data_status$Temporal$message_first_last <- paste0(ic$green, " All observations are on/after the first deployment start.")
+    cm$data_status$Temporal$message_first_last <- paste0(
+      ic$green,
+      " All observations are on/after the first deployment start."
+    )
   } else {
-    cm$data_status$Temporal$message_first_last <- paste0(ic$yellow, " Cannot compare first/last dates (missing/invalid timestamps).")
+    cm$data_status$Temporal$message_first_last <- paste0(
+      ic$yellow,
+      " Cannot compare first/last dates (missing/invalid timestamps)."
+    )
   }
   
-  # C) Deployments: calendar coverage, gaps, missing intervals, outliers, zero-length
+  # C) Deployments: calendar coverage, gaps, missing intervals,
+  # outliers, zero-length
   
   dep_ints <- .parse_deployments(cm$data$deployments)
   dep_days <- .covered_days(dep_ints)
@@ -1929,8 +2005,13 @@
   cm$data_status$Temporal$dep_max_gap <- gap$max_gap
   cm$data_status$Temporal$dep_min_gap <- gap$min_gap
   
-  cm$data_status$Temporal$dep_missing_intervals <- .missing_intervals(cm$data$deployments$deployment_interval)
-  cm$data_status$Temporal$temporal_outliers <- .temporal_outliers(cm$data_status$Temporal$dep_years, max_gap = 10)
+  cm$data_status$Temporal$dep_missing_intervals <- .missing_intervals(
+    cm$data$deployments$deployment_interval
+  )
+  cm$data_status$Temporal$temporal_outliers <- .temporal_outliers(
+    cm$data_status$Temporal$dep_years,
+    max_gap = 10
+  )
   cm$data_status$Temporal$dep_zero_length <- .dep_zero_length(dep_ints)
   
   cm$data_status$Temporal$dep_month_coverage <- .dep_month_coverage(
