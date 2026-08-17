@@ -342,20 +342,6 @@ setMethod(
     }
     
     if (length(github_packages) > 0L) {
-      if (length(github_packages) > 0L) {
-        for (pkg in github_packages) {
-          result <- .installGitHub(
-            github_repositories[[pkg]]
-          )
-          
-          if (
-            isTRUE(result) &&
-            isTRUE(unname(.is.installed(pkg)))
-          ) {
-            installed_count <- installed_count + 1L
-          }
-        }
-      }    
       for (pkg in github_packages) {
         result <- .installGitHub(
           github_repositories[[pkg]]

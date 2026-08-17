@@ -483,3 +483,63 @@ test_that(
     )
   }
 )
+
+test_that(
+  "install_All update mode reinstalls each GitHub package exactly once",
+  {
+    state <- new.env(parent = emptyenv())
+    state$github_calls <- character()
+    state$github_installed <- FALSE
+    
+    testthat::local_mocked_bindings(
+      .getPackageList = function() {
+        character()
+      },
+      .getPackageGitHubList = function() {
+        c(
+          githubPackage = "example/exampleRepository"
+        )
+      },
+      .is.installed = function(n) {
+        n <- as.character(n)
+        
+        result <- vapply(
+          n,
+          function(package) {
+            identical(package, "githubPackage") &&
+              state$github_installed
+          },
+          logical(1)
+        )
+        
+        names(result) <- n
+        result
+      },
+      .installGitHub = function(repository) {
+        state$github_calls <- c(
+          state$github_calls,
+          repository
+        )
+        
+        state$github_installed <- TRUE
+        TRUE
+      },
+      .package = "camtrapReport"
+    )
+    
+    expect_output(
+      # nolint next: implicit_assignment_linter.
+      result <- install_All(update = TRUE),
+      "1 package was successfully reinstalled",
+      fixed = TRUE
+    )
+    
+    expect_null(result)
+    
+    expect_identical(
+      state$github_calls,
+      "example/exampleRepository"
+    )
+  }
+)
+
