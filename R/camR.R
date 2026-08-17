@@ -760,10 +760,14 @@ camR <- setRefClass(
           return(.self$.act_models[[sp]])
         } 
       } else {
+        
+        if (!.require("camtrapDensity")) {
+          return(NULL)
+        }
+        
         if (
-          (is.null(.self$.rem_params[[sp]]) ||
-            !is.list(.self$.rem_params[[sp]])) &&
-            .require('camtrapDensity')
+          is.null(.self$.rem_params[[sp]]) ||
+          !is.list(.self$.rem_params[[sp]])
         ) {
           
           x <- try({
@@ -822,6 +826,16 @@ camR <- setRefClass(
       }
     },
     fit_REM=function(sp) {
+      if (!.require("camtrapDensity")) {
+        warning(
+          "REM input data are available for ",
+          sp,
+          ", but the optional package 'camtrapDensity' is not installed. ",
+          "Run install_All() to enable REM estimation.",
+          call. = FALSE
+        )
+        return(invisible(FALSE))
+      }
       
       .g <- .self$get_focus_group(sp)
       if (!.g %in% names(.self$rem)) {
@@ -875,17 +889,22 @@ camR <- setRefClass(
         }
       }
       if (length(.density_estimate_list) > 0) {
+        
         for (n in names(.density_estimate_list)) {
           .self$rem[[.g]][[n]] <- .density_estimate_list[[n]]
         }
-        #------------
+        
         # also for total (all-years):
         dat <- .self$data
+        
         if (nrow(dat$observations) > 0) {
           species_params <- .self$.get_REM_Param(sp)
+          
           if (!is.null(species_params)) {
+            
             x <- try({
               trdat <- .get_traprate_data(dat, species = sp)
+              
               .parameters <- .get_parameter_table(
                 trdat,
                 radius_model = species_params$radius_model,
@@ -894,10 +913,20 @@ camR <- setRefClass(
                 activity_model = species_params$activity_model,
                 reps = 10
               )
+              
               .density_estimates <- .rem(.parameters)
-              # nolint start: line_length_linter.
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")", environment())
-              # nolint end
+              
+              .density_estimates <- .eval(
+                "camtrapDensity::convert_units(
+            .density_estimates,
+            radius_unit = \"m\",
+            angle_unit = \"degree\",
+            active_speed_unit = \"km/hour\",
+            overall_speed_unit = \"km/day\"
+          )",
+                environment()
+              )
+              
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
                 english_name <-
                   dat$taxonomy$vernacularNames.eng[
@@ -908,26 +937,36 @@ camR <- setRefClass(
                   dat$taxonomy$vernacularNames[
                     dat$taxonomy$scientificName == sp
                   ]
-              } else english_name <- "Unknown"
-              if (length(english_name) == 0) english_name <- "Unknown"
-              data.frame(scientificName = sp, EnglishName = english_name, 
-                         Year = 9999, Metric = rownames(.density_estimates), 
-                         .density_estimates, row.names = NULL)
+              } else {
+                english_name <- "Unknown"
+              }
+              
+              if (length(english_name) == 0) {
+                english_name <- "Unknown"
+              }
+              
+              data.frame(
+                scientificName = sp,
+                EnglishName = english_name,
+                Year = 9999,
+                Metric = rownames(.density_estimates),
+                .density_estimates,
+                row.names = NULL
+              )
             }, silent = TRUE)
+            
             if (!inherits(x, "try-error")) {
               .self$rem[[.g]][[sp]] <- x
             }
           }
         }
+        
+        return(invisible(TRUE))
+        
       } else {
-        if (length(.self$.any_data_for_rem) == 0) {
-          .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-        } else {
-          .self$.any_data_for_rem[sp] <- FALSE
-        }
+        
+        return(invisible(FALSE))
       }
-      
-      
     },
     get_REM = function(.sp) {
       # extract REM results for a species from .self$rem
@@ -949,27 +988,60 @@ camR <- setRefClass(
       #-------------
       if (
         length(.self$.any_data_for_rem) > 0 &&
-          .sp %in% names(.self$.any_data_for_rem) &&
-          .self$.any_data_for_rem[.sp]
+        .sp %in% names(.self$.any_data_for_rem) &&
+        .self$.any_data_for_rem[.sp]
       ) {
+        
         .g <- .self$get_focus_group(.sp)
+        
         if (.g %in% names(.self$rem)) {
+          
           .n <- names(.self$rem[[.g]])
-          .spn <- c(paste0(.sp,'_',.self$years),.sp)
-          if (any(.spn %in% .n)) {
-            .spn <- .spn[.spn %in% .n]
-            .self$rem[[.g]][.spn]
-          } else {
-            .self$fit_REM(.sp)
-            .self$get_REM(.sp)
+          .spn <- c(
+            paste0(.sp, "_", .self$years),
+            .sp
+          )
+          
+          .spn <- .spn[.spn %in% .n]
+          
+          if (length(.spn) > 0) {
+            return(.self$rem[[.g]][.spn])
           }
-        } else {
-          .self$fit_REM(.sp)
-          .self$get_REM(.sp)
         }
+        
+        fit_ok <- .self$fit_REM(.sp)
+        
+        if (!isTRUE(fit_ok)) {
+          return(NULL)
+        }
+        
+        if (!.g %in% names(.self$rem)) {
+          return(NULL)
+        }
+        
+        .n <- names(.self$rem[[.g]])
+        .spn <- c(
+          paste0(.sp, "_", .self$years),
+          .sp
+        )
+        
+        .spn <- .spn[.spn %in% .n]
+        
+        if (length(.spn) == 0) {
+          return(NULL)
+        }
+        
+        return(.self$rem[[.g]][.spn])
+        
       } else {
-        .tmp <- .get_REM_Param(.sp,activity_only = TRUE)
+        
+        .tmp <- .get_REM_Param(
+          .sp,
+          activity_only = TRUE
+        )
+        
         rm(.tmp)
+        return(NULL)
       }
     },
     setup = function(tz=NULL) {

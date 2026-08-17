@@ -136,3 +136,69 @@ test_that("get_REM returns existing yearly results", {
     stored_result
   )
 })
+test_that("get_REM preserves data availability when REM fitting is unavailable", {
+  original <- camtrap_test_report()
+  report <- original$copy(shallow = FALSE)
+  
+  candidate_species <- unique(
+    as.character(
+      report$observed_counts$scientificName
+    )
+  )
+  
+  candidate_groups <- vapply(
+    candidate_species,
+    function(species) {
+      group <- report$get_focus_group(species)
+      
+      if (
+        length(group) == 0L ||
+        is.na(group[1]) ||
+        !nzchar(group[1])
+      ) {
+        return(NA_character_)
+      }
+      
+      as.character(group[1])
+    },
+    character(1)
+  )
+  
+  valid <- which(!is.na(candidate_groups))
+  
+  expect_gt(
+    length(valid),
+    0L
+  )
+  
+  species <- candidate_species[valid[1]]
+  group <- candidate_groups[valid[1]]
+  
+  report$rem[[group]] <- list()
+  report$.rem_params[[species]] <- NULL
+  report$.any_data_for_rem <- stats::setNames(
+    TRUE,
+    species
+  )
+  
+  testthat::local_mocked_bindings(
+    .require = function(x) FALSE,
+    .package = "camtrapReport"
+  )
+  
+  expect_warning(
+    result <- report$get_REM(species),
+    "optional package 'camtrapDensity' is not installed",
+    fixed = TRUE
+  )
+  
+  expect_null(result)
+  
+  expect_true(
+    isTRUE(
+      unname(
+        report$.any_data_for_rem[species]
+      )
+    )
+  )
+})
