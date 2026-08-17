@@ -120,7 +120,7 @@ test_that("install_All reports when all requested packages are installed", {
     .package = "camtrapReport"
   )
   
-  expect_output(
+  expect_message(
     # nolint next: implicit_assignment_linter.
     result <- install_All(
       pkgs = c(" methods ", "", "stats"),
@@ -186,7 +186,7 @@ test_that("install_All attempts only missing CRAN packages", {
     .package = "camtrapReport"
   )
   
-  expect_output(
+  expect_message(
     # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
@@ -231,7 +231,7 @@ test_that("install_All reports CRAN installation failures safely", {
     .package = "camtrapReport"
   )
   
-  expect_output(
+  expect_warning(
     # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "The following packages could not be installed:",
@@ -280,7 +280,7 @@ test_that(
       .package = "camtrapReport"
     )
     
-    expect_output(
+    expect_warning(
       # nolint next: implicit_assignment_linter.
       result <- install_All(update = FALSE),
       "githubPackage",
@@ -337,7 +337,7 @@ test_that("install_All counts successful mocked GitHub installations", {
     .package = "camtrapReport"
   )
   
-  expect_output(
+  expect_message(
     # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
@@ -361,7 +361,7 @@ test_that(
       .package = "camtrapReport"
     )
     
-    expect_output(
+    expect_message(
       # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "There are no optional packages to update",
@@ -416,9 +416,13 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
     .package = "camtrapReport"
   )
   
-  expect_output(
-    # nolint next: implicit_assignment_linter.
-    result <- install_All(update = TRUE),
+  expect_message(
+    expect_message(
+      # nolint next: implicit_assignment_linter.
+      result <- install_All(update = TRUE),
+      "All requested optional packages are installed",
+      fixed = TRUE
+    ),
     "successfully reinstalled",
     fixed = TRUE
   )
@@ -468,7 +472,7 @@ test_that(
       .package = "camtrapReport"
     )
     
-    expect_output(
+    expect_warning(
       # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "The following packages could not be installed:",
@@ -527,9 +531,13 @@ test_that(
       .package = "camtrapReport"
     )
     
-    expect_output(
-      # nolint next: implicit_assignment_linter.
-      result <- install_All(update = TRUE),
+    expect_message(
+      expect_message(
+        # nolint next: implicit_assignment_linter.
+        result <- install_All(update = TRUE),
+        "All requested optional packages are installed",
+        fixed = TRUE
+      ),
       "1 package was successfully reinstalled",
       fixed = TRUE
     )

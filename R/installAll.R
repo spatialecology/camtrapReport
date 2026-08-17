@@ -272,27 +272,24 @@ setMethod(
       ]
       
       if (installed_count > 0L) {
-        cat(
-          "\n",
+        message(
           installed_count,
           if (installed_count == 1L) {
-            " package was successfully installed.\n"
+            " package was successfully installed."
           } else {
-            " packages were successfully installed.\n"
-          },
-          sep = ""
+            " packages were successfully installed."
+          }
         )
       }
       
       if (length(failed_packages) > 0L) {
-        cat(
-          "The following packages could not be installed:\n",
+        warning(
+          "The following packages could not be installed: ",
           toString(failed_packages),
-          "\n",
-          sep = ""
+          call. = FALSE
         )
       } else if (installed_count == 0L) {
-        cat("\nAll required packages have already been installed.\n")
+        message("All required packages have already been installed.")
       }
       
       return(invisible(NULL))
@@ -321,7 +318,7 @@ setMethod(
       length(cran_to_update) == 0L &&
       length(github_packages) == 0L
     ) {
-      cat("\nThere are no optional packages to update.\n")
+      message("There are no optional packages to update.")
       return(invisible(NULL))
     }
     
@@ -362,27 +359,24 @@ setMethod(
     ]
     
     if (installed_count > 0L) {
-      cat(
-        "\n",
+      message(
         installed_count,
         if (installed_count == 1L) {
-          " package was successfully reinstalled.\n"
+          " package was successfully reinstalled."
         } else {
-          " packages were successfully reinstalled.\n"
-        },
-        sep = ""
+          " packages were successfully reinstalled."
+        }
       )
     }
     
     if (length(failed_packages) > 0L) {
-      cat(
-        "The following packages could not be installed:\n",
+      warning(
+        "The following packages could not be installed: ",
         toString(failed_packages),
-        "\n",
-        sep = ""
+        call. = FALSE
       )
     } else {
-      cat("\nAll requested optional packages are installed.\n")
+      message("All requested optional packages are installed.")
     }
     
     invisible(NULL)

@@ -44,13 +44,16 @@ test_that("install_All exercises missing and update paths without installing", {
     .package = "camtrapReport"
   )
   
-  expect_output(
+  expect_message(
     install_All(character(), update = FALSE),
     "successfully installed"
   )
   
-  expect_output(
-    install_All(character(), update = TRUE),
+  expect_message(
+    expect_message(
+      install_All(character(), update = TRUE),
+      "All requested optional packages are installed"
+    ),
     "successfully reinstalled"
   )
 })
