@@ -2,13 +2,9 @@ citHeader("To cite camtrapReport in publications, use:")
 
 bibentry(
   bibtype = "Manual",
-  title = "camtrapReport: An R Package for Automated Camera-Trap Reporting",
+  title = "camtrapReport: Camera-Trap Report Generator",
   author = person("Elham", "Ebrahimi"),
   year = "2026",
-  url = "https://github.com/spatialecology/camtrapReport",
-  textVersion = paste(
-    "Ebrahimi, Elham (2026).",
-    "camtrapReport: An R Package for Automated Camera-Trap Reporting.",
-    "https://github.com/spatialecology/camtrapReport."
-  )
+  note = "R package version 1.0.47",
+  url = "https://spatialecology.github.io/camtrapReport/"
 )
