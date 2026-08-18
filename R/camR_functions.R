@@ -665,11 +665,7 @@
   }
 }
 #---------
-.make_render_env <- function(object = NULL) {
-  env <- new.env(parent = getNamespace("camtrapReport"))
-  env$object <- object
-  env
-}
+
 #------
 .format_area <- function(area_km2) {
   

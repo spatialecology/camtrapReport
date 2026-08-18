@@ -4,9 +4,6 @@
 
 #--------
 
-.eval <- function(x, env) {
-  eval(parse(text = x), envir = env)
-}
 
 #--------
 
@@ -32,18 +29,7 @@
 }
 
 #--------
-.require <- function(x) {
-  x <- as.character(x)
-  
-  if (length(x) != 1L || is.na(x) || !nzchar(x)) {
-    return(FALSE)
-  }
-  
-  requireNamespace(
-    x,
-    quietly = TRUE
-  )
-}
+
 #--------
 
 .loadLib <- function(pkgs) {
