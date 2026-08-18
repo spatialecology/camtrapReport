@@ -406,14 +406,20 @@
 
   .d$deployments$Year <- .getYear(.d$deployments$deploymentStart)
 
-  .d$deployments <- .eval(".d$deployments |>
+  .d$deployments <- .d$deployments |>
     dplyr::mutate(
-      deployment_interval = lubridate::interval(deploymentStart, deploymentEnd),
-      deployment_interval = lubridate::int_standardize(deployment_interval)
+      deployment_interval = lubridate::interval(
+        deploymentStart,
+        deploymentEnd
+      ),
+      deployment_interval = lubridate::int_standardize(
+        deployment_interval
+      )
     ) |>
-    dplyr::relocate(deployment_interval, .before = deploymentStart)",
-    environment()
-  )
+    dplyr::relocate(
+      deployment_interval,
+      .before = deploymentStart
+    )
 
   if (!"observationLevel" %in% names(.d$observations)) {
     .d$observations$observationLevel <- NA_character_
@@ -442,13 +448,17 @@
   ]
 
   if (nrow(.media.obs) > 0) {
-    obs_first_radius_angle <- .eval('.media.obs |>
+    obs_first_radius_angle <- .media.obs |>
       dplyr::filter(
         !is.na(individualPositionRadius),
         !is.na(individualPositionAngle)
       ) |>
       dplyr::group_by(eventID, individualID) |>
-      dplyr::slice_min(eventStart, n = 1, with_ties = FALSE) |>
+      dplyr::slice_min(
+        eventStart,
+        n = 1,
+        with_ties = FALSE
+      ) |>
       dplyr::ungroup() |>
       dplyr::select(
         dplyr::all_of(c(
@@ -461,7 +471,7 @@
       dplyr::rename_with(
         ~ paste0("media_", .x),
         dplyr::starts_with("individualPosition")
-      )',environment())
+      )
   } else {
     obs_first_radius_angle <- data.frame(
       eventID = character(),
@@ -482,7 +492,7 @@
     .obs <- .d$observations
   }
 
-  .obs <- .eval('.obs |>
+  .obs <- .obs |>
     dplyr::left_join(
       obs_first_radius_angle,
       by = c("eventID", "individualID")
@@ -504,7 +514,7 @@
         "media_individualPositionAngle",
         "media_individualPositionRadius"
       ))
-    )',environment())
+    )
 
   .d$observations <- .obs
 
@@ -614,16 +624,24 @@
   )
 
   if (nrow(.event_obs) > 0) {
-    by <- .eval("dplyr::join_by(
+    by <- dplyr::join_by(
       deploymentID,
       dplyr::between(timestamp, eventStart, eventEnd)
-    )",environment())
+    )
 
-    .media <- .eval('.d$media |>
-      dplyr::full_join(.event_obs, by) |>
+    .media <- .d$media |>
+      dplyr::full_join(
+        .event_obs,
+        by
+      ) |>
       dplyr::rename(sequenceID = "eventID") |>
-      dplyr::select(-dplyr::any_of(c("eventStart", "eventEnd"))) |>
-      dplyr::relocate(sequenceID, .after = deploymentID)',environment())
+      dplyr::select(
+        -dplyr::any_of(c("eventStart", "eventEnd"))
+      ) |>
+      dplyr::relocate(
+        sequenceID,
+        .after = deploymentID
+      )
   } else {
     .media <- .d$media
     if (!"sequenceID" %in% names(.media)) {
@@ -651,7 +669,7 @@
     .media$captureMethod <- NA
   }
 
-  .media <- .eval('.media |>
+  .media <- .media |>
     dplyr::mutate(
       captureMethod = factor(
         ifelse(
@@ -660,7 +678,7 @@
           as.character(captureMethod)
         )
       )
-    )',environment())
+    )
 
   .media$timestamp <- .parse_cam_datetime(.media$timestamp, tz = tz)
 
