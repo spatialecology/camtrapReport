@@ -510,8 +510,12 @@ test_that(
     )
 
     messages <- capture_messages(
-      result <- camdata_start_message(
-        "dummy.zip"
+      assign(
+        "result",
+        camdata_start_message(
+          "dummy.zip"
+        ),
+        envir = environment()
       )
     )
 

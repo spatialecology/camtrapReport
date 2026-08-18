@@ -60,22 +60,26 @@ camtrap_test_report <- function() {
     
     invisible(
       capture.output(
-        object <- withCallingHandlers(
-          suppressMessages(
-            camData(
-              dataset,
-              update = TRUE
-            )
-          ),
-          warning = function(w) {
-            if (grepl(
-              "chi^2 approximation may be inaccurate",
-              conditionMessage(w),
-              fixed = TRUE
-            )) {
-              invokeRestart("muffleWarning")
+        assign(
+          "object",
+          withCallingHandlers(
+            suppressMessages(
+              camData(
+                dataset,
+                update = TRUE
+              )
+            ),
+            warning = function(w) {
+              if (grepl(
+                "chi^2 approximation may be inaccurate",
+                conditionMessage(w),
+                fixed = TRUE
+              )) {
+                invokeRestart("muffleWarning")
+              }
             }
-          }
+          ),
+          envir = environment()
         )
       )
     )

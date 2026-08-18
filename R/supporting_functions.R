@@ -769,7 +769,7 @@
       newdata <- dat |> 
         dplyr::select(dplyr::all_of(covars)) |> 
         lapply(function(x) if (is.numeric(x))
-          mean(x, na.rm = T)
+          mean(x, na.rm = TRUE)
           else sort(unique(x))) |> 
         expand.grid()
     } else {
@@ -1172,7 +1172,7 @@
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
   if (
-    !all(required_rows %in% rownames(parameters)) |
+    !all(required_rows %in% rownames(parameters)) ||
       !all(required_cols %in% colnames(parameters))
   )
     stop(
@@ -1274,7 +1274,7 @@
   
   f$title <- .trim(f$title)
   
-  if (substr(f$title,1,1) == "#") {
+  if (startsWith(f$title, "#")) {
     .h <- 0
     .w <- strsplit(f$title, "", fixed = TRUE)[[1]]
     for (i in 1:4) {
@@ -1444,14 +1444,14 @@
 .left_join <- function(d1,d2,by) {
   if (length(by) == 1) {
     if (
-      !by %in% colnames(d1) &
+      !by %in% colnames(d1) &&
         by %in% colnames(d2)
     )
       stop('the "by" column does not exist in both data!')
     merge(d1,d2,by=by,all.x=TRUE)
   } else if (length(by) == 2) {
     if (
-      !by[1] %in% colnames(d1) &
+      !by[1] %in% colnames(d1) &&
         by[2] %in% colnames(d2)
     )
       stop('the "by" columns do not exist in the data!')

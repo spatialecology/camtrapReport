@@ -533,9 +533,9 @@ camR <- setRefClass(
         .ext <- as.vector(.ext)
         if (!is.null(.crop)) {
           if (
-            xr[1] < .ext[1] |
-            xr[2] > .ext[2] |
-            yr[1] < .ext[3] |
+            xr[1] < .ext[1] ||
+            xr[2] > .ext[2] ||
+            yr[1] < .ext[3] ||
             yr[2] > .ext[4]
           ) {
             .ww <- NULL
