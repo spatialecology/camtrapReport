@@ -99,17 +99,3 @@ test_that("require helper rejects invalid package names", {
   
   expect_true(require_package("methods"))
 })
-
-
-test_that("eval helper evaluates code in supplied environment", {
-  env <- new.env(parent = baseenv())
-  env$x <- 4
-  
-  expect_identical(
-    ct_internal(".eval")(
-      "x * 3",
-      env
-    ),
-    12
-  )
-})

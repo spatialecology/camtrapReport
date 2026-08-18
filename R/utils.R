@@ -294,17 +294,6 @@
 
 #--------
 
-.eval <- function(x, env) {
-  if (missing(x) || is.null(x) || length(x) == 0) {
-    return(NULL)
-  }
-  
-  if (missing(env) || is.null(env)) {
-    env <- parent.frame()
-  }
-  
-  eval(parse(text = x), envir = env)
-}
 
 #--------
 # Safe module rendering helpers
@@ -528,12 +517,11 @@
   if (.require("taxize")) {
     .id <- try(
       as.data.frame(
-        .eval(
-          paste0(
-            "taxize::get_gbifid(x, rows = 1, ask = FALSE, ",
-            "messages = FALSE)"
-          ),
-          environment()
+        taxize::get_gbifid(
+          x,
+          rows = 1,
+          ask = FALSE,
+          messages = FALSE
         )
       ),
       silent = TRUE
@@ -549,9 +537,9 @@
     }
     
     .x <- try(
-      .eval(
-        'taxize::classification(.id$ids, db = "gbif")',
-        environment()
+      taxize::classification(
+        .id$ids,
+        db = "gbif"
       ),
       silent = TRUE
     )
@@ -623,12 +611,11 @@
   if (.require("taxize")) {
     .id <- try(
       as.data.frame(
-        .eval(
-          paste0(
-            "taxize::get_uid(x, rows = 1, ask = FALSE, ",
-            "messages = FALSE)"
-          ),
-          environment()
+        taxize::get_uid(
+          x,
+          rows = 1,
+          ask = FALSE,
+          messages = FALSE
         )
       ),
       silent = TRUE
@@ -644,9 +631,9 @@
     }
     
     .x <- try(
-      .eval(
-        'taxize::classification(.id$ids, db = "ncbi")',
-        environment()
+      taxize::classification(
+        .id$ids,
+        db = "ncbi"
       ),
       silent = TRUE
     )
@@ -802,20 +789,20 @@
     return(NULL)
   }
   
-  if (is.null(.eval('sf::st_crs(x)',environment()))) {
+  if (is.null(sf::st_crs(x))) {
     warning("Input sf object has no CRS; assuming EPSG:4326.")
-    .eval('sf::st_crs(x) <- 4326',environment())
+    x <- sf::st_set_crs(x, 4326)
   }
   
-  if (!identical(.eval('sf::st_crs(x)$epsg',environment()), 4326L)) {
-    x <- .eval('sf::st_transform(x, 4326)',environment())
+  if (!identical(sf::st_crs(x)$epsg, 4326L)) {
+    x <- sf::st_transform(x, 4326)
   }
   
-  cen <- .eval('sf::st_coordinates(
+  cen <- sf::st_coordinates(
     sf::st_centroid(
       sf::st_union(sf::st_geometry(x))
     )
-  )',environment())
+  )
   
   lon <- cen[1]
   lat <- cen[2]
@@ -823,7 +810,7 @@
   if (abs(lat) <= 84) {
     .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
     .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
-    .eval('sf::st_transform(x, .epsg)',environment())
+    sf::st_transform(x, .epsg)
   } else {
     proj4 <- sprintf(
       "+proj=laea +lat_0=%.6f +lon_0=%.6f +datum=WGS84 +units=m +no_defs",
@@ -831,7 +818,7 @@
       lon
     )
     
-    .eval('sf::st_transform(x, proj4)',environment())
+    sf::st_transform(x, proj4)
   }
 }
 

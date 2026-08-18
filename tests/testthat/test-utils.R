@@ -133,8 +133,6 @@ test_that("evaluation and package helpers are safe for core packages", {
   env <- new.env(parent = baseenv())
   env$x <- 2
 
-  expect_identical(ct_internal(".eval")("x + 3", env), 5)
-  expect_null(ct_internal(".eval")(NULL, env))
   expect_true(ct_internal(".require")("methods"))
   expect_false(ct_internal(".require")("a_package_that_does_not_exist_123"))
   expect_true(ct_internal(".loadPKG")(c("methods", "stats")))

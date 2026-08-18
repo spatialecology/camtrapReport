@@ -288,25 +288,6 @@ test_that("year extraction handles missing and repeated values", {
 })
 
 
-test_that("evaluation helper uses the calling environment when omitted", {
-  evaluate_text <- ct_internal(".eval")
-  
-  local_value <- 8
-  
-  expect_identical(
-    evaluate_text("local_value + 2"),
-    10
-  )
-  
-  expect_null(
-    evaluate_text()
-  )
-  
-  expect_null(
-    evaluate_text(NULL)
-  )
-})
-
 
 test_that("render environments expose objects and report counters", {
   object <- camtrap_test_report()$copy(shallow = FALSE)
