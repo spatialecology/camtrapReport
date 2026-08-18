@@ -311,7 +311,7 @@ camR <- setRefClass(
       
       if (!any(
         c('order', 'class', 'scientificName', 'observationType') %in%
-          names(x)
+        names(x)
       ))
         stop(
           # nolint start: line_length_linter.
@@ -502,8 +502,8 @@ camR <- setRefClass(
       .rich
     },
     spatial_density = function(
-      x = NULL, species = NULL, year = NULL,
-      .crs = NULL, .ext = NULL, .crop = NULL
+    x = NULL, species = NULL, year = NULL,
+    .crs = NULL, .ext = NULL, .crop = NULL
     ) {
       # spatial density raster map
       # x: the output of species_summary_by_location wit cor_matrix=F
@@ -534,9 +534,9 @@ camR <- setRefClass(
         if (!is.null(.crop)) {
           if (
             xr[1] < .ext[1] |
-              xr[2] > .ext[2] |
-              yr[1] < .ext[3] |
-              yr[2] > .ext[4]
+            xr[2] > .ext[2] |
+            yr[1] < .ext[3] |
+            yr[2] > .ext[4]
           ) {
             .ww <- NULL
             .w <- xr[1] - .ext[1]
@@ -593,18 +593,16 @@ camR <- setRefClass(
       yr[1] <- yr[1] - .w
       yr[2] <- yr[2] + .w
       #------
-      .win <- .eval(
-        "spatstat.geom::owin(xrange = xr, yrange = yr)",
-        env = environment()
+      .win <- spatstat.geom::owin(
+        xrange = xr,
+        yrange = yr
       )
-      .ppp_obj <- .eval(
-        "spatstat.geom::ppp(
-    x = x$x,
-    y = x$y,
-    window = .win,
-    marks = x$total_observations
-  )",
-        env = environment()
+
+      .ppp_obj <- spatstat.geom::ppp(
+        x = x$x,
+        y = x$y,
+        window = .win,
+        marks = x$total_observations
       )
       den <- density(.ppp_obj, weights = x$total_observations)
       den$v <- den$v / max(den$v, na.rm = TRUE)
@@ -616,8 +614,8 @@ camR <- setRefClass(
       r
     },
     species_summary_by_location = function(
-      year = NULL, spList = NULL,
-      cor_matrix = TRUE, PA = TRUE
+    year = NULL, spList = NULL,
+    cor_matrix = TRUE, PA = TRUE
     ) {
       # cor_matrix = T -> cor of co-occurrence matrix across
       # locations will be returned
@@ -727,7 +725,7 @@ camR <- setRefClass(
         
         if (
           is.null(.self$.act_models[[sp]]) ||
-            !is.list(.self$.act_models[[sp]])
+          !is.list(.self$.act_models[[sp]])
         ) {
           x <- try({
             deployment_locations <- .self$data$deployments |>
@@ -859,21 +857,24 @@ camR <- setRefClass(
                 reps = 10
               )
               .density_estimates <- .rem(.parameters)
-              # nolint start: line_length_linter.
-              .density_estimates <- .eval("camtrapDensity::convert_units(.density_estimates,radius_unit = \"m\",angle_unit = \"degree\",active_speed_unit = \"km/hour\",overall_speed_unit = \"km/day\")",
-              # nolint end
-                                          environment())
+              .density_estimates <- camtrapDensity::convert_units(
+                .density_estimates,
+                radius_unit = "m",
+                angle_unit = "degree",
+                active_speed_unit = "km/hour",
+                overall_speed_unit = "km/day"
+              )
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
                 english_name <-
                   dat$taxonomy$vernacularNames.eng[
                     dat$taxonomy$scientificName ==
-                                                                   sp]
+                      sp]
               }
               else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
                 english_name <-
                   dat$taxonomy$vernacularNames[
                     dat$taxonomy$scientificName ==
-                                                               sp]
+                      sp]
               }
               else english_name <- "Unknown"
               if (length(english_name) == 0) 
@@ -916,15 +917,12 @@ camR <- setRefClass(
               
               .density_estimates <- .rem(.parameters)
               
-              .density_estimates <- .eval(
-                "camtrapDensity::convert_units(
-            .density_estimates,
-            radius_unit = \"m\",
-            angle_unit = \"degree\",
-            active_speed_unit = \"km/hour\",
-            overall_speed_unit = \"km/day\"
-          )",
-                environment()
+              .density_estimates <- camtrapDensity::convert_units(
+                .density_estimates,
+                radius_unit = "m",
+                angle_unit = "degree",
+                active_speed_unit = "km/hour",
+                overall_speed_unit = "km/day"
               )
               
               if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
@@ -1105,7 +1103,7 @@ camR <- setRefClass(
       #------
       if (
         !'wild_animals' %in% names(.self$group_definition) &&
-          'domestic' %in% names(.self$group_definition)
+        'domestic' %in% names(.self$group_definition)
       ) {
         .self$group_definition[['wild_animals']] <- list(
           scientificName = .self$data$taxonomy$scientificName[
@@ -1117,7 +1115,7 @@ camR <- setRefClass(
       #-----
       if (
         !'birds' %in% names(.self$group_definition) &&
-          'Aves' %in% .self$data$taxonomy$class
+        'Aves' %in% .self$data$taxonomy$class
       ) {
         .self$group_definition[['birds']] <- list(
           class = 'Aves',
@@ -1127,7 +1125,7 @@ camR <- setRefClass(
       
       if (
         !'reptiles' %in% names(.self$group_definition) &&
-          'Reptilia' %in% .self$data$taxonomy$class
+        'Reptilia' %in% .self$data$taxonomy$class
       ) {
         .self$group_definition[['reptiles']] <- list(
           class = 'Reptilia',
@@ -1137,7 +1135,7 @@ camR <- setRefClass(
       
       if (
         !'amphibians' %in% names(.self$group_definition) &&
-          'Amphibia' %in% .self$data$taxonomy$class
+        'Amphibia' %in% .self$data$taxonomy$class
       ) {
         .self$group_definition[['amphibians']] <- list(
           class = 'Amphibia',
@@ -1147,12 +1145,12 @@ camR <- setRefClass(
       
       if (
         !'wild_mammals' %in% names(.self$group_definition) &&
-          'Mammalia' %in% .self$data$taxonomy$class
-          && 'domestic' %in% names(.self$group_definition)) {
+        'Mammalia' %in% .self$data$taxonomy$class
+        && 'domestic' %in% names(.self$group_definition)) {
         
         .w <- .self$data$taxonomy$class == "Mammalia" &
           (!.self$data$taxonomy$scientificName %in%
-            .self$group_definition$domestic$scientificName) &
+             .self$group_definition$domestic$scientificName) &
           grepl(" ", .self$data$taxonomy$scientificName, fixed = TRUE)
         if (length(.w) > 0)
           .self$group_definition[['wild_mammals']] <- list(
@@ -1163,7 +1161,7 @@ camR <- setRefClass(
       #---
       if (
         !'human_observation' %in% names(.self$group_definition) &&
-          "Homo sapiens" %in% .self$data$taxonomy$scientificName
+        "Homo sapiens" %in% .self$data$taxonomy$scientificName
       ) {
         .self$group_definition[['human_observation']] <- list(
           scientificName = "Homo sapiens",
@@ -1177,10 +1175,10 @@ camR <- setRefClass(
       
       if (
         nrow(.self$habitat) > 0 &&
-          !any(
-            c('habitat', 'Habitat', 'Habitat_Type') %in%
-              colnames(.self$data$locations)
-          )
+        !any(
+          c('habitat', 'Habitat', 'Habitat_Type') %in%
+          colnames(.self$data$locations)
+        )
       ) {
         .self$data$locations <- .left_join(
           .self$data$locations,
@@ -1278,21 +1276,21 @@ camR <- setRefClass(
           } else if (
             any(
               c('class', 'order') %in%
-                names(.self$group_definition[[n]])
+              names(.self$group_definition[[n]])
             )
           ) {
             if ('class' %in% names(.self$group_definition[[n]])) {
               if ('order' %in% names(.self$group_definition[[n]])) {
                 if (
                   'domestic' %in%
-                    names(.self$group_definition[[n]]) &&
+                  names(.self$group_definition[[n]]) &&
                   is.logical(
                     .self$group_definition[[n]]$domestic
                   )
                 ) {
                   if (
                     "observationType" %in%
-                      names(.self$group_definition[[n]])
+                    names(.self$group_definition[[n]])
                   ) {
                     .self$species_summary[[n]] <-
                       .summarize_species(
@@ -1320,7 +1318,7 @@ camR <- setRefClass(
                 } else {
                   if (
                     "observationType" %in%
-                      names(.self$group_definition[[n]])
+                    names(.self$group_definition[[n]])
                   ) {
                     .self$species_summary[[n]] <-
                       .summarize_species(
@@ -1344,14 +1342,14 @@ camR <- setRefClass(
               } else {
                 if (
                   'domestic' %in%
-                    names(.self$group_definition[[n]]) &&
+                  names(.self$group_definition[[n]]) &&
                   is.logical(
                     .self$group_definition[[n]]$domestic
                   )
                 ) {
                   if (
                     "observationType" %in%
-                      names(.self$group_definition[[n]])
+                    names(.self$group_definition[[n]])
                   ) {
                     .self$species_summary[[n]] <-
                       .summarize_species(
@@ -1377,7 +1375,7 @@ camR <- setRefClass(
                 } else {
                   if (
                     "observationType" %in%
-                      names(.self$group_definition[[n]])
+                    names(.self$group_definition[[n]])
                   ) {
                     .self$species_summary[[n]] <-
                       .summarize_species(
@@ -1400,7 +1398,7 @@ camR <- setRefClass(
             } else {
               if (
                 'domestic' %in%
-                  names(.self$group_definition[[n]]) &&
+                names(.self$group_definition[[n]]) &&
                 is.logical(
                   .self$group_definition[[n]]$domestic
                 )
@@ -1526,7 +1524,7 @@ camR <- setRefClass(
       if (!is.null(.self$setting$focus_groups) 
           && any(
             .self$setting$focus_groups %in%
-              .self$species_summary$count$Group
+            .self$species_summary$count$Group
           )
       ) {
         .self$setting$focus_groups <-
@@ -1723,9 +1721,11 @@ camR <- setRefClass(
           lon = mean(.self$data$locations$longitude, na.rm = TRUE)
         )
         #====
-        # nolint start: line_length_linter.
-        .sun_times <- .eval('suncalc::getSunlightTimes(data = sun_input, keep = c("sunrise", "sunset"), tz = .self$setting$tz)',env=environment()) 
-        # nolint end
+        .sun_times <- suncalc::getSunlightTimes(
+          data = sun_input,
+          keep = c("sunrise", "sunset"),
+          tz = .self$setting$tz
+        )
         
         # Convert to numeric hours
         .sun_times$sunrise_hour <- .get_hour(.sun_times$sunrise)
@@ -1889,14 +1889,14 @@ camR <- setRefClass(
       
       if (
         length(.self$filterExclude) > 0 ||
-          length(.self$filterKeep) > 0 ||
-          length(.self$filterCount) > 0
+        length(.self$filterKeep) > 0 ||
+        length(.self$filterCount) > 0
       ) {
         w1 <- w2 <- w3 <- w4 <- TRUE
         if (
           length(.self$filterKeep) > 0 &&
-            'order' %in% names(.self$filterKeep) &&
-            !all(is.na(.self$data$taxonomy$order))
+          'order' %in% names(.self$filterKeep) &&
+          !all(is.na(.self$data$taxonomy$order))
         ) {
           w1 <- .self$data$taxonomy$order %in% .self$filterKeep$order
         } 
@@ -1922,15 +1922,15 @@ camR <- setRefClass(
         
         if (
           length(.self$filterKeep) > 0 &&
-            any(
-              names(.self$filterKeep) %in%
-                colnames(.self$data$observations)
-            )
+          any(
+            names(.self$filterKeep) %in%
+            colnames(.self$data$observations)
+          )
         ) {
           for (.n in names(.self$filterKeep)) {
             if (
               .n %in% colnames(.self$data$observations) &&
-                !is.null(.self$filterKeep[[.n]])
+              !is.null(.self$filterKeep[[.n]])
             ) {
               w3 <- w3 & (
                 .self$data$observations[[.n]] %in%
@@ -1959,7 +1959,7 @@ camR <- setRefClass(
             .self$data$taxonomy$vernacularNames.eng[w]
         )
         
-      # nolint start: line_length_linter.
+        # nolint start: line_length_linter.
       } else warning('\nNo filtering condition is specified in the "filterExclude" or "filterKeep" fields!')
       # nolint end
     },
@@ -2084,7 +2084,7 @@ camR <- setRefClass(
                 } else {
                   if (
                     .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk@name ==
-                        x@name
+                    x@name
                   ) {
                     .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
                     .added <- TRUE
@@ -2103,7 +2103,7 @@ camR <- setRefClass(
                   }
                 }
               }
-            # nolint start: line_length_linter.
+              # nolint start: line_length_linter.
             } #else message('Error: the parent does not available; code is NOT added!')
             # nolint end
           } else {
@@ -2118,7 +2118,7 @@ camR <- setRefClass(
                   # nolint end
                   if (x@name %in% .n) {
                     .self$reportObjects[[x@parent]]@Rchunk[[match(x@name,
-                        .n)]] <- x
+                                                                  .n)]] <- x
                     .added <- TRUE
                   } else {
                     .self$reportObjects[[x@parent]]@Rchunk[[x@name]] <- x
@@ -2156,17 +2156,17 @@ camR <- setRefClass(
                   if (length(.w) > 1) {
                     # nolint start: line_length_linter.
                     if (is.null(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
-                    # nolint end
+                      # nolint end
                       .self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
                       .added <- TRUE
                       break
                     } else {
                       # nolint start: line_length_linter.
                       if (is.list(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
-                      # nolint end
+                        # nolint end
                         # nolint start: line_length_linter.
                         if (length(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .nn <- simplify2array(lapply(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
                           # nolint end
@@ -2193,7 +2193,7 @@ camR <- setRefClass(
                       } else {
                         # nolint start: line_length_linter.
                         if (.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
                           # nolint end
@@ -2225,7 +2225,7 @@ camR <- setRefClass(
                     if (is.list(.self$reportObjects[[.n]][[x@parent]]@Rchunk)) {
                       if (
                         length(.self$reportObjects[[.n]][[x@parent]]@Rchunk) >
-                            0
+                        0
                       ) {
                         # nolint start: line_length_linter.
                         .nn <- simplify2array(lapply(.self$reportObjects[[.n]][[x@parent]]@Rchunk, function(x) x@name))
@@ -2253,7 +2253,7 @@ camR <- setRefClass(
                     } else {
                       if (
                         .self$reportObjects[[.n]][[x@parent]]@Rchunk@name ==
-                            x@name
+                        x@name
                       ) {
                         .self$reportObjects[[.n]][[x@parent]]@Rchunk <- x
                         .added <- TRUE
@@ -2287,7 +2287,7 @@ camR <- setRefClass(
                         if (length(.w) > 1) {
                           # nolint start: line_length_linter.
                           if (is.null(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
-                          # nolint end
+                            # nolint end
                             # nolint start: line_length_linter.
                             .self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
                             # nolint end
@@ -2296,10 +2296,10 @@ camR <- setRefClass(
                           } else {
                             # nolint start: line_length_linter.
                             if (is.list(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               if (length(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                              # nolint end
+                                # nolint end
                                 # nolint start: line_length_linter.
                                 .nnn <- simplify2array(lapply(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
                                 # nolint end
@@ -2326,7 +2326,7 @@ camR <- setRefClass(
                             } else {
                               # nolint start: line_length_linter.
                               if (.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
-                              # nolint end
+                                # nolint end
                                 # nolint start: line_length_linter.
                                 .self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
                                 # nolint end
@@ -2352,7 +2352,7 @@ camR <- setRefClass(
                       } else {
                         # nolint start: line_length_linter.
                         if (is.null(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
                           # nolint end
@@ -2361,10 +2361,10 @@ camR <- setRefClass(
                         } else {
                           # nolint start: line_length_linter.
                           if (is.list(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
-                          # nolint end
+                            # nolint end
                             # nolint start: line_length_linter.
                             if (length(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               .nnn <- simplify2array(lapply(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk, function(x) x@name))
                               # nolint end
@@ -2391,7 +2391,7 @@ camR <- setRefClass(
                           } else {
                             # nolint start: line_length_linter.
                             if (.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name == x@name) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
                               # nolint end
@@ -2547,7 +2547,7 @@ camR <- setRefClass(
         if (x@parent %in% names(.self$statusReportObjects)) {
           if (is.list(.self$statusReportObjects[[x@parent]])) {
             .tmp <- simplify2array(lapply(.self$statusReportObjects[[x@parent]],
-                function(.x) .x@name))
+                                          function(.x) .x@name))
             .w <- which(.tmp == x@parent)
             if (length(.w) > 1) {
               if (
@@ -2561,7 +2561,7 @@ camR <- setRefClass(
                 ) {
                   # nolint start: line_length_linter.
                   if (length(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                  # nolint end
+                    # nolint end
                     # nolint start: line_length_linter.
                     .n <- simplify2array(lapply(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
                     # nolint end
@@ -2585,7 +2585,7 @@ camR <- setRefClass(
                 } else {
                   # nolint start: line_length_linter.
                   if (.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
-                  # nolint end
+                    # nolint end
                     .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk <- x
                     .added <- TRUE
                   } else {
@@ -2603,7 +2603,7 @@ camR <- setRefClass(
                   }
                 }
               }
-            # nolint start: line_length_linter.
+              # nolint start: line_length_linter.
             } #else message('Error: the parent does not available; code is NOT added!')
             # nolint end
           } else {
@@ -2618,7 +2618,7 @@ camR <- setRefClass(
                   # nolint end
                   if (x@name %in% .n) {
                     .self$statusReportObjects[[x@parent]]@Rchunk[[match(x@name,
-                        .n)]] <- x
+                                                                        .n)]] <- x
                     .added <- TRUE
                   } else {
                     .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
@@ -2658,7 +2658,7 @@ camR <- setRefClass(
                   if (length(.w) > 1) {
                     # nolint start: line_length_linter.
                     if (is.null(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
-                    # nolint end
+                      # nolint end
                       # nolint start: line_length_linter.
                       .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
                       # nolint end
@@ -2667,10 +2667,10 @@ camR <- setRefClass(
                     } else {
                       # nolint start: line_length_linter.
                       if (is.list(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
-                      # nolint end
+                        # nolint end
                         # nolint start: line_length_linter.
                         if (length(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
                           # nolint end
@@ -2697,7 +2697,7 @@ camR <- setRefClass(
                       } else {
                         # nolint start: line_length_linter.
                         if (.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk <- x
                           # nolint end
@@ -2730,10 +2730,10 @@ camR <- setRefClass(
                   } else {
                     # nolint start: line_length_linter.
                     if (is.list(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
-                    # nolint end
+                      # nolint end
                       # nolint start: line_length_linter.
                       if (length(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk) > 0) {
-                      # nolint end
+                        # nolint end
                         # nolint start: line_length_linter.
                         .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk, function(x) x@name))
                         # nolint end
@@ -2760,7 +2760,7 @@ camR <- setRefClass(
                     } else {
                       # nolint start: line_length_linter.
                       if (.self$statusReportObjects[[.n]][[x@parent]]@Rchunk@name == x@name) {
-                      # nolint end
+                        # nolint end
                         .self$statusReportObjects[[.n]][[x@parent]]@Rchunk <- x
                         .added <- TRUE
                         break
@@ -2786,10 +2786,10 @@ camR <- setRefClass(
                   if (is.list(.self$statusReportObjects[[.n]][[.nn]])) {
                     # nolint start: line_length_linter.
                     if (x@parent %in% names(.self$statusReportObjects[[.n]][[.nn]])) {
-                    # nolint end
+                      # nolint end
                       # nolint start: line_length_linter.
                       if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]])) {
-                      # nolint end
+                        # nolint end
                         # nolint start: line_length_linter.
                         .tmp <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]], function(.x) .x@name))
                         # nolint end
@@ -2797,7 +2797,7 @@ camR <- setRefClass(
                         if (length(.w) > 1) {
                           # nolint start: line_length_linter.
                           if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
-                          # nolint end
+                            # nolint end
                             # nolint start: line_length_linter.
                             .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
                             # nolint end
@@ -2806,10 +2806,10 @@ camR <- setRefClass(
                           } else {
                             # nolint start: line_length_linter.
                             if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                              # nolint end
+                                # nolint end
                                 # nolint start: line_length_linter.
                                 .nnn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk, function(x) x@name))
                                 # nolint end
@@ -2836,7 +2836,7 @@ camR <- setRefClass(
                             } else {
                               # nolint start: line_length_linter.
                               if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk@name == x@name) {
-                              # nolint end
+                                # nolint end
                                 # nolint start: line_length_linter.
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk <- x
                                 # nolint end
@@ -2862,7 +2862,7 @@ camR <- setRefClass(
                       } else {
                         # nolint start: line_length_linter.
                         if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
-                        # nolint end
+                          # nolint end
                           # nolint start: line_length_linter.
                           .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
                           # nolint end
@@ -2871,10 +2871,10 @@ camR <- setRefClass(
                         } else {
                           # nolint start: line_length_linter.
                           if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
-                          # nolint end
+                            # nolint end
                             # nolint start: line_length_linter.
                             if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               .nnn <- simplify2array(lapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk, function(x) x@name))
                               # nolint end
@@ -2901,7 +2901,7 @@ camR <- setRefClass(
                           } else {
                             # nolint start: line_length_linter.
                             if (.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk@name == x@name) {
-                            # nolint end
+                              # nolint end
                               # nolint start: line_length_linter.
                               .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk <- x
                               # nolint end
@@ -2942,7 +2942,7 @@ camR <- setRefClass(
                       # nolint end
                       if (x@name %in% .nn) {
                         .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn ==
-                            x@name]]] <- x
+                                                                      x@name]]] <- x
                         .added <- TRUE
                         break
                       } else {
@@ -3020,7 +3020,7 @@ camR <- setRefClass(
     },
     # nolint start: line_length_linter.
     generateReport = function(output_file = file.path(tempdir(), "cam_report.html"), rmd_file = file.path(tempdir(), "cam_report.Rmd")) {
-    # nolint end
+      # nolint end
       .self$recetFigTabNumber()
       render_env <- .make_render_env(.self)
       
@@ -3070,12 +3070,12 @@ output:
               }
             } else {
               rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
-                  .envir = .self))
+                                                                            .envir = .self))
             }
           }
         } else {
           rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
-              .envir = .self))
+                                                                        .envir = .self))
         }
       }
       
@@ -3102,7 +3102,7 @@ output:
     },
     # nolint start: line_length_linter.
     generateStatusReport = function(output_file = file.path(tempdir(), "data_status_report.html"), rmd_file = file.path(tempdir(), "data_status_report.Rmd")) {
-    # nolint end
+      # nolint end
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
@@ -3151,12 +3151,12 @@ output:
               }
             } else {
               rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
-                  .envir = .self))
+                                                                            .envir = .self))
             }
           }
         } else {
           rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
-              .envir = .self))
+                                                                        .envir = .self))
         }
       }
       
