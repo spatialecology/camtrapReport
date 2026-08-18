@@ -469,7 +469,6 @@ test_that(
     )
 
     expect_message(
-      # nolint next: implicit_assignment_linter.
       result <- camdata_start_message(
         "dummy-data"
       ),
@@ -511,7 +510,6 @@ test_that(
     )
 
     messages <- capture_messages(
-      # nolint next: implicit_assignment_linter.
       result <- camdata_start_message(
         "dummy.zip"
       )
@@ -572,7 +570,6 @@ test_that(
       )
 
       expect_message(
-        # nolint next: implicit_assignment_linter.
         result <- camdata_start_message(
           "dummy-data"
         ),

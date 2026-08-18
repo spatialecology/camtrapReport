@@ -54,11 +54,9 @@ test_that("camData reads bundled habitat and study area inputs", {
     )
   )
   
-  expect_true(
-    inherits(
-      cm$study_area$object,
-      "SpatVector"
-    )
+  expect_s4_class(
+    cm$study_area$object,
+    "SpatVector"
   )
   
   expect_true(

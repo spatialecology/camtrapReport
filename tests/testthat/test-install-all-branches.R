@@ -121,7 +121,6 @@ test_that("install_All reports when all requested packages are installed", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result <- install_All(
       pkgs = c(" methods ", "", "stats"),
       update = FALSE
@@ -187,7 +186,6 @@ test_that("install_All attempts only missing CRAN packages", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
     fixed = TRUE
@@ -232,7 +230,6 @@ test_that("install_All reports CRAN installation failures safely", {
   )
   
   expect_warning(
-    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "The following packages could not be installed:",
     fixed = TRUE
@@ -281,7 +278,6 @@ test_that(
     )
     
     expect_warning(
-      # nolint next: implicit_assignment_linter.
       result <- install_All(update = FALSE),
       "githubPackage",
       fixed = TRUE
@@ -338,7 +334,6 @@ test_that("install_All counts successful mocked GitHub installations", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result <- install_All(update = FALSE),
     "1 package was successfully installed",
     fixed = TRUE
@@ -362,7 +357,6 @@ test_that(
     )
     
     expect_message(
-      # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "There are no optional packages to update",
       fixed = TRUE
@@ -418,7 +412,6 @@ test_that("install_All update mode reinstalls mocked CRAN packages", {
   
   expect_message(
     expect_message(
-      # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "All requested optional packages are installed",
       fixed = TRUE
@@ -473,7 +466,6 @@ test_that(
     )
     
     expect_warning(
-      # nolint next: implicit_assignment_linter.
       result <- install_All(update = TRUE),
       "The following packages could not be installed:",
       fixed = TRUE
@@ -533,7 +525,6 @@ test_that(
     
     expect_message(
       expect_message(
-        # nolint next: implicit_assignment_linter.
         result <- install_All(update = TRUE),
         "All requested optional packages are installed",
         fixed = TRUE

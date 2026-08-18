@@ -163,7 +163,6 @@ test_that("report falls back from a nonexistent requested directory", {
   )
   
   expect_warning(
-    # nolint next: implicit_assignment_linter.
     output <- report(
       cm,
       filename = requested_file,
@@ -220,7 +219,6 @@ test_that("status falls back from a nonexistent requested directory", {
   )
   
   expect_warning(
-    # nolint next: implicit_assignment_linter.
     output <- status(
       cm,
       filename = requested_file,
@@ -284,7 +282,6 @@ test_that("report sends the generated file to the configured viewer", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     output <- report(
       cm,
       filename = "viewer-report",
@@ -344,7 +341,6 @@ test_that("status sends the generated file to the configured viewer", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     output <- status(
       cm,
       filename = "viewer-status",
