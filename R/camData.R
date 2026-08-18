@@ -58,19 +58,14 @@
 
   if (any(missing_i) && .require("lubridate")) {
     parsed <- suppressWarnings(
-      .eval('lubridate::parse_date_time(
+      lubridate::parse_date_time2(
         x_chr[missing_i],
         orders = c(
-          "ymd HMS z", "ymd HMS",
-          "ymd HM z",  "ymd HM",
-          "ymd z",     "ymd",
-          "Ymd HMS z", "Ymd HMS",
-          "ymdT HMS z", "ymdT HMS",
-          "ymdT HM z",  "ymdT HM"
+          "Ymd HMS",
+          "Ymd HM"
         ),
-        tz = tz,
-        quiet = TRUE
-      )',environment())
+        tz = tz
+      )
     )
 
     ok <- !is.na(parsed)
@@ -112,31 +107,42 @@
 
 
 .getSequences <- function(media) {
-  if (!.require('data.table'))
-    stop('The data.table package is not installed...!')
+  if (!.require("data.table")) {
+    stop("The data.table package is not installed...!")
+  }
 
-  sequences <- .eval('media |>
+  sequences <- media |>
     dplyr::distinct() |>
-    dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |>
-    data.table::data.table(key = "sequenceID")',environment())
+    dplyr::select(
+      deploymentID,
+      sequenceID,
+      timestamp,
+      captureMethod
+    ) |>
+    data.table::data.table(key = "sequenceID")
 
-  sequences <- sequences[!is.na(sequences$sequenceID),]
+  sequences <- sequences[!is.na(sequences$sequenceID), ]
 
-  # summarize per key
-  sequences <- .eval("sequences[, list(deploymentID = unique(deploymentID),
-                                captureMethod = unique(captureMethod),
-                                start = min(timestamp),
-                                end = max(timestamp),
-                                nrphotos = length(timestamp)),
-                         by = sequenceID]",environment())
+  sequences <- sequences[
+    ,
+    list(
+      deploymentID = unique(deploymentID),
+      captureMethod = unique(captureMethod),
+      start = min(timestamp),
+      end = max(timestamp),
+      nrphotos = length(timestamp)
+    ),
+    by = sequenceID
+  ]
 
-  # convert to tibble, arrange, and convert start/end to interval object
-  sequences <- .eval("sequences |>
+  sequences <- sequences |>
     dplyr::as_tibble() |>
     dplyr::arrange(deploymentID, sequenceID) |>
-    dplyr::mutate(sequence_interval = lubridate::interval(start, end)) |>
-    dplyr::relocate(sequence_interval, .before =  start) |>
-    dplyr::select(-start, -end)",environment())
+    dplyr::mutate(
+      sequence_interval = lubridate::interval(start, end)
+    ) |>
+    dplyr::relocate(sequence_interval, .before = start) |>
+    dplyr::select(-start, -end)
 
   as.data.frame(sequences)
 }

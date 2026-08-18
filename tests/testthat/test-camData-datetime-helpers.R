@@ -378,22 +378,6 @@ test_that("safe_max_time returns latest valid timestamp", {
 
 
 test_that("parse_cam_datetime uses fallback parser", {
-  testthat::local_mocked_bindings(
-    .require = function(package) {
-      identical(package, "lubridate")
-    },
-    .eval = function(x, env) {
-      as.POSIXct(
-        c(
-          "2025-08-05 14:30:15",
-          "2025-08-06 09:45:00"
-        ),
-        tz = "UTC"
-      )
-    },
-    .package = "camtrapReport"
-  )
-  
   result <- ct_internal(".parse_cam_datetime")(
     c(
       "20250805 14:30:15",
