@@ -61,6 +61,7 @@ Suggests:
     xml2,
     xts
 Remotes:
+    inbo/camtraptor,
     MarcusRowcliffe/camtrapDensity
 VignetteBuilder: knitr
 Encoding: UTF-8

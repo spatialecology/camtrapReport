@@ -1,5 +1,7 @@
 ---
-output: github_document
+output:
+  github_document:
+    html_preview: false
 ---
 
 <!-- README.md is generated from README.Rmd. Edit README.Rmd, not README.md. -->
@@ -141,35 +143,32 @@ generated report in the default RStudio viewer or web browser.
 
 ## Configure a report
 
-The same `camReport` object stores the imported data, metadata, settings, and
-selected report sections. Common configuration tasks include inspecting or
-updating metadata and choosing which sections to include:
+Report metadata and available report sections can be inspected and modified before generating the report:
 
 ```{r configure-report}
 # Inspect selected metadata
 info(cm, name = c("title", "authors"))
-# Inspect available report sections
+
+# Inspect all available report sections
 section_names()
 
-# Select a subset of sections
+# Select report sections
 selected_sections <- section_names(
-  keep = c("introduction", "methods", "study_area", "sampling", "effort")
+  keep = c(
+    "introduction",
+    "methods",
+    "study_area",
+    "sampling",
+    "effort"
+  )
 )
 
 sections(cm, selected_sections)
 ```
 
-Reports can also be configured for particular years or taxonomic groups, and
-existing sections can be updated or extended. These operations are described
-in the
-[Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
-and
-[Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
-guides.
+Reports can also be configured for selected taxonomic groups, survey years, and observation-count thresholds. Existing report sections can be updated or extended. See the [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) and [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html) guides for detailed examples.
 
-An interactive graphical interface is available through `gui(cm)` for users
-who prefer to inspect settings and generate reports without working entirely
-from the console.
+An interactive graphical interface is available through `gui(cm)` for users who prefer to configure and generate reports without working entirely from the console.
 
 
 ## Interpretation and reproducibility

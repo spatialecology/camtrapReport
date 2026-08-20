@@ -16,3 +16,5 @@
 ^doc$
 ^Meta$
 ^README\.Rmd$
+^README\.html$
+^inst/external/dataset/_study_area\.map$

@@ -104,9 +104,11 @@ generate automated reports.</p>
 <p>If habitat information is provided, it is linked to camera locations and
 used in habitat-related summaries. If a study-area boundary is provided, it
 is stored with the object and used in spatial summaries where relevant.</p>
-<p>The <code>camReport</code> object is saved within an extracted dataset directory as
-<code>__camReport_Object.rds</code>. A later call using that directory reuses the saved
-object unless <code>update = TRUE</code>, in which case the object is recreated.</p>
+<p>The <code>camReport</code> object is normally saved within the dataset directory as
+<code>__camReport_Object.rds</code>. A later call using the same dataset reuses the
+saved object unless <code>update = TRUE</code>, in which case the object is recreated.
+If the dataset location is not writable, a package-specific user cache
+directory is used instead.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -122,6 +124,12 @@ object unless <code>update = TRUE</code>, in which case the object is recreated.
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu">camData</span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The camReport object is being created...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 6.6 MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 1 min 20 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-in"><span><span class="va">cm</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Camera trap Object for the site : GMU8 LEUVEN </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ===================================================== </span>
