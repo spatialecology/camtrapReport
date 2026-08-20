@@ -12,11 +12,10 @@ camtrap_test_dataset <- function() {
 
 copy_camtrap_test_dataset <- function() {
   source <- camtrap_test_dataset()
-  root <- tempfile("camtrapReport-test-data-")
-
-  if (!dir.create(root)) {
-    stop("Could not create a temporary directory for the test dataset.")
-  }
+  root <- withr::local_tempdir(
+    pattern = "camtrapReport-test-data-",
+    .local_envir = testthat::teardown_env()
+  )
 
   copied <- file.copy(source, root, recursive = TRUE, copy.date = TRUE)
 
@@ -126,12 +125,10 @@ copy_camtrap_module_library <- function() {
   if (!nzchar(source) || !dir.exists(source)) {
     stop("The bundled report module library is not available.")
   }
-
-  root <- tempfile("camtrapReport-test-modules-")
-
-  if (!dir.create(root)) {
-    stop("Could not create a temporary module directory.")
-  }
+  root <- withr::local_tempdir(
+    pattern = "camtrapReport-test-modules-",
+    .local_envir = testthat::teardown_env()
+  )
 
   copied <- file.copy(source, root, recursive = TRUE, copy.date = TRUE)
 

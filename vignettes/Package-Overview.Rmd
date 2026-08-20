@@ -1,7 +1,7 @@
 ---
 title: "Package Overview"
 author: "Elham Ebrahimi"
-description: "An overview of the camtrapReport workflow, package architecture, core functionality, and the data quality checks and ecological reports it produces."
+description: "An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Package Overview}
@@ -10,26 +10,25 @@ vignette: >
 resource_files:
   - figures/package-architecture.png
 ---
+
 ## Introduction
 
-`camtrapReport` is a modular, report-centred R framework for transforming
-standardised camera-trap data into structured and reproducible ecological
-reports. Rather than treating data-quality assessment, analysis, visualisation
-and reporting as separate tasks, the package manages them as coordinated
-components of a single computational workflow.
+`camtrapReport` provides a reproducible workflow for turning standardised
+camera-trap data into structured ecological reports. It brings data-quality
+checks, ecological summaries, visualisation, and report generation together so
+that users can move from a Camtrap DP dataset to a documented report without
+having to assemble each step separately.
 
-The workflow is built around a central `camReport` object, created with
-`camData()`. This object stores harmonised input data, metadata, user settings,
-intermediate outputs, analytical modules and report sections. From the same
-object, users can generate two coordinated outputs:
+The workflow starts with `camData()`, which creates a `camReport` object from
+the input data. The same object is then used to generate two main outputs:
 
-- a **Data Status Check**, created with `status()`, which evaluates data quality
-  and readiness for ecological analysis; and
-- an **Ecological Report**, created with `report()`, which assembles selected
-  analyses, figures, tables, maps and explanatory text into a structured
-  document.
+- a **Data Status Check**, created with `status()`, which helps users identify
+  issues in the data before interpretation or analysis; and
+- an **Ecological Report**, created with `report()`, which combines selected
+  analyses, figures, tables, maps, and explanatory text in a single document.
 
-Together, these outputs keep data assessment, analytical results, and report composition connected within the same reproducible workflow. Figure 1 summarises how camera-trap data are imported with `camData()`, stored in the central `camReport` object, and transformed into data-status checks, ecological analyses, visualisations, and automated reports.
+Figure 1 gives an overview of this workflow from input data to the two report
+outputs.
 
 <style>
 .figure .caption,
@@ -42,170 +41,164 @@ p.caption {
 }
 </style>
 
-```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow, from input camera-trap data to the central camReport object and final report outputs.", fig.alt="Schematic overview of the camtrapReport workflow from input camera-trap data to the central camReport object and final report outputs."}
+```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow from camera-trap data to the Data Status Check and Ecological Report.", fig.alt="Overview of the camtrapReport workflow from input camera-trap data to the Data Status Check and Ecological Report."}
 knitr::include_graphics("figures/package-architecture.png")
 ```
 
-## What `camtrapReport` is designed to do
-
-`camtrapReport` is designed to bridge the gap between standardised camera-trap data and reproducible ecological reporting. It helps users assess whether a dataset is complete and internally consistent, and supports the generation of ecological outputs through an automated and reproducible workflow.
-
-The package is intended to support researchers, monitoring practitioners, conservation managers, and the wider camera-trap community by reducing manual reporting effort and improving consistency across projects, sites, survey periods, and species groups.
-
-
 ## Input data
 
-`camtrapReport` requires a camera-trap dataset in [Camtrap DP format](https://camtrap-dp.tdwg.org/), supplied as a ZIP archive. Optional supporting data, including habitat information and study-area boundaries, can be added to enhance visualisation, ecological analyses, and interpretation.
+The main input is a camera-trap dataset in
+[Camtrap DP format](https://camtrap-dp.tdwg.org/), supplied either as a ZIP
+archive or as an extracted Camtrap DP directory.
 
+Optional supporting data can also be provided. These include habitat
+information and a study-area boundary, which can be used in relevant
+summaries, maps, and ecological analyses.
 
 ## Key outputs
 
-### Data Status Check Report
+### Data Status Check
 
-The Data Status Check report evaluates whether a camera-trap dataset is complete, internally consistent, and suitable for ecological analysis and report generation. It summarises data-quality dimensions such as completeness, consistency, annotation quality, validation status, temporal mismatches, spatial outliers, and observation types.
+The Data Status Check is intended to help users inspect the quality and
+completeness of a dataset before moving on to ecological interpretation. It
+summarises issues such as missing information, annotation and validation
+status, temporal inconsistencies, spatial outliers, observation types, and
+other aspects of data readiness.
 
+It is generated with:
+
+```r
+status(cm)
+```
+
+The report is diagnostic rather than inferential: passing the checks does not
+mean that a sampling design is suitable for every ecological analysis.
 
 ### Ecological Report
 
-The Ecological Report is a structured, article-style document assembled from selected analytical modules. It combines ecological summaries, tables, figures, maps, and narrative text into a reproducible report.
+The Ecological Report brings together selected ecological summaries,
+analyses, figures, tables, maps, and explanatory text in an article-style
+document.
 
-Both `status()` and `report()` create an HTML file and the intermediate R Markdown file used to render it. By default, these files are written beside the input dataset; an alternative output path can be supplied through `filename`. The functions invisibly return the path of the generated HTML file, which makes the output location available to scripts and automated workflows.
+It is generated with:
 
+```r
+report(cm)
+```
+
+The content of the report depends on the selected sections, available data,
+and analytical settings. Users can therefore adapt the report to the purpose
+and scope of a particular monitoring project.
+
+Both `status()` and `report()` create an HTML file together with the
+intermediate R Markdown file used to render it. By default, these files are
+written beside the input dataset. An alternative output path can be supplied
+through `filename`.
+
+## Working with the `camReport` object
+
+The `camReport` object keeps the input data, metadata, settings, and report
+outputs together during the workflow. For most users, the important point is
+that the same object can be inspected, adjusted, and then used to regenerate
+reports with updated settings.
+
+For example, metadata can be viewed or changed with `info()`:
+
+```r
+info(cm)
+
+info(cm, name = "authors")
+
+info(cm, name = "authors") <- c(
+  "Elham Ebrahimi",
+  "Patrick Jansen"
+)
+```
+
+Users can also change the taxonomic focus, select years, adjust filters, or
+choose which report sections should be included before regenerating the
+report.
+
+## A modular reporting workflow
+
+`camtrapReport` is modular in the sense that a report is assembled from
+separate sections rather than from one fixed template. Users can keep only
+the sections relevant to their data and reporting needs, and can omit or
+reorder sections when needed.
+
+For example:
+
+```r
+# Inspect available report sections
+section_names()
+
+# Keep only selected sections
+n <- section_names(
+  keep = c(
+    "introduction",
+    "methods",
+    "study_area"
+  )
+)
+
+# Apply the selection
+sections(cm, n)
+
+# Generate the report
+report(cm)
+```
+
+This makes it possible to use the same overall workflow for projects that
+differ in species, survey duration, spatial extent, available covariates, or
+reporting objectives.
+
+Users who want to develop or manage additional report modules can find more
+detail in the
+[Module management and extension](https://spatialecology.github.io/camtrapReport/articles/modules.html)
+guide.
 
 ## Reproducibility, interpretation, and scope
 
-Reproducibility in `camtrapReport` depends on preserving the input Camtrap DP dataset, optional spatial and habitat inputs, the selected report sections, and all settings used to create the `camReport` object. For work intended for publication or repeated monitoring, users should also record the package version, R version, and versions of optional analytical packages, for example with `sessionInfo()`.
+`camtrapReport` supports reproducible reporting by applying a consistent
+workflow from data checking through ecological analysis to report generation.
+Analytical modules use established ecological and statistical methods, with
+default settings that provide a common starting point across camera-trap
+datasets.
 
-The package standardises checks, calculations, and report assembly; it does not determine whether a sampling design is appropriate for a particular ecological question. A successful Data Status Report does not establish that detections are unbiased, spatially independent, or sufficient for a specific model. Similarly, automatically generated ecological results require interpretation in relation to survey design, effort, detectability, habitat, season, and the assumptions of each selected method. Users remain responsible for checking input records and evaluating whether individual analyses are suitable for their data and scientific objectives.
+Because the workflow is modular, users can select relevant analyses and adjust
+module-specific settings, species groups, and thresholds according to their
+data, study design, and analytical objectives. Results should therefore be
+interpreted in relation to the characteristics of the dataset, sampling design,
+and assumptions of the selected methods.
 
+## Relationship to other camera-trap packages
 
-## Modular workflow
+`camtrapReport` is intended to complement, rather than replace, existing
+camera-trap and ecological analysis packages. Different packages address
+different parts of the workflow.
 
-`camtrapReport` is not a fixed report template. Its modular architecture separates the stable reporting framework from the analytical methods that operate within it. Each module performs a defined analytical or reporting task and returns structured components, such as statistics, narrative text, tables, figures, or maps, to the central `camReport` object.
-
-Users can select which modules are executed and can omit, reorder, replace, or extend the corresponding report sections. Analytical settings can be modified, existing modules can be customised, and new modules can be developed using custom R code or YAML templates. These modules can then be registered within the workflow and included in reports without modifying the package core.
-
-This design allows `camtrapReport` to be adapted to datasets with different species, sampling designs, survey durations, spatial extents, and reporting needs. It also allows analytical methods, indicators, visualisations, and reporting requirements to evolve while preserving a common structure for data access, configuration, execution, provenance, and document assembly.
-
-The modular framework therefore provides a practical pathway for reusable, project-specific, and future community-contributed modules.
-
-
-## How does `camtrapReport` differ from existing tools?
-
-R has a rich ecosystem for working with camera-trap data. Existing packages support complementary stages of the camera-trap data lifecycle, including:
-
-- **Data standards and standardised data handling:** [camtrapdp](https://inbo.github.io/camtrapdp/);
-- **Data management and preparation:** [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR) and [ct](https://doi.org/10.32614/CRAN.package.ct);
-- **Exploration, summaries, and visualisation:** [camtraptor](https://inbo.github.io/camtraptor/), [ctdp](https://git.wur.nl/camtrap/ctdp), [camtrapR](https://doi.org/10.32614/CRAN.package.camtrapR), and [ct](https://doi.org/10.32614/CRAN.package.ct);
-- **Activity, diversity, abundance, and density analyses:** [activity](https://doi.org/10.32614/CRAN.package.activity), [overlap](https://doi.org/10.32614/CRAN.package.overlap), [iNEXT](https://doi.org/10.32614/CRAN.package.iNEXT), [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity), [Distance](https://CRAN.R-project.org/package=Distance), and [ct](https://doi.org/10.32614/CRAN.package.ct); and
-- **Hierarchical and spatial modelling:** [unmarked](https://doi.org/10.32614/CRAN.package.unmarked) and [secr](https://CRAN.R-project.org/package=secr) package.
-
-These categories are not mutually exclusive, as several packages support more than one stage of the camera-trap data workflow.
-
-These packages provide powerful functionality for particular data-processing tasks, ecological analyses, or model classes. However, producing a complete ecological report typically still requires users to organise several analytical steps, harmonise their settings and outputs, generate figures and tables, document processing decisions, and assemble the results into a coherent report.
-
-### The distinctive contribution of `camtrapReport`
-
-To our knowledge, `camtrapReport` is the first R package designed to automatically generate a complete, modular, and reproducible ecological report directly from a standardised Camtrap DP dataset.
-
-Its central innovation is that it treats the **ecological report itself as the reproducible unit of work**, rather than treating an individual transformation, analysis, model, or figure as the final product.
-
-From a single standardised dataset, `camtrapReport` coordinates:
-
-- data-quality assessment and reporting;
-- harmonised preprocessing and analytical settings;
-- ecological analyses and indicators;
-- figures, tables, maps, and other visual outputs;
-- metadata and provenance;
-- data-informed narrative and explanatory text; and
-- generation of the final ecological report.
-
-These components are managed through a shared `camReport` object, which maintains the connection between the original records, processing decisions, analytical results, and reported outputs.
-
-
-### Key differences at a glance
-
-<style>
-.comparison-table table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.comparison-table th,
-.comparison-table td {
-  border: 1px solid #d0d7de;
-  padding: 12px 18px;
-  vertical-align: middle;
-}
-
-.comparison-table thead th {
-  background-color: #ffffff;
-  font-weight: 700;
-  text-align: center;
-}
-
-.comparison-table tbody tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-
-.comparison-table tbody tr:nth-child(even) {
-  background-color: #f6f8fa;
-}
-
-.comparison-table tbody td:first-child {
-  font-weight: 700;
-  width: 20%;
-}
-
-.comparison-table th:nth-child(2),
-.comparison-table td:nth-child(2) {
-  width: 32%;
-}
-
-.comparison-table th:nth-child(3),
-.comparison-table td:nth-child(3) {
-  width: 48%;
-}
-
-.comparison-table code {
-  color: #24292f;
-  background-color: rgba(175, 184, 193, 0.2);
-  padding: 0.2em 0.4em;
-  border-radius: 6px;
-  font-size: 85%;
-}
-</style>
-
-::: {.comparison-table}
-
-| Feature | Most existing tools | `camtrapReport` |
+| Area | Examples | Relationship to `camtrapReport` |
 |---|---|---|
-| **Primary purpose** | Perform a specific data-management or analytical task | Generate a complete ecological report |
-| **Primary output** | Processed data, model objects, statistics, or individual figures | A structured and shareable report containing coordinated analyses, figures, tables, metadata, and narrative |
-| **Reproducible unit** | An individual processing or analytical step | The complete reporting workflow |
-| **Workflow structure** | Functions or workflows designed around particular methods | Independent and configurable report modules |
-| **Customisation** | Users combine and adapt separate analytical scripts | Users can select, omit, reorder, and configure report sections |
-| **Extensibility** | Additional analyses are commonly added through external scripts | New modules can be developed, registered, and reused without modifying the package core |
-| **Traceability** | Depends on how users organise their workflow | Input data, settings, decisions, results, and report outputs are explicitly linked through the `camReport` object |
-| **Consistency across datasets** | Requires users to reproduce and harmonise their own workflows | A common framework supports consistent processing, analysis, visualisation, and reporting |
+| Standardised camera-trap data | [`camtrapdp`](https://inbo.github.io/camtrapdp/) | `camtrapReport` uses Camtrap DP as its main input format. |
+| Data management and exploration | [`camtrapR`](https://doi.org/10.32614/CRAN.package.camtrapR), [`ct`](https://doi.org/10.32614/CRAN.package.ct), [`camtraptor`](https://inbo.github.io/camtraptor/) | These packages provide complementary tools for preparing, exploring, and summarising camera-trap data. |
+| Activity, diversity, abundance, and density analyses | [`activity`](https://doi.org/10.32614/CRAN.package.activity), [`overlap`](https://doi.org/10.32614/CRAN.package.overlap), [`iNEXT`](https://doi.org/10.32614/CRAN.package.iNEXT), [`camtrapDensity`](https://github.com/MarcusRowcliffe/camtrapDensity), [`Distance`](https://CRAN.R-project.org/package=Distance) | Specialised methods can support individual analyses used within a reporting workflow. |
+| Hierarchical and spatial modelling | [`unmarked`](https://doi.org/10.32614/CRAN.package.unmarked), [`secr`](https://CRAN.R-project.org/package=secr) | These packages provide specialised modelling frameworks outside the main reporting role of `camtrapReport`. |
 
-:::
-
-### Relationship to other packages
-
-`camtrapReport` does not aim to replace specialised camera-trap packages or reimplement every available ecological model. Instead, it adds a **report-centred, reproducible, and extensible layer** to the existing R ecosystem.
-
-Where appropriate, specialised tools, models, and data-processing procedures can be incorporated into report modules and presented within a consistent reporting structure.
-
-> **In brief:** existing packages help users manage or analyse camera-trap data; `camtrapReport` automatically transforms standardised camera-trap data into a complete, configurable, traceable, and reproducible ecological report.
-
+The main role of `camtrapReport` is therefore not to reproduce every
+specialised method. Its focus is on bringing data checks, selected ecological
+analyses, visual outputs, metadata, and explanatory text together in a
+consistent report generated from a standardised dataset.
 
 ## Conclusion
 
-`camtrapReport` provides a unified workflow for moving from camera-trap data to reproducible ecological outputs. By combining data preparation, quality assessment, ecological analysis, visualisation, and report generation in a modular framework, the package helps users produce transparent and consistent reports from camera-trap datasets.
+`camtrapReport` provides a structured workflow for moving from standardised
+camera-trap data to quality-checked and reproducible ecological reporting.
+Its modular design allows the workflow to be adapted to different datasets,
+monitoring objectives, and analytical needs.
 
-The two main outputs are the Data Status Check report and the Ecological Report. Together, they help users assess data readiness, identify potential issues, and translate camera-trap records into interpretable ecological information.
-
-To learn more, continue to the [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html), [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html), and [How to add new modules?](https://spatialecology.github.io/camtrapReport/articles/modules.html) articles.
+For more detail, see the
+[Data Status Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html),
+[Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html),
+and
+[Module management and extension](https://spatialecology.github.io/camtrapReport/articles/modules.html)
+articles.

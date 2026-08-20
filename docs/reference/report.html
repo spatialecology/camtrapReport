@@ -23,13 +23,21 @@ data-status report summarising data completeness, structure, and quality."></hea
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about"><li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
+    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
+  </ul></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
@@ -82,8 +90,8 @@ supplied, files are written to the R session's temporary directory.</p></dd>
 
 
 <dt id="arg-view">view<a class="anchor" aria-label="anchor" href="#arg-view"></a></dt>
-<dd><p>A logical value (default <code>FALSE</code>) specifying whether the generated
-HTML report is opened after rendering.</p></dd>
+<dd><p>A logical value (default <code>FALSE</code>) specifying whether
+the generated HTML report is opened after rendering.</p></dd>
 
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
@@ -140,7 +148,7 @@ errors during report generation.</p>
 <span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown report ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpWG5ypi\camtrapReport-report-6684558f2ab3.html</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpS261EZ\camtrapReport-report-7c407891404.html</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">report_file</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
@@ -153,7 +161,7 @@ errors during report generation.</p>
 <span class="r-in"><span>  view <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering R Markdown data_status report ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpWG5ypi\camtrapReport-status-6684210d3d56.html</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpS261EZ\camtrapReport-status-7c405ac0715c.html</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">status_file</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>

@@ -726,6 +726,85 @@
     directory = normalizePath(.path, winslash = "/", mustWork = FALSE)
   )
 }
+#--------
+.camdata_cache_paths <- function(data) {
+  
+  data <- path.expand(data)
+  
+  if (dir.exists(data)) {
+    
+    dataset_dir <- normalizePath(
+      data,
+      winslash = "/",
+      mustWork = TRUE
+    )
+    
+  } else {
+    
+    dataset_dir <- file.path(
+      normalizePath(
+        dirname(data),
+        winslash = "/",
+        mustWork = TRUE
+      ),
+      tools::file_path_sans_ext(basename(data))
+    )
+  }
+  
+  writable_dir <- if (dir.exists(dataset_dir)) {
+    dataset_dir
+  } else {
+    dirname(dataset_dir)
+  }
+  
+  if (file.access(writable_dir, 2L) == 0L) {
+    
+    return(list(
+      cache_file = file.path(
+        dataset_dir,
+        "__camReport_Object.rds"
+      ),
+      study_area_file = file.path(
+        dataset_dir,
+        "_study_area.map"
+      )
+    ))
+  }
+  
+  cache_dir <- tools::R_user_dir(
+    "camtrapReport",
+    which = "cache"
+  )
+  
+  dir.create(
+    cache_dir,
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+  
+  data_key <- normalizePath(
+    data,
+    winslash = "/",
+    mustWork = FALSE
+  )
+  
+  data_key <- gsub(
+    "[^A-Za-z0-9]+",
+    "_",
+    data_key
+  )
+  
+  list(
+    cache_file = file.path(
+      cache_dir,
+      paste0(data_key, "__camReport_Object.rds")
+    ),
+    study_area_file = file.path(
+      cache_dir,
+      paste0(data_key, "_study_area.map")
+    )
+  )
+}
 
 #--------
 setGeneric(
@@ -748,9 +827,11 @@ setGeneric(
 #' used in habitat-related summaries. If a study-area boundary is provided, it
 #' is stored with the object and used in spatial summaries where relevant.
 #'
-#' The `camReport` object is saved within an extracted dataset directory as
-#' `__camReport_Object.rds`. A later call using that directory reuses the saved
-#' object unless `update = TRUE`, in which case the object is recreated.
+#' The `camReport` object is normally saved within the dataset directory as
+#' `__camReport_Object.rds`. A later call using the same dataset reuses the
+#' saved object unless `update = TRUE`, in which case the object is recreated.
+#' If the dataset location is not writable, a package-specific user cache
+#' directory is used instead.
 #'
 #' @param data A character string giving the path to a Camtrap DP dataset,
 #'   provided as a ZIP file or an extracted dataset directory.
@@ -788,21 +869,12 @@ setMethod(
   function(data, habitat, study_area = NULL, update = FALSE, ...) {
 
     if (missing(update)) update <- FALSE
-    cache_dir <- file.path(tempdir(), "camtrapReport")
-    dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+    cache_paths <- .camdata_cache_paths(data)
+    
+    cache_file <- cache_paths$cache_file
+    study_area_file <- cache_paths$study_area_file
 
-    data_key <- normalizePath(data, winslash = "/", mustWork = FALSE)
-    data_key <- gsub("[^A-Za-z0-9]+", "_", data_key)
 
-    cache_file <- file.path(
-      cache_dir,
-      paste0(data_key, "__camReport_Object.rds")
-    )
-
-    study_area_file <- file.path(
-      cache_dir,
-      paste0(data_key, "_study_area.map")
-    )
     if (!update && file.exists(cache_file)) {
       cm <- readRDS(cache_file)
       return(cm)

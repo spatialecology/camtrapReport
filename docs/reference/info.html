@@ -21,13 +21,21 @@ object or update the value of a field used in report generation."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about"><li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
+    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
+  </ul></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
@@ -82,9 +90,9 @@ the default report-information fields are returned.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>info()</code> returns an object of class <code>camInfo</code> containing the requested
-fields. The replacement method returns the updated <code>camReport</code> object
-invisibly.</p>
+    <p><code>info()</code> returns an object of class <code>camInfo</code>
+containing the requested fields. The replacement method returns the
+updated <code>camReport</code> object invisibly.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -113,19 +121,19 @@ before generating the report.</p>
 <span class="r-in"><span><span class="co"># Retrieve all report information</span></span></span>
 <span class="r-in"><span><span class="fu">info</span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $title</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for EOW Veluwe, Netherlands"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for GMU8 LEUVEN, Belgium"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $subtitle</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Ecological insights from camera-trap data for wildlife monitoring"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $authors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Jari Bos, Laurens Dijkhuis, Elham Ebrahimi, Tancredi Guerrasio, Henjo de Knegt, Yorick Liefting, Jan den Ouden, Bart van Rossum, Anouk van der Schaaf, Anna Stubbe, and Patrick Jansen*"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Martijn Bollen, Niko Boone, Jim Casaer, Peter Desmet, Sander Devisscher, Sanne Govaert, Lynn Pallemaerts, Anneleen Rutten, and Jan Vercammen"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $institute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Wageningen University and University of Sassari"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Research Institute for Nature and Forest (INBO)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $siteName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EOW Veluwe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GMU8 LEUVEN"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $logoPath</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
@@ -141,13 +149,13 @@ before generating the report.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">selected_info</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $title</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for EOW Veluwe, Netherlands"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Camera-Trap Monitoring Report for GMU8 LEUVEN, Belgium"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $authors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Jari Bos, Laurens Dijkhuis, Elham Ebrahimi, Tancredi Guerrasio, Henjo de Knegt, Yorick Liefting, Jan den Ouden, Bart van Rossum, Anouk van der Schaaf, Anna Stubbe, and Patrick Jansen*"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Martijn Bollen, Niko Boone, Jim Casaer, Peter Desmet, Sander Devisscher, Sanne Govaert, Lynn Pallemaerts, Anneleen Rutten, and Jan Vercammen"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $institute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Wageningen University and University of Sassari"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Research Institute for Nature and Forest (INBO)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "camInfo"</span>

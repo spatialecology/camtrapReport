@@ -183,19 +183,13 @@ test_that(
     "camtrapReport"
   )
   
-  cache_files <- list.files(
-    cache_dir,
-    pattern = "__camReport_Object\\.rds$",
-    full.names = TRUE
-  )
-  
-  expect_gte(
-    length(cache_files),
-    1L
+  cache_file <- file.path(
+    cm$info$directory,
+    "__camReport_Object.rds"
   )
   
   expect_true(
-    all(file.exists(cache_files))
+    file.exists(cache_file)
   )
   }
 )

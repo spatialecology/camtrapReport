@@ -168,8 +168,9 @@ test_that("module inventory reports invalid and duplicate YAML files", {
 })
 
 test_that("empty module directories get a usable module index", {
-  module_dir <- tempfile("empty-modules-")
-  dir.create(module_dir)
+  module_dir <- withr::local_tempdir(
+    pattern = "empty-modules-"
+  )
 
   info <- ct_internal(".read_modules_info")(
     module_dir,

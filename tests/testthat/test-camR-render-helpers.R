@@ -246,20 +246,16 @@ test_that("package loader can check packages without attaching them", {
     fixed = TRUE
   )
   
-  expect_false(
-    grepl(
-      "library(",
-      loader,
-      fixed = TRUE
-    )
+  expect_no_match(
+    loader,
+    "library(",
+    fixed = TRUE
   )
   
-  expect_false(
-    grepl(
-      "lapply(",
-      loader,
-      fixed = TRUE
-    )
+  expect_no_match(
+    loader,
+    "lapply(",
+    fixed = TRUE
   )
 })
 
@@ -337,12 +333,10 @@ test_that("report logo block embeds a user-provided PNG", {
     fixed = TRUE
   )
   
-  expect_false(
-    grepl(
-      "PNG logo placeholder",
-      logo_block,
-      fixed = TRUE
-    )
+  expect_no_match(
+    logo_block,
+    "PNG logo placeholder",
+    fixed = TRUE
   )
 })
 

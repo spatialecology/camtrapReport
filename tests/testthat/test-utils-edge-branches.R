@@ -85,8 +85,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(missing_result$effective_size))
   expect_identical(missing_result$size_class, "unknown")
   
-  empty_directory <- tempfile("camtrap-empty-directory-")
-  dir.create(empty_directory)
+  empty_directory <- withr::local_tempdir(
+    pattern = "camtrap-empty-directory-"
+  )
   
   on.exit(
     unlink(
@@ -103,8 +104,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(empty_result$effective_size))
   expect_identical(empty_result$size_class, "unknown")
   
-  data_directory <- tempfile("camtrap-data-directory-")
-  dir.create(data_directory)
+  data_directory <- withr::local_tempdir(
+    pattern = "camtrap-data-directory-"
+  )
   
   on.exit(
     unlink(

@@ -1,7 +1,7 @@
 # Contributing to camtrapReport
 
 Thank you for your interest in contributing to `camtrapReport`.
-Bug reports, feature suggestions, documentation improvements and new
+Bug reports, feature suggestions, documentation improvements, and new
 report modules are all welcome.
 
 ## Reporting problems
@@ -16,12 +16,14 @@ To help us investigate the problem, please include:
 - a minimal reproducible example;
 - the output of `sessionInfo()`;
 - a small synthetic or openly shareable Camtrap DP dataset, where possible.
-If this is not possible because of data privacy, confidentiality or sensitivity
-concerns, please contact the maintainer [by email](mailto:eebrahimi.bio@gmail.com)
-to discuss an appropriate alternative for reproducing the issue.
+
+If sharing a dataset is not possible because of data privacy, confidentiality,
+or sensitivity concerns, please contact the maintainer
+[by email](mailto:eebrahimi.bio@gmail.com) to discuss an appropriate
+alternative for reproducing the issue.
 
 Please do not upload confidential camera-trap data, sensitive species
-locations, restricted images, personal information or other protected
+locations, restricted images, personal information, or other protected
 material to a public GitHub issue.
 
 ## Suggesting features
@@ -37,7 +39,9 @@ Before submitting a pull request, please:
 1. Keep the proposed change focused.
 2. Add or update tests when behaviour changes.
 3. Update the roxygen2 documentation when needed.
-4. Add a short entry to [`NEWS.md`](../NEWS.md) for user-facing changes.
+4. Add a short entry to
+   [`NEWS.md`](https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md)
+   for user-facing changes.
 5. Run:
 
 ```r
@@ -54,7 +58,36 @@ Please follow the structure and coding style already used in the package.
 Large formatting changes should be kept separate from functional changes
 so that contributions are easier to review.
 
+## Package architecture
+
+The central `camReport` object is implemented using an R Reference Class.
+This is an intentional design choice because report generation is a stateful
+workflow: the same object stores the imported camera-trap data, metadata,
+settings, intermediate analytical results, and report configuration as the
+workflow progresses.
+
+Reference semantics allow these components to remain associated with the same
+`camReport` object while users modify settings, select analyses, update report
+sections, and generate outputs. This avoids requiring each operation to rebuild
+and return a new report object.
+
+Contributors adding functionality to the `camReport` object should therefore
+preserve this stateful workflow and avoid changes to the class architecture
+unless there is a clear reason to do so.
+
+### Module rendering environment
+
+Report-module code is evaluated in an environment created by the internal
+`.make_render_env()` helper. This environment provides access to the current
+`camReport` object, selected object fields, report-numbering functions, and
+internal helpers required by report modules.
+
+This gives modules a consistent execution context during report generation.
+Contributors developing new modules should normally use the objects and helpers
+made available through this environment rather than modifying the rendering
+environment itself.
+
 ## Code of Conduct
 
 Participation in this project is governed by the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).

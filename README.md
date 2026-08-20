@@ -28,62 +28,120 @@
   <em>Schematic overview of the automated <code>camtrapReport</code> workflow.</em>
 </p>
 
+## Use in practice
 
-## Install
+`camtrapReport` has been developed and evaluated using multiple real-world
+camera-trap datasets from different parts of the world, spanning a wide range of
+geographic regions, monitoring contexts, survey designs, and data structures.
+A substantial part of this evaluation has involved datasets from across Europe,
+particularly through the European Observatory of Wildlife (EOW) network. The
+package has also been presented at conferences, workshops, and training events,
+and is increasingly being used and tested by external users.
+
+Testing the package across these heterogeneous datasets has helped identify
+practical issues related to data structure, metadata completeness, spatial and
+temporal coverage, and report generation. Feedback from users working with these
+datasets has been incorporated into the continued development and refinement of
+the package.
+
+## Installation
+
+`camtrapReport` requires R 4.1.0 or later. Install the development version from GitHub with [`pak`](https://pak.r-lib.org/):
 
 ```r
-remotes::install_github("spatialecology/camtrapReport")
-library(camtrapReport)
-install_All()   # Install all package dependencies required for full functionality
-```
+if (!requireNamespace("pak", quietly = TRUE)) {
+  install.packages("pak")
+}
 
-## Create the camReport object
-
-The only required input is a single `.zip` file containing the dataset in Camtrap DP format.
-
-```r
-cm <- camData("Leuven-data.zip")   # build the camReport object
-```
-
-## Optional input
-
-Optional inputs can be supplied directly to `camData()`, including habitat data as a CSV file ([see template](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing)) and the study-area boundary as a polygon shapefile.
-
-```r
-habitat <- read.csv("C:/Users/Data/habitat.csv")
-
-head(habitat) # check if the data.frame follows the required structure:
-#   locationName      Habitat
-# 1       VEL-01     Sandhill
-# 2       VEL-02       Forest
-# 3       VEL-03 Dry_heathland
-
-# Spatial polygon of the study area:
-bnd <- vect("C:/Users/Data/polygon.shp")
-
-# Read the camera-trap data together with habitat data and the study area boundary:
-cm <- camData(
-  data = "C:/Users/Data/Leuven-data.zip",
-  habitat = habitat,
-  study_area = bnd
+pak::pkg_install(
+  "spatialecology/camtrapReport",
+  dependencies = TRUE
 )
 
-cm # shows brief information about the camReport object
+library(camtrapReport)
 ```
 
-Once the `camReport` object is built, two reports can be generated: the **Data Status Check** and the **Ecological Insight Report**.
+Using `dependencies = TRUE` also installs packages listed as optional dependencies, which are needed by some report modules and examples.
 
-## Data status report
+## Quick start with the bundled example data
 
-To generate a Data Status Report and review the quality and completeness of the input data, use `status()`:
+The package includes a compact Camtrap DP dataset derived from the **GMU8_LEUVEN** dataset, together with example habitat data and a study-area boundary. These files are bundled specifically for examples, automated tests, and software demonstrations.
+
+The example below is fully reproducible after installing the package. Because `camData()` stores a processed `camReport` object beside the input dataset, the bundled dataset is first copied to a temporary working directory so that the installed package files remain unchanged.
+
+```r
+library(camtrapReport)
+
+# Locate the bundled Camtrap DP example dataset
+bundled_dataset <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport"
+)
+
+# Work on a copy because camData() stores processed output beside the input data
+example_root <- file.path(tempdir(), "camtrapReport-example")
+if (dir.exists(example_root)) {
+  unlink(example_root, recursive = TRUE)
+}
+dir.create(example_root)
+
+file.copy(
+  bundled_dataset,
+  example_root,
+  recursive = TRUE
+)
+
+example_dataset <- file.path(
+  example_root,
+  basename(bundled_dataset)
+)
+
+# Locate the bundled optional inputs
+habitat_path <- system.file(
+  "external",
+  "habitat",
+  "habitat.csv",
+  package = "camtrapReport"
+)
+
+study_area_path <- system.file(
+  "external",
+  "study_area",
+  "study_area.shp",
+  package = "camtrapReport"
+)
+
+habitat <- read.csv(
+  habitat_path,
+  stringsAsFactors = FALSE
+)
+
+# Create the camReport object
+cm <- camData(
+  data = example_dataset,
+  habitat = habitat,
+  study_area = study_area_path
+)
+
+cm
+```
+
+`camData()` also accepts a user's own Camtrap DP dataset as either a ZIP archive or an extracted Camtrap DP directory. Habitat data and a study-area boundary are optional.
+
+Once the `camReport` object is created, the same object can be used to generate the **Data Status Check** and the **Ecological Report**.
+
+## Data Status Check
+
+To review the quality and completeness of the input data, generate a Data Status Check with `status()`:
 
 ```r
 status(cm, view = TRUE)  # With view = TRUE, the generated report opens automatically
 ```
 
-## Ecological report
+## Ecological Report
 
-Once the input data have been prepared, a full ecological report can be generated using the `report()` function:
+After reviewing the input data, generate the Ecological Report with `report()`:
 
 ```r
 report(cm, view = TRUE)  # Opens the report automatically after creation
@@ -187,7 +245,7 @@ The function `updateReportSection()` can be used to edit the content of an exist
 # View available report sections
 listReportSections(cm)
 sections(cm)
-section_names(cm)
+section_names()
 
 # Update the text of a specific report section
 updateReportSection(
@@ -263,75 +321,30 @@ Reports can be shared even when raw images or precise locations cannot — broad
 
 ## Example data
 
-Try the workflow using the open [Leuven Camtrap DP dataset](https://drive.google.com/file/d/1l-nSJKopM9agJgtTCzTx3tQiP8aTYH5c/view?usp=sharing). This example includes camera-trap data files based on the original Camtrap DP dataset, which is available from [GBIF](https://doi.org/10.15468/4u3wm4), together with optional supporting files such as `habitat.csv` and a study-area boundary shapefile.
+The Quick Start above uses a compact derived subset of the **GMU8_LEUVEN** Camtrap DP dataset that is distributed with `camtrapReport`. The fixture contains repeated deployments across eight example camera locations and multiple years, together with bundled habitat and study-area inputs. It is intended for software demonstration and testing rather than ecological inference.
 
-This is a relatively large dataset, covering multiple years and more than 300 camera locations, so preprocessing and report generation may take some time.
+The provenance and transformations applied to the example fixture are documented in [`inst/external/README-Leuven-dataset.md`](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md). For scientific analyses, users should refer to the complete source dataset and its original metadata.
+
+The package has also been demonstrated and tested in hands-on workshops using camera-trap data; related publications, workshops, and training activities are listed on the [Resources](https://spatialecology.github.io/camtrapReport/articles/resources.html) page.
 
 ## Learn more
 
 [Package overview](https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html) · [Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
 
-## How does `camtrapReport` differ from existing tools?
+## Relationship to other camera-trap packages
 
-R has a rich ecosystem for working with camera-trap data. Existing packages support complementary parts of the data lifecycle, including:
+R packages provide complementary tools for different parts of camera-trap
+workflows, including standardised data handling (`camtrapdp`), data management
+and exploration (`camtrapR`, `ct`, `camtraptor`), specialised ecological
+analyses (`activity`, `overlap`, `iNEXT`, `camtrapDensity`, `Distance`), and
+hierarchical or spatial modelling (`unmarked`, `secr`).
 
-- **Data standards and standardised data handling:** `camtrapdp`;
-- **Data management and preparation:** `camtrapR` and `ct`;
-- **Exploration, summaries, and visualisation:** `camtraptor`, `ctdp`, `camtrapR`, and `ct`;
-- **Activity, diversity, abundance, and density analyses:** `activity`, `overlap`, `iNEXT`, `camtrapDensity`, `Distance`, and `ct`; and
-- **Hierarchical and spatial modelling:** `unmarked` and `secr`.
-
-These packages provide powerful functionality for particular data-processing tasks, ecological analyses, or model classes. However, producing a complete ecological report typically still requires users to organise several analytical steps, harmonise their settings and outputs, generate figures and tables, document processing decisions, and assemble the results into a coherent report.
-
-### The Distinctive Contribution of `camtrapReport`
-
-To our knowledge, `camtrapReport` is the first R package designed to automatically generate a complete, modular, and reproducible ecological report directly from a standardised Camtrap DP dataset.
-
-Its central innovation is that it treats the ecological report itself as the reproducible unit of work, rather than treating an individual transformation, analysis, model, or figure as the final product.
-
-From a single standardised dataset, `camtrapReport` coordinates:
-
-- data-quality assessment and reporting;
-- harmonised preprocessing and analytical settings;
-- ecological analyses and indicators;
-- figures, tables, maps, and other visual outputs;
-- metadata and provenance;
-- data-informed explanatory text; and
-- generation of the final ecological report.
-
-These components are managed through a shared `camReport` object, which maintains the connection between the original records, processing decisions, analytical results, and reported outputs.
-
-### Key Differences at a Glance
-
-| Feature | Most existing tools | `camtrapReport` |
-|---|---|---|
-| **Primary purpose** | Perform a specific data-management or analytical task | Generate a complete ecological report |
-| **Primary output** | Processed data, model objects, statistics, or individual figures | A structured and shareable report containing coordinated analyses, figures, tables, metadata, and narrative |
-| **Reproducible unit** | An individual processing or analytical step | The complete reporting workflow |
-| **Workflow structure** | Functions or workflows designed around particular methods | Independent and configurable report modules |
-| **Customisation** | Users combine and adapt separate analytical scripts | Users can select, omit, reorder, and configure report sections |
-| **Extensibility** | Additional analyses are commonly added through external scripts | New modules can be developed, registered, and reused without modifying the package core |
-| **Traceability** | Depends on how users organise their workflow | Input data, settings, decisions, results, and report outputs are explicitly linked through the `camReport` object |
-| **Consistency across datasets** | Requires users to reproduce and harmonise their own workflows | A common framework supports consistent processing, analysis, visualisation, and reporting |
-
-### Modular, Flexible, and Extensible by Design
-
-`camtrapReport` is not a fixed report template. Its modular architecture allows users to:
-
-- include only analyses supported by their data and research objectives;
-- omit or reorder report sections;
-- modify analytical settings;
-- customise existing modules; and
-- develop and register new analytical or reporting modules.
-
-The framework can therefore be adapted to datasets with different species, sampling designs, survey durations, spatial extents, and reporting needs. It can also evolve as new camera-trap methods, indicators, visualisations, and data standards become available.
-
-### Relationship to other Packages
-
-`camtrapReport` does not aim to replace specialised camera-trap packages or reimplement every available ecological model. Instead, it adds a report-centred, reproducible, and extensible layer to the existing R ecosystem. Where appropriate, specialised tools, models, and data-processing procedures can be incorporated into report modules and presented within a consistent reporting structure.
-
-**In brief:** existing packages help users manage or analyse camera-trap data; `camtrapReport` automatically transforms standardised camera-trap data into a complete, configurable, traceable, and reproducible ecological report.
-
+`camtrapReport` complements these tools by focusing on automated reporting.
+Starting from a standardised Camtrap DP dataset, it coordinates data-quality
+assessment, selected ecological analyses, figures, tables, maps, metadata and
+narrative text within a configurable and reproducible report. It is not intended
+to replace specialised analytical packages; their methods and outputs can be
+incorporated into the modular reporting workflow where appropriate.
 
 ## Citation
 
@@ -345,7 +358,7 @@ citation("camtrapReport")
 
 Contributions to `camtrapReport` are very welcome. These may include bug
 reports, feature requests, documentation improvements, code contributions,
-or proposals for new report modules.You can contribute by opening a
+or proposals for new report modules. You can contribute by opening a
 [GitHub issue](https://github.com/spatialecology/camtrapReport/issues)
 or starting a [discussion](https://github.com/spatialecology/camtrapReport/discussions). Before contributing, please read the
 [contributing guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)

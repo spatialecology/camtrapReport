@@ -28,6 +28,7 @@ Imports:
     terra
 Suggests:
     activity,
+    camtrapDensity,
     corrplot,
     Distance,
     dygraphs,
@@ -56,8 +57,11 @@ Suggests:
     taxize,
     testthat (>= 3.1.7),
     tidyr,
+    withr,
     xml2,
     xts
+Remotes:
+    MarcusRowcliffe/camtrapDensity
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

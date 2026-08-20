@@ -370,7 +370,27 @@
 }
 
 #--------
-
+#' Create the environment used to render report modules
+#'
+#' Creates the evaluation environment used when report-module code is
+#' executed during report generation. The environment provides access to
+#' the current `camReport` object, selected object fields, and internal
+#' helper functions required by report modules.
+#'
+#' The current report object is available as `object`, `cm`, and `.self`.
+#' The environment also provides wrappers for `getFigureNumber()` and
+#' `getTableNumber()` used during report generation.
+#'
+#' This function is intended for internal use. Contributors developing
+#' report modules should normally use the objects and helpers exposed by
+#' this environment rather than modifying the rendering environment itself.
+#'
+#' @param object A `camReport` object being used to generate a report.
+#'
+#' @return An environment used to evaluate report-module code.
+#'
+#' @keywords internal
+#' @noRd
 .make_render_env <- function(object) {
   env <- new.env(parent = parent.frame())
   
@@ -378,25 +398,29 @@
   env$cm <- object
   env$.self <- object
   
-  helper_names <- c(
-    ".paste_comma_and",
-    ".trim",
-    ".trim_chr",
-    ".pretty_label",
-    ".firstUpper",
-    ".format_duration",
-    ".format_file_size",
-    ".getYear",
-    ".get_Time_length",
-    ".get_hour",
-    ".html_escape_base",
-    ".html_attr_escape"
+  helpers <- list(
+    .paste_comma_and = .paste_comma_and,
+    .trim = .trim,
+    .trim_chr = .trim_chr,
+    .pretty_label = .pretty_label,
+    .firstUpper = .firstUpper,
+    .format_duration = .format_duration,
+    .format_file_size = .format_file_size,
+    .getYear = .getYear,
+    .get_Time_length = .get_Time_length,
+    .get_hour = .get_hour,
+    .html_escape_base = .html_escape_base,
+    .html_attr_escape = .html_attr_escape,
+    .plot_effort = .plot_effort,
+    .basic_corrplot = .basic_corrplot
   )
   
-  for (nm in helper_names) {
-    if (exists(nm, mode = "function", inherits = TRUE)) {
-      assign(nm, get(nm, mode = "function", inherits = TRUE), envir = env)
-    }
+  for (nm in names(helpers)) {
+    assign(
+      nm,
+      helpers[[nm]],
+      envir = env
+    )
   }
   
   field_names <- character()

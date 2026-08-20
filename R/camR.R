@@ -2617,8 +2617,9 @@ camR <- setRefClass(
                   .n <- simplify2array(lapply(.self$statusReportObjects[[x@parent]]@Rchunk, function(x) x@name))
                   # nolint end
                   if (x@name %in% .n) {
-                    .self$statusReportObjects[[x@parent]]@Rchunk[[match(x@name,
-                                                                        .n)]] <- x
+                    .self$statusReportObjects[[x@parent]]@Rchunk[[
+                      match(x@name, .n)
+                    ]] <- x
                     .added <- TRUE
                   } else {
                     .self$statusReportObjects[[x@parent]]@Rchunk[[x@name]] <- x
@@ -2941,8 +2942,9 @@ camR <- setRefClass(
                       .nn <- simplify2array(lapply(.self$statusReportObjects[[.n]]@Rchunk, function(x) x@name))
                       # nolint end
                       if (x@name %in% .nn) {
-                        .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn ==
-                                                                      x@name]]] <- x
+                        .self$statusReportObjects[[.n]]@Rchunk[[
+                          .nn[.nn == x@name]
+                        ]] <- x
                         .added <- TRUE
                         break
                       } else {
@@ -3065,17 +3067,27 @@ output:
               for (.nnn in names(.self$reportObjects[[.n]][[.nn]])) {
                 .xxx <- .self$reportObjects[[.n]][[.nn]][[.nnn]]
                 # nolint start: line_length_linter.
-                rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xxx,.envir = .self))
+                rmd_template <- paste0(
+                  rmd_template,
+                  "\n\n",
+                  .glueTextSection(.x, .envir = .self)
+                )
                 # nolint end
               }
             } else {
-              rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
-                                                                            .envir = .self))
+              rmd_template <- paste0(
+                rmd_template,
+                "\n\n",
+                .glueTextSection(.xx, .envir = .self)
+              )
             }
           }
         } else {
-          rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
-                                                                        .envir = .self))
+        rmd_template <- paste0(
+  rmd_template,
+  "\n\n",
+  .glueTextSection(.x, .envir = .self)
+)
         }
       }
       
@@ -3146,17 +3158,27 @@ output:
               for (.nnn in names(.self$statusReportObjects[[.n]][[.nn]])) {
                 .xxx <- .self$statusReportObjects[[.n]][[.nn]][[.nnn]]
                 # nolint start: line_length_linter.
-                rmd_template <- paste0(rmd_template,'\n\n',.glueTextSection(.xxx,.envir = .self))
+                rmd_template <- paste0(
+                  rmd_template,
+                  "\n\n",
+                  .glueTextSection(.x, .envir = .self)
+                )
                 # nolint end
               }
             } else {
-              rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.xx,
-                                                                            .envir = .self))
+              rmd_template <- paste0(
+                rmd_template,
+                "\n\n",
+                .glueTextSection(.xx, .envir = .self)
+              )
             }
           }
         } else {
-          rmd_template <- paste0(rmd_template, "\n\n", .glueTextSection(.x,
-                                                                        .envir = .self))
+          rmd_template <- paste0(
+            rmd_template,
+            "\n\n",
+            .glueTextSection(.x, .envir = .self)
+          )
         }
       }
       

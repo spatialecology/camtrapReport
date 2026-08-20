@@ -113,8 +113,9 @@ test_that("small data helpers return stable base objects", {
 })
 
 test_that("file and size helpers inspect temporary data without side effects", {
-  d <- tempfile("camtrap-size-")
-  dir.create(d)
+  d <- withr::local_tempdir(
+    pattern = "camtrap-size-"
+  )
   writeLines("camera trap", file.path(d, "sample.data.csv"))
 
   size <- ct_internal(".estimate_camdata_size")(d)
