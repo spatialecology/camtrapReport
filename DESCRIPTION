@@ -29,6 +29,7 @@ Imports:
 Suggests:
     activity,
     camtrapDensity,
+    camtraptor,
     corrplot,
     Distance,
     dygraphs,
