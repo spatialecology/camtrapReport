@@ -203,7 +203,7 @@ test_that("sf study-area boundaries are projected automatically", {
 })
 
 test_that("the base correlation plot draws on a non-interactive device", {
-  file <- tempfile(fileext = ".pdf")
+  file <- withr::local_tempfile(fileext = ".pdf")
   grDevices::pdf(file)
   on.exit(grDevices::dev.off(), add = TRUE)
   

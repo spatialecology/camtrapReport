@@ -38,8 +38,6 @@ setGeneric(
 #'   [camData()].
 #' @param filename An optional character string giving the output filename or
 #'   file path without an extension. The default is `"report"` for `report()`
-#'   and `"data_status"` for `status()`. Relative default filenames are written
-#'   file path without an extension. The default is `"report"` for `report()`
 #'   and `"data_status"` for `status()`. If no output directory is explicitly
 #'   supplied, files are written to the R session's temporary directory.
 #' @param view A logical value (default `FALSE`) specifying whether
@@ -163,6 +161,13 @@ setMethod(
           
           if (!dir.exists(.path)) {
             .path <- NULL
+          }
+
+          if (!is.null(.path)) {
+            on.exit(
+              unlink(.path, recursive = TRUE, force = TRUE),
+              add = TRUE
+            )
           }
           
           n <- object$reportObjectElements$Modules_info$name[ww]

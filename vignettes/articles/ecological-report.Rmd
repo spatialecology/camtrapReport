@@ -52,7 +52,10 @@ cm <- camData("cameratrap.zip")
 report(cm, view = TRUE)
 ```
 
-`report()` invisibly returns the path to the generated HTML file. By default, `report.html` and the intermediate `report.Rmd` file are written beside the input dataset. A specific file stem or existing output directory can be supplied through `filename`:
+`report()` invisibly returns the path to the generated HTML file. By default,
+`report.html` and the intermediate `report.Rmd` file are written to the R
+session's temporary directory. A specific file stem or a path inside an
+existing output directory can be supplied through `filename`:
 
 ```{r ecological-report-output-path, eval=FALSE}
 report_file <- report(
@@ -446,4 +449,3 @@ sections(cm, n = section_names())
 ```
 
 Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
-

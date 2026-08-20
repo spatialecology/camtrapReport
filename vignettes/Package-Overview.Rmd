@@ -92,8 +92,9 @@ and scope of a particular monitoring project.
 
 Both `status()` and `report()` create an HTML file together with the
 intermediate R Markdown file used to render it. By default, these files are
-written beside the input dataset. An alternative output path can be supplied
-through `filename`.
+written to the R session's temporary directory. Supply a file stem or an
+existing output directory through `filename` when the files should be retained
+at a specific location.
 
 ## Working with the `camReport` object
 

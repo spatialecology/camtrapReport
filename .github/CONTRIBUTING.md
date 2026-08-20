@@ -58,6 +58,30 @@ Please follow the structure and coding style already used in the package.
 Large formatting changes should be kept separate from functional changes
 so that contributions are easier to review.
 
+New public functions should use `snake_case`. Some existing public functions
+retain older names for backward compatibility; do not rename them without a
+documented deprecation plan and replacement aliases.
+
+## Dependencies and testing
+
+The package deliberately uses both `data.table` and `dplyr` for different
+parts of the workflow. `data.table::fread()` provides efficient input of
+Camtrap DP tables, while `dplyr` is used for data transformation, grouping,
+and joins. `tidyr` is an optional dependency used only by report modules that
+need data reshaping, including species-accumulation output.
+
+Other packages in `Suggests` support optional functionality such as report
+rendering, the graphical interface, figures, maps, tables, specialised
+ecological analyses, spatial and solar-time operations, and taxonomic
+enrichment. They should be loaded only when the corresponding functionality
+is requested. New optional modules should declare their packages in module
+metadata and fail with a clear installation message when a package is absent.
+
+The standard test suite does not require API tokens. Tests should use bundled
+or synthetic fixtures, temporary files managed with `withr`, and mocked or
+otherwise isolated network behaviour. Never commit credentials, private
+camera-trap data, sensitive species locations, or other restricted material.
+
 ## Package architecture
 
 The central `camReport` object is implemented using an R Reference Class.

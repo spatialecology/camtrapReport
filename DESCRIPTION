@@ -46,7 +46,6 @@ Suggests:
     magick,
     plotly,
     readr,
-    remotes,
     rmarkdown,
     roxygen2,
     sbd,

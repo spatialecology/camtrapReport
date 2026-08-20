@@ -829,7 +829,8 @@ camR <- setRefClass(
           "REM input data are available for ",
           sp,
           ", but the optional package 'camtrapDensity' is not installed. ",
-          "Run install_All() to enable REM estimation.",
+          "Install 'camtrapDensity' to enable REM estimation, for example ",
+          "with pak::pkg_install('MarcusRowcliffe/camtrapDensity').",
           call. = FALSE
         )
         return(invisible(FALSE))

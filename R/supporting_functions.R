@@ -1685,24 +1685,3 @@
   }
   
 }
-#-------
-
-.get_module_packages <- function() {
-  .module_dir <- .section_dir("camtrapReport")
-  
-  mods <- .read_modules(
-    level0 = c("introduction", "methods", "results",
-               "acknowledgements", "appendix"),
-    package = "camtrapReport",
-    dir = .module_dir,
-    write_info = FALSE
-  )
-  
-  unique(unlist(lapply(mods,function(x) {
-    if (!is.null(x@Rchunk)) {
-      if (is.list(x@Rchunk)) {
-        unique(unlist(lapply(x@Rchunk,function(y) y@packages)))
-      } else x@Rchunk@packages
-    }
-  })))
-}

@@ -3,13 +3,22 @@
 #--------
 
 .QuickTestReportSection <- function(x, object = NULL, path = NULL) {
-  
+
+  temporary_output <- is.null(path)
+
   if (is.null(path)) {
     rmd_file <- tempfile(fileext = ".Rmd")
     output_file <- tempfile(fileext = ".html")
   } else {
     rmd_file <- file.path(path, "test.Rmd")
     output_file <- file.path(path, "test.html")
+  }
+
+  if (temporary_output) {
+    on.exit(
+      unlink(c(rmd_file, output_file), force = TRUE),
+      add = TRUE
+    )
   }
   
   # Title environment for glue

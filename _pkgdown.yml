@@ -150,11 +150,6 @@ reference:
       - testSection
       - modules
 
-  - title: internal
-
-  - contents:
-      - install_All
-
   - title: Core class
     desc: >
       Low-level documentation for the camReport class. Most users
@@ -163,4 +158,3 @@ reference:
 
   - contents:
       - camReport-classes
-      

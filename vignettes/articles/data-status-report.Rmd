@@ -52,7 +52,10 @@ status(cm, view = TRUE)
 
 When `view = TRUE`, the generated report is opened in the browser. This provides a quick, human-readable overview of dataset quality, completeness, and consistency.
 
-The function also invisibly returns the path to the HTML report. By default, `data_status.html` and its intermediate `data_status.Rmd` file are written beside the input dataset. Use `filename` to give another file stem or an existing output path:
+The function also invisibly returns the path to the HTML report. By default,
+`data_status.html` and its intermediate `data_status.Rmd` file are written to
+the R session's temporary directory. Use `filename` to give another file stem
+or a path inside an existing output directory:
 
 ```{r data-status-output-path, eval=FALSE}
 status_file <- status(
@@ -215,4 +218,3 @@ cm$data_status$Species$Table
 
 
 Together, `status(cm, view = TRUE)` and `cm$data_status` provide both a human-readable HTML report and direct access to the underlying data-quality summaries in R. This makes the Data Status Report useful for documenting data readiness, identifying issues, and improving the dataset before generating the final Ecological Report.
-
