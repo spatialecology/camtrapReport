@@ -52,18 +52,20 @@
 #-------
 .make_package_loader_chunk <- function(pkgs,
                                        core = "knitr",
-                                       attach_packages = TRUE) {
+                                       attach_packages = TRUE,
+                                       label = "camtrap-packages") {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
+  chunk_header <- paste0("```{r ", label, ", include=FALSE}\n")
   
   if (length(pkgs) == 0) {
-    return("```{r setup, include=FALSE}\n# no extra packages\n```\n")
+    return(paste0(chunk_header, "# no extra packages\n```\n"))
   }
   
   pkg_txt <- toString(sprintf('"%s"', pkgs))
   
   if (attach_packages) {
     paste0(
-      "```{r setup, include=FALSE}\n",
+      chunk_header,
       "pkgs <- c(", pkg_txt, ")\n",
       # nolint start: line_length_linter.
       "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
@@ -78,7 +80,7 @@
     )
   } else {
     paste0(
-      "```{r setup, include=FALSE}\n",
+      chunk_header,
       "pkgs <- c(", pkg_txt, ")\n",
       # nolint start: line_length_linter.
       "missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]\n",
@@ -3028,7 +3030,11 @@ camR <- setRefClass(
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$reportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
+      pkg_chunk <- .make_package_loader_chunk(
+        module_pkgs,
+        core = "knitr",
+        label = "camtrap-report-packages"
+      )
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
@@ -3119,7 +3125,11 @@ output:
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
+      pkg_chunk <- .make_package_loader_chunk(
+        module_pkgs,
+        core = "knitr",
+        label = "camtrap-status-packages"
+      )
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)

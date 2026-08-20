@@ -148,19 +148,20 @@ test_that("module package collection handles empty structures", {
 })
 
 
-test_that("package loader creates an empty setup chunk", {
+test_that("package loader creates an empty uniquely labelled chunk", {
   make_loader <- ct_internal(".make_package_loader_chunk")
   
   loader <- make_loader(
     pkgs = NULL,
     core = character(),
-    attach = TRUE
+    attach = TRUE,
+    label = "test-packages"
   )
   
   expect_identical(
     loader,
     paste0(
-      "```{r setup, include=FALSE}\n",
+      "```{r test-packages, include=FALSE}\n",
       "# no extra packages\n",
       "```\n"
     )
@@ -178,7 +179,8 @@ test_that("package loader normalizes and deduplicates packages", {
       "stats"
     ),
     core = c("knitr", " methods "),
-    attach = TRUE
+    attach = TRUE,
+    label = "test-packages"
   )
   
   expect_match(
