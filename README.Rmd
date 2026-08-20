@@ -134,7 +134,7 @@ status(cm, view = FALSE)
 ### Generate an Ecological Report
 
 ```{r ecological-report}
-report(cm, view =FALSE)
+report(cm, view = FALSE)
 ```
 
 The examples use `view = FALSE` so that rendering `README.Rmd` does not open

@@ -85,8 +85,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(missing_result$effective_size))
   expect_identical(missing_result$size_class, "unknown")
   
-  empty_directory <- tempfile("camtrap-empty-directory-")
-  dir.create(empty_directory)
+  empty_directory <- withr::local_tempdir(
+    pattern = "camtrap-empty-directory-"
+  )
   
   on.exit(
     unlink(
@@ -103,8 +104,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(empty_result$effective_size))
   expect_identical(empty_result$size_class, "unknown")
   
-  data_directory <- tempfile("camtrap-data-directory-")
-  dir.create(data_directory)
+  data_directory <- withr::local_tempdir(
+    pattern = "camtrap-data-directory-"
+  )
   
   on.exit(
     unlink(
@@ -139,7 +141,6 @@ test_that("camData progress messages cover known and unknown datasets", {
   done_message <- ct_internal(".camdata_done_message")
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     size_info <- start_message("a-file-that-does-not-exist"),
     "The camReport object is being created",
     fixed = TRUE
@@ -151,7 +152,6 @@ test_that("camData progress messages cover known and unknown datasets", {
   )
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result <- done_message(
       Sys.time() - 2,
       site_name = NULL
@@ -163,7 +163,6 @@ test_that("camData progress messages cover known and unknown datasets", {
   expect_true(result)
   
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result_named <- done_message(
       Sys.time() - 2,
       site_name = "Veluwe"
@@ -290,25 +289,6 @@ test_that("year extraction handles missing and repeated values", {
   )
 })
 
-
-test_that("evaluation helper uses the calling environment when omitted", {
-  evaluate_text <- ct_internal(".eval")
-  
-  local_value <- 8
-  
-  expect_identical(
-    evaluate_text("local_value + 2"),
-    10
-  )
-  
-  expect_null(
-    evaluate_text()
-  )
-  
-  expect_null(
-    evaluate_text(NULL)
-  )
-})
 
 
 test_that("render environments expose objects and report counters", {

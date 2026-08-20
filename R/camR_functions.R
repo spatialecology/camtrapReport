@@ -665,11 +665,7 @@
   }
 }
 #---------
-.make_render_env <- function(object = NULL) {
-  env <- new.env(parent = getNamespace("camtrapReport"))
-  env$object <- object
-  env
-}
+
 #------
 .format_area <- function(area_km2) {
   
@@ -1376,14 +1372,11 @@
   tzs <- character(0)
   
   if (nrow(total_unique_locations_df) > 0 && .require("lutz")) {
-    tzs <- .eval(
-      "lutz::tz_lookup_coords(
-        total_unique_locations_df[['latitude']],
-        total_unique_locations_df[['longitude']],
-        method = 'accurate',
-        warn = FALSE
-      )",
-      env = environment()
+    tzs <- lutz::tz_lookup_coords(
+      total_unique_locations_df[['latitude']],
+      total_unique_locations_df[['longitude']],
+      method = 'accurate',
+      warn = FALSE
     )
     tzs <- tzs[!is.na(tzs) & nzchar(tzs)]
   } else {
@@ -1454,35 +1447,26 @@
       .require("spatstat.explore")
     ) {
       
-      win <- .eval(
-        "spatstat.geom::owin(xrange = xr, yrange = yr)",
-        env = environment()
+      win <- spatstat.geom::owin(
+        xrange = xr,
+        yrange = yr
       )
       
-      ppp_obj <- .eval(
-        "spatstat.geom::ppp(
-      x = coords_xy[['longitude']],
-      y = coords_xy[['latitude']],
-      window = win
-    )",
-        env = environment()
+      ppp_obj <- spatstat.geom::ppp(
+        x = coords_xy[['longitude']],
+        y = coords_xy[['latitude']],
+        window = win
       )
       
-      qtest <- .eval(
-        "spatstat.explore::quadrat.test(
-      ppp_obj,
-      nx = 3,
-      ny = 3
-    )",
-        env = environment()
+      qtest <- spatstat.explore::quadrat.test(
+        ppp_obj,
+        nx = 3,
+        ny = 3
       )
       
-      kres <- .eval(
-        "spatstat.explore::Kest(
-      ppp_obj,
-      correction = 'iso'
-    )",
-        env = environment()
+      kres <- spatstat.explore::Kest(
+        ppp_obj,
+        correction = 'iso'
       )
       
       is_clustered <- is.finite(qtest$p.value) && qtest$p.value < 0.05

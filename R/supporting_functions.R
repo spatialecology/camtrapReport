@@ -20,20 +20,31 @@
   # end_col   <- .first_existing(dep, c("deploymentEnd", "end"))
   
   # nolint start: line_length_linter.
-  dep <- .eval('dep |>
+  dep <- dep |>
     dplyr::mutate(
-      effort_seconds = as.numeric(difftime(.data[["deploymentEnd"]], .data[["deploymentStart"]], units = "secs"))
+      effort_seconds = as.numeric(
+        difftime(
+          .data[["deploymentEnd"]],
+          .data[["deploymentStart"]],
+          units = "secs"
+        )
+      )
     ) |>
-    dplyr::filter(!is.na(.data$effort_seconds), .data$effort_seconds >= 0)',environment())
+    dplyr::filter(
+      !is.na(.data$effort_seconds),
+      .data$effort_seconds >= 0
+    )
   # nolint end
   
   if (!is.null(x$locations) &&
       nrow(x$locations) > 0 &&
       "locationID" %in% names(dep) &&
       "locationID" %in% names(x$locations)) {
-    dep <- .eval(
-      'dplyr::left_join(dep, x$locations, by = "locationID", multiple = "all")',
-      environment()
+    dep <- dplyr::left_join(
+      dep,
+      x$locations,
+      by = "locationID",
+      multiple = "all"
     )
   }
   
@@ -45,17 +56,19 @@
     week   = 604800
   )[[unit]]
   
-  dep <- .eval('dep |>
-    dplyr::mutate(effort = .data$effort_seconds / divisor)',environment())
+  dep <- dep |>
+    dplyr::mutate(
+      effort = .data$effort_seconds / divisor
+    )
   
   if (is.null(by)) {
-    out <- .eval('dep |>
+    out <- dep |>
       dplyr::summarise(
         effort_seconds = sum(.data$effort_seconds, na.rm = TRUE),
         effort = sum(.data$effort, na.rm = TRUE),
         unit = unit,
         .groups = "drop"
-      )',environment())
+      )
   } else {
     by <- unique(by)
     missing_by <- setdiff(by, names(dep))
@@ -66,14 +79,16 @@
       )
     }
     
-    out <- .eval('dep |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(by))) |>
+    out <- dep |>
+      dplyr::group_by(
+        dplyr::across(dplyr::all_of(by))
+      ) |>
       dplyr::summarise(
         effort_seconds = sum(.data$effort_seconds, na.rm = TRUE),
         effort = sum(.data$effort, na.rm = TRUE),
         unit = unit,
         .groups = "drop"
-      )',environment())
+      )
   }
   
   out
@@ -744,10 +759,7 @@
   
   mod <- suppressWarnings(
     suppressMessages(
-      .eval(
-        'do.call(Distance::ds,args)$ddf',
-        environment()
-      )
+      do.call(Distance::ds, args)$ddf
     )
   )
   
@@ -757,7 +769,7 @@
       newdata <- dat |> 
         dplyr::select(dplyr::all_of(covars)) |> 
         lapply(function(x) if (is.numeric(x))
-          mean(x, na.rm = T)
+          mean(x, na.rm = TRUE)
           else sort(unique(x))) |> 
         expand.grid()
     } else {
@@ -805,7 +817,7 @@
   if (nrow(dat) == 0) stop("There are no usable speed data")
   
   args <- c(list(formula = formula,data=dat),list(...))
-  res <- .eval('do.call(sbd::sbm,args)',environment())
+  res <- do.call(sbd::sbm, args)
   
   res$unit <- paste0(distUnit, "/", timeUnit) # nolint
   res
@@ -841,24 +853,34 @@
   obs <- obs[i, ]
   
   if (nrow(obs) > 1) {
-    suntimes <- .eval(
-      'activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)',
-      environment()
+    suntimes <- activity::get_suntimes(
+      obs$timestamp,
+      obs$latitude,
+      obs$longitude,
+      0
     )
     timeshift <- pi - mean(suntimes[, 1] + suntimes[, 3]/2) * pi/12
     
-    #obs$solartime <- .eval('obs |> with(activity::solartime(timestamp,latitude, longitude, 0)) |> .$solar |> + timeshift |> activity::wrap()',environment()) # nolint: line_length_linter.
     # nolint start: line_length_linter.
-    obs$solartime <- .eval('with(obs,
-          activity::wrap(
-            activity::solartime(timestamp, latitude, longitude, 0)$solar + timeshift
-          ))',environment())
+    obs$solartime <- with(
+      obs,
+      activity::wrap(
+        activity::solartime(
+          timestamp,
+          latitude,
+          longitude,
+          0
+        )$solar + timeshift
+      )
+    )
     # nolint end
     
     # nolint start: line_length_linter.
-    .eval(
-      'activity::fitact(obs$solartime, adj = 1.5, sample = "data", reps = reps)',
-      environment()
+    activity::fitact(
+      obs$solartime,
+      adj = 1.5,
+      sample = "data",
+      reps = reps
     )
     # nolint end
   }
@@ -1091,14 +1113,15 @@
     "activity_level",
     "overall_speed"
   )
-  traprate <- .eval(
-    'camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',
-    environment()
+  traprate <- camtrapDensity::get_trap_rate(
+    traprate_data,
+    strata = NULL,
+    reps
   )
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
-  .eval('camtrapDensity::convert_units(res)',environment())
+  camtrapDensity::convert_units(res)
 }
 #-------------
 
@@ -1149,7 +1172,7 @@
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
   if (
-    !all(required_rows %in% rownames(parameters)) |
+    !all(required_rows %in% rownames(parameters)) ||
       !all(required_cols %in% colnames(parameters))
   )
     stop(
@@ -1158,9 +1181,8 @@
       " ;\nand (at least) column names: ",
       toString(required_cols)
     )
-  param <- .eval(
-    "camtrapDensity::convert_units(parameters[required_rows, ])",
-    environment()
+  param <- camtrapDensity::convert_units(
+    parameters[required_rows, ]
   )
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
@@ -1169,9 +1191,9 @@
   cv <- sqrt(sum(CVs^2))
   se <- density * cv
   ci <- unname(
-    .eval(
-      "camtrapDensity::lnorm_confint(density, se)",
-      environment()
+    camtrapDensity::lnorm_confint(
+      density,
+      se
     )
   )
   parameters["density", "estimate"] <- density
@@ -1252,7 +1274,7 @@
   
   f$title <- .trim(f$title)
   
-  if (substr(f$title,1,1) == "#") {
+  if (startsWith(f$title, "#")) {
     .h <- 0
     .w <- strsplit(f$title, "", fixed = TRUE)[[1]]
     for (i in 1:4) {
@@ -1392,13 +1414,23 @@
   
   z <- na.omit(z)
   if (dynamic) {
-    series <- .eval(
-      'xts(z$nrCams, order.by = z$time, tz = "GMT")',
-      env = environment()
+    series <- xts::xts(
+      z$nrCams,
+      order.by = z$time,
+      tz = "GMT"
     )
-    .eval("dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |> 
-      dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
-      dyRangeSelector()",env=environment())
+    dygraphs::dygraph(
+      series,
+      main = main,
+      xlab = xlab,
+      ylab = ylab,
+      ...
+    ) |>
+      dygraphs::dyOptions(
+        fillGraph = TRUE,
+        fillAlpha = 0.4
+      ) |>
+      dygraphs::dyRangeSelector()
   } else {
     plot(z$time, z$nrCams, type = "n", main = main, xlab = xlab, 
          ylab = ylab, ...)
@@ -1412,14 +1444,14 @@
 .left_join <- function(d1,d2,by) {
   if (length(by) == 1) {
     if (
-      !by %in% colnames(d1) &
+      !by %in% colnames(d1) &&
         by %in% colnames(d2)
     )
       stop('the "by" column does not exist in both data!')
     merge(d1,d2,by=by,all.x=TRUE)
   } else if (length(by) == 2) {
     if (
-      !by[1] %in% colnames(d1) &
+      !by[1] %in% colnames(d1) &&
         by[2] %in% colnames(d2)
     )
       stop('the "by" columns do not exist in the data!')
@@ -1652,25 +1684,4 @@
     cm$addStatusReportObject(mods[[i]])
   }
   
-}
-#-------
-
-.get_module_packages <- function() {
-  .module_dir <- .section_dir("camtrapReport")
-  
-  mods <- .read_modules(
-    level0 = c("introduction", "methods", "results",
-               "acknowledgements", "appendix"),
-    package = "camtrapReport",
-    dir = .module_dir,
-    write_info = FALSE
-  )
-  
-  unique(unlist(lapply(mods,function(x) {
-    if (!is.null(x@Rchunk)) {
-      if (is.list(x@Rchunk)) {
-        unique(unlist(lapply(x@Rchunk,function(y) y@packages)))
-      } else x@Rchunk@packages
-    }
-  })))
 }

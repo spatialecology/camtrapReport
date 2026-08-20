@@ -23,7 +23,9 @@ test_that("the GUI app is built and exposes its read-only server outputs", {
 test_that("the GUI saves edited settings without running report modules", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   app <- ct_internal(".camtrapReport_gui_app")(cm)
-  out_dir <- tempfile("camtrap-gui-output-")
+  out_dir <- withr::local_tempdir(
+    pattern = "camtrap-gui-output-"
+  )
 
   shiny::testServer(app$serverFuncSource(), {
     session$setInputs(

@@ -22,7 +22,8 @@ setGeneric(
 #' The GUI provides an interactive alternative to configuring reports directly
 #' in R. Files created by the GUI are written only in response to an explicit
 #' user action. If no output directory is supplied, the R session temporary
-#' directory is used.
+#' directory is used. Temporary copies of uploaded files are removed when the
+#' Shiny session ends.
 #'
 #' @param object A [`camReport`][camReport-classes] object, usually created with
 #'   [camData()].
@@ -42,7 +43,8 @@ setGeneric(
 #' @rdname gui
 #' @aliases gui
 #'
-#' @examplesIf interactive()
+#' @examples
+#' \dontrun{
 #' example_dataset <- system.file(
 #'   "external",
 #'   "dataset",
@@ -52,6 +54,7 @@ setGeneric(
 #' cm <- camData(example_dataset)
 #'
 #' gui(cm)
+#' }
 setMethod("gui",signature(object = "camReport"),
           function(object, launch.browser = TRUE,
                    max_upload_mb = 2000,
@@ -154,7 +157,7 @@ setMethod("gui",signature(object = "camReport"),
     toString(x)
   }
 
-  .copy_upload <- function(upload) {
+  .copy_upload <- function(upload, session = NULL) {
     if (is.null(upload) || nrow(upload) == 0) return(NULL)
 
     ext <- tools::file_ext(upload$name[1])
@@ -179,14 +182,26 @@ setMethod("gui",signature(object = "camReport"),
       )
     }
 
+    if (!is.null(session)) {
+      session$onSessionEnded(function() {
+        unlink(out, force = TRUE)
+      })
+    }
+
     normalizePath(out, winslash = "/", mustWork = TRUE)
   }
 
-  .copy_study_area_upload <- function(upload) {
+  .copy_study_area_upload <- function(upload, session = NULL) {
     if (is.null(upload)) return(NULL)
 
     d <- tempfile("study_area_")
     dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+    if (!is.null(session)) {
+      session$onSessionEnded(function() {
+        unlink(d, recursive = TRUE, force = TRUE)
+      })
+    }
 
     for (i in seq_len(nrow(upload))) {
       file.copy(
@@ -229,7 +244,7 @@ setMethod("gui",signature(object = "camReport"),
     NULL
   }
 
-  .get_zip_path <- function(upload = NULL, path = NULL) {
+  .get_zip_path <- function(upload = NULL, path = NULL, session = NULL) {
     path <- trimws(path %||% "")
 
     if (nzchar(path)) {
@@ -237,7 +252,7 @@ setMethod("gui",signature(object = "camReport"),
     }
 
     if (!is.null(upload)) {
-      return(.copy_upload(upload))
+      return(.copy_upload(upload, session = session))
     }
 
     NULL
@@ -899,7 +914,8 @@ setMethod("gui",signature(object = "camReport"),
         {
           zip_path <- .get_zip_path(
             upload = input$data_zip,
-            path = input$data_zip_path
+            path = input$data_zip_path,
+            session = session
           )
         },
         error = function(e) {
@@ -943,7 +959,10 @@ setMethod("gui",signature(object = "camReport"),
         }
       )
 
-      study_area <- .copy_study_area_upload(input$study_area_files)
+      study_area <- .copy_study_area_upload(
+        input$study_area_files,
+        session = session
+      )
 
       cm <- tryCatch(
         {

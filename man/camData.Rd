@@ -38,9 +38,11 @@ If habitat information is provided, it is linked to camera locations and
 used in habitat-related summaries. If a study-area boundary is provided, it
 is stored with the object and used in spatial summaries where relevant.
 
-The \code{camReport} object is saved within an extracted dataset directory as
-\verb{__camReport_Object.rds}. A later call using that directory reuses the saved
-object unless \code{update = TRUE}, in which case the object is recreated.
+The \code{camReport} object is normally saved within the dataset directory as
+\verb{__camReport_Object.rds}. A later call using the same dataset reuses the
+saved object unless \code{update = TRUE}, in which case the object is recreated.
+If the dataset location is not writable, a package-specific user cache
+directory is used instead.
 }
 \examples{
 example_dataset <- system.file(

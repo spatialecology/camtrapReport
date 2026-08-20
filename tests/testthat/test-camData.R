@@ -1,4 +1,6 @@
-test_that("the bundled Leuven Camtrap DP example dataset is available and linked", {
+test_that(
+  "the bundled Leuven Camtrap DP example dataset is available and linked",
+  {
   path <- camtrap_test_dataset()
   
   deployments <- data.table::fread(
@@ -119,10 +121,13 @@ test_that("the bundled Leuven Camtrap DP example dataset is available and linked
       "unknown"
     )
   )
-})
+  }
+)
 
 
-test_that("camData reads the bundled Leuven dataset into a complete camReport", {
+test_that(
+  "camData reads the bundled Leuven dataset into a complete camReport",
+  {
   cm <- camtrap_test_report()
   
   expect_s4_class(
@@ -178,21 +183,16 @@ test_that("camData reads the bundled Leuven dataset into a complete camReport", 
     "camtrapReport"
   )
   
-  cache_files <- list.files(
-    cache_dir,
-    pattern = "__camReport_Object\\.rds$",
-    full.names = TRUE
-  )
-  
-  expect_gte(
-    length(cache_files),
-    1L
+  cache_file <- file.path(
+    cm$info$directory,
+    "__camReport_Object.rds"
   )
   
   expect_true(
-    all(file.exists(cache_files))
+    file.exists(cache_file)
   )
-})
+  }
+)
 
 
 test_that("camData reuses its saved camReport object", {
@@ -216,5 +216,5 @@ test_that("camData reuses its saved camReport object", {
     nrow(cached$data$observations),
     nrow(cm$data$observations)
   )
-})
-
+}
+)

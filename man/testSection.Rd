@@ -25,9 +25,9 @@ the section text and code can be rendered successfully.
 }
 \details{
 This function is mainly used to test custom report sections before they are
-added to a full \code{\link[=camReport-classes]{camReport}} report. It checks whether the
-section text, R Markdown chunk settings, required packages, and R code can be
-rendered successfully.
+added to a full \code{\link[=camReport-classes]{camReport}} report.
+It checks whether the section text, R Markdown chunk settings,
+required packages, and R code can be rendered successfully.
 
 The \code{object} argument is only needed when the R code in the section refers to
 a \code{camReport} object.

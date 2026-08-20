@@ -61,7 +61,8 @@ test_that("get_REM returns existing stored results without refitting", {
     result[[species]],
     stored_result
   )
-})
+}
+)
 
 
 test_that("get_REM returns existing yearly results", {
@@ -135,8 +136,11 @@ test_that("get_REM returns existing yearly results", {
     result[[result_name]],
     stored_result
   )
-})
-test_that("get_REM preserves data availability when REM fitting is unavailable", {
+}
+)
+test_that(
+  "get_REM preserves data availability when REM fitting is unavailable",
+  {
   original <- camtrap_test_report()
   report <- original$copy(shallow = FALSE)
   
@@ -201,4 +205,5 @@ test_that("get_REM preserves data availability when REM fitting is unavailable",
       )
     )
   )
-})
+  }
+)

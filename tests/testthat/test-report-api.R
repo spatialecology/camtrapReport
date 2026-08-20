@@ -48,7 +48,6 @@ test_that("section selectors expose and update valid modules", {
   selected <- attached[[1]]
 
   expect_message(
-    # nolint next: implicit_assignment_linter.
     result <- sections(cm, selected),
     "report sections are updated",
     fixed = TRUE
@@ -72,6 +71,13 @@ test_that("a minimal ecological report renders without optional packages", {
   cm$reportObjects <- list(test_report = minimal_section)
 
   output_stem <- tempfile("camtrapReport-report-")
+  on.exit(
+    unlink(
+      c(paste0(output_stem, ".html"), paste0(output_stem, ".Rmd")),
+      force = TRUE
+    ),
+    add = TRUE
+  )
   output <- report(cm, filename = output_stem, view = FALSE, test = FALSE)
   rmd <- readLines(paste0(output_stem, ".Rmd"), warn = FALSE)
 
@@ -98,6 +104,13 @@ test_that("a minimal data-status report renders from the bundled toy dataset", {
   cm$statusReportObjects <- list(test_status = minimal_section)
 
   output_stem <- tempfile("camtrapReport-status-")
+  on.exit(
+    unlink(
+      c(paste0(output_stem, ".html"), paste0(output_stem, ".Rmd")),
+      force = TRUE
+    ),
+    add = TRUE
+  )
   output <- status(cm, filename = output_stem, view = FALSE)
   rmd <- readLines(paste0(output_stem, ".Rmd"), warn = FALSE)
 

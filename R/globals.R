@@ -1,0 +1,22 @@
+utils::globalVariables(
+  c(
+    ".data",
+    "captureMethod",
+    "deploymentEnd",
+    "deploymentID",
+    "deploymentStart",
+    "deployment_interval",
+    "end",
+    "eventEnd",
+    "eventID",
+    "eventStart",
+    "individualID",
+    "individualPositionAngle",
+    "individualPositionRadius",
+    "media_individualPositionAngle",
+    "media_individualPositionRadius",
+    "sequenceID",
+    "sequence_interval",
+    "start"
+  )
+)

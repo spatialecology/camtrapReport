@@ -28,6 +28,7 @@ navbar:
       - resources
 
     right:
+      - about
       - search
       - support
       - github
@@ -43,13 +44,13 @@ navbar:
         - text: Package Overview
           href: articles/Package-Overview.html
 
-        - text: Data Status Report
+        - text: Data Status Check
           href: articles/data-status-report.html
 
         - text: Ecological Report
           href: articles/ecological-report.html
 
-        - text: How to add new modules?
+        - text: Module management and extension
           href: articles/modules.html
 
     reference:
@@ -60,12 +61,31 @@ navbar:
       text: Resources
       href: articles/resources.html
 
+    about:
+      text: About
+      menu:
+        - text: Authors
+          href: authors.html
+
+        - text: Citation
+          href: authors.html#citation
+
+        - text: License
+          href: LICENSE.html
+
+        - text: Contributing guide
+          href: CONTRIBUTING.html
+
+        - text: Code of conduct
+          href: CODE_OF_CONDUCT.html
+
     support:
       text: Support
       menu:
         - text: Report a bug
           icon: fa-bug
           href: https://github.com/spatialecology/camtrapReport/issues/new/choose
+
         - text: Ask a question
           icon: fa-comments
           href: https://github.com/spatialecology/camtrapReport/discussions
@@ -76,57 +96,65 @@ navbar:
       aria-label: GitHub repository
 
 articles:
-  - title: Articles
+  - title: User guides
     desc: >
-      Guides and documentation for using camtrapReport.
+      Guides for importing camera-trap data, checking data quality,
+      generating ecological reports, and customising report modules.
     contents:
       - Package-Overview
       - articles/data-status-report
       - articles/ecological-report
       - articles/modules
 
-  - title: internal
+  - title: Resources
+    desc: >
+      Publications, workshops, and training resources related to
+      camtrapReport.
     contents:
       - articles/resources
 
 reference:
-  - title: Package overview
-    contents:
-      - camtrapReport-package
+  - title: Data input and metadata
+    desc: >
+      Create a camReport object from Camtrap DP data and inspect or
+      update report metadata.
 
-  - title: Data input and setup
-    contents:
+  - contents:
       - camData
       - info
-      - install_All
-
-  - title: Core classes
-    contents:
-      - camReport-classes
 
   - title: Report generation
-    contents:
+    desc: >
+      Generate the Data Status Check or Ecological Report, or use the
+      graphical interface.
+
+  - contents:
       - report
       - gui
+
+  - title: Configure report contents
+    desc: >
+      Inspect, select, and update the sections included in a report.
+
+  - contents:
+      - section_names
       - updateReportSection
 
-  - title: Report sections and modules
-    contents:
+  - title: Module development and management
+    desc: >
+      Create, test, add, move, remove, restore, and inspect report
+      modules.
+
+  - contents:
       - reportSection
       - testSection
-      - add_Module
-      - listReportSections
-      - section_names
-      - list_Modules
-      - move_Module
-      - remove_Module
-      - restore_Module
+      - modules
 
-  - title: Utilities
-    contents:
-      - empty_trash
+  - title: Core class
+    desc: >
+      Low-level documentation for the camReport class. Most users
+      should create camReport objects with camData() rather than
+      interacting with the class directly.
 
-  - title: internal
-    contents:
-      - matches("^install_All,ANY-method$")
-      
+  - contents:
+      - camReport-classes

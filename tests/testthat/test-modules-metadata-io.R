@@ -1,6 +1,7 @@
 test_that("section_dir uses a supplied existing directory", {
-  test_dir <- tempfile("camtrapReport-section-dir-")
-  dir.create(test_dir)
+  test_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-section-dir-"
+  )
   
   on.exit(
     unlink(test_dir, recursive = TRUE, force = TRUE),
@@ -40,8 +41,9 @@ test_that("section_dir rejects a supplied missing directory", {
 
 
 test_that("modules_info_path finds the metadata CSV", {
-  test_dir <- tempfile("camtrapReport-module-info-")
-  dir.create(test_dir)
+  test_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-module-info-"
+  )
   
   on.exit(
     unlink(test_dir, recursive = TRUE, force = TRUE),

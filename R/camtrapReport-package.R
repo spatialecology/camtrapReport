@@ -18,7 +18,7 @@
 #' * <https://github.com/spatialecology/camtrapReport>
 #' * Report bugs at <https://github.com/spatialecology/camtrapReport/issues>
 #'
-#' @keywords package
+#' @keywords internal
 #' @importFrom methods new setClass setGeneric setMethod
 #' @importFrom methods setReplaceMethod signature
 #' @importFrom graphics abline legend par points lines boxplot
@@ -41,7 +41,6 @@
 #' @export gui
 #' @export info
 #' @export info<-
-#' @export install_All
 #' @export list_Modules
 #' @export listReportSections
 #' @export move_Module

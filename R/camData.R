@@ -58,19 +58,14 @@
 
   if (any(missing_i) && .require("lubridate")) {
     parsed <- suppressWarnings(
-      .eval('lubridate::parse_date_time(
+      lubridate::parse_date_time2(
         x_chr[missing_i],
         orders = c(
-          "ymd HMS z", "ymd HMS",
-          "ymd HM z",  "ymd HM",
-          "ymd z",     "ymd",
-          "Ymd HMS z", "Ymd HMS",
-          "ymdT HMS z", "ymdT HMS",
-          "ymdT HM z",  "ymdT HM"
+          "Ymd HMS",
+          "Ymd HM"
         ),
-        tz = tz,
-        quiet = TRUE
-      )',environment())
+        tz = tz
+      )
     )
 
     ok <- !is.na(parsed)
@@ -112,31 +107,42 @@
 
 
 .getSequences <- function(media) {
-  if (!.require('data.table'))
-    stop('The data.table package is not installed...!')
+  if (!.require("data.table")) {
+    stop("The data.table package is not installed...!")
+  }
 
-  sequences <- .eval('media |>
+  sequences <- media |>
     dplyr::distinct() |>
-    dplyr::select(deploymentID, sequenceID, timestamp, captureMethod) |>
-    data.table::data.table(key = "sequenceID")',environment())
+    dplyr::select(
+      deploymentID,
+      sequenceID,
+      timestamp,
+      captureMethod
+    ) |>
+    data.table::data.table(key = "sequenceID")
 
-  sequences <- sequences[!is.na(sequences$sequenceID),]
+  sequences <- sequences[!is.na(sequences$sequenceID), ]
 
-  # summarize per key
-  sequences <- .eval("sequences[, list(deploymentID = unique(deploymentID),
-                                captureMethod = unique(captureMethod),
-                                start = min(timestamp),
-                                end = max(timestamp),
-                                nrphotos = length(timestamp)),
-                         by = sequenceID]",environment())
+  sequences <- sequences[
+    ,
+    list(
+      deploymentID = unique(deploymentID),
+      captureMethod = unique(captureMethod),
+      start = min(timestamp),
+      end = max(timestamp),
+      nrphotos = length(timestamp)
+    ),
+    by = sequenceID
+  ]
 
-  # convert to tibble, arrange, and convert start/end to interval object
-  sequences <- .eval("sequences |>
+  sequences <- sequences |>
     dplyr::as_tibble() |>
     dplyr::arrange(deploymentID, sequenceID) |>
-    dplyr::mutate(sequence_interval = lubridate::interval(start, end)) |>
-    dplyr::relocate(sequence_interval, .before =  start) |>
-    dplyr::select(-start, -end)",environment())
+    dplyr::mutate(
+      sequence_interval = lubridate::interval(start, end)
+    ) |>
+    dplyr::relocate(sequence_interval, .before = start) |>
+    dplyr::select(-start, -end)
 
   as.data.frame(sequences)
 }
@@ -400,14 +406,20 @@
 
   .d$deployments$Year <- .getYear(.d$deployments$deploymentStart)
 
-  .d$deployments <- .eval(".d$deployments |>
+  .d$deployments <- .d$deployments |>
     dplyr::mutate(
-      deployment_interval = lubridate::interval(deploymentStart, deploymentEnd),
-      deployment_interval = lubridate::int_standardize(deployment_interval)
+      deployment_interval = lubridate::interval(
+        deploymentStart,
+        deploymentEnd
+      ),
+      deployment_interval = lubridate::int_standardize(
+        deployment_interval
+      )
     ) |>
-    dplyr::relocate(deployment_interval, .before = deploymentStart)",
-    environment()
-  )
+    dplyr::relocate(
+      deployment_interval,
+      .before = deploymentStart
+    )
 
   if (!"observationLevel" %in% names(.d$observations)) {
     .d$observations$observationLevel <- NA_character_
@@ -436,13 +448,17 @@
   ]
 
   if (nrow(.media.obs) > 0) {
-    obs_first_radius_angle <- .eval('.media.obs |>
+    obs_first_radius_angle <- .media.obs |>
       dplyr::filter(
         !is.na(individualPositionRadius),
         !is.na(individualPositionAngle)
       ) |>
       dplyr::group_by(eventID, individualID) |>
-      dplyr::slice_min(eventStart, n = 1, with_ties = FALSE) |>
+      dplyr::slice_min(
+        eventStart,
+        n = 1,
+        with_ties = FALSE
+      ) |>
       dplyr::ungroup() |>
       dplyr::select(
         dplyr::all_of(c(
@@ -455,7 +471,7 @@
       dplyr::rename_with(
         ~ paste0("media_", .x),
         dplyr::starts_with("individualPosition")
-      )',environment())
+      )
   } else {
     obs_first_radius_angle <- data.frame(
       eventID = character(),
@@ -476,7 +492,7 @@
     .obs <- .d$observations
   }
 
-  .obs <- .eval('.obs |>
+  .obs <- .obs |>
     dplyr::left_join(
       obs_first_radius_angle,
       by = c("eventID", "individualID")
@@ -498,7 +514,7 @@
         "media_individualPositionAngle",
         "media_individualPositionRadius"
       ))
-    )',environment())
+    )
 
   .d$observations <- .obs
 
@@ -608,16 +624,24 @@
   )
 
   if (nrow(.event_obs) > 0) {
-    by <- .eval("dplyr::join_by(
+    by <- dplyr::join_by(
       deploymentID,
       dplyr::between(timestamp, eventStart, eventEnd)
-    )",environment())
+    )
 
-    .media <- .eval('.d$media |>
-      dplyr::full_join(.event_obs, by) |>
+    .media <- .d$media |>
+      dplyr::full_join(
+        .event_obs,
+        by
+      ) |>
       dplyr::rename(sequenceID = "eventID") |>
-      dplyr::select(-dplyr::any_of(c("eventStart", "eventEnd"))) |>
-      dplyr::relocate(sequenceID, .after = deploymentID)',environment())
+      dplyr::select(
+        -dplyr::any_of(c("eventStart", "eventEnd"))
+      ) |>
+      dplyr::relocate(
+        sequenceID,
+        .after = deploymentID
+      )
   } else {
     .media <- .d$media
     if (!"sequenceID" %in% names(.media)) {
@@ -645,7 +669,7 @@
     .media$captureMethod <- NA
   }
 
-  .media <- .eval('.media |>
+  .media <- .media |>
     dplyr::mutate(
       captureMethod = factor(
         ifelse(
@@ -654,7 +678,7 @@
           as.character(captureMethod)
         )
       )
-    )',environment())
+    )
 
   .media$timestamp <- .parse_cam_datetime(.media$timestamp, tz = tz)
 
@@ -702,6 +726,85 @@
     directory = normalizePath(.path, winslash = "/", mustWork = FALSE)
   )
 }
+#--------
+.camdata_cache_paths <- function(data) {
+  
+  data <- path.expand(data)
+  
+  if (dir.exists(data)) {
+    
+    dataset_dir <- normalizePath(
+      data,
+      winslash = "/",
+      mustWork = TRUE
+    )
+    
+  } else {
+    
+    dataset_dir <- file.path(
+      normalizePath(
+        dirname(data),
+        winslash = "/",
+        mustWork = TRUE
+      ),
+      tools::file_path_sans_ext(basename(data))
+    )
+  }
+  
+  writable_dir <- if (dir.exists(dataset_dir)) {
+    dataset_dir
+  } else {
+    dirname(dataset_dir)
+  }
+  
+  if (file.access(writable_dir, 2L) == 0L) {
+    
+    return(list(
+      cache_file = file.path(
+        dataset_dir,
+        "__camReport_Object.rds"
+      ),
+      study_area_file = file.path(
+        dataset_dir,
+        "_study_area.map"
+      )
+    ))
+  }
+  
+  cache_dir <- tools::R_user_dir(
+    "camtrapReport",
+    which = "cache"
+  )
+  
+  dir.create(
+    cache_dir,
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+  
+  data_key <- normalizePath(
+    data,
+    winslash = "/",
+    mustWork = FALSE
+  )
+  
+  data_key <- gsub(
+    "[^A-Za-z0-9]+",
+    "_",
+    data_key
+  )
+  
+  list(
+    cache_file = file.path(
+      cache_dir,
+      paste0(data_key, "__camReport_Object.rds")
+    ),
+    study_area_file = file.path(
+      cache_dir,
+      paste0(data_key, "_study_area.map")
+    )
+  )
+}
 
 #--------
 setGeneric(
@@ -724,9 +827,11 @@ setGeneric(
 #' used in habitat-related summaries. If a study-area boundary is provided, it
 #' is stored with the object and used in spatial summaries where relevant.
 #'
-#' The `camReport` object is saved within an extracted dataset directory as
-#' `__camReport_Object.rds`. A later call using that directory reuses the saved
-#' object unless `update = TRUE`, in which case the object is recreated.
+#' The `camReport` object is normally saved within the dataset directory as
+#' `__camReport_Object.rds`. A later call using the same dataset reuses the
+#' saved object unless `update = TRUE`, in which case the object is recreated.
+#' If the dataset location is not writable, a package-specific user cache
+#' directory is used instead.
 #'
 #' @param data A character string giving the path to a Camtrap DP dataset,
 #'   provided as a ZIP file or an extracted dataset directory.
@@ -764,21 +869,12 @@ setMethod(
   function(data, habitat, study_area = NULL, update = FALSE, ...) {
 
     if (missing(update)) update <- FALSE
-    cache_dir <- file.path(tempdir(), "camtrapReport")
-    dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+    cache_paths <- .camdata_cache_paths(data)
+    
+    cache_file <- cache_paths$cache_file
+    study_area_file <- cache_paths$study_area_file
 
-    data_key <- normalizePath(data, winslash = "/", mustWork = FALSE)
-    data_key <- gsub("[^A-Za-z0-9]+", "_", data_key)
 
-    cache_file <- file.path(
-      cache_dir,
-      paste0(data_key, "__camReport_Object.rds")
-    )
-
-    study_area_file <- file.path(
-      cache_dir,
-      paste0(data_key, "_study_area.map")
-    )
     if (!update && file.exists(cache_file)) {
       cm <- readRDS(cache_file)
       return(cm)

@@ -113,8 +113,9 @@ test_that("small data helpers return stable base objects", {
 })
 
 test_that("file and size helpers inspect temporary data without side effects", {
-  d <- tempfile("camtrap-size-")
-  dir.create(d)
+  d <- withr::local_tempdir(
+    pattern = "camtrap-size-"
+  )
   writeLines("camera trap", file.path(d, "sample.data.csv"))
 
   size <- ct_internal(".estimate_camdata_size")(d)
@@ -133,8 +134,6 @@ test_that("evaluation and package helpers are safe for core packages", {
   env <- new.env(parent = baseenv())
   env$x <- 2
 
-  expect_identical(ct_internal(".eval")("x + 3", env), 5)
-  expect_null(ct_internal(".eval")(NULL, env))
   expect_true(ct_internal(".require")("methods"))
   expect_false(ct_internal(".require")("a_package_that_does_not_exist_123"))
   expect_true(ct_internal(".loadPKG")(c("methods", "stats")))
@@ -204,7 +203,7 @@ test_that("sf study-area boundaries are projected automatically", {
 })
 
 test_that("the base correlation plot draws on a non-interactive device", {
-  file <- tempfile(fileext = ".pdf")
+  file <- withr::local_tempfile(fileext = ".pdf")
   grDevices::pdf(file)
   on.exit(grDevices::dev.off(), add = TRUE)
   

@@ -42,7 +42,7 @@ test_that("effort helpers aggregate deployments and draw with base graphics", {
     "Grouping columns"
   )
 
-  file <- tempfile(fileext = ".pdf")
+  file <- withr::local_tempfile(fileext = ".pdf")
   grDevices::pdf(file)
   on.exit(grDevices::dev.off(), add = TRUE)
   expect_null(ct_internal(".plot_effort")(cm, dynamic = FALSE))

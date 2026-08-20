@@ -1,0 +1,15 @@
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: jarl.yaml
+
+permissions: read-all
+
+jobs:
+  jarl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: etiennebacher/setup-jarl@v0.1.1

@@ -39,7 +39,7 @@ user action. If no output directory is supplied, the R session temporary
 directory is used.
 }
 \examples{
-\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+\dontrun{
 example_dataset <- system.file(
   "external",
   "dataset",
@@ -49,7 +49,7 @@ example_dataset <- system.file(
 cm <- camData(example_dataset)
 
 gui(cm)
-\dontshow{\}) # examplesIf}
+}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}

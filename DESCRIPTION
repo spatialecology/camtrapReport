@@ -28,6 +28,8 @@ Imports:
     terra
 Suggests:
     activity,
+    camtrapDensity,
+    camtraptor,
     corrplot,
     Distance,
     dygraphs,
@@ -44,7 +46,6 @@ Suggests:
     magick,
     plotly,
     readr,
-    remotes,
     rmarkdown,
     roxygen2,
     sbd,
@@ -56,8 +57,12 @@ Suggests:
     taxize,
     testthat (>= 3.1.7),
     tidyr,
+    withr,
     xml2,
     xts
+Remotes:
+    inbo/camtraptor,
+    MarcusRowcliffe/camtrapDensity
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

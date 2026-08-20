@@ -19,13 +19,21 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about"><li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
+    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
+  </ul></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
@@ -45,25 +53,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="package-overview">Package overview<a class="anchor" aria-label="anchor" href="#package-overview"></a></h2>
+      <h2 id="data-input-and-metadata">Data input and metadata<a class="anchor" aria-label="anchor" href="#data-input-and-metadata"></a></h2>
 
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="camtrapReport-package.html">camtrapReport</a></code> <code><a href="camtrapReport-package.html">camtrapReport-package</a></code>
-
-        </dt>
-        <dd>camtrapReport: Automated reports for camera-trap data</dd>
-      </dl></div><div class="section level2">
-      <h2 id="data-input-and-setup">Data input and setup<a class="anchor" aria-label="anchor" href="#data-input-and-setup"></a></h2>
-
-
+      <div class="section-desc"><p>Create a camReport object from Camtrap DP data and inspect or update report metadata.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -83,33 +75,10 @@
 
         </dt>
         <dd>Get or set information in a camReport object</dd>
-
-        <dt>
-
-          <code><a href="install_All.html">install_All()</a></code>
-
-        </dt>
-        <dd>Install packages required by camtrapReport</dd>
-      </dl></div><div class="section level2">
-      <h2 id="core-classes">Core classes<a class="anchor" aria-label="anchor" href="#core-classes"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="camReport-classes.html">camReport-classes</a></code> <code><a href="camReport-classes.html">camReport</a></code> <code><a href="camReport-classes.html">camReport-class</a></code> <code><a href="camReport-classes.html">camR</a></code> <code><a href="camReport-classes.html">camInfo-class</a></code> <code><a href="camReport-classes.html">characterORnull-class</a></code> <code><a href="camReport-classes.html">characterORlist-class</a></code> <code><a href="camReport-classes.html">characterORlistORnull-class</a></code> <code><a href="camReport-classes.html">listORnull-class</a></code> <code><a href="camReport-classes.html">data.frameORnull-class</a></code> <code><a href="camReport-classes.html">.Rchunk-class</a></code> <code><a href="camReport-classes.html">.textSection-class</a></code> <code><a href="camReport-classes.html">show,camReport-method</a></code> <code><a href="camReport-classes.html">show,camInfo-method</a></code>
-
-        </dt>
-        <dd>camReport classes</dd>
       </dl></div><div class="section level2">
       <h2 id="report-generation">Report generation<a class="anchor" aria-label="anchor" href="#report-generation"></a></h2>
 
-
+      <div class="section-desc"><p>Generate the Data Status Check or Ecological Report, or use the graphical interface.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -129,6 +98,22 @@
 
         </dt>
         <dd>Launch the camtrapReport GUI</dd>
+      </dl></div><div class="section level2">
+      <h2 id="configure-report-contents">Configure report contents<a class="anchor" aria-label="anchor" href="#configure-report-contents"></a></h2>
+
+      <div class="section-desc"><p>Inspect, select, and update the sections included in a report.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="section_names.html">section_names()</a></code> <code><a href="section_names.html">sections()</a></code>
+
+        </dt>
+        <dd>Select report sections</dd>
 
         <dt>
 
@@ -137,9 +122,9 @@
         </dt>
         <dd>Update report sections</dd>
       </dl></div><div class="section level2">
-      <h2 id="report-sections-and-modules">Report sections and modules<a class="anchor" aria-label="anchor" href="#report-sections-and-modules"></a></h2>
+      <h2 id="module-development-and-management">Module development and management<a class="anchor" aria-label="anchor" href="#module-development-and-management"></a></h2>
 
-
+      <div class="section-desc"><p>Create, test, add, move, remove, restore, and inspect report modules.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -166,24 +151,21 @@
 
         </dt>
         <dd>Manage report modules</dd>
-
-        <dt>
-
-          <code><a href="updateReportSection.html">updateReportSection()</a></code> <code><a href="updateReportSection.html">listReportSections()</a></code>
-
-        </dt>
-        <dd>Update report sections</dd>
-
-        <dt>
-
-          <code><a href="section_names.html">section_names()</a></code> <code><a href="section_names.html">sections()</a></code>
-
-        </dt>
-        <dd>Select report sections</dd>
       </dl></div><div class="section level2">
-      <h2 id="utilities">Utilities<a class="anchor" aria-label="anchor" href="#utilities"></a></h2>
 
 
+
+
+      <dl><dt>
+
+          <code><a href="install_All.html">install_All()</a></code>
+
+        </dt>
+        <dd>Install packages required by camtrapReport</dd>
+      </dl></div><div class="section level2">
+      <h2 id="core-class">Core class<a class="anchor" aria-label="anchor" href="#core-class"></a></h2>
+
+      <div class="section-desc"><p>Low-level documentation for the camReport class. Most users should create camReport objects with camData() rather than interacting with the class directly.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -192,10 +174,10 @@
 
       <dl><dt>
 
-          <code><a href="modules.html">add_Module()</a></code> <code><a href="modules.html">move_Module()</a></code> <code><a href="modules.html">remove_Module()</a></code> <code><a href="modules.html">restore_Module()</a></code> <code><a href="modules.html">empty_trash()</a></code> <code><a href="modules.html">list_Modules()</a></code>
+          <code><a href="camReport-classes.html">camReport-classes</a></code> <code><a href="camReport-classes.html">camReport</a></code> <code><a href="camReport-classes.html">camReport-class</a></code> <code><a href="camReport-classes.html">camR</a></code> <code><a href="camReport-classes.html">camInfo-class</a></code> <code><a href="camReport-classes.html">characterORnull-class</a></code> <code><a href="camReport-classes.html">characterORlist-class</a></code> <code><a href="camReport-classes.html">characterORlistORnull-class</a></code> <code><a href="camReport-classes.html">listORnull-class</a></code> <code><a href="camReport-classes.html">data.frameORnull-class</a></code> <code><a href="camReport-classes.html">.Rchunk-class</a></code> <code><a href="camReport-classes.html">.textSection-class</a></code> <code><a href="camReport-classes.html">show,camReport-method</a></code> <code><a href="camReport-classes.html">show,camInfo-method</a></code>
 
         </dt>
-        <dd>Manage report modules</dd>
+        <dd>camReport classes</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
