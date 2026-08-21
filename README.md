@@ -75,8 +75,7 @@ if (!requireNamespace("pak", quietly = TRUE)) {
 }
 
 pak::pkg_install(
-  "spatialecology/camtrapReport",
-  dependencies = TRUE
+  "spatialecology/camtrapReport"
 )
 ```
 
@@ -148,10 +147,10 @@ cm <- camData(
   update = TRUE
 )
 #> The camReport object is being created...
-#> Dataset size: 9.6 MB.
+#> Dataset size: 6.6 MB.
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Setup is done!
-#> Data loaded successfully in 1 min 05 sec.
+#> Data loaded successfully in 1 min 20 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -177,7 +176,7 @@ status_file <- status(
   view = FALSE
 )
 #> Rendering R Markdown data_status report ...
-#> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpkDEZO7\data_status.html
+#> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\Rtmpc5CA1e\data_status.html
 
 stopifnot(
   !inherits(status_file, "try-error"),
@@ -193,7 +192,7 @@ report_file <- report(
   view = FALSE
 )
 #> Rendering R Markdown report ...
-#> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpkDEZO7\report.html
+#> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\Rtmpc5CA1e\report.html
 
 stopifnot(
   !inherits(report_file, "try-error"),
