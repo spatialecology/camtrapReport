@@ -191,9 +191,6 @@ stopifnot(
 )
 ```
 
-Use `view = FALSE` when building `README.md`; set `view = TRUE` to open a
-generated report interactively.
-
 ## Configure a report
 
 Inspect report metadata and choose which sections to include:

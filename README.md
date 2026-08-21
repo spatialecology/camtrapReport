@@ -150,7 +150,7 @@ cm <- camData(
 #> Dataset size: 6.6 MB.
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Setup is done!
-#> Data loaded successfully in 1 min 06 sec.
+#> Data loaded successfully in 1 min 08 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -195,9 +195,6 @@ stopifnot(
   file.exists(report_file)
 )
 ```
-
-Use `view = FALSE` when building `README.md`; set `view = TRUE` to open
-a generated report interactively.
 
 ## Configure a report
 
