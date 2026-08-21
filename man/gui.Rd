@@ -36,19 +36,19 @@ data-status or ecological reports.
 The GUI provides an interactive alternative to configuring reports directly
 in R. Files created by the GUI are written only in response to an explicit
 user action. If no output directory is supplied, the R session temporary
-directory is used.
+directory is used. Temporary copies of uploaded files are removed when the
+Shiny session ends.
 }
 \examples{
-\dontrun{
-example_dataset <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport"
-)
+if (interactive()) {
+  example_dataset <- system.file(
+    "external",
+    "dataset",
+    package = "camtrapReport"
+  )
 
-cm <- camData(example_dataset)
-
-gui(cm)
+  cm <- camData(example_dataset)
+  gui(cm)
 }
 }
 \seealso{

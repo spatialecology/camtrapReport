@@ -149,6 +149,7 @@ reference:
       - reportSection
       - testSection
       - modules
+      - install_all
 
   - title: Core class
     desc: >

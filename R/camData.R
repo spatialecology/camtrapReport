@@ -269,26 +269,41 @@
   .d <- list()
 
   if (.isZip(file)) {
-    if (!is.null(path) && is.character(path)) {
-      .path <- file.path(
-        path.expand(path),
-        gsub(
-          basename(file),
-          pattern = ".zip",
-          replacement = "",
-          ignore.case = TRUE
-        )
-      )
+    extraction_parent <- if (
+      !is.null(path) &&
+      is.character(path) &&
+      length(path) == 1L &&
+      !is.na(path) &&
+      nzchar(path)
+    ) {
+      path.expand(path)
     } else {
-      .path <- gsub(
-        basename(file),
-        pattern = ".zip",
-        replacement = "",
-        ignore.case = TRUE
+      dirname(path.expand(file))
+    }
+
+    .path <- file.path(
+      extraction_parent,
+      tools::file_path_sans_ext(basename(file))
+    )
+
+    if (
+      !dir.exists(.path) &&
+      !dir.create(
+        .path,
+        recursive = TRUE,
+        showWarnings = FALSE
+      )
+    ) {
+      stop(
+        "Could not create the ZIP extraction directory: ",
+        .path
       )
     }
 
-    file <- utils::unzip(file, exdir = .path)
+    file <- utils::unzip(
+      file,
+      exdir = .path
+    )
 
   } else if (dir.exists(file)) {
     if (all(
@@ -728,19 +743,19 @@
 }
 #--------
 .camdata_cache_paths <- function(data) {
-  
+
   data <- path.expand(data)
-  
+
   if (dir.exists(data)) {
-    
+
     dataset_dir <- normalizePath(
       data,
       winslash = "/",
       mustWork = TRUE
     )
-    
+
   } else {
-    
+
     dataset_dir <- file.path(
       normalizePath(
         dirname(data),
@@ -750,15 +765,20 @@
       tools::file_path_sans_ext(basename(data))
     )
   }
-  
-  writable_dir <- if (dir.exists(dataset_dir)) {
-    dataset_dir
-  } else {
-    dirname(dataset_dir)
+
+  if (!dir.exists(dataset_dir)) {
+    dir.create(
+      dataset_dir,
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
   }
-  
-  if (file.access(writable_dir, 2L) == 0L) {
-    
+
+  if (
+    dir.exists(dataset_dir) &&
+    file.access(dataset_dir, 2L) == 0L
+  ) {
+
     return(list(
       cache_file = file.path(
         dataset_dir,
@@ -770,30 +790,30 @@
       )
     ))
   }
-  
+
   cache_dir <- tools::R_user_dir(
     "camtrapReport",
     which = "cache"
   )
-  
+
   dir.create(
     cache_dir,
     recursive = TRUE,
     showWarnings = FALSE
   )
-  
+
   data_key <- normalizePath(
     data,
     winslash = "/",
     mustWork = FALSE
   )
-  
+
   data_key <- gsub(
     "[^A-Za-z0-9]+",
     "_",
     data_key
   )
-  
+
   list(
     cache_file = file.path(
       cache_dir,
@@ -870,7 +890,7 @@ setMethod(
 
     if (missing(update)) update <- FALSE
     cache_paths <- .camdata_cache_paths(data)
-    
+
     cache_file <- cache_paths$cache_file
     study_area_file <- cache_paths$study_area_file
 

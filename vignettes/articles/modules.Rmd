@@ -85,50 +85,82 @@ A scientific module should also document its purpose, required input fields, pac
 
 ### 3. Add the new module
 
-After creating the YAML file, add the module using `add_Module()`. In this example, the new `species_table` module is placed before the `richness` section.
+Module registries that are changed by users must be kept outside the installed
+package directory. Start by copying the bundled registry to a writable project
+directory, then add the new module to that copy. In this example,
+`species_table` is placed before the `richness` section.
 
 ```{r add-new-module, eval=FALSE}
+# Create a writable project-level module registry once
+bundled_modules <- system.file(
+  "reportSections",
+  package = "camtrapReport"
+)
+module_dir <- file.path(getwd(), "reportSections")
+
+if (!dir.exists(module_dir)) {
+  dir.create(module_dir)
+  file.copy(
+    list.files(bundled_modules, full.names = TRUE),
+    module_dir,
+    recursive = TRUE
+  )
+}
+
 # Add a new module from a YAML file
-add_Module(
+added <- add_Module(
   x = "species_table.yml",
   before = "richness",
   test = FALSE,
-  object = cm
+  object = cm,
+  dir = module_dir
 )
 
 # Check whether the module has been added
-list_Modules()
-section_names()
+list_Modules(dir = module_dir)
 ```
 
 You can change `before = "richness"` to another section name if you want the new module to appear elsewhere in the report.
 
-### 4. Update the current camReport object
+### 4. Install module dependencies
 
-If the `camReport` object was already loaded before adding the module, run `setup()` again and update the report sections.
+The module registry is registered automatically when `add_Module()` is called.
+`install_all()` then scans the `#| packages:` options of all bundled and
+user-managed modules and delegates installation to `pak`.
+
+```{r install-module-dependencies, eval=FALSE}
+# Discover and install all dependencies declared by all modules
+install_all()
+```
+
+For a package that is available only from GitHub or another non-CRAN source,
+provide a named `pak` package reference. The name must match the package name
+declared in the module:
+
+```{r install-module-github-dependency, eval=FALSE}
+install_all(
+  package_references = c(myPackage = "owner/myPackage")
+)
+```
+
+### 5. Add the module to the current camReport object
+
+The object returned by `add_Module()` contains the parsed module. Attach it to
+the current report object and confirm that it appears in the report catalogue.
 
 ```{r update-current-object, eval=FALSE}
-# Re-run setup after adding the new module
-cm$setup()
-
-# Get all available section names, including the new module
-n <- section_names()
-
-# Apply the updated section list to the camReport object
-sections(cm, n)
-
-# Check included sections
+cm$addReportObject(added$module)
 listReportSections(cm)
 ```
 
-### 5. Test the new module
+### 6. Test the new module
 
 Before generating the full report, test only the new module. This is useful for checking whether the YAML structure, text, and R code work correctly.
 
 ```{r test-new-module, eval=FALSE}
 # Test the new module only
 testSection(
-  cm$reportObjectElements$Modules$species_table,
+  added$module,
   object = cm,
   view = TRUE
 )
@@ -136,7 +168,7 @@ testSection(
 
 If the module opens correctly in the browser, it can be included in the full report.
 
-### 6. Generate the full report
+### 7. Generate the full report
 
 After testing, generate the full Ecological Report with the new module included.
 
@@ -153,19 +185,24 @@ Module changes can be inspected and reversed before anything is deleted permanen
 
 ```{r manage-existing-modules, eval=FALSE}
 # Validate active module definitions and inspect the hierarchy
-list_Modules(validate = TRUE)
+list_Modules(validate = TRUE, dir = module_dir)
 
 # Move a module within the report hierarchy
-move_Module("species_table", after = "captures", parent = "results")
+move_Module(
+  "species_table",
+  after = "captures",
+  parent = "results",
+  dir = module_dir
+)
 
 # Move a module and its children to the module trash
-remove_Module("species_table", recursive = TRUE)
+remove_Module("species_table", recursive = TRUE, dir = module_dir)
 
 # Inspect active and deleted modules
-list_Modules(include_trash = TRUE)
+list_Modules(include_trash = TRUE, dir = module_dir)
 
 # Restore a removed module
-restore_Module("species_table", test = TRUE)
+restore_Module("species_table", test = TRUE, dir = module_dir)
 ```
 
 `empty_trash()` permanently deletes trashed module definitions and should only be used after confirming that the YAML files are backed up elsewhere. After any registry change, recreate or rerun `setup()` on the `camReport` object, confirm the selected sections with `listReportSections(cm)`, test affected modules, and generate the complete report in a new output file. Review the resulting text, tables, figures, warnings, and citations as carefully as any manually written scientific analysis.

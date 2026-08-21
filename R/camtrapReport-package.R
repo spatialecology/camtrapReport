@@ -41,6 +41,7 @@
 #' @export gui
 #' @export info
 #' @export info<-
+#' @export install_all
 #' @export list_Modules
 #' @export listReportSections
 #' @export move_Module

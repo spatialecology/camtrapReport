@@ -51,6 +51,7 @@
     )
   }
 
+  .register_module_dir(dir)
   dir
 }
 .section_dir <- function(package = "camtrapReport", dir = NULL) {

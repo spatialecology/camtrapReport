@@ -3077,7 +3077,7 @@ output:
                 rmd_template <- paste0(
                   rmd_template,
                   "\n\n",
-                  .glueTextSection(.x, .envir = .self)
+                  .glueTextSection(.xxx, .envir = .self)
                 )
                 # nolint end
               }
@@ -3172,7 +3172,7 @@ output:
                 rmd_template <- paste0(
                   rmd_template,
                   "\n\n",
-                  .glueTextSection(.x, .envir = .self)
+                  .glueTextSection(.xxx, .envir = .self)
                 )
                 # nolint end
               }
