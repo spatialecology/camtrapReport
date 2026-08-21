@@ -141,5 +141,8 @@ if (interactive()) {
 \seealso{
 \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=testSection]{testSection()}},
 \code{\link[=report]{report()}}
+
+Other report modules:
+\code{\link[=install_all]{install_all()}}
 }
 \concept{report modules}

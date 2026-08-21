@@ -6,6 +6,10 @@
 - Improved package structure, namespace management, and internal code quality.
 - Strengthened automated testing and package-check workflows.
 - Improved robustness of report generation and supporting utilities.
+- Replaced the former S4 `install_All()` implementation with the simpler
+  snake-case `install_all()` function. It automatically discovers dependencies
+  declared by bundled and registered user-managed report modules, and delegates
+  dependency resolution and installation to `pak`.
 
 ## Documentation
 

@@ -44,16 +44,15 @@ setGeneric(
 #' @aliases gui
 #'
 #' @examples
-#' \dontrun{
-#' example_dataset <- system.file(
-#'   "external",
-#'   "dataset",
-#'   package = "camtrapReport"
-#' )
+#' if (interactive()) {
+#'   example_dataset <- system.file(
+#'     "external",
+#'     "dataset",
+#'     package = "camtrapReport"
+#'   )
 #'
-#' cm <- camData(example_dataset)
-#'
-#' gui(cm)
+#'   cm <- camData(example_dataset)
+#'   gui(cm)
 #' }
 setMethod("gui",signature(object = "camReport"),
           function(object, launch.browser = TRUE,
