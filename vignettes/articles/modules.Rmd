@@ -17,8 +17,6 @@ The Ecological Report is built from separate report sections, here referred to a
 
 A new module is defined in a YAML file and then registered with `camtrapReport` using `add_Module()`. After the module has been added, it is useful to test it before generating the full report.
 
-The modular structure of `camtrapReport` allows users to extend the Ecological Report by defining new report sections, registering them as modules, selecting which modules should be included, and then generating the final report.
-
 
 
 <style>

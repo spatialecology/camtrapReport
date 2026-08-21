@@ -19,6 +19,7 @@
 <meta property="og:title" content="Package Overview">
 <meta name="description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
 <meta property="og:description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
+<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -84,8 +85,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Package Overview</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Package Overview</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -176,9 +176,10 @@ data, and analytical settings. Users can therefore adapt the report to
 the purpose and scope of a particular monitoring project.</p>
 <p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create an HTML
 file together with the intermediate R Markdown file used to render it.
-By default, these files are written beside the input dataset. An
-alternative output path can be supplied through
-<code>filename</code>.</p>
+By default, these files are written to the R session’s temporary
+directory. Supply a file stem or an existing output directory through
+<code>filename</code> when the files should be retained at a specific
+location.</p>
 </div>
 </div>
 <div class="section level2">

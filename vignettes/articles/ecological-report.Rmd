@@ -45,8 +45,55 @@ Figure 1 summarises the main workflow for generating an Ecological Report with `
 ```{r ecological-report-basic-code, eval=FALSE}
 library(camtrapReport)
 
-# Load camera-trap data
-cm <- camData("cameratrap.zip")
+# Copy the bundled example dataset to a writable temporary directory
+example_root <- tempfile("camtrapReport-example-")
+dir.create(example_root, recursive = TRUE)
+
+example_source <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport",
+  mustWork = TRUE
+)
+
+copied <- file.copy(
+  from = example_source,
+  to = example_root,
+  recursive = TRUE,
+  copy.mode = FALSE
+)
+
+habitat <- utils::read.csv(
+  system.file(
+    "external",
+    "habitat",
+    "habitat.csv",
+    package = "camtrapReport",
+    mustWork = TRUE
+  )
+)
+
+study_area <- system.file(
+  "external",
+  "study_area",
+  "study_area.shp",
+  package = "camtrapReport",
+  mustWork = TRUE
+)
+
+stopifnot(
+  isTRUE(copied),
+  dir.exists(file.path(example_root, "dataset")),
+  file.exists(study_area)
+)
+
+# Load the example camera-trap data and optional spatial inputs
+cm <- camData(
+  data = file.path(example_root, "dataset"),
+  habitat = habitat,
+  study_area = study_area,
+  update = TRUE
+)
 
 # Generate the Ecological Report
 report(cm, view = TRUE)
@@ -58,6 +105,12 @@ session's temporary directory. A specific file stem or a path inside an
 existing output directory can be supplied through `filename`:
 
 ```{r ecological-report-output-path, eval=FALSE}
+dir.create(
+  "reports",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 report_file <- report(
   cm,
   filename = file.path("reports", "ecological_report_2026"),
@@ -330,7 +383,7 @@ info(cm)
 
 ### Adjusting the focus group
 
-The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, or a custom-defined group.
+The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, `human_observation`, or a custom-defined group.
 
 Users can also define a new group by assigning records based on one or more fields, including `scientificName`, `class`, `order`, and `observationType`.
 
@@ -349,7 +402,6 @@ cm$setup()
 
 # Inspect the rules used to define existing groups
 cm$get_group("large_mammals")
-cm$get_group("wild_mammals")
 cm$get_group("wild_animals")
 cm$get_group("birds")
 cm$get_group("amphibians")
@@ -447,5 +499,7 @@ report(cm, view = TRUE)
 # Restore all available sections
 sections(cm, n = section_names())
 ```
+
+A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
 
 Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
