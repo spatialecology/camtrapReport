@@ -62,7 +62,7 @@
   
   contains <- function(x, y) {
     if (ignore.case) {
-      grepl(y, x, ignore.case = TRUE, fixed = TRUE)
+      grepl(tolower(y), tolower(x), fixed = TRUE)
     } else {
       grepl(y, x, fixed = TRUE)
     }
@@ -453,24 +453,25 @@ setGeneric(
 #' section_catalog <- listReportSections(cm)
 #' head(section_catalog)
 #'
-#' # Update the introduction
+#' # Update the methods section
 #' cm <- updateReportSection(
 #'   cm,
-#'   section = "introduction",
-#'   title = "Project introduction",
+#'   section = "methods",
+#'   title = "Project methods",
 #'   text = paste(
-#'     "This report summarises camera-trap monitoring",
-#'     "data for the example study site."
+#'     "This section describes camera-trap monitoring",
+#'     "methods for the example study site."
 #'   )
 #' )
 #'
 #' # Confirm the updated section title
 #' updated_catalog <- listReportSections(cm)
 #' updated_catalog[
-#'   updated_catalog$name == "introduction",
+#'   updated_catalog$name == "methods",
 #'   c("name", "title"),
 #'   drop = FALSE
 #' ]
+
 setMethod("updateReportSection",signature(x = "camReport"),
   function(x, section, text, title, code, code_name,
            code_setting, packages, append_text, append_code) {

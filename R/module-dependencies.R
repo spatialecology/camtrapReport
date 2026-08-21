@@ -160,8 +160,8 @@
 #' `c(myPackage = "owner/myPackage")` replaces the discovered package name with
 #' its GitHub package reference.
 #'
-#' @param package_references An optional character vector of additional
-#'   [`pak` package references](https://pak.r-lib.org/reference/pkg_install.html).
+#' @param package_references An optional character vector of
+#'   [`pak` package references][pak::pkg_install].
 #'   A named element replaces the corresponding discovered package name; an
 #'   unnamed element is added to the installation request.
 #' @param lib An optional character vector of library paths passed to

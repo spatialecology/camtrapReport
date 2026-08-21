@@ -87,21 +87,21 @@ cm <- camData(example_dataset)
 section_catalog <- listReportSections(cm)
 head(section_catalog)
 
-# Update the introduction
+# Update the methods section
 cm <- updateReportSection(
   cm,
-  section = "introduction",
-  title = "Project introduction",
+  section = "methods",
+  title = "Project methods",
   text = paste(
-    "This report summarises camera-trap monitoring",
-    "data for the example study site."
+    "This section describes camera-trap monitoring",
+    "methods for the example study site."
   )
 )
 
 # Confirm the updated section title
 updated_catalog <- listReportSections(cm)
 updated_catalog[
-  updated_catalog$name == "introduction",
+  updated_catalog$name == "methods",
   c("name", "title"),
   drop = FALSE
 ]

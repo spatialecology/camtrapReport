@@ -12,8 +12,8 @@ install_all(
 )
 }
 \arguments{
-\item{package_references}{An optional character vector of additional
-\href{https://pak.r-lib.org/reference/pkg_install.html}{\code{pak} package references}.
+\item{package_references}{An optional character vector of
+\link[pak:pkg_install]{\code{pak} package references}.
 A named element replaces the corresponding discovered package name; an
 unnamed element is added to the installation request.}
 

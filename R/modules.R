@@ -973,7 +973,7 @@
   duplicate_status <- out$duplicate_module_name[hit]
   valid_status <- out$valid[hit]
 
-  status <- rep(NA_character_, length(hit))
+  status <- rep(NA_character_, sum(hit))
 
   status[
     !is.na(duplicate_status) & duplicate_status
