@@ -48,14 +48,16 @@ than replacing them.
 
 ## Use in practice
 
-`camtrapReport` was developed and evaluated using camera-trap monitoring
-datasets from regions worldwide, including North America, Asia, Europe,
-Africa, and Australia. The package was tested both by its developer and
-by users who voluntarily applied it to their own datasets and provided
-feedback. Evaluation in Europe has benefited particularly from datasets
-available through camera-trap research networks, including the [European
-Observatory of Wildlife network](https://enetwild.com/), which spans
-diverse geographic settings and monitoring designs.
+Although `camtrapReport` has not yet been applied in a published
+ecological study, it has been developed and evaluated using real-world
+camera-trap monitoring datasets from multiple study sites across North
+America, Asia, Europe, Africa, and Australia. Evaluation involved both
+developer-led testing and independent users who applied the package to
+their own datasets and provided feedback. In Europe, this evaluation has
+drawn particularly on datasets available through camera-trap research
+networks, including the [European Observatory of Wildlife
+network](https://enetwild.com/), which spans diverse geographic settings
+and monitoring designs.
 
 Experience across these heterogeneous datasets has informed checks for
 metadata completeness and spatiotemporal coverage, improvements to
@@ -150,7 +152,7 @@ cm <- camData(
 #> Dataset size: 6.6 MB.
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Setup is done!
-#> Data loaded successfully in 1 min 08 sec.
+#> Data loaded successfully in 48 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
