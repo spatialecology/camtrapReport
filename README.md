@@ -101,6 +101,7 @@ boundary. The dataset is copied to a temporary directory because
 library(camtrapReport)
 
 example_root <- tempfile("camtrapReport-example-")
+
 dir.create(
   example_root,
   recursive = TRUE
@@ -135,26 +136,18 @@ study_area <- system.file(
   package = "camtrapReport",
   mustWork = TRUE
 )
+```
 
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset")),
-  file.exists(study_area)
-)
-
+``` r
 cm <- camData(
   data = file.path(example_root, "dataset"),
   habitat = habitat,
   study_area = study_area,
   update = TRUE
 )
-#> The camReport object is being created...
-#> Dataset size: 6.6 MB.
-#> File size looks modest, but full object creation may still take several minutes depending on the number of records.
-#> Setup is done!
-#> Data loaded successfully in 48 sec.
-#> camReport object is ready for GMU8 LEUVEN.
+```
 
+``` r
 cm
 #> Camera trap Object for the site : GMU8 LEUVEN 
 #> ===================================================== 
@@ -177,11 +170,6 @@ status_file <- status(
   cm,
   view = FALSE
 )
-
-stopifnot(
-  !inherits(status_file, "try-error"),
-  file.exists(status_file)
-)
 ```
 
 ### Generate an Ecological Report
@@ -191,37 +179,23 @@ report_file <- report(
   cm,
   view = FALSE
 )
-
-stopifnot(
-  !inherits(report_file, "try-error"),
-  file.exists(report_file)
-)
 ```
 
 ## Configure a report
 
 Inspect report metadata and choose which sections to include:
 
+## Configure a report
+
+Inspect report metadata and choose which sections to include:
+
 ``` r
-info(cm, name = c("title", "authors"))
-#> $title
-#> [1] "Camera-Trap Monitoring Report for GMU8 LEUVEN, Belgium"
-#> 
-#> $authors
-#> [1] "Martijn Bollen, Niko Boone, Jim Casaer, Peter Desmet, Sander Devisscher, Sanne Govaert, Lynn Pallemaerts, Anneleen Rutten, and Jan Vercammen"
-#> 
-#> attr(,"class")
-#> [1] "camInfo"
+info(
+  cm,
+  name = c("title", "authors")
+)
 
 section_names()
-#>  [1] "introduction"         "methods"              "study_area"          
-#>  [4] "sampling"             "location"             "effort"              
-#>  [7] "image_processing"     "data_processing"      "results"             
-#> [10] "captures"             "abundance_trends"     "population_density"  
-#> [13] "model_parameters"     "population_densities" "activity_patterns"   
-#> [16] "richness"             "co_occurrence"        "spatial_density"     
-#> [19] "habitat_preferences"  "species_accumulation" "acknowledgements"    
-#> [22] "appendix"             "References"
 
 selected_sections <- section_names(
   keep = c(
@@ -233,9 +207,10 @@ selected_sections <- section_names(
   )
 )
 
-sections(cm, selected_sections)
-#> 
-#> The report sections are updated.
+sections(
+  cm,
+  selected_sections
+)
 ```
 
 Reports can also be configured by taxonomic group, survey year, and
