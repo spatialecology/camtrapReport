@@ -172,6 +172,10 @@ data, study design, and analytical objectives. Results should therefore be
 interpreted in relation to the characteristics of the dataset, sampling design,
 and assumptions of the selected methods.
 
+General guidance on recording computational environments and managing
+reproducible research workflows is available from the
+[Reproducible Research CRAN Task View](https://cran.r-project.org/view=ReproducibleResearch).
+
 ## Relationship to other camera-trap packages
 
 `camtrapReport` is intended to complement, rather than replace, existing

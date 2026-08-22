@@ -106,7 +106,7 @@ camtrapReport
 <div class="section level2">
 <h2 id="use-in-practice">Use in practice<a class="anchor" aria-label="anchor" href="#use-in-practice"></a>
 </h2>
-<p><code>camtrapReport</code> was developed and evaluated using camera-trap monitoring datasets from regions worldwide, including North America, Asia, Europe, Africa, and Australia. The package was tested both by its developer and by users who voluntarily applied it to their own datasets and provided feedback. Evaluation in Europe has benefited particularly from datasets available through camera-trap research networks, including the <a href="https://enetwild.com/" class="external-link">European Observatory of Wildlife network</a>, which spans diverse geographic settings and monitoring designs.</p>
+<p>Although <code>camtrapReport</code> has not yet been applied in a published ecological study, it has been developed and evaluated using real-world camera-trap monitoring datasets from multiple study sites across North America, Asia, Europe, Africa, and Australia. Evaluation involved both developer-led testing and independent users who applied the package to their own datasets and provided feedback. In Europe, this evaluation has drawn particularly on datasets available through camera-trap research networks, including the <a href="https://enetwild.com/" class="external-link">European Observatory of Wildlife network</a>, which spans diverse geographic settings and monitoring designs.</p>
 <p>Experience across these heterogeneous datasets has informed checks for metadata completeness and spatiotemporal coverage, improvements to report generation, and revisions based on user feedback. Related publications, presentations, and training activities are listed on the <a href="https://spatialecology.github.io/camtrapReport/articles/resources.html">Resources page</a>.</p>
 </div>
 <div class="section level2">
@@ -119,8 +119,7 @@ camtrapReport
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span></span>
-<span>  <span class="st">"spatialecology/camtrapReport"</span>,</span>
-<span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="st">"spatialecology/camtrapReport"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If you add or update report modules, check their dependencies with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -183,10 +182,10 @@ camtrapReport
 <span>  update <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; The camReport object is being created...</span></span>
-<span><span class="co">#&gt; Dataset size: 9.6 MB.</span></span>
+<span><span class="co">#&gt; Dataset size: 6.6 MB.</span></span>
 <span><span class="co">#&gt; File size looks modest, but full object creation may still take several minutes depending on the number of records.</span></span>
 <span><span class="co">#&gt; Setup is done!</span></span>
-<span><span class="co">#&gt; Data loaded successfully in 1 min 05 sec.</span></span>
+<span><span class="co">#&gt; Data loaded successfully in 48 sec.</span></span>
 <span><span class="co">#&gt; camReport object is ready for GMU8 LEUVEN.</span></span>
 <span></span>
 <span><span class="va">cm</span></span>
@@ -207,8 +206,6 @@ camtrapReport
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rendering R Markdown data_status report ...</span></span>
-<span><span class="co">#&gt; Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpkDEZO7\data_status.html</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
 <span>  <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">status_file</span>, <span class="st">"try-error"</span><span class="op">)</span>,</span>
@@ -223,14 +220,11 @@ camtrapReport
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rendering R Markdown report ...</span></span>
-<span><span class="co">#&gt; Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpkDEZO7\report.html</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
 <span>  <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">report_file</span>, <span class="st">"try-error"</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">report_file</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Use <code>view = FALSE</code> when building <code>README.md</code>; set <code>view = TRUE</code> to open a generated report interactively.</p>
 </div>
 </div>
 <div class="section level2">
