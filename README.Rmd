@@ -196,10 +196,6 @@ stopifnot(
 
 Inspect report metadata and choose which sections to include:
 
-## Configure a report
-
-Inspect report metadata and choose which sections to include:
-
 ```{r configure-report, message=FALSE, warning=FALSE, results='hide'}
 info(
   cm,

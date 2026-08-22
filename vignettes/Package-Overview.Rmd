@@ -27,24 +27,6 @@ the input data. The same object is then used to generate two main outputs:
 - an **Ecological Report**, created with `report()`, which combines selected
   analyses, figures, tables, maps, and explanatory text in a single document.
 
-Figure 1 gives an overview of this workflow from input data to the two report
-outputs.
-
-<style>
-.figure .caption,
-figcaption,
-p.caption {
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #555555;
-}
-</style>
-
-```{r package-overview-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Overview of the camtrapReport workflow from camera-trap data to the Data Status Check and Ecological Report.", fig.alt="Overview of the camtrapReport workflow from input camera-trap data to the Data Status Check and Ecological Report."}
-knitr::include_graphics("figures/package-architecture.png")
-```
-
 ## Input data
 
 The main input is a camera-trap dataset in

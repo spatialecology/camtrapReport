@@ -185,10 +185,6 @@ report_file <- report(
 
 Inspect report metadata and choose which sections to include:
 
-## Configure a report
-
-Inspect report metadata and choose which sections to include:
-
 ``` r
 info(
   cm,
