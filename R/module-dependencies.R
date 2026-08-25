@@ -4,16 +4,16 @@
 
 .module_registry_file <- function() {
   configured <- getOption("camtrapReport.module_registry_file")
-
+  
   if (
     is.character(configured) &&
-      length(configured) == 1L &&
-      !is.na(configured) &&
-      nzchar(configured)
+    length(configured) == 1L &&
+    !is.na(configured) &&
+    nzchar(configured)
   ) {
     return(configured)
   }
-
+  
   file.path(
     tools::R_user_dir("camtrapReport", which = "config"),
     "module-registries.rds"
@@ -22,21 +22,21 @@
 
 .registered_module_dirs <- function() {
   registry_file <- .module_registry_file()
-
+  
   if (!file.exists(registry_file)) {
     return(character())
   }
-
+  
   dirs <- tryCatch(
     base::readRDS(registry_file),
     error = function(e) character()
   )
-
+  
   dirs <- as.character(dirs)
   valid <- !is.na(dirs) & nzchar(dirs) & dir.exists(dirs)
   valid <- valid & file.exists(file.path(dirs, "__modulesList.csv"))
   dirs <- dirs[valid]
-
+  
   unique(normalizePath(dirs, winslash = "/", mustWork = TRUE))
 }
 
@@ -44,14 +44,14 @@
   dir <- normalizePath(dir, winslash = "/", mustWork = TRUE)
   registry_file <- .module_registry_file()
   registry_parent <- dirname(registry_file)
-
+  
   if (!dir.exists(registry_parent)) {
     created <- dir.create(
       registry_parent,
       recursive = TRUE,
       showWarnings = FALSE
     )
-
+    
     if (!created && !dir.exists(registry_parent)) {
       stop(
         "Could not create the camtrapReport configuration directory: ",
@@ -60,16 +60,16 @@
       )
     }
   }
-
+  
   dirs <- unique(c(.registered_module_dirs(), dir))
   base::saveRDS(dirs, registry_file)
-
+  
   invisible(dir)
 }
 
 .module_directories <- function() {
   bundled_dir <- .section_dir(package = "camtrapReport")
-
+  
   unique(c(
     normalizePath(bundled_dir, winslash = "/", mustWork = TRUE),
     .registered_module_dirs()
@@ -90,12 +90,12 @@
       dir = module_dir,
       write_info = FALSE
     )
-
+    
     .collect_module_packages(modules)
   })
-
+  
   framework_packages <- c("knitr", "rmarkdown")
-
+  
   sort(.normalize_packages(c(
     framework_packages,
     unlist(dependencies, use.names = FALSE)
@@ -106,27 +106,27 @@
     packages,
     package_references = NULL) {
   packages <- .normalize_packages(packages)
-
+  
   if (is.null(package_references) || length(package_references) == 0L) {
     return(packages)
   }
-
+  
   if (!is.character(package_references) || anyNA(package_references)) {
     stop(
       "'package_references' must be NULL or a character vector.",
       call. = FALSE
     )
   }
-
+  
   package_references <- trimws(package_references)
   package_references <- package_references[nzchar(package_references)]
   reference_names <- names(package_references)
-
+  
   if (!is.null(reference_names)) {
     replace <- nzchar(reference_names)
     packages <- packages[!packages %in% reference_names[replace]]
   }
-
+  
   unique(c(packages, unname(package_references)))
 }
 
@@ -141,6 +141,17 @@
     upgrade = upgrade,
     ask = ask
   )
+}
+
+.validate_logical_scalar <- function(x, name) {
+  if (!is.logical(x) || length(x) != 1L || is.na(x)) {
+    stop(
+      sprintf("'%s' must be TRUE or FALSE.", name),
+      call. = FALSE
+    )
+  }
+  
+  invisible(x)
 }
 
 #' Install all report-module dependencies
@@ -193,24 +204,19 @@ install_all <- function(
     lib = NULL,
     upgrade = FALSE,
     ask = interactive()) {
-  if (!is.logical(upgrade) || length(upgrade) != 1L || is.na(upgrade)) {
-    stop("'upgrade' must be TRUE or FALSE.", call. = FALSE)
-  }
-
-  if (!is.logical(ask) || length(ask) != 1L || is.na(ask)) {
-    stop("'ask' must be TRUE or FALSE.", call. = FALSE)
-  }
-
+  .validate_logical_scalar(upgrade, "upgrade")
+  .validate_logical_scalar(ask, "ask")
+  
   packages <- .resolve_module_package_references(
     .module_dependencies(),
     package_references = package_references
   )
-
+  
   if (length(packages) == 0L) {
     message("No package dependencies are declared by the selected modules.")
     return(invisible(NULL))
   }
-
+  
   if (!.require("pak")) {
     stop(
       "Package 'pak' is required to install module dependencies. ",
@@ -218,13 +224,13 @@ install_all <- function(
       call. = FALSE
     )
   }
-
+  
   result <- .pak_install_module_dependencies(
     packages = packages,
     lib = lib,
     upgrade = upgrade,
     ask = ask
   )
-
+  
   invisible(result)
 }
