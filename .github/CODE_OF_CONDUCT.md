@@ -1,127 +1,132 @@
-# Contributor Covenant Code of Conduct
+# Contributing to camtrapReport
 
-## Our Pledge
+Thank you for your interest in contributing to `camtrapReport`. Bug reports, feature suggestions, documentation improvements, and new report modules are welcome.
 
-We as members, contributors, and leaders pledge to make participation in our
-community a harassment-free experience for everyone, regardless of age, body
-size, visible or invisible disability, ethnicity, sex characteristics, gender
-identity and expression, level of experience, education, socio-economic status,
-nationality, personal appearance, race, caste, color, religion, or sexual
-identity and orientation.
+## Reporting problems
 
-We pledge to act and interact in ways that contribute to an open, welcoming,
-diverse, inclusive, and healthy community.
+Please report bugs through the [GitHub issue tracker](https://github.com/spatialecology/camtrapReport/issues).
 
-## Our Standards
+To help us investigate, please include:
 
-Examples of behavior that contributes to a positive environment for our
-community include:
+* a clear description of the problem;
+* the result you expected;
+* a minimal reproducible example;
+* the output of `sessionInfo()`; and
+* a small synthetic or openly shareable Camtrap DP dataset, where possible.
 
-* Demonstrating empathy and kindness toward other people
-* Being respectful of differing opinions, viewpoints, and experiences
-* Giving and gracefully accepting constructive feedback
-* Accepting responsibility and apologizing to those affected by our mistakes,
-  and learning from the experience
-* Focusing on what is best not just for us as individuals, but for the overall
-  community
+If you cannot share the data because of privacy, confidentiality, or sensitivity concerns, please contact the maintainer [by email](mailto:eebrahimi.bio@gmail.com) to discuss an appropriate alternative.
 
-Examples of unacceptable behavior include:
+Do not upload confidential camera-trap data, sensitive species locations, restricted images, personal information, credentials, or other protected material to a public GitHub issue.
 
-* The use of sexualized language or imagery, and sexual attention or advances of
-  any kind
-* Trolling, insulting or derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or email address,
-  without their explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+## Suggesting features
 
-## Enforcement Responsibilities
+Feature requests and proposals for new ecological-report modules are welcome.
 
-Community leaders are responsible for clarifying and enforcing our standards of
-acceptable behavior and will take appropriate and fair corrective action in
-response to any behavior that they deem inappropriate, threatening, offensive,
-or harmful.
+For substantial changes, please open an issue first so that we can discuss how the proposal fits the package structure and existing workflow.
 
-Community leaders have the right and responsibility to remove, edit, or reject
-comments, commits, code, wiki edits, issues, and other contributions that are
-not aligned to this Code of Conduct, and will communicate reasons for moderation
-decisions when appropriate.
+## Pull requests
 
-## Scope
+Before submitting a pull request:
 
-This Code of Conduct applies within all community spaces, and also applies when
-an individual is officially representing the community in public spaces.
-Examples of representing our community include using an official e-mail address,
-posting via an official social media account, or acting as an appointed
-representative at an online or offline event.
+1. Keep the proposed change focused.
+2. Add or update tests when behaviour changes.
+3. Update the roxygen2 documentation when necessary.
+4. Add an entry to [`NEWS.md`](https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md) for user-facing changes.
+5. Install the package dependencies and run the development checks:
 
-## Enforcement
+```r
+pak::pak("deps::.")
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the `camtrapReport` maintainer
-[by email](mailto:eebrahimi.bio@gmail.com).
-All complaints will be reviewed and investigated promptly and fairly.
+devtools::document()
+devtools::test()
+devtools::check()
+```
 
-The maintainer is obligated to respect the privacy and security of the
-reporter of any incident.
+Please make sure that the checks pass before submitting the pull request.
 
-## Enforcement Guidelines
+## Coding conventions
 
-Community leaders will follow these Community Impact Guidelines in determining
-the consequences for any action they deem in violation of this Code of Conduct:
+Follow the structure and coding style already used in the package. Keep large formatting changes separate from functional changes so that pull requests remain easy to review.
 
-### 1. Correction
+New public functions should use `snake_case`.
 
-**Community Impact**: Use of inappropriate language or other behavior deemed
-unprofessional or unwelcome in the community.
+Some existing public functions retain older names for backward compatibility. Do not remove or rename them without providing replacement aliases and a documented deprecation plan.
 
-**Consequence**: A private, written warning from community leaders, providing
-clarity around the nature of the violation and an explanation of why the
-behavior was inappropriate. A public apology may be requested.
+## Dependencies
 
-### 2. Warning
+The package uses `data.table` and `dplyr` for different purposes:
 
-**Community Impact**: A violation through a single incident or series of
-actions.
+* `data.table::fread()` provides efficient input of Camtrap DP tables.
+* `dplyr` supports data transformation, grouping, filtering, and joins.
+* `tidyr` is an optional dependency used only by report modules that require data reshaping, including species-accumulation output.
 
-**Consequence**: A warning with consequences for continued behavior. No
-interaction with the people involved, including unsolicited interaction with
-those enforcing the Code of Conduct, for a specified period of time. This
-includes avoiding interactions in community spaces as well as external channels
-like social media. Violating these terms may lead to a temporary or permanent
-ban.
+Other packages listed in `Suggests` support optional functionality, including:
 
-### 3. Temporary Ban
+* report and vignette rendering;
+* the graphical interface;
+* figures and interactive visualisations;
+* maps and spatial processing;
+* tables;
+* specialised ecological analyses;
+* solar-time calculations; and
+* taxonomic enrichment.
 
-**Community Impact**: A serious violation of community standards, including
-sustained inappropriate behavior.
+Optional dependencies should be checked with `requireNamespace()` and used only when the corresponding functionality is requested. Functions should provide a clear installation message when an optional package is unavailable.
 
-**Consequence**: A temporary ban from any sort of interaction or public
-communication with the community for a specified period of time. No public or
-private interaction with the people involved, including unsolicited interaction
-with those enforcing the Code of Conduct, is allowed during this period.
-Violating these terms may lead to a permanent ban.
+New optional modules should declare their package requirements in the module metadata.
 
-### 4. Permanent Ban
+## Testing
 
-**Community Impact**: Demonstrating a pattern of violation of community
-standards, including sustained inappropriate behavior, harassment of an
-individual, or aggression toward or disparagement of classes of individuals.
+The standard test suite must not require API tokens, private datasets, or an active network connection.
 
-**Consequence**: A permanent ban from any sort of public interaction within the
-community.
+Tests should use:
 
-## Attribution
+* bundled or synthetic fixtures;
+* temporary files managed with `withr`;
+* mocked or otherwise isolated network behaviour; and
+* focused expectations that clearly describe the intended behaviour.
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.1, available at
-<https://www.contributor-covenant.org/version/2/1/code_of_conduct.html>.
+Use testthat expectations such as `expect_no_match()` instead of indirect expressions such as `expect_false(grepl(...))` where an appropriate specialised expectation exists.
 
-Community Impact Guidelines were inspired by
-[Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/inclusion).
+Never commit credentials, private camera-trap data, sensitive species locations, or other restricted material.
 
-For answers to common questions about this code of conduct, see the FAQ at
-<https://www.contributor-covenant.org/faq>. Translations are available at <https://www.contributor-covenant.org/translations>.
+## Package architecture
 
-[homepage]: https://www.contributor-covenant.org
+### The `camReport` object
+
+The central `camReport` object is implemented using an R Reference Class. This is an intentional design decision because report generation is a stateful workflow.
+
+The same object stores:
+
+* imported camera-trap data and metadata;
+* user settings;
+* intermediate analytical results;
+* selected report modules; and
+* report configuration.
+
+Reference semantics allow these components to remain associated with the same `camReport` object while users update settings, select analyses, modify report sections, and generate outputs. This avoids requiring every operation to reconstruct and return a new report object.
+
+Contributors should preserve this stateful workflow. Changes to the class architecture should be proposed and discussed in an issue before implementation.
+
+### Module rendering environment
+
+Report-module code is evaluated in an environment created by the internal `.make_render_env()` helper.
+
+This environment provides controlled access to:
+
+* the current `camReport` object;
+* selected object fields;
+* report-numbering functions; and
+* internal helpers required by report modules.
+
+This gives report modules a consistent execution context. Contributors developing new modules should normally use the objects and helpers provided through this environment instead of modifying the rendering environment itself.
+
+### Installation of module dependencies
+
+The package provides `install_all()` to discover optional dependencies declared by bundled and registered user modules. It then delegates package installation to `pak`.
+
+This function is specific to the package’s module system; it is not intended to replace `pak` as a general dependency installer.
+
+## Code of Conduct
+
+Participation in this project is governed by the [Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
