@@ -60,6 +60,10 @@ test_that("install_all delegates installation to pak", {
     .module_dependencies = function() {
       c("dplyr", "mockModuleDependency")
     },
+    .missing_module_packages = function(packages) packages,
+    .missing_package_references = function(package_references) {
+      package_references
+    },
     .pak_install_module_dependencies = function(
         packages,
         lib,
@@ -89,9 +93,57 @@ test_that("install_all delegates installation to pak", {
     c("dplyr", "owner/mockModuleDependency")
   )
   expect_identical(state$lib, "test-library")
-  expect_true(state$upgrade)
+  expect_false(state$upgrade)
   expect_false(state$ask)
   expect_s3_class(result, "data.frame")
+})
+
+test_that("install_all sends only missing module dependencies to pak", {
+  state <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(
+    .module_dependencies = function() {
+      c("dplyr", "terra", "missingModuleDependency")
+    },
+    .require = function(package) {
+      package %in% c("dplyr", "terra", "pak")
+    },
+    .pak_install_module_dependencies = function(
+        packages,
+        lib,
+        upgrade,
+        ask) {
+      state$packages <- packages
+      state$upgrade <- upgrade
+      invisible(packages)
+    },
+    .package = "camtrapReport"
+  )
+
+  install_all(upgrade = TRUE, ask = FALSE)
+
+  expect_identical(state$packages, "missingModuleDependency")
+  expect_false(state$upgrade)
+})
+
+test_that("install_all does not reinstall an installed named reference", {
+  local_mocked_bindings(
+    .module_dependencies = function() "terra",
+    .require = function(package) package %in% c("terra", "pak"),
+    .pak_install_module_dependencies = function(...) {
+      fail("pak should not be called when all dependencies are installed")
+    },
+    .package = "camtrapReport"
+  )
+
+  expect_message(
+    result <- install_all(
+      package_references = c(terra = "rspatial/terra"),
+      ask = FALSE
+    ),
+    "already installed"
+  )
+  expect_null(result)
 })
 
 test_that("install_all validates logical arguments", {

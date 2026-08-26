@@ -29,7 +29,6 @@ Imports:
 Suggests:
     activity,
     camtrapDensity,
-    camtraptor,
     corrplot,
     Distance,
     dygraphs,
@@ -58,7 +57,6 @@ Suggests:
     withr,
     xts
 Remotes:
-    inbo/camtraptor,
     MarcusRowcliffe/camtrapDensity
 VignetteBuilder: knitr
 Encoding: UTF-8

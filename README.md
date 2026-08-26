@@ -76,9 +76,7 @@ if (!requireNamespace("pak", quietly = TRUE)) {
   install.packages("pak")
 }
 
-pak::pkg_install(
-  "spatialecology/camtrapReport"
-)
+pak::pak("spatialecology/camtrapReport")
 ```
 
 If you add or update report modules, check their dependencies with:
@@ -88,7 +86,8 @@ camtrapReport::install_all()
 ```
 
 `install_all()` scans the bundled and registered user modules and
-installs any missing dependencies automatically.
+installs only missing optional dependencies. It does not update packages
+that are already installed.
 
 ## Quick start
 

@@ -20,8 +20,9 @@ unnamed element is added to the installation request.}
 \item{lib}{An optional character vector of library paths passed to
 \code{\link[pak:pkg_install]{pak::pkg_install()}}.}
 
-\item{upgrade}{A logical value. If \code{TRUE}, update the requested packages and
-their dependencies. The default is \code{FALSE}.}
+\item{upgrade}{Retained for backward compatibility. Installed packages are
+never updated by \code{install_all()}, so this value does not change the
+installation request.}
 
 \item{ask}{A logical value controlling confirmation before replacing an
 installed package version. The default is \code{\link[=interactive]{interactive()}}.}
@@ -40,8 +41,10 @@ option in each module's R Markdown code block.
 \code{install_all()} scans both the module registry bundled with \code{camtrapReport}
 and every user-managed registry previously used with \code{\link[=add_Module]{add_Module()}}. Module
 directories are registered automatically when they are used, so no path is
-required when calling \code{install_all()}. The discovered package names are
-passed to \code{\link[pak:pkg_install]{pak::pkg_install()}}.
+required when calling \code{install_all()}. Packages that are already installed
+are excluded before \code{\link[pak:pkg_install]{pak::pkg_install()}} is called. This means that core
+package imports, such as \code{dplyr} and \code{terra}, are never submitted for an
+update by \code{install_all()}.
 \code{package_references} can provide the source of a package that cannot be
 resolved by name from a configured repository. For example,
 \code{c(myPackage = "owner/myPackage")} replaces the discovered package name with

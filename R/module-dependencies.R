@@ -130,6 +130,32 @@
   unique(c(packages, unname(package_references)))
 }
 
+.missing_module_packages <- function(packages) {
+  packages <- .normalize_packages(packages)
+  packages[!vapply(packages, .require, logical(1))]
+}
+
+.missing_package_references <- function(package_references) {
+  if (is.null(package_references) || length(package_references) == 0L) {
+    return(package_references)
+  }
+
+  reference_names <- names(package_references)
+  if (is.null(reference_names)) {
+    return(package_references)
+  }
+
+  named <- nzchar(reference_names)
+  installed <- rep(FALSE, length(package_references))
+  installed[named] <- vapply(
+    reference_names[named],
+    .require,
+    logical(1)
+  )
+
+  package_references[!installed]
+}
+
 .pak_install_module_dependencies <- function(
     packages,
     lib,
@@ -164,8 +190,10 @@
 #' `install_all()` scans both the module registry bundled with `camtrapReport`
 #' and every user-managed registry previously used with [add_Module()]. Module
 #' directories are registered automatically when they are used, so no path is
-#' required when calling `install_all()`. The discovered package names are
-#' passed to [`pak::pkg_install()`].
+#' required when calling `install_all()`. Packages that are already installed
+#' are excluded before [`pak::pkg_install()`] is called. This means that core
+#' package imports, such as `dplyr` and `terra`, are never submitted for an
+#' update by `install_all()`.
 #' `package_references` can provide the source of a package that cannot be
 #' resolved by name from a configured repository. For example,
 #' `c(myPackage = "owner/myPackage")` replaces the discovered package name with
@@ -177,8 +205,9 @@
 #'   unnamed element is added to the installation request.
 #' @param lib An optional character vector of library paths passed to
 #'   [`pak::pkg_install()`].
-#' @param upgrade A logical value. If `TRUE`, update the requested packages and
-#'   their dependencies. The default is `FALSE`.
+#' @param upgrade Retained for backward compatibility. Installed packages are
+#'   never updated by `install_all()`, so this value does not change the
+#'   installation request.
 #' @param ask A logical value controlling confirmation before replacing an
 #'   installed package version. The default is [interactive()].
 #'
@@ -207,13 +236,14 @@ install_all <- function(
   .validate_logical_scalar(upgrade, "upgrade")
   .validate_logical_scalar(ask, "ask")
   
+  package_references <- .missing_package_references(package_references)
   packages <- .resolve_module_package_references(
-    .module_dependencies(),
+    .missing_module_packages(.module_dependencies()),
     package_references = package_references
   )
   
   if (length(packages) == 0L) {
-    message("No package dependencies are declared by the selected modules.")
+    message("All declared module dependencies are already installed.")
     return(invisible(NULL))
   }
   
@@ -228,7 +258,7 @@ install_all <- function(
   result <- .pak_install_module_dependencies(
     packages = packages,
     lib = lib,
-    upgrade = upgrade,
+    upgrade = FALSE,
     ask = ask
   )
   
