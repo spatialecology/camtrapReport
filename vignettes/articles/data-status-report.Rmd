@@ -1,10 +1,10 @@
 ---
-title: "Data Status Report"
+title: "Data Status Check"
 author: "Elham Ebrahimi"
-description: "This vignette describes the Data Status Report and explains the checks used to assess the quality, completeness, and consistency of camera-trap data."
+description: "A guide to the Data Status Check and the checks used to assess the quality, completeness, and consistency of camera-trap data."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data Status Report}
+  %\VignetteIndexEntry{Data Status Check}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
@@ -15,13 +15,13 @@ resource_files:
   - figures/data-status/mica-data-status.png
 ---
 
-## Purpose of the Data Status Report
+## Purpose of the Data Status Check
 
-The Data Status Report provides an overview of the quality, completeness, and readiness of a camera-trap dataset before generating the final Ecological Report. It helps users check whether the main input files, metadata fields, deployment information, observation records, taxonomy, timestamps, annotation information, and spatial data are complete and internally consistent.
+The Data Status Check summarises the quality, completeness, and internal consistency of a camera-trap dataset before ecological reporting. It checks the main input files, metadata, deployments, observations, taxonomy, timestamps, annotations, and spatial information.
 
-This report is especially useful as a first quality-control step. It allows users to identify missing values, duplicated records, invalid timestamps, incomplete metadata, spatial issues, and inconsistencies between deployments and observations. Based on these checks, users can decide whether the dataset is ready for reporting or whether further correction is needed before ecological analyses are performed.
+The output helps users identify missing values, duplicated records, invalid timestamps, incomplete metadata, spatial issues, and inconsistencies between deployments and observations. It is diagnostic: completing the checks does not establish that the survey design or data are suitable for a particular ecological analysis.
 
-Figure 1 summarises how `camtrapReport` checks the readiness of a camera-trap dataset before ecological reporting. After the data are loaded with `camData()`, the `status()` function runs automated checks on the main input files, metadata, deployments, observations, timestamps, taxonomy, spatial information, and annotation records. The output helps users identify potential issues and decide whether the dataset is ready for generating the final Ecological Report.
+Figure 1 summarises the automated workflow. `camData()` reads the camera-trap dataset and prepares it for reporting. `status()` then runs the implemented checks and generates the HTML Data Status Check.
 
 <style>
 .figure .caption,
@@ -34,77 +34,40 @@ p.caption {
 }
 </style>
 
-```{r data-status-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating a Data Status Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating a Data Status Report from camera-trap data using camtrapReport."}
+```{r data-status-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating a Data Status Check from camera-trap data using camtrapReport.", fig.alt="Workflow for generating a Data Status Check from camera-trap data using camtrapReport."}
 knitr::include_graphics("figures/data-status/data-status-workflow.png")
 ```
 
 
 
-```{r data-status-basic-code, eval=FALSE}
+```{r data-status-basic-workflow, eval=FALSE}
 library(camtrapReport)
 
-# Copy the bundled example dataset to a writable temporary directory
-example_root <- tempfile("camtrapReport-example-")
-dir.create(example_root, recursive = TRUE)
-
-example_source <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-copied <- file.copy(
-  from = example_source,
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset"))
-)
-
-# Load the example camera-trap data
-cm <- camData(
-  file.path(example_root, "dataset"),
-  update = TRUE
-)
-
-# Generate and view the Data Status Report
+cm <- camData("path/to/camtrap-dp-dataset")
 status(cm, view = TRUE)
 ```
 
-When `view = TRUE`, the generated report is opened in the browser. This provides a quick, human-readable overview of dataset quality, completeness, and consistency.
+These two function calls are sufficient for the standard workflow. With
+`view = TRUE`, the generated report opens in the browser. `status()` also
+invisibly returns the path to the HTML file.
 
-The function also invisibly returns the path to the HTML report. By default,
-`data_status.html` and its intermediate `data_status.Rmd` file are written to
-the R session's temporary directory. Use `filename` to give another file stem
-or a path inside an existing output directory:
+To retain the report at a chosen location, supply a filename in an existing
+output directory:
 
 ```{r data-status-output-path, eval=FALSE}
-dir.create(
-  "reports",
-  recursive = TRUE,
-  showWarnings = FALSE
-)
-
-status_file <- status(
-  cm,
-  filename = file.path("reports", "data_status_2026"),
-  view = FALSE
-)
+status_file <- status(cm, filename = "reports/data_status_2026", view = FALSE)
 ```
 
-An existing file with the same name may be replaced. Use a deliberate, versioned filename when reports from multiple processing runs must be retained.
+If `filename` is omitted, the HTML file and its intermediate R Markdown file
+are written to the R session's temporary directory. Use distinct filenames
+when reports from several datasets or processing dates must be retained.
 
 
 <hr class="section-divider">
 
-## Example Data Status Reports
+## Example Data Status Checks
 
-Below are previews of Data Status Reports generated with `camtrapReport` for different camera-trap monitoring projects. These examples illustrate the presentation of dataset completeness and potential issues. Click a preview to open the corresponding complete report. Reports can also be generated locally from a Camtrap DP dataset using the workflow described above.
+Below are previews of Data Status Checks generated for different camera-trap monitoring projects. Click a preview to open the complete output.
 
 <style>
 .status-gallery {
@@ -209,44 +172,28 @@ Below are previews of Data Status Reports generated with `camtrapReport` for dif
 
 <div class="status-gallery">
 
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Leuven</div><div class="status-card-text">Data Status Report</div><span class="status-card-badge">Open report</span></div></a>
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Leuven</div><div class="status-card-text">Data Status Check</div><span class="status-card-badge">Open output</span></div></a>
 
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Amsterdam Water Supply Dunes</div><div class="status-card-text">Data Status Report</div><span class="status-card-badge">Open report</span></div></a>
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Amsterdam Water Supply Dunes</div><div class="status-card-text">Data Status Check</div><span class="status-card-badge">Open output</span></div></a>
 
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Lux National Monitoring</div><div class="status-card-text">Data Status Report</div><span class="status-card-badge">Open report</span></div></a>
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">Lux National Monitoring</div><div class="status-card-text">Data Status Check</div><span class="status-card-badge">Open output</span></div></a>
 
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">MICA Monitoring Project</div><div class="status-card-text">Data Status Report</div><span class="status-card-badge">Open report</span></div></a>
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay"><div class="status-card-title">MICA Monitoring Project</div><div class="status-card-text">Data Status Check</div><span class="status-card-badge">Open output</span></div></a>
 
 </div>
 
 <hr class="section-divider">
 
-## Exploring data-status results in R
+## Accessing results in R
 
-The results of the data-status checks are also stored inside the `camReport` object. Users can explore these results directly in R through `cm$data_status`. This is useful when users want to inspect the underlying tables, extract summaries, or use the quality-control outputs in another workflow.
+The results are also stored in the `camReport` object and can be accessed when individual tables or summaries are needed for further analysis.
 
 ```{r data-status-explore-object, eval=FALSE}
-# Explore all data-status outputs stored in the camReport object
-cm$data_status
-
-# Show the available data-status components
+# List the available result components
 names(cm$data_status)
 
-cm$data_status$Spatial
-cm$data_status$Temporal
-cm$data_status$Essentials
-cm$data_status$Annotation
-cm$data_status$Validation
-cm$data_status$Species
-cm$data_status$Visuals
-```
-
-For example, the species table can be inspected to check which species were detected and how many captures were recorded for each species.
-
-```{r data-status-species-table, eval=FALSE}
-# View species summary table
+# Inspect the species summary table
 cm$data_status$Species$Table
 ```
 
-
-Together, `status(cm, view = TRUE)` and `cm$data_status` provide both a human-readable HTML report and direct access to the underlying data-quality summaries in R. This makes the Data Status Report useful for documenting data readiness, identifying issues, and improving the dataset before generating the final Ecological Report.
+For most users, the generated HTML report is the main output. Direct access through `cm$data_status` is optional.

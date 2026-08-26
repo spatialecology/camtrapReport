@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.48</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,33 +53,49 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.47" id="camtrapreport-1047-2026-08-09">camtrapReport 1.0.47 (2026-08-09)<a class="anchor" aria-label="anchor" href="#camtrapreport-1047-2026-08-09"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.47" id="camtrapreport-1047-2026-08-26">camtrapReport 1.0.47 (2026-08-26)<a class="anchor" aria-label="anchor" href="#camtrapreport-1047-2026-08-26"></a></h2>
 <div class="section level3">
-<h3 id="improvements-1-0-47">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-0-47"></a></h3>
+<h3 id="ropensci-review-preparation-1-0-47">rOpenSci review preparation<a class="anchor" aria-label="anchor" href="#ropensci-review-preparation-1-0-47"></a></h3>
 <ul><li>Prepared the package for rOpenSci software peer review.</li>
 <li>Improved package structure, namespace management, and internal code quality.</li>
 <li>Strengthened automated testing and package-check workflows.</li>
 <li>Improved robustness of report generation and supporting utilities.</li>
-<li>Replaced the former S4 <code>install_All()</code> implementation with the simpler snake-case <code><a href="../reference/install_all.html">install_all()</a></code> function. It automatically discovers dependencies declared by bundled and registered user-managed report modules, and delegates dependency resolution and installation to <code>pak</code>.</li>
+<li>Improved handling of optional report-module dependencies.</li>
+<li>Replaced the former <code>installAll()</code> implementation with the simpler snake-case <code><a href="../reference/install_all.html">install_all()</a></code> function.</li>
+<li>Updated <code><a href="../reference/install_all.html">install_all()</a></code> so that it discovers dependencies declared by bundled and registered user-defined report modules, installs only missing optional dependencies, and avoids updating packages that are already installed.</li>
+<li>Updated dependency installation to use <code>pak</code> with <code>upgrade = FALSE</code>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-1-0-47">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-0-47"></a></h3>
-<ul><li>Expanded and revised the package documentation to clarify the scope, workflow, and differences from existing camera-trap tools.</li>
+<ul><li>Expanded and revised the README and package overview to clarify the package scope, workflow, target users, and differences from existing camera-trap tools.</li>
 <li>Improved the pkgdown website, reference documentation, vignettes, and reporting resources.</li>
-<li>Standardised package metadata, citations, links, and release information.</li>
+<li>Updated installation instructions to use <code>pak</code>.</li>
+<li>Clarified the role of optional dependencies used by report modules, interactive outputs, maps, activity analyses, density estimation, species accumulation, taxonomic enrichment, and the Shiny interface.</li>
+<li>Added contributor-facing documentation for internal design choices and report-generation structure.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="maintenance-1-0-47">Maintenance<a class="anchor" aria-label="anchor" href="#maintenance-1-0-47"></a></h3>
 <ul><li>Removed obsolete and unused package assets and temporary files.</li>
+<li>Removed the unused <code>camtraptor</code> dependency declaration because it is discussed only as a complementary package and is not called by package code.</li>
 <li>Resolved non-ASCII source-code issues and other package-check findings.</li>
 <li>Updated CRAN package links to their canonical form.</li>
-</ul><p>This release primarily prepares camtrapReport for rOpenSci software peer review and improves package robustness, documentation, reproducibility, and maintainability.</p>
+<li>Regenerated documentation and package website assets.</li>
+</ul><p>This release primarily prepares <code>camtrapReport</code> for rOpenSci software peer review and improves package robustness, documentation, reproducibility, dependency handling, and maintainability.</p>
 </div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.45" id="camtrapreport-1045-2026-08-05">camtrapReport 1.0.45 (2026-08-05)<a class="anchor" aria-label="anchor" href="#camtrapreport-1045-2026-08-05"></a></h2>
-<ul><li>Initial official release.</li>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="camtrapreport-100">camtrapReport 1.0.0<a class="anchor" aria-label="anchor" href="#camtrapreport-100"></a></h2>
+<div class="section level3">
+<h3 id="initial-release-1-0-0">Initial release<a class="anchor" aria-label="anchor" href="#initial-release-1-0-0"></a></h3>
+<ul><li>Initial public release of <code>camtrapReport</code>.</li>
+<li>Added support for processing camera-trap data in Camtrap DP format.</li>
+<li>Added functionality for generating Data Status Reports.</li>
+<li>Added functionality for generating Ecological Reports.</li>
+<li>Added a modular reporting structure for extending report content.</li>
+<li>Added summaries, tables, figures, and maps for camera-trap monitoring datasets.</li>
+<li>Added package documentation, examples, tests, and a pkgdown website.</li>
 </ul></div>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

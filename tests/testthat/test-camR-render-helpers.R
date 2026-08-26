@@ -154,14 +154,13 @@ test_that("package loader creates an empty uniquely labelled chunk", {
   loader <- make_loader(
     pkgs = NULL,
     core = character(),
-    attach = TRUE,
-    label = "test-packages"
+    attach = TRUE
   )
   
   expect_identical(
     loader,
     paste0(
-      "```{r test-packages, include=FALSE}\n",
+      "```{r, include=FALSE}\n",
       "# no extra packages\n",
       "```\n"
     )
@@ -179,8 +178,7 @@ test_that("package loader normalizes and deduplicates packages", {
       "stats"
     ),
     core = c("knitr", " methods "),
-    attach = TRUE,
-    label = "test-packages"
+    attach = TRUE
   )
   
   expect_match(

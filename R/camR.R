@@ -52,10 +52,9 @@
 #-------
 .make_package_loader_chunk <- function(pkgs,
                                        core = "knitr",
-                                       attach_packages = TRUE,
-                                       label = "camtrap-packages") {
+                                       attach_packages = TRUE) {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
-  chunk_header <- paste0("```{r ", label, ", include=FALSE}\n")
+  chunk_header <- "```{r, include=FALSE}\n"
   
   if (length(pkgs) == 0) {
     return(paste0(chunk_header, "# no extra packages\n```\n"))
@@ -3032,8 +3031,7 @@ camR <- setRefClass(
       module_pkgs <- .collect_module_packages(.self$reportObjects)
       pkg_chunk <- .make_package_loader_chunk(
         module_pkgs,
-        core = "knitr",
-        label = "camtrap-report-packages"
+        core = "knitr"
       )
       
       style_block <- .report_css_block()
@@ -3127,8 +3125,7 @@ output:
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
       pkg_chunk <- .make_package_loader_chunk(
         module_pkgs,
-        core = "knitr",
-        label = "camtrap-status-packages"
+        core = "knitr"
       )
       
       style_block <- .report_css_block()

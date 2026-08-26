@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Data Status Report • camtrapReport</title>
+<title>Data Status Check • camtrapReport</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,9 +16,9 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Data Status Report">
-<meta name="description" content="This vignette describes the Data Status Report and explains the checks used to assess the quality, completeness, and consistency of camera-trap data.">
-<meta property="og:description" content="This vignette describes the Data Status Report and explains the checks used to assess the quality, completeness, and consistency of camera-trap data.">
+<meta property="og:title" content="Data Status Check">
+<meta name="description" content="A guide to the Data Status Check and the checks used to assess the quality, completeness, and consistency of camera-trap data.">
+<meta property="og:description" content="A guide to the Data Status Check and the checks used to assess the quality, completeness, and consistency of camera-trap data.">
 <meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.48</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Data Status Report</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Data Status Check</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -97,28 +97,22 @@ Ebrahimi</h4>
     
     
 <div class="section level2">
-<h2 id="purpose-of-the-data-status-report">Purpose of the Data Status Report<a class="anchor" aria-label="anchor" href="#purpose-of-the-data-status-report"></a>
+<h2 id="purpose-of-the-data-status-check">Purpose of the Data Status Check<a class="anchor" aria-label="anchor" href="#purpose-of-the-data-status-check"></a>
 </h2>
-<p>The Data Status Report provides an overview of the quality,
-completeness, and readiness of a camera-trap dataset before generating
-the final Ecological Report. It helps users check whether the main input
-files, metadata fields, deployment information, observation records,
-taxonomy, timestamps, annotation information, and spatial data are
-complete and internally consistent.</p>
-<p>This report is especially useful as a first quality-control step. It
-allows users to identify missing values, duplicated records, invalid
-timestamps, incomplete metadata, spatial issues, and inconsistencies
-between deployments and observations. Based on these checks, users can
-decide whether the dataset is ready for reporting or whether further
-correction is needed before ecological analyses are performed.</p>
-<p>Figure 1 summarises how <code>camtrapReport</code> checks the
-readiness of a camera-trap dataset before ecological reporting. After
-the data are loaded with <code><a href="../reference/camData.html">camData()</a></code>, the
-<code><a href="../reference/report.html">status()</a></code> function runs automated checks on the main input
-files, metadata, deployments, observations, timestamps, taxonomy,
-spatial information, and annotation records. The output helps users
-identify potential issues and decide whether the dataset is ready for
-generating the final Ecological Report.</p>
+<p>The Data Status Check summarises the quality, completeness, and
+internal consistency of a camera-trap dataset before ecological
+reporting. It checks the main input files, metadata, deployments,
+observations, taxonomy, timestamps, annotations, and spatial
+information.</p>
+<p>The output helps users identify missing values, duplicated records,
+invalid timestamps, incomplete metadata, spatial issues, and
+inconsistencies between deployments and observations. It is diagnostic:
+completing the checks does not establish that the survey design or data
+are suitable for a particular ecological analysis.</p>
+<p>Figure 1 summarises the automated workflow. <code><a href="../reference/camData.html">camData()</a></code>
+reads the camera-trap dataset and prepares it for reporting.
+<code><a href="../reference/report.html">status()</a></code> then runs the implemented checks and generates the
+HTML Data Status Check.</p>
 <style>
 .figure .caption,
 figcaption,
@@ -130,79 +124,36 @@ p.caption {
 }
 </style>
 <div class="figure" style="text-align: center">
-<img src="figures/data-status/data-status-workflow.png" class="r-plt" alt="Workflow for generating a Data Status Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
-Figure 1. Workflow for generating a Data Status Report from camera-trap
+<img src="figures/data-status/data-status-workflow.png" class="r-plt" alt="Workflow for generating a Data Status Check from camera-trap data using camtrapReport." width="100%"><p class="caption">
+Figure 1. Workflow for generating a Data Status Check from camera-trap
 data using camtrapReport.
 </p>
 </div>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Copy the bundled example dataset to a writable temporary directory</span></span>
-<span><span class="va">example_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">example_root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">example_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"external"</span>,</span>
-<span>  <span class="st">"dataset"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">copied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span></span>
-<span>  from <span class="op">=</span> <span class="va">example_source</span>,</span>
-<span>  to <span class="op">=</span> <span class="va">example_root</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  copy.mode <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">copied</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load the example camera-trap data</span></span>
-<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span>,</span>
-<span>  update <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate and view the Data Status Report</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"path/to/camtrap-dp-dataset"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>When <code>view = TRUE</code>, the generated report is opened in the
-browser. This provides a quick, human-readable overview of dataset
-quality, completeness, and consistency.</p>
-<p>The function also invisibly returns the path to the HTML report. By
-default, <code>data_status.html</code> and its intermediate
-<code>data_status.Rmd</code> file are written to the R session’s
-temporary directory. Use <code>filename</code> to give another file stem
-or a path inside an existing output directory:</p>
+<p>These two function calls are sufficient for the standard workflow.
+With <code>view = TRUE</code>, the generated report opens in the
+browser. <code><a href="../reference/report.html">status()</a></code> also invisibly returns the path to the
+HTML file.</p>
+<p>To retain the report at a chosen location, supply a filename in an
+existing output directory:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span></span>
-<span>  <span class="st">"reports"</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  showWarnings <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"data_status_2026"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>An existing file with the same name may be replaced. Use a
-deliberate, versioned filename when reports from multiple processing
-runs must be retained.</p>
+<code class="sourceCode R"><span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"reports/data_status_2026"</span>, view <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>If <code>filename</code> is omitted, the HTML file and its
+intermediate R Markdown file are written to the R session’s temporary
+directory. Use distinct filenames when reports from several datasets or
+processing dates must be retained.</p>
 <hr class="section-divider">
 </div>
 <div class="section level2">
-<h2 id="example-data-status-reports">Example Data Status Reports<a class="anchor" aria-label="anchor" href="#example-data-status-reports"></a>
+<h2 id="example-data-status-checks">Example Data Status Checks<a class="anchor" aria-label="anchor" href="#example-data-status-checks"></a>
 </h2>
-<p>Below are previews of Data Status Reports generated with
-<code>camtrapReport</code> for different camera-trap monitoring
-projects. These examples illustrate the presentation of dataset
-completeness and potential issues. Click a preview to open the
-corresponding complete report. Reports can also be generated locally
-from a Camtrap DP dataset using the workflow described above.</p>
+<p>Below are previews of Data Status Checks generated for different
+camera-trap monitoring projects. Click a preview to open the complete
+output.</p>
 <style>
 .status-gallery {
   display: grid;
@@ -304,83 +255,63 @@ from a Camtrap DP dataset using the workflow described above.</p>
 }
 </style>
 <div class="status-gallery">
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Leuven
 </div>
 <div class="status-card-text">
-Data Status Report
+Data Status Check
 </div>
-<span class="status-card-badge">Open report</span>
+<span class="status-card-badge">Open output</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Amsterdam Water Supply Dunes
 </div>
 <div class="status-card-text">
-Data Status Report
+Data Status Check
 </div>
-<span class="status-card-badge">Open report</span>
+<span class="status-card-badge">Open output</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Lux National Monitoring
 </div>
 <div class="status-card-text">
-Data Status Report
+Data Status Check
 </div>
-<span class="status-card-badge">Open report</span>
+<span class="status-card-badge">Open output</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Check" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 MICA Monitoring Project
 </div>
 <div class="status-card-text">
-Data Status Report
+Data Status Check
 </div>
-<span class="status-card-badge">Open report</span>
+<span class="status-card-badge">Open output</span>
 </div>
 <p></p></a>
 </div>
 <hr class="section-divider">
 </div>
 <div class="section level2">
-<h2 id="exploring-data-status-results-in-r">Exploring data-status results in R<a class="anchor" aria-label="anchor" href="#exploring-data-status-results-in-r"></a>
+<h2 id="accessing-results-in-r">Accessing results in R<a class="anchor" aria-label="anchor" href="#accessing-results-in-r"></a>
 </h2>
-<p>The results of the data-status checks are also stored inside the
-<code>camReport</code> object. Users can explore these results directly
-in R through <code>cm$data_status</code>. This is useful when users want
-to inspect the underlying tables, extract summaries, or use the
-quality-control outputs in another workflow.</p>
+<p>The results are also stored in the <code>camReport</code> object and
+can be accessed when individual tables or summaries are needed for
+further analysis.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Explore all data-status outputs stored in the camReport object</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span></span>
-<span></span>
-<span><span class="co"># Show the available data-status components</span></span>
+<code class="sourceCode R"><span><span class="co"># List the available result components</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Spatial</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Temporal</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Essentials</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Annotation</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Validation</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Visuals</span></span></code></pre></div>
-<p>For example, the species table can be inspected to check which
-species were detected and how many captures were recorded for each
-species.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># View species summary table</span></span>
+<span><span class="co"># Inspect the species summary table</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span><span class="op">$</span><span class="va">Table</span></span></code></pre></div>
-<p>Together, <code>status(cm, view = TRUE)</code> and
-<code>cm$data_status</code> provide both a human-readable HTML report
-and direct access to the underlying data-quality summaries in R. This
-makes the Data Status Report useful for documenting data readiness,
-identifying issues, and improving the dataset before generating the
-final Ecological Report.</p>
+<p>For most users, the generated HTML report is the main output. Direct
+access through <code>cm$data_status</code> is optional.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

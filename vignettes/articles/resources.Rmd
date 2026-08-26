@@ -118,7 +118,7 @@ resource_files:
 
 <div class="resource-introduction">
 
-This page presents publications, workshops, and training activities related to `camtrapReport`. It provides a central place for users to find scientific outputs, learning materials, and opportunities to engage with the `camtrapReport` community.
+This page lists publications, workshops, and training activities related to `camtrapReport`. Public materials are linked where available.
 
 </div>
 

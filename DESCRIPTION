@@ -1,7 +1,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.47
+Version: 1.0.48
 Authors@R: person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832"))
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible
@@ -21,43 +21,17 @@ Imports:
     dplyr,
     glue,
     jsonlite,
+    knitr,
     lubridate,
     methods,
-    spatstat.explore,
-    spatstat.geom,
+    rmarkdown,
+    shiny,
     terra
 Suggests:
-    activity,
-    camtrapDensity,
-    corrplot,
-    Distance,
-    dygraphs,
-    ggplot2,
-    ggrepel,
-    gt,
-    htmltools,
-    htmlwidgets,
-    iNEXT,
-    knitr,
-    leaflet,
-    lutz,
-    magick,
-    pak,
-    readr,
-    rmarkdown,
-    sbd,
-    scales,
-    sf,
-    shiny,
-    spatstat,
-    suncalc,
-    taxize,
+    remotes,
+    roxygen2,
     testthat (>= 3.1.7),
-    tidyr,
-    withr,
-    xts
-Remotes:
-    MarcusRowcliffe/camtrapDensity
+    xml2
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

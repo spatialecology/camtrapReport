@@ -17,8 +17,8 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Ecological Report">
-<meta name="description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
-<meta property="og:description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
+<meta name="description" content="Generate an automated, reproducible Ecological Report from camera-trap data and optionally adapt its content to a monitoring project.">
+<meta property="og:description" content="Generate an automated, reproducible Ecological Report from camera-trap data and optionally adapt its content to a monitoring project.">
 <meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.48</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,16 +99,13 @@ Ebrahimi</h4>
 <div class="section level2">
 <h2 id="purpose-of-the-ecological-report">Purpose of the Ecological Report<a class="anchor" aria-label="anchor" href="#purpose-of-the-ecological-report"></a>
 </h2>
-<p>The Ecological Report is the main interpretive output of
-<code>camtrapReport</code>. It brings processed camera-trap data
-together into a clear, scientific-style report with narrative text,
-tables, figures, and maps. The report summarises key information on
-study context, sampling effort, species detections, activity patterns,
-spatial patterns, and ecological trends. It provides a reproducible and
-modular workflow that automates much of the reporting process, helping
-researchers, conservation practitioners, and camera-trap users analyse,
-interpret, and communicate camera-trap data efficiently for conservation
-planning and decision-making.</p>
+<p>The Ecological Report is the main output of
+<code>camtrapReport</code>. It automatically combines camera-trap data
+with narrative text, tables, figures, maps, and selected ecological
+analyses in a reproducible HTML document. Its contents depend on the
+available data and enabled report modules and can include study context,
+sampling effort, species detections, activity patterns, spatial
+patterns, and community summaries.</p>
 <style>
 .figure .caption,
 figcaption,
@@ -125,88 +122,25 @@ Figure 1. Workflow for generating an Ecological Report from camera-trap
 data using camtrapReport.
 </p>
 </div>
-<p>Figure 1 summarises the main workflow for generating an Ecological
-Report with <code>camtrapReport</code>. Camera-trap data are first
-loaded with <code><a href="../reference/camData.html">camData()</a></code>, creating an object that supports
-data preprocessing, manipulation, analysis, summarisation, and
-visualisation. This processed object is then passed to the
-<code><a href="../reference/report.html">report()</a></code> function, which generates a complete HTML
-Ecological Report.</p>
+<p>Figure 1 summarises the automated workflow. <code><a href="../reference/camData.html">camData()</a></code>
+reads and prepares the camera-trap dataset. <code><a href="../reference/report.html">report()</a></code> then
+runs the selected modules and generates the complete HTML Ecological
+Report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Copy the bundled example dataset to a writable temporary directory</span></span>
-<span><span class="va">example_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">example_root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">example_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"external"</span>,</span>
-<span>  <span class="st">"dataset"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">copied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span></span>
-<span>  from <span class="op">=</span> <span class="va">example_source</span>,</span>
-<span>  to <span class="op">=</span> <span class="va">example_root</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  copy.mode <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>    <span class="st">"external"</span>,</span>
-<span>    <span class="st">"habitat"</span>,</span>
-<span>    <span class="st">"habitat.csv"</span>,</span>
-<span>    package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>    mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"external"</span>,</span>
-<span>  <span class="st">"study_area"</span>,</span>
-<span>  <span class="st">"study_area.shp"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">copied</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load the example camera-trap data and optional spatial inputs</span></span>
-<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span>,</span>
-<span>  habitat <span class="op">=</span> <span class="va">habitat</span>,</span>
-<span>  study_area <span class="op">=</span> <span class="va">study_area</span>,</span>
-<span>  update <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate the Ecological Report</span></span>
+<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"path/to/camtrap-dp-dataset"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/report.html">report()</a></code> invisibly returns the path to the generated
-HTML file. By default, <code>report.html</code> and the intermediate
-<code>report.Rmd</code> file are written to the R session’s temporary
-directory. A specific file stem or a path inside an existing output
-directory can be supplied through <code>filename</code>:</p>
+<p>These two function calls are sufficient for the standard workflow.
+With <code>view = TRUE</code>, the report opens in the browser.
+<code><a href="../reference/report.html">report()</a></code> also invisibly returns the path to the generated
+HTML file.</p>
+<p>To retain the report at a chosen location, supply a filename in an
+existing output directory:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span></span>
-<span>  <span class="st">"reports"</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  showWarnings <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"ecological_report_2026"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>An existing output with the same name may be replaced. Use explicit,
-versioned filenames when reports from multiple datasets, settings, or
-processing dates must be retained.</p>
+<code class="sourceCode R"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"reports/ecological_report_2026"</span>, view <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>If <code>filename</code> is omitted, the HTML file and its
+intermediate R Markdown file are written to the R session’s temporary
+directory. Use distinct filenames when reports from several datasets,
+settings, or processing dates must be retained.</p>
 <hr class="section-divider">
 </div>
 <div class="section level2">
@@ -471,90 +405,38 @@ Netherlands
 <div class="section level2">
 <h2 id="customising-the-ecological-report">Customising the Ecological Report<a class="anchor" aria-label="anchor" href="#customising-the-ecological-report"></a>
 </h2>
-<p>After the camera-trap data have been loaded with
-<code><a href="../reference/camData.html">camData()</a></code>, the resulting <code>camReport</code> object can
-be customised before generating the final Ecological Report. Users can
-adjust the report metadata, select the focal species group, define the
-monitoring period, apply filters, and control which report modules are
-included. These options allow the report to be tailored to different
-monitoring projects, study designs, and research aims.</p>
+<p>The default workflow generates a complete report without further
+configuration. When needed, the <code>camReport</code> object can be
+adjusted before calling <code><a href="../reference/report.html">report()</a></code>. Common options include
+report metadata, focal species group, monitoring years, filtering
+thresholds, and included sections.</p>
 <div class="section level3">
 <h3 id="viewing-and-changing-metadata">Viewing and changing metadata<a class="anchor" aria-label="anchor" href="#viewing-and-changing-metadata"></a>
 </h3>
-<p>The contents of the <code>camReport</code> object are extracted or
-inferred from the main camera-trap dataset. These metadata can be viewed
-and modified using the <code><a href="../reference/info.html">info()</a></code> function.</p>
-<p>Use <code>info(cm)</code> to see all available metadata fields.
-Specific fields, such as the report title, subtitle, authors, institute,
-site name, or logo path, can also be retrieved individually. If needed,
-these fields can be updated before generating the final report using the
-following steps:</p>
+<p>Report metadata are extracted or inferred from the input data. Use
+<code><a href="../reference/info.html">info()</a></code> to inspect them or change individual fields.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># View all available metadata fields</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Retrieve specific metadata fields</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"subtitle"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Update metadata fields</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"subtitle"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Ecological insights from long-term camera-trap data"</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Elham Ebrahimi"</span>, <span class="st">"Patrick Jansen"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Utrecht University, the Netherlands"</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Hoge Veluwe National Park"</span></span>
-<span></span>
-<span><span class="co"># Optional: add an institute or project logo</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"path_to_logo/UU_logo.png"</span></span>
-<span></span>
-<span><span class="co"># Check the updated metadata</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-Trap Monitoring Report"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Research team"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="adjusting-the-focus-group">Adjusting the focus group<a class="anchor" aria-label="anchor" href="#adjusting-the-focus-group"></a>
 </h3>
-<p>The Ecological Report can be generated for a selected group of
-species, referred to as the <code>focus_group</code>. This allows users
-to focus the report on a particular taxonomic or ecological group, such
-as <code>large_mammals</code>, <code>wild_animals</code>,
-<code>birds</code>, <code>amphibians</code>, <code>domestic</code>,
-<code>human_observation</code>, or a custom-defined group.</p>
-<p>Users can also define a new group by assigning records based on one
-or more fields, including <code>scientificName</code>,
-<code>class</code>, <code>order</code>, and
-<code>observationType</code>.</p>
+<p>The report can focus on a predefined group such as
+<code>large_mammals</code>, <code>wild_animals</code>,
+<code>birds</code>, <code>amphibians</code>, <code>domestic</code>, or
+<code>human_observation</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check the current focus group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">focus_groups</span></span>
-<span></span>
-<span><span class="co"># View available group definitions</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">$</span><span class="va">group_definition</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Change the focus group</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">$</span><span class="va">group_definition</span><span class="op">)</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">set_focus_group</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"birds"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Re-run setup after changing the focus group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Inspect the rules used to define existing groups</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"large_mammals"</span><span class="op">)</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"wild_animals"</span><span class="op">)</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"birds"</span><span class="op">)</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"amphibians"</span><span class="op">)</span></span></code></pre></div>
-<p>A custom focus group can also be created when users want to focus on
-a specific set of species or records. Before defining a new group, it is
-useful to check the species table to see which species are available in
-the dataset.</p>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>A custom group can be defined from fields such as
+<code>scientificName</code>, <code>class</code>, <code>order</code>, or
+<code>observationType</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check the list of species available in the dataset</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span><span class="op">$</span><span class="va">Table</span></span>
-<span></span>
-<span><span class="co"># Add a new custom group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">add_group</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="fu">add_group</span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"target_species"</span>,</span>
 <span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    scientificName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -565,93 +447,43 @@ the dataset.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Use the new group as the focus group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">set_focus_group</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"target_species"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Re-run setup after changing group definitions and focus group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Check the updated focus group</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">focus_groups</span></span></code></pre></div>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">set_focus_group</span><span class="op">(</span><span class="st">"target_species"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="selecting-years-and-adjusting-filters">Selecting years and adjusting filters<a class="anchor" aria-label="anchor" href="#selecting-years-and-adjusting-filters"></a>
 </h3>
-<p>Reports can be generated for all available years in the dataset or
-for a selected monitoring period. This is useful when users want to
-focus on a specific time window, such as a single monitoring year or a
-multi-year period. The count filter can also be adjusted to control the
-minimum number of observations required for a species to be included in
-the report.</p>
+<p>The default report uses the available monitoring period. To restrict
+the analysis or change the minimum number of observations required for
+inclusion:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check which years are available in the dataset</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">extractYears</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Select a specific monitoring period</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2023</span><span class="op">:</span><span class="fl">2024</span></span>
-<span></span>
-<span><span class="co"># Re-run setup after changing the selected years</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Check the current count filter</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">filterCount</span></span>
-<span></span>
-<span><span class="co"># Change the minimum number of observations required</span></span>
+<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2023</span><span class="op">:</span><span class="fl">2024</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">filterCount</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span></span>
-<span><span class="co"># Generate the report using the selected years and filter settings</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="selecting-which-sections-are-included">Selecting which sections are included<a class="anchor" aria-label="anchor" href="#selecting-which-sections-are-included"></a>
 </h3>
-<p>Users can also control which sections are included in the final
-report. This is useful when a shorter report is needed, or when some
-analyses are not relevant for a particular dataset.</p>
+<p>Sections can be excluded when an analysis is not relevant or the
+report needs to be shorter.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># View the sections currently available</span></span>
-<span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Show all section names</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Exclude one section</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="st">"introduction"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Exclude multiple sections</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acknowledgements"</span>, <span class="st">"appendix"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Keep only selected sections</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
-<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"methods"</span>, <span class="st">"study_area"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Example: include all sections except richness and co-occurrence</span></span>
-<span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
 <span>  exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"richness"</span>, <span class="st">"co_occurrence"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Check the selected section names</span></span>
-<span><span class="va">selected_sections</span></span>
-<span></span>
-<span><span class="co"># Apply selected sections to the camReport object</span></span>
 <span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected_sections</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate the customised report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Restore all available sections</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, n <span class="op">=</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>A generated report summarises the implemented checks and selected
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
+</h2>
+<p>The automated report summarises the implemented checks and selected
 analyses. It does not establish that the survey design is suitable for a
 particular ecological question or that the data satisfy all assumptions
-of the selected methods. Outputs should be interpreted in relation to
-sampling effort, detectability, season, habitat, and method-specific
-assumptions.</p>
-<p>Together, these options allow users to generate Ecological Reports
-that are reproducible, flexible, and tailored to the aims of each
-camera-trap monitoring project.</p>
-</div>
+of the selected methods. Results should be interpreted in relation to
+sampling effort, detectability, season, habitat, data quality, and
+method-specific assumptions.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

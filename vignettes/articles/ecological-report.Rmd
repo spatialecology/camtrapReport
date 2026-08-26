@@ -1,7 +1,7 @@
 ---
 title: "Ecological Report"
 author: "Elham Ebrahimi"
-description: "A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options."
+description: "Generate an automated, reproducible Ecological Report from camera-trap data and optionally adapt its content to a monitoring project."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Ecological Report}
@@ -18,7 +18,12 @@ resource_files:
 
 ## Purpose of the Ecological Report
 
-The Ecological Report is the main interpretive output of `camtrapReport`. It brings processed camera-trap data together into a clear, scientific-style report with narrative text, tables, figures, and maps. The report summarises key information on study context, sampling effort, species detections, activity patterns, spatial patterns, and ecological trends. It provides a reproducible and modular workflow that automates much of the reporting process, helping researchers, conservation practitioners, and camera-trap users analyse, interpret, and communicate camera-trap data efficiently for conservation planning and decision-making.
+The Ecological Report is the main output of `camtrapReport`. It automatically
+combines camera-trap data with narrative text, tables, figures, maps, and
+selected ecological analyses in a reproducible HTML document. Its contents
+depend on the available data and enabled report modules and can include study
+context, sampling effort, species detections, activity patterns, spatial
+patterns, and community summaries.
 
 
 <style>
@@ -39,86 +44,30 @@ knitr::include_graphics(
 ```
 
 
-Figure 1 summarises the main workflow for generating an Ecological Report with `camtrapReport`. Camera-trap data are first loaded with `camData()`, creating an object that supports data preprocessing, manipulation, analysis, summarisation, and visualisation. This processed object is then passed to the `report()` function, which generates a complete HTML Ecological Report.
+Figure 1 summarises the automated workflow. `camData()` reads and prepares the
+camera-trap dataset. `report()` then runs the selected modules and generates
+the complete HTML Ecological Report.
 
-
-```{r ecological-report-basic-code, eval=FALSE}
-library(camtrapReport)
-
-# Copy the bundled example dataset to a writable temporary directory
-example_root <- tempfile("camtrapReport-example-")
-dir.create(example_root, recursive = TRUE)
-
-example_source <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-copied <- file.copy(
-  from = example_source,
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-habitat <- utils::read.csv(
-  system.file(
-    "external",
-    "habitat",
-    "habitat.csv",
-    package = "camtrapReport",
-    mustWork = TRUE
-  )
-)
-
-study_area <- system.file(
-  "external",
-  "study_area",
-  "study_area.shp",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset")),
-  file.exists(study_area)
-)
-
-# Load the example camera-trap data and optional spatial inputs
-cm <- camData(
-  data = file.path(example_root, "dataset"),
-  habitat = habitat,
-  study_area = study_area,
-  update = TRUE
-)
-
-# Generate the Ecological Report
+```{r ecological-report-basic-workflow, eval=FALSE}
+cm <- camData("path/to/camtrap-dp-dataset")
 report(cm, view = TRUE)
 ```
 
-`report()` invisibly returns the path to the generated HTML file. By default,
-`report.html` and the intermediate `report.Rmd` file are written to the R
-session's temporary directory. A specific file stem or a path inside an
-existing output directory can be supplied through `filename`:
+These two function calls are sufficient for the standard workflow. With
+`view = TRUE`, the report opens in the browser. `report()` also invisibly
+returns the path to the generated HTML file.
+
+To retain the report at a chosen location, supply a filename in an existing
+output directory:
 
 ```{r ecological-report-output-path, eval=FALSE}
-dir.create(
-  "reports",
-  recursive = TRUE,
-  showWarnings = FALSE
-)
-
-report_file <- report(
-  cm,
-  filename = file.path("reports", "ecological_report_2026"),
-  view = FALSE
-)
+report_file <- report(cm, filename = "reports/ecological_report_2026", view = FALSE)
 ```
 
-An existing output with the same name may be replaced. Use explicit, versioned filenames when reports from multiple datasets, settings, or processing dates must be retained.
+If `filename` is omitted, the HTML file and its intermediate R Markdown file
+are written to the R session's temporary directory. Use distinct filenames
+when reports from several datasets, settings, or processing dates must be
+retained.
 
 <hr class="section-divider">
 
@@ -344,76 +293,41 @@ Below are previews of Ecological Reports generated with `camtrapReport` for diff
 
 ## Customising the Ecological Report
 
-After the camera-trap data have been loaded with `camData()`, the resulting `camReport` object can be customised before generating the final Ecological Report. Users can adjust the report metadata, select the focal species group, define the monitoring period, apply filters, and control which report modules are included. These options allow the report to be tailored to different monitoring projects, study designs, and research aims.
+The default workflow generates a complete report without further
+configuration. When needed, the `camReport` object can be adjusted before
+calling `report()`. Common options include report metadata, focal species
+group, monitoring years, filtering thresholds, and included sections.
 
 
 ### Viewing and changing metadata
 
-The contents of the `camReport` object are extracted or inferred from the main camera-trap dataset. These metadata can be viewed and modified using the `info()` function.
-
-Use `info(cm)` to see all available metadata fields. Specific fields, such as the report title, subtitle, authors, institute, site name, or logo path, can also be retrieved individually. If needed, these fields can be updated before generating the final report using the following steps:
+Report metadata are extracted or inferred from the input data. Use `info()` to
+inspect them or change individual fields.
 
 
 ```{r ecological-report-custom-metadata, eval=FALSE}
-# View all available metadata fields
 info(cm)
 
-# Retrieve specific metadata fields
-info(cm, name = "title")
-info(cm, name = "subtitle")
-info(cm, name = "authors")
-info(cm, name = "institute")
-info(cm, name = "siteName")
-info(cm, name = "logoPath")
-
-# Update metadata fields
-info(cm, name = "title") <- "Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"
-info(cm, name = "subtitle") <- "Ecological insights from long-term camera-trap data"
-info(cm, name = "authors") <- c("Elham Ebrahimi", "Patrick Jansen")
-info(cm, name = "institute") <- "Utrecht University, the Netherlands"
-info(cm, name = "siteName") <- "Hoge Veluwe National Park"
-
-# Optional: add an institute or project logo
-info(cm, name = "logoPath") <- "path_to_logo/UU_logo.png"
-
-# Check the updated metadata
-info(cm)
+info(cm, name = "title") <- "Camera-Trap Monitoring Report"
+info(cm, name = "authors") <- "Research team"
 ```
 
 
 ### Adjusting the focus group
 
-The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, `human_observation`, or a custom-defined group.
-
-Users can also define a new group by assigning records based on one or more fields, including `scientificName`, `class`, `order`, and `observationType`.
+The report can focus on a predefined group such as `large_mammals`,
+`wild_animals`, `birds`, `amphibians`, `domestic`, or `human_observation`.
 
 ```{r ecological-report-focus-group, eval=FALSE}
-# Check the current focus group
-cm$setting$focus_groups
-
-# View available group definitions
 names(cm$group_definition)
-
-# Change the focus group
 cm$set_focus_group(x = "birds")
-
-# Re-run setup after changing the focus group
 cm$setup()
-
-# Inspect the rules used to define existing groups
-cm$get_group("large_mammals")
-cm$get_group("wild_animals")
-cm$get_group("birds")
-cm$get_group("amphibians")
 ```
 
-A custom focus group can also be created when users want to focus on a specific set of species or records. Before defining a new group, it is useful to check the species table to see which species are available in the dataset.
+A custom group can be defined from fields such as `scientificName`, `class`,
+`order`, or `observationType`:
 
 ```{r ecological-report-custom-group, eval=FALSE}
-# Check the list of species available in the dataset
-cm$data_status$Species$Table
-
-# Add a new custom group
 cm$add_group(
   name = "target_species",
   x = list(
@@ -425,81 +339,40 @@ cm$add_group(
   )
 )
 
-# Use the new group as the focus group
-cm$set_focus_group(x = "target_species")
-
-# Re-run setup after changing group definitions and focus group
+cm$set_focus_group("target_species")
 cm$setup()
-
-# Check the updated focus group
-cm$setting$focus_groups
 ```
 
 
 ### Selecting years and adjusting filters
 
-Reports can be generated for all available years in the dataset or for a selected monitoring period. This is useful when users want to focus on a specific time window, such as a single monitoring year or a multi-year period. The count filter can also be adjusted to control the minimum number of observations required for a species to be included in the report.
+The default report uses the available monitoring period. To restrict the
+analysis or change the minimum number of observations required for inclusion:
 
 ```{r ecological-report-years-filters, eval=FALSE}
-# Check which years are available in the dataset
-cm$extractYears()
-
-# Select a specific monitoring period
 cm$years <- 2023:2024
-
-# Re-run setup after changing the selected years
-cm$setup()
-
-# Check the current count filter
-cm$filterCount
-
-# Change the minimum number of observations required
 cm$filterCount <- 10
-
-# Generate the report using the selected years and filter settings
+cm$setup()
 report(cm, view = TRUE)
 ```
 
 ### Selecting which sections are included
 
-Users can also control which sections are included in the final report. This is useful when a shorter report is needed, or when some analyses are not relevant for a particular dataset.
+Sections can be excluded when an analysis is not relevant or the report needs
+to be shorter.
 
 ```{r ecological-report-select-sections, eval=FALSE}
-# View the sections currently available
-listReportSections(cm)
-
-# Show all section names
-section_names()
-
-# Exclude one section
-section_names(exclude = "introduction")
-
-# Exclude multiple sections
-section_names(exclude = c("acknowledgements", "appendix"))
-
-# Keep only selected sections
-section_names(
-  keep = c("introduction", "methods", "study_area")
-)
-
-# Example: include all sections except richness and co-occurrence
 selected_sections <- section_names(
   exclude = c("richness", "co_occurrence")
 )
-
-# Check the selected section names
-selected_sections
-
-# Apply selected sections to the camReport object
 sections(cm, selected_sections)
-
-# Generate the customised report
 report(cm, view = TRUE)
-
-# Restore all available sections
-sections(cm, n = section_names())
 ```
 
-A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
+## Interpretation
 
-Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
+The automated report summarises the implemented checks and selected analyses.
+It does not establish that the survey design is suitable for a particular
+ecological question or that the data satisfy all assumptions of the selected
+methods. Results should be interpreted in relation to sampling effort,
+detectability, season, habitat, data quality, and method-specific assumptions.

@@ -137,7 +137,7 @@ reporting objectives.
 
 Users who want to develop or manage additional report modules can find more
 detail in the
-[Module management and extension](https://spatialecology.github.io/camtrapReport/articles/modules.html)
+[Module management and extension](modules.html)
 guide.
 
 ## Reproducibility, interpretation, and scope
@@ -184,8 +184,8 @@ Its modular design allows the workflow to be adapted to different datasets,
 monitoring objectives, and analytical needs.
 
 For more detail, see the
-[Data Status Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html),
-[Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html),
+[Data Status Check](data-status-report.html),
+[Ecological Report](ecological-report.html),
 and
-[Module management and extension](https://spatialecology.github.io/camtrapReport/articles/modules.html)
+[Module management and extension](modules.html)
 articles.

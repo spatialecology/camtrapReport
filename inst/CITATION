@@ -5,6 +5,6 @@ bibentry(
   title = "camtrapReport: Camera-Trap Report Generator",
   author = person("Elham", "Ebrahimi"),
   year = "2026",
-  note = "R package version 1.0.47",
+  note = "R package version 1.0.48",
   url = "https://spatialecology.github.io/camtrapReport/"
 )

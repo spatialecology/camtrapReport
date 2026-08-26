@@ -1,5 +1,5 @@
 ---
-title: "Module Management"
+title: "Module Management and Extension"
 author: "Elham Ebrahimi"
 description: "This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report."
 output: rmarkdown::html_vignette
@@ -123,11 +123,16 @@ You can change `before = "richness"` to another section name if you want the new
 ### 4. Install module dependencies
 
 The module registry is registered automatically when `add_Module()` is called.
-`install_all()` then scans the `#| packages:` options of all bundled and
-user-managed modules and delegates installation to `pak`.
+`install_all()` scans the `#| packages:` options of all bundled modules and all
+registered user-managed module directories. It installs only dependencies that
+are not already available. Because installation is delegated to `pak`, `pak`
+must be installed before `install_all()` is called.
 
 ```{r install-module-dependencies, eval=FALSE}
-# Discover and install all dependencies declared by all modules
+# Install pak once if it is not already available
+install.packages("pak")
+
+# Discover and install missing dependencies declared by the modules
 install_all()
 ```
 

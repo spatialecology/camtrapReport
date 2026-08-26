@@ -66,8 +66,7 @@ Experience across these heterogeneous datasets has informed checks for metadata 
 
 ## Installation
 
-`camtrapReport` requires R 4.1.0 or later. Install it from GitHub with
-[`pak`](https://pak.r-lib.org/):
+Install `camtrapReport` from GitHub:
 
 ```{r installation, eval=FALSE}
 if (!requireNamespace("pak", quietly = TRUE)) {
@@ -75,17 +74,21 @@ if (!requireNamespace("pak", quietly = TRUE)) {
 }
 
 pak::pak("spatialecology/camtrapReport")
+library(camtrapReport)
 ```
 
-If you add or update report modules, check their dependencies with:
+## Install optional module dependencies
+
+`camtrapReport` keeps packages required by individual report modules optional.
+To enable all modules, `install_all()` automatically discovers and installs
+their missing dependencies:
 
 ```{r module-dependencies, eval=FALSE}
 camtrapReport::install_all()
 ```
 
-`install_all()` scans the bundled and registered user modules and installs only
-missing optional dependencies. It does not update packages that are already
-installed.
+Dependencies that are already installed are retained. The function also scans
+dependencies declared by registered user-defined modules.
 
 ## Quick start
 
