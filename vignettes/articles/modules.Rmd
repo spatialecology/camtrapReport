@@ -4,7 +4,7 @@ author: "Elham Ebrahimi"
 description: "This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Module Management}
+  %\VignetteIndexEntry{Module Management and Extension}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
