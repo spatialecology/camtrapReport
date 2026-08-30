@@ -163,7 +163,7 @@ directory. Habitat data and a study-area boundary are optional.
 ```{r generate-data-status, message=FALSE, warning=FALSE, results='hide'}
 status_file <- status(
   cm,
-  view = FALSE
+  view = TRUE
 )
 ```
 
@@ -180,7 +180,7 @@ stopifnot(
 ```{r generate-ecological-report, message=FALSE, warning=FALSE, results='hide'}
 report_file <- report(
   cm,
-  view = FALSE
+  view = TRUE
 )
 ```
 

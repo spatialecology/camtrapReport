@@ -168,7 +168,7 @@ optional.
 ``` r
 status_file <- status(
   cm,
-  view = FALSE
+  view = TRUE
 )
 ```
 
@@ -177,7 +177,7 @@ status_file <- status(
 ``` r
 report_file <- report(
   cm,
-  view = FALSE
+  view = TRUE
 )
 ```
 
