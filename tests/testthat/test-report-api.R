@@ -73,7 +73,8 @@ test_that("a minimal ecological report renders without optional packages", {
   output_stem <- tempfile("camtrapReport-report-")
   on.exit(
     unlink(
-      c(paste0(output_stem, ".html"), paste0(output_stem, ".Rmd")),
+      paste0(output_stem, c(".Rmd", ".html")),
+      recursive = TRUE,
       force = TRUE
     ),
     add = TRUE
@@ -88,7 +89,7 @@ test_that("a minimal ecological report renders without optional packages", {
   expect_true(any(grepl("Observations in the test dataset", rmd, fixed = TRUE)))
 })
 
-test_that("a minimal data-status report renders from the bundled toy dataset", {
+test_that("a minimal data-status report renders from the Leuven subset", {
   skip_if_not(rmarkdown::pandoc_available())
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
@@ -106,7 +107,8 @@ test_that("a minimal data-status report renders from the bundled toy dataset", {
   output_stem <- tempfile("camtrapReport-status-")
   on.exit(
     unlink(
-      c(paste0(output_stem, ".html"), paste0(output_stem, ".Rmd")),
+      paste0(output_stem, c(".Rmd", ".html")),
+      recursive = TRUE,
       force = TRUE
     ),
     add = TRUE

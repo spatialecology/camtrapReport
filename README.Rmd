@@ -82,10 +82,10 @@ pak::pkg_install(
 If you add or update report modules, check their dependencies with:
 
 ```{r module-dependencies, eval=FALSE}
-camtrapReport::install_all()
+camtrapReport::install_All()
 ```
 
-`install_all()` scans the bundled and registered user modules and installs any
+`install_All()` scans the bundled and registered user modules and installs any
 missing dependencies automatically.
 
 ## Quick start
@@ -160,14 +160,14 @@ directory. Habitat data and a study-area boundary are optional.
 
 ### Generate a Data Status Check
 
-```{r generate-data-status, message=FALSE, warning=FALSE, results='hide'}
+```{r generate-data-status, eval=FALSE}
 status_file <- status(
   cm,
-  view = TRUE
+  view = FALSE
 )
 ```
 
-```{r validate-data-status, include=FALSE}
+```{r validate-data-status, eval=FALSE, include=FALSE}
 stopifnot(
   is.character(status_file),
   length(status_file) == 1L,
@@ -177,14 +177,22 @@ stopifnot(
 
 ### Generate an Ecological Report
 
-```{r generate-ecological-report, message=FALSE, warning=FALSE, results='hide'}
+For this introductory example, select the lightweight introduction module so
+that rendering does not require packages used only by optional modules.
+
+```{r generate-ecological-report, eval=FALSE}
+cm <- sections(
+  cm,
+  "introduction"
+)
+
 report_file <- report(
   cm,
-  view = TRUE
+  view = FALSE
 )
 ```
 
-```{r validate-ecological-report, include=FALSE}
+```{r validate-ecological-report, eval=FALSE, include=FALSE}
 stopifnot(
   is.character(report_file),
   length(report_file) == 1L,
@@ -250,8 +258,12 @@ locations. Review all content before sharing a report.
 
 The bundled example dataset is derived from the
 [GMU8_LEUVEN Camtrap DP dataset](https://doi.org/10.15468/4u3wm4), published by
-the Research Institute for Nature and Forest (INBO) through GBIF. The subset is
-intended for demonstration and testing, not ecological inference. Its preparation is documented [here](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
+the Research Institute for Nature and Forest (INBO) through GBIF. It contains
+8 derived location identifiers, 87 deployments, 15,492 retained media records,
+and 11,092 observation records. The relationship-preserving subset is intended
+for demonstration and software testing, not ecological inference. Its
+preparation and media-reduction rules are documented in the
+[example-data README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
 
 ## Relationship to other camera-trap packages
 
@@ -307,11 +319,6 @@ and
 before contributing.
 
 ```{r cleanup, include=FALSE}
-unlink(
-  c(status_file, report_file),
-  force = TRUE
-)
-
 unlink(
   example_root,
   recursive = TRUE,

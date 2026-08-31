@@ -47,12 +47,20 @@ sections without changing the object.
 available_sections <- section_names()
 head(available_sections)
 
+\donttest{
 # Load the packaged example dataset
-example_dataset <- system.file(
+source_dataset <- system.file(
   "external",
   "dataset",
   package = "camtrapReport"
 )
+example_dataset <- tempfile("camtrapReport-example-")
+dir.create(example_dataset)
+invisible(file.copy(
+  list.files(source_dataset, full.names = TRUE),
+  example_dataset,
+  recursive = TRUE
+))
 
 cm <- camData(example_dataset)
 
@@ -66,14 +74,17 @@ cm <- sections(cm, selected_sections)
 
 # Show the selected section names
 selected_sections
+
+unlink(example_dataset, recursive = TRUE, force = TRUE)
+}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}},
 \code{\link[=listReportSections]{listReportSections()}}
 
-Other report sections:
+Other report sections: 
 \code{\link{reportSection,character-method}},
 \code{\link{testSection,.textSection-method}},
-\code{\link[=updateReportSection]{updateReportSection()}}
+\code{\link{updateReportSection}()}
 }
 \concept{report sections}

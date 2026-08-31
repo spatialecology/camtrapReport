@@ -1,22 +1,14 @@
-test_that(
-  paste0(
-    "report-section matching supports names, titles, ",
-    "and informative errors"
-  ),
-  {
+test_that("report-section matching supports names, titles, and informative errors", {
   catalog <- data.frame(
     name = c("intro", "sampling", "sampling_effort"),
     title = c("Introduction", "Sampling", "Sampling effort"),
     path = c("intro", "methods / sampling", "methods / sampling_effort"),
     stringsAsFactors = FALSE
   )
-  match_section <- ct_internal(".matchReportSection")
+  match_section <- camtrapReport:::.matchReportSection
 
   expect_identical(match_section(catalog, "INTRO")$name, "intro")
-  expect_identical(
-    match_section(catalog, "Introduction", by = "title")$name,
-    "intro"
-  )
+  expect_identical(match_section(catalog, "Introduction", by = "title")$name, "intro")
   expect_identical(
     suppressWarnings(match_section(catalog, "effort", by = "name"))$name,
     "sampling_effort"
@@ -26,24 +18,13 @@ test_that(
     "intro"
   )
   expect_error(match_section(catalog, ""), "empty")
-  expect_error(
-    suppressWarnings(match_section(catalog, "unknown")),
-    "No report section"
-  )
-  expect_error(
-    suppressWarnings(match_section(catalog, "amp", by = "title")),
-    "More than one"
-  )
+  expect_error(suppressWarnings(match_section(catalog, "unknown")), "No report section")
+  expect_error(suppressWarnings(match_section(catalog, "amp", by = "title")), "More than one")
 })
 
-test_that(
-  paste0(
-    "code and chunk settings are captured without ",
-    "evaluation side effects"
-  ),
-  {
-  capture_code <- ct_internal(".capture_code_text")
-  capture_setting <- ct_internal(".capture_setting_text")
+test_that("code and chunk settings are captured without evaluation side effects", {
+  capture_code <- camtrapReport:::.capture_code_text
+  capture_setting <- camtrapReport:::.capture_setting_text
   env <- list2env(list(code_value = c("x <- 1", "x + 1")), parent = baseenv())
 
   expect_match(capture_code(quote({x <- 1; x + 1})), "x <- 1", fixed = TRUE)
@@ -63,7 +44,7 @@ test_that(
 })
 
 test_that("section chunks can be created, patched, appended, and selected", {
-  patch_section <- ct_internal(".update_section_chunk")
+  patch_section <- camtrapReport:::.update_section_chunk
   section <- reportSection("analysis", txt = "Analysis text")
 
   unchanged <- patch_section(
@@ -105,7 +86,7 @@ test_that("section chunks can be created, patched, appended, and selected", {
     code_setting_missing = TRUE,
     packages_missing = TRUE
   )
-  expect_type(multiple@Rchunk, "list")
+  expect_true(is.list(multiple@Rchunk))
   expect_named(multiple@Rchunk, c("first", "second"))
 
   expect_error(
@@ -185,8 +166,5 @@ test_that("updateReportSection updates title, text, code, and packages", {
   expect_error(updateReportSection(updated, section = 1), "single character")
   empty <- camR$new()
   empty$reportObjects <- list()
-  expect_error(
-    updateReportSection(empty, "missing", text = "x"),
-    "No report sections"
-  )
+  expect_error(updateReportSection(empty, "missing", text = "x"), "No report sections")
 })

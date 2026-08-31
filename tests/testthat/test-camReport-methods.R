@@ -16,12 +16,7 @@ exercise_report_object_tree <- function(cm, status = FALSE) {
   cm[[field]] <- list()
   root <- reportSection("root", "Root", txt = "root")
   child <- reportSection("child", "Child", parent = "root", txt = "child")
-  grandchild <- reportSection(
-    "grandchild",
-    "Grandchild",
-    parent = "child",
-    txt = "grandchild"
-  )
+  grandchild <- reportSection("grandchild", "Grandchild", parent = "child", txt = "grandchild")
 
   add(root)
   add(make_test_chunk("root_chunk_1", "root"))
@@ -45,7 +40,7 @@ test_that("camReport stores nested ecological report sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = FALSE)
 
   expect_named(tree, "root")
-  expect_type(tree$root, "list")
+  expect_true(is.list(tree$root))
   expect_true("child" %in% names(tree$root))
 })
 
@@ -54,7 +49,7 @@ test_that("camReport stores nested data-status sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = TRUE)
 
   expect_named(tree, "root")
-  expect_type(tree$root, "list")
+  expect_true(is.list(tree$root))
   expect_true("child" %in% names(tree$root))
 })
 
@@ -66,31 +61,21 @@ test_that("camReport grouping and counters behave consistently", {
   expect_error(cm$add_group("bad", list(family = "Canidae")), "only items")
 
   cm$add_group("test_group", list(scientificName = scientific_names[1]))
-  expect_identical(
-    cm$get_group("test_group")$scientificName,
-    scientific_names[1]
-  )
+  expect_identical(cm$get_group("test_group")$scientificName, scientific_names[1])
   expect_error(cm$set_focus_group("unknown_group"), "not defined")
 
   available_group <- setdiff(names(cm$species_summary), "count")[[1]]
   cm$set_focus_group(available_group)
   group_species <- cm$get_speciesNames(available_group)
   available_groups <- setdiff(names(cm$species_summary), "count")
-  multiple_groups <- available_groups[
-    seq_len(min(2L, length(available_groups)))
-  ]
+  multiple_groups <- available_groups[seq_len(min(2L, length(available_groups)))]
 
   expect_identical(cm$setting$focus_groups, available_group)
   expect_gt(length(group_species), 0L)
   expect_gt(length(cm$get_speciesNames(multiple_groups)), 0L)
-  expect_true(
-    all(
-      cm$get_focus_group(group_species[1]) %in%
-        names(cm$species_summary)
-    )
-  )
-  expect_named(
-    cm$get_focus_group(group_species[seq_len(min(2L, length(group_species)))]),
+  expect_true(all(cm$get_focus_group(group_species[1]) %in% names(cm$species_summary)))
+  expect_identical(
+    names(cm$get_focus_group(group_species[seq_len(min(2L, length(group_species)))])),
     group_species[seq_len(min(2L, length(group_species)))]
   )
   expect_error(cm$get_speciesNames(123), "group is unknown")
@@ -108,7 +93,7 @@ test_that("camReport grouping and counters behave consistently", {
   expect_identical(empty$setting$focus_groups, "defined_group")
 })
 
-test_that("camReport ecological summaries work on the bundled toy dataset", {
+test_that("camReport ecological summaries work on the Leuven subset", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   year <- cm$years[[1]]
   species <- cm$get_speciesNames(all = TRUE)
@@ -135,12 +120,7 @@ test_that("camReport ecological summaries work on the bundled toy dataset", {
   expect_s3_class(total_richness, "data.frame")
   expect_true("Richness" %in% names(total_richness))
   expect_true("year" %in% names(annual_richness))
-  expect_true(
-    all(
-      c("scientificName", "total_observations") %in%
-        names(by_location)
-    )
-  )
+  expect_true(all(c("scientificName", "total_observations") %in% names(by_location)))
   expect_true(is.null(pa_correlation) || is.matrix(pa_correlation))
   expect_true(is.null(count_correlation) || is.matrix(count_correlation))
   expect_error(cm$richness(year = 1900), "No records")
@@ -154,14 +134,7 @@ test_that("camReport extraction, filtering, and show methods are callable", {
   subset <- cm$get_data_subset(year)
   expect_named(
     subset,
-    c(
-      "deployments",
-      "media",
-      "observations",
-      "locations",
-      "taxonomy",
-      "sequences"
-    )
+    c("deployments", "media", "observations", "locations", "taxonomy", "sequences")
   )
   expect_true(all(subset$deployments$Year == year))
   expect_identical(cm$extractYears(update = TRUE), sort(cm$years))

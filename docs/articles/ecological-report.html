@@ -6,11 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Ecological Report • camtrapReport</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
-<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="icon" sizes="any" href="../favicon.ico">
-<link rel="manifest" href="../site.webmanifest">
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -19,7 +20,6 @@
 <meta property="og:title" content="Ecological Report">
 <meta name="description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
 <meta property="og:description" content="A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.46</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,25 +43,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
-<li><a class="dropdown-item" href="../authors.html">Authors</a></li>
-    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
-    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
-    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
-    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
-  </ul>
-</li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -85,7 +75,8 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Ecological Report</h1>
+
+      <h1>Ecological Report</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -120,7 +111,7 @@ p.caption {
 }
 </style>
 <div class="figure" style="text-align: center">
-<img src="figures/ecological-report/ecological-report-workflow.png" class="r-plt" alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
+<img src="figures%2Fecological-report%2Fecological-report-workflow.png" alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
 Figure 1. Workflow for generating an Ecological Report from camera-trap
 data using camtrapReport.
 </p>
@@ -135,73 +126,24 @@ Ecological Report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Copy the bundled example dataset to a writable temporary directory</span></span>
-<span><span class="va">example_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">example_root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">example_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"external"</span>,</span>
-<span>  <span class="st">"dataset"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">copied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span></span>
-<span>  from <span class="op">=</span> <span class="va">example_source</span>,</span>
-<span>  to <span class="op">=</span> <span class="va">example_root</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  copy.mode <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>    <span class="st">"external"</span>,</span>
-<span>    <span class="st">"habitat"</span>,</span>
-<span>    <span class="st">"habitat.csv"</span>,</span>
-<span>    package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>    mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"external"</span>,</span>
-<span>  <span class="st">"study_area"</span>,</span>
-<span>  <span class="st">"study_area.shp"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
-<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">copied</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load the example camera-trap data and optional spatial inputs</span></span>
-<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span>,</span>
-<span>  habitat <span class="op">=</span> <span class="va">habitat</span>,</span>
-<span>  study_area <span class="op">=</span> <span class="va">study_area</span>,</span>
-<span>  update <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
+<span><span class="co"># Load camera-trap data</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="st">"cameratrap.zip"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the Ecological Report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/report.html">report()</a></code> invisibly returns the path to the generated
-HTML file. By default, <code>report.html</code> and the intermediate
-<code>report.Rmd</code> file are written to the R session’s temporary
-directory. A specific file stem or a path inside an existing output
-directory can be supplied through <code>filename</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span></span>
-<span>  <span class="st">"reports"</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  showWarnings <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span><span class="va">output_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Replace with an existing project output directory</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"ecological_report_2026"</span><span class="op">)</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="st">"ecological_report"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/report.html">report()</a></code> invisibly returns the path to the generated
+HTML file. Supply a specific file stem or existing output directory
+through <code>filename</code>. The examples use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code>
+to avoid writing to the working directory:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"ecological_report_2026"</span><span class="op">)</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>An existing output with the same name may be replaced. Use explicit,
@@ -415,7 +357,7 @@ the workflow described above.</p>
 
 </style>
 <div class="eco-gallery">
-<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/leuven.png" alt="Preview of the Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fecological-report%2Fgallery%2Fleuven.png" alt="Preview of the Leuven Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Leuven
 </div>
@@ -425,7 +367,7 @@ Belgium
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/antwerp-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/antwerp.png" alt="Preview of the Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/antwerp-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fecological-report%2Fgallery%2Fantwerp.png" alt="Preview of the Antwerp Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Antwerp
 </div>
@@ -435,7 +377,7 @@ Belgium
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/mica.png" alt="Preview of the MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fecological-report%2Fgallery%2Fmica.png" alt="Preview of the MICA Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 MICA Monitoring Project
 </div>
@@ -445,7 +387,7 @@ Europe
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/luxembourg-gallery.png" alt="Preview of the Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fecological-report%2Fgallery%2Fluxembourg-gallery.png" alt="Preview of the Luxembourg Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Lux National Monitoring
 </div>
@@ -455,7 +397,7 @@ Luxembourg
 <span class="eco-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures/ecological-report/gallery/amsterdam-gallery.png" alt="Preview of the Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
+<a class="eco-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-ecological-report.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fecological-report%2Fgallery%2Famsterdam-gallery.png" alt="Preview of the Amsterdam Water Supply Dunes Ecological Report" loading="lazy" decoding="async"><div class="eco-card-overlay">
 <div class="eco-card-title">
 Amsterdam Water Supply Dunes
 </div>
@@ -520,9 +462,9 @@ following steps:</p>
 <p>The Ecological Report can be generated for a selected group of
 species, referred to as the <code>focus_group</code>. This allows users
 to focus the report on a particular taxonomic or ecological group, such
-as <code>large_mammals</code>, <code>wild_animals</code>,
-<code>birds</code>, <code>amphibians</code>, <code>domestic</code>,
-<code>human_observation</code>, or a custom-defined group.</p>
+as <code>large_mammals</code>, <code>wild_mammals</code>,
+<code>wild_animals</code>, <code>birds</code>, <code>amphibians</code>,
+<code>domestic</code>, or a custom-defined group.</p>
 <p>Users can also define a new group by assigning records based on one
 or more fields, including <code>scientificName</code>,
 <code>class</code>, <code>order</code>, and
@@ -542,6 +484,7 @@ or more fields, including <code>scientificName</code>,
 <span></span>
 <span><span class="co"># Inspect the rules used to define existing groups</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"large_mammals"</span><span class="op">)</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"wild_mammals"</span><span class="op">)</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"wild_animals"</span><span class="op">)</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"birds"</span><span class="op">)</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">get_group</span><span class="op">(</span><span class="st">"amphibians"</span><span class="op">)</span></span></code></pre></div>
@@ -600,7 +543,11 @@ the report.</p>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">filterCount</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span></span>
 <span><span class="co"># Generate the report using the selected years and filter settings</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"selected_years_report"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="selecting-which-sections-are-included">Selecting which sections are included<a class="anchor" aria-label="anchor" href="#selecting-which-sections-are-included"></a>
@@ -638,16 +585,14 @@ analyses are not relevant for a particular dataset.</p>
 <span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected_sections</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the customised report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"selected_sections_report"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore all available sections</span></span>
 <span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, n <span class="op">=</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>A generated report summarises the implemented checks and selected
-analyses. It does not establish that the survey design is suitable for a
-particular ecological question or that the data satisfy all assumptions
-of the selected methods. Outputs should be interpreted in relation to
-sampling effort, detectability, season, habitat, and method-specific
-assumptions.</p>
 <p>Together, these options allow users to generate Ecological Reports
 that are reproducible, flexible, and tailored to the aims of each
 camera-trap monitoring project.</p>
@@ -664,7 +609,7 @@ camera-trap monitoring project.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

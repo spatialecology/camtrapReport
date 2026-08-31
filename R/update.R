@@ -62,7 +62,7 @@
   
   contains <- function(x, y) {
     if (ignore.case) {
-      grepl(tolower(y), tolower(x), fixed = TRUE)
+      grepl(y, x, ignore.case = TRUE, fixed = TRUE)
     } else {
       grepl(y, x, fixed = TRUE)
     }
@@ -110,9 +110,10 @@
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
     lines <- vapply(
       as.list(expr)[-1],
-      deparse1,
-      character(1),
-      collapse = "\n"
+      function(e) {
+        paste(deparse(e), collapse = "\n")
+      },
+      character(1)
     )
     return(paste(lines, collapse = "\n"))
   }
@@ -125,7 +126,7 @@
   }
   
   # fallback: deparse expression
-  deparse1(expr, collapse = "\n")
+  paste(deparse(expr), collapse = "\n")
 }
 
 #--------
@@ -135,11 +136,7 @@
   if (is.null(expr)) return(NULL)
   
   # setting passed as { c(...) }
-  if (
-    is.call(expr) &&
-      identical(expr[[1]], as.name("{")) &&
-      length(expr) == 2L
-  ) {
+  if (is.call(expr) && identical(expr[[1]], as.name("{")) && length(expr) == 2L) {
     expr <- expr[[2]]
   }
   
@@ -162,9 +159,9 @@
           SIMPLIFY = TRUE,
           USE.NAMES = FALSE
         )
-        return(toString(parts))
+        return(paste(parts, collapse = ", "))
       } else {
-        return(toString(as.character(val)))
+        return(paste(as.character(val), collapse = ", "))
       }
     }
     
@@ -176,11 +173,11 @@
         SIMPLIFY = TRUE,
         USE.NAMES = FALSE
       )
-      return(toString(parts))
+      return(paste(parts, collapse = ", "))
     }
   }
   
-  deparse1(expr, collapse = "")
+  paste(deparse(expr), collapse = "")
 }
 
 #--------
@@ -212,11 +209,7 @@
                                   packages = NULL,
                                   append_code = FALSE) {
   
-  wants_chunk_update <- (
-    !code_missing ||
-      !code_setting_missing ||
-      !packages_missing
-  )
+  wants_chunk_update <- (!code_missing) || (!code_setting_missing) || (!packages_missing)
   
   if (!wants_chunk_update) {
     return(sec)
@@ -372,20 +365,19 @@ setGeneric(
     append_text,
     append_code
   ) {
-    standardGeneric("updateReportSection")
+    methods::standardGeneric("updateReportSection")
   }
 )
 
 #' Update report sections
 #'
 #' Update the content of a report section in a
-#' [`camReport`][camReport-classes] object, or list the report
-#' sections currently attached to the object.
+#' [`camReport`][camReport-classes] object, or list the report sections currently
+#' attached to the object.
 #'
 #' Report sections can be identified using either their name or title.
-#' `listReportSections()` lists the sections attached to a
-#' `camReport` object and can be used to find the exact section names
-#' before updating them.
+#' `listReportSections()` lists the sections attached to a `camReport` object and
+#' can be used to find the exact section names before updating them.
 #'
 #' `updateReportSection()` is useful for adapting the default report content to
 #' project-specific needs, including changing section titles, replacing or
@@ -436,16 +428,22 @@ setGeneric(
 #'
 #' listReportSections(x)
 #' @name updateReportSection
-#' @aliases updateReportSection listReportSections
-#' @aliases updateReportSection,camReport-method
-#' @aliases listReportSections,camReport-method
+#' @aliases updateReportSection listReportSections updateReportSection,camReport-method listReportSections,camReport-method
 #'
 #' @examples
-#' example_dataset <- system.file(
+#' \donttest{
+#' source_dataset <- system.file(
 #'   "external",
 #'   "dataset",
 #'   package = "camtrapReport"
 #' )
+#' example_dataset <- tempfile("camtrapReport-example-")
+#' dir.create(example_dataset)
+#' invisible(file.copy(
+#'   list.files(source_dataset, full.names = TRUE),
+#'   example_dataset,
+#'   recursive = TRUE
+#' ))
 #'
 #' cm <- camData(example_dataset)
 #'
@@ -453,25 +451,27 @@ setGeneric(
 #' section_catalog <- listReportSections(cm)
 #' head(section_catalog)
 #'
-#' # Update the methods section
+#' # Update the introduction
 #' cm <- updateReportSection(
 #'   cm,
-#'   section = "methods",
-#'   title = "Project methods",
+#'   section = "introduction",
+#'   title = "Project introduction",
 #'   text = paste(
-#'     "This section describes camera-trap monitoring",
-#'     "methods for the example study site."
+#'     "This report summarises camera-trap monitoring",
+#'     "data for the example study site."
 #'   )
 #' )
 #'
 #' # Confirm the updated section title
 #' updated_catalog <- listReportSections(cm)
 #' updated_catalog[
-#'   updated_catalog$name == "methods",
+#'   updated_catalog$name == "introduction",
 #'   c("name", "title"),
 #'   drop = FALSE
 #' ]
-
+#'
+#' unlink(example_dataset, recursive = TRUE, force = TRUE)
+#' }
 setMethod("updateReportSection",signature(x = "camReport"),
   function(x, section, text, title, code, code_name,
            code_setting, packages, append_text, append_code) {
@@ -510,10 +510,7 @@ setMethod("updateReportSection",signature(x = "camReport"),
     if (missing(append_text)) append_text <- FALSE
     
     if (missing(section) || !is.character(section) || length(section) != 1L) {
-      stop(
-        "'section' should be a single character string, ",
-        "either a section name or title."
-      )
+      stop("'section' should be a single character string, either a section name or title.")
     }
     
     catalog <- .reportSection_catalog(x$reportObjects)
@@ -536,10 +533,7 @@ setMethod("updateReportSection",signature(x = "camReport"),
     }
     
     if (!code_setting_missing) {
-      code_setting <- .capture_setting_text(
-        code_setting_expr,
-        env = parent.frame()
-      )
+      code_setting <- .capture_setting_text(code_setting_expr, env = parent.frame())
     }
     
     updater <- function(sec) {

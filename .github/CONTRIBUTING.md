@@ -1,7 +1,7 @@
 # Contributing to camtrapReport
 
 Thank you for your interest in contributing to `camtrapReport`.
-Bug reports, feature suggestions, documentation improvements, and new
+Bug reports, feature suggestions, documentation improvements and new
 report modules are all welcome.
 
 ## Reporting problems
@@ -16,14 +16,12 @@ To help us investigate the problem, please include:
 - a minimal reproducible example;
 - the output of `sessionInfo()`;
 - a small synthetic or openly shareable Camtrap DP dataset, where possible.
-
-If sharing a dataset is not possible because of data privacy, confidentiality,
-or sensitivity concerns, please contact the maintainer
-[by email](mailto:eebrahimi.bio@gmail.com) to discuss an appropriate
-alternative for reproducing the issue.
+If this is not possible because of data privacy, confidentiality or sensitivity
+concerns, please contact the maintainer [by email](mailto:eebrahimi.bio@gmail.com)
+to discuss an appropriate alternative for reproducing the issue.
 
 Please do not upload confidential camera-trap data, sensitive species
-locations, restricted images, personal information, or other protected
+locations, restricted images, personal information or other protected
 material to a public GitHub issue.
 
 ## Suggesting features
@@ -39,9 +37,7 @@ Before submitting a pull request, please:
 1. Keep the proposed change focused.
 2. Add or update tests when behaviour changes.
 3. Update the roxygen2 documentation when needed.
-4. Add a short entry to
-   [`NEWS.md`](https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md)
-   for user-facing changes.
+4. Add a short entry to [`NEWS.md`](../NEWS.md) for user-facing changes.
 5. Run:
 
 ```r
@@ -52,66 +48,66 @@ devtools::check()
 
 Please make sure that all checks pass before submitting the pull request.
 
+## Architecture and report-module execution
+
+The central `camReport` object is implemented as a Reference Class. This is an
+intentional design choice because report generation is stateful: the same object
+stores imported data, metadata, settings, selected sections, intermediate
+analytical results, and report configuration as the workflow progresses. It also
+avoids repeatedly copying potentially large camera-trap datasets. Changes to
+this class can affect the whole workflow, so discuss proposed class or public-API
+changes in an issue before implementing them.
+
+Report modules are YAML files that can store R code as text. The internal
+`.eval()` helper is the bridge between that representation and execution: it
+parses module code and evaluates it in the explicit environment supplied by the
+caller. This keeps package requirements module-specific and allows modules to be
+extended without hard-coding every analytical package in the core functions.
+Do not replace this mechanism casually, and never evaluate modules from an
+untrusted source.
+
+During rendering, `.make_render_env()` constructs the module environment. It
+exposes the central object under the historical names used by bundled modules,
+copies the required object fields and formatting helpers, and keeps assignments
+made by a module outside the user's global environment. New module code should
+use only the data and helpers it needs, qualify package calls where practical,
+and declare all required packages in the YAML metadata.
+
+Internal utilities are split by responsibility: rendering and module execution
+helpers are in `R/utils-render.R`, taxonomy helpers are in
+`R/utils-taxonomy.R`, spatial and correlation-plot helpers are in
+`R/utils-spatial.R`, and general string, date, file, and formatting helpers
+remain in `R/utils.R`.
+
+## Dependency policy
+
+Core dependencies in `Imports` are required for data input, object setup, the
+interactive interface, or report rendering. Both `data.table` and `dplyr` are
+used deliberately: the former supports keyed sequence aggregation and efficient
+table operations, while the latter provides the joins and column transformations
+used throughout the data-preparation and summary workflow.
+
+Packages needed only for particular analytical or visual report sections should
+remain optional and must be declared in that module's YAML `packages` field.
+`install_All()` discovers those declarations from all currently available YAML
+modules, including modules added or modified by users, and passes the resulting
+references to `pak`. It is an explicit opt-in operation and is never called at
+package load or report-render time. When adding or changing a module dependency,
+update its documentation and tests, and verify that a missing optional package
+produces a clear message rather than breaking unrelated sections.
+
 ## Coding conventions
 
 Please follow the structure and coding style already used in the package.
 Large formatting changes should be kept separate from functional changes
 so that contributions are easier to review.
 
-New public functions should use `snake_case`. Some existing public functions
-retain older names for backward compatibility; do not rename them without a
-documented deprecation plan and replacement aliases.
-
-## Dependencies and testing
-
-The package deliberately uses both `data.table` and `dplyr` for different
-parts of the workflow. `data.table::fread()` provides efficient input of
-Camtrap DP tables, while `dplyr` is used for data transformation, grouping,
-and joins. `tidyr` is an optional dependency used only by report modules that
-need data reshaping, including species-accumulation output.
-
-Other packages in `Suggests` support optional functionality such as report
-rendering, the graphical interface, figures, maps, tables, specialised
-ecological analyses, spatial and solar-time operations, and taxonomic
-enrichment. They should be loaded only when the corresponding functionality
-is requested. New optional modules should declare their packages in module
-metadata and fail with a clear installation message when a package is absent.
-
-The standard test suite does not require API tokens. Tests should use bundled
-or synthetic fixtures, temporary files managed with `withr`, and mocked or
-otherwise isolated network behaviour. Never commit credentials, private
-camera-trap data, sensitive species locations, or other restricted material.
-
-## Package architecture
-
-The central `camReport` object is implemented using an R Reference Class.
-This is an intentional design choice because report generation is a stateful
-workflow: the same object stores the imported camera-trap data, metadata,
-settings, intermediate analytical results, and report configuration as the
-workflow progresses.
-
-Reference semantics allow these components to remain associated with the same
-`camReport` object while users modify settings, select analyses, update report
-sections, and generate outputs. This avoids requiring each operation to rebuild
-and return a new report object.
-
-Contributors adding functionality to the `camReport` object should therefore
-preserve this stateful workflow and avoid changes to the class architecture
-unless there is a clear reason to do so.
-
-### Module rendering environment
-
-Report-module code is evaluated in an environment created by the internal
-`.make_render_env()` helper. This environment provides access to the current
-`camReport` object, selected object fields, report-numbering functions, and
-internal helpers required by report modules.
-
-This gives modules a consistent execution context during report generation.
-Contributors developing new modules should normally use the objects and helpers
-made available through this environment rather than modifying the rendering
-environment itself.
+Some exported function names use camel case or underscores because they are part
+of the established public API. Keep those names for backward compatibility.
+Use clear, consistent names for new internal helpers and avoid renaming existing
+functions as part of an unrelated change.
 
 ## Code of Conduct
 
 Participation in this project is governed by the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)

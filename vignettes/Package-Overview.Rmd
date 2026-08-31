@@ -37,6 +37,17 @@ Optional supporting data can also be provided. These include habitat
 information and a study-area boundary, which can be used in relevant
 summaries, maps, and ecological analyses.
 
+### Bundled example data
+
+The package includes a relationship-preserving subset of the GMU8_LEUVEN
+Camtrap DP dataset for examples, demonstrations, and automated tests. It
+contains eight derived camera locations, 87 deployments, 15,492 retained media
+records, and 11,092 observation records. Bundled habitat data and a derived
+study-area boundary provide optional inputs for exercising those parts of the
+workflow. The subset is a software fixture and should not be used for
+ecological inference; its provenance and transformations are documented in
+`inst/external/README-Leuven-dataset.md` in the source repository.
+
 ## Key outputs
 
 ### Data Status Check
@@ -73,10 +84,11 @@ and analytical settings. Users can therefore adapt the report to the purpose
 and scope of a particular monitoring project.
 
 Both `status()` and `report()` create an HTML file together with the
-intermediate R Markdown file used to render it. By default, these files are
-written to the R session's temporary directory. Supply a file stem or an
-existing output directory through `filename` when the files should be retained
-at a specific location.
+intermediate R Markdown file used to render it. With their default relative
+filenames, these files are written beside the writable camera-trap data used to
+create the object. Supply an explicit file stem or an existing output directory
+through `filename` to control where the files are written. Package examples
+copy the bundled data and write generated reports to temporary directories.
 
 ## Working with the `camReport` object
 

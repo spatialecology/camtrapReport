@@ -6,11 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Module Management • camtrapReport</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
-<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="icon" sizes="any" href="../favicon.ico">
-<link rel="manifest" href="../site.webmanifest">
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -19,7 +20,6 @@
 <meta property="og:title" content="Module Management">
 <meta name="description" content="This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report.">
 <meta property="og:description" content="This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.46</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,25 +43,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
-<li><a class="dropdown-item" href="../authors.html">Authors</a></li>
-    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
-    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
-    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
-    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
-  </ul>
-</li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -85,7 +75,8 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Module Management</h1>
+
+      <h1>Module Management</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -108,6 +99,14 @@ ones, or changing the order in which sections appear.</p>
 <code>camtrapReport</code> using <code><a href="../reference/modules.html">add_Module()</a></code>. After the
 module has been added, it is useful to test it before generating the
 full report.</p>
+<p>The modular structure of <code>camtrapReport</code> allows users to
+extend the Ecological Report by defining new report sections,
+registering them as modules, selecting which modules should be included,
+and then generating the final report.</p>
+<p>Module YAML files can contain executable R code and run with the
+permissions of the current R process. Only register modules from trusted
+sources, and inspect their code, dependencies, network access, and file
+operations before running them.</p>
 <style>
 .figure .caption,
 figcaption,
@@ -119,7 +118,7 @@ p.caption {
 }
 </style>
 <div class="figure" style="text-align: center">
-<img src="figures/modular-design.png" class="r-plt" alt="Modular workflow for defining, registering, selecting, and running report modules in camtrapReport." width="85%"><p class="caption">
+<img src="figures%2Fmodular-design.png" alt="Modular workflow for defining, registering, selecting, and running report modules in camtrapReport." width="85%"><p class="caption">
 Figure 1. Modular workflow for defining, registering, selecting, and
 running report modules in <em>camtrapReport</em>.
 </p>
@@ -147,8 +146,8 @@ in the package.</p>
 <p>A module can be written as a YAML file. The example below defines a
 simple module called <code>species_table</code>, which adds a species
 summary table to the Ecological Report.</p>
-<p>Create a file called <code>species_table.yml</code> and save it in
-your working directory.</p>
+<p>Create a file called <code>species_table.yml</code> and save it in a
+directory you control.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> species_table</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Species summary table"</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">parent</span><span class="kw">:</span><span class="at"> </span><span class="st">"results"</span></span>
@@ -187,80 +186,55 @@ data, or machine-specific absolute paths in a module file.</p>
 <div class="section level3">
 <h3 id="add-the-new-module">3. Add the new module<a class="anchor" aria-label="anchor" href="#add-the-new-module"></a>
 </h3>
-<p>Module registries that are changed by users must be kept outside the
-installed package directory. Start by copying the bundled registry to a
-writable project directory, then add the new module to that copy. In
-this example, <code>species_table</code> is placed before the
+<p>After creating the YAML file, add the module using
+<code><a href="../reference/modules.html">add_Module()</a></code>. In this example, the new
+<code>species_table</code> module is placed before the
 <code>richness</code> section.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create a writable project-level module registry once</span></span>
-<span><span class="va">bundled_modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"reportSections"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">module_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"reportSections"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="va">module_dir</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">module_dir</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">bundled_modules</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    <span class="va">module_dir</span>,</span>
-<span>    recursive <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Add a new module from a YAML file</span></span>
-<span><span class="va">added</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/modules.html">add_Module</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="st">"species_table.yml"</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Add a new module from a YAML file</span></span>
+<span><span class="va">module_file</span> <span class="op">&lt;-</span> <span class="st">"/path/to/species_table.yml"</span></span>
+<span><span class="fu"><a href="../reference/modules.html">add_Module</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">module_file</span>,</span>
 <span>  before <span class="op">=</span> <span class="st">"richness"</span>,</span>
 <span>  test <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  object <span class="op">=</span> <span class="va">cm</span>,</span>
-<span>  dir <span class="op">=</span> <span class="va">module_dir</span></span>
+<span>  object <span class="op">=</span> <span class="va">cm</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check whether the module has been added</span></span>
-<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>You can change <code>before = "richness"</code> to another section
 name if you want the new module to appear elsewhere in the report.</p>
 </div>
 <div class="section level3">
-<h3 id="install-module-dependencies">4. Install module dependencies<a class="anchor" aria-label="anchor" href="#install-module-dependencies"></a>
+<h3 id="update-the-current-camreport-object">4. Update the current camReport object<a class="anchor" aria-label="anchor" href="#update-the-current-camreport-object"></a>
 </h3>
-<p>The module registry is registered automatically when
-<code><a href="../reference/modules.html">add_Module()</a></code> is called. <code><a href="../reference/install_all.html">install_all()</a></code> then
-scans the <code>#| packages:</code> options of all bundled and
-user-managed modules and delegates installation to <code>pak</code>.</p>
+<p>If the <code>camReport</code> object was already loaded before adding
+the module, run <code>setup()</code> again and update the report
+sections.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Discover and install all dependencies declared by all modules</span></span>
-<span><span class="fu"><a href="../reference/install_all.html">install_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>For a package that is available only from GitHub or another non-CRAN
-source, provide a named <code>pak</code> package reference. The name
-must match the package name declared in the module:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/install_all.html">install_all</a></span><span class="op">(</span></span>
-<span>  package_references <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>myPackage <span class="op">=</span> <span class="st">"owner/myPackage"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="add-the-module-to-the-current-camreport-object">5. Add the module to the current camReport object<a class="anchor" aria-label="anchor" href="#add-the-module-to-the-current-camreport-object"></a>
-</h3>
-<p>The object returned by <code><a href="../reference/modules.html">add_Module()</a></code> contains the parsed
-module. Attach it to the current report object and confirm that it
-appears in the report catalogue.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="fu">addReportObject</span><span class="op">(</span><span class="va">added</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Re-run setup after adding the new module</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get all available section names, including the new module</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply the updated section list to the camReport object</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check included sections</span></span>
 <span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="test-the-new-module">6. Test the new module<a class="anchor" aria-label="anchor" href="#test-the-new-module"></a>
+<h3 id="test-the-new-module">5. Test the new module<a class="anchor" aria-label="anchor" href="#test-the-new-module"></a>
 </h3>
 <p>Before generating the full report, test only the new module. This is
 useful for checking whether the YAML structure, text, and R code work
 correctly.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Test the new module only</span></span>
 <span><span class="fu"><a href="../reference/testSection.html">testSection</a></span><span class="op">(</span></span>
-<span>  <span class="va">added</span><span class="op">$</span><span class="va">module</span>,</span>
+<span>  <span class="va">cm</span><span class="op">$</span><span class="va">reportObjectElements</span><span class="op">$</span><span class="va">Modules</span><span class="op">$</span><span class="va">species_table</span>,</span>
 <span>  object <span class="op">=</span> <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -268,13 +242,17 @@ correctly.</p>
 the full report.</p>
 </div>
 <div class="section level3">
-<h3 id="generate-the-full-report">7. Generate the full report<a class="anchor" aria-label="anchor" href="#generate-the-full-report"></a>
+<h3 id="generate-the-full-report">6. Generate the full report<a class="anchor" aria-label="anchor" href="#generate-the-full-report"></a>
 </h3>
 <p>After testing, generate the full Ecological Report with the new
 module included.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate the full report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"report_with_new_module"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This workflow allows users to extend the Ecological Report with
 project-specific outputs, additional summaries, new figures, or custom
 interpretation sections.</p>
@@ -285,26 +263,21 @@ interpretation sections.</p>
 </h2>
 <p>Module changes can be inspected and reversed before anything is
 deleted permanently:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate active module definitions and inspect the hierarchy</span></span>
-<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>validate <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>validate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Move a module within the report hierarchy</span></span>
-<span><span class="fu"><a href="../reference/modules.html">move_Module</a></span><span class="op">(</span></span>
-<span>  <span class="st">"species_table"</span>,</span>
-<span>  after <span class="op">=</span> <span class="st">"captures"</span>,</span>
-<span>  parent <span class="op">=</span> <span class="st">"results"</span>,</span>
-<span>  dir <span class="op">=</span> <span class="va">module_dir</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/modules.html">move_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, after <span class="op">=</span> <span class="st">"captures"</span>, parent <span class="op">=</span> <span class="st">"results"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Move a module and its children to the module trash</span></span>
-<span><span class="fu"><a href="../reference/modules.html">remove_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/modules.html">remove_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Inspect active and deleted modules</span></span>
-<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>include_trash <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>include_trash <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore a removed module</span></span>
-<span><span class="fu"><a href="../reference/modules.html">restore_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, test <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/modules.html">restore_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/modules.html">empty_trash()</a></code> permanently deletes trashed module
 definitions and should only be used after confirming that the YAML files
 are backed up elsewhere. After any registry change, recreate or rerun
@@ -325,7 +298,7 @@ carefully as any manually written scientific analysis.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

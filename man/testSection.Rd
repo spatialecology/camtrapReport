@@ -25,15 +25,15 @@ the section text and code can be rendered successfully.
 }
 \details{
 This function is mainly used to test custom report sections before they are
-added to a full \code{\link[=camReport-classes]{camReport}} report.
-It checks whether the section text, R Markdown chunk settings,
-required packages, and R code can be rendered successfully.
+added to a full \code{\link[=camReport-classes]{camReport}} report. It checks whether the
+section text, R Markdown chunk settings, required packages, and R code can be
+rendered successfully.
 
 The \code{object} argument is only needed when the R code in the section refers to
 a \code{camReport} object.
 }
 \examples{
-\dontshow{if (rmarkdown::pandoc_available()) withAutoprint(\{ # examplesIf}
+\dontshow{if (rmarkdown::pandoc_available()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 tx <- reportSection(
   name = "introduction",
   title = "Introduction",
@@ -59,9 +59,9 @@ unlink(test_file)
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=report]{report()}}
 
-Other report sections:
+Other report sections: 
 \code{\link{reportSection,character-method}},
-\code{\link[=section_names]{section_names()}},
-\code{\link[=updateReportSection]{updateReportSection()}}
+\code{\link{section_names}()},
+\code{\link{updateReportSection}()}
 }
 \concept{report sections}

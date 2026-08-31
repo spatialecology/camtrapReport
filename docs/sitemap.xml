@@ -1,17 +1,17 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://spatialecology.github.io/camtrapReport/404.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/CONTRIBUTING.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/LICENSE-text.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/LICENSE.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/data-status-report.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/ecological-report.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/modules.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/articles/Package-Overview.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/articles/resources.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/authors.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/CODE_OF_CONDUCT.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/CONTRIBUTING.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/index.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/LICENSE-text.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/LICENSE.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/news/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/camData.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/camReport-classes.html</loc></url>
@@ -19,21 +19,12 @@
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/gui.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/index.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/info.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reference/install_all.html</loc></url>
+<url><loc>https://spatialecology.github.io/camtrapReport/reference/install_All.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/modules.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/report.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/reportSection.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/section_names.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/testSection.html</loc></url>
 <url><loc>https://spatialecology.github.io/camtrapReport/reference/updateReportSection.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/amsterdam-ecological-report.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/antwerp-ecological-report.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/leuven-ecological-report.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/luxembourg-ecological-report.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html</loc></url>
-<url><loc>https://spatialecology.github.io/camtrapReport/reports/mica-ecological-report.html</loc></url>
 </urlset>
 

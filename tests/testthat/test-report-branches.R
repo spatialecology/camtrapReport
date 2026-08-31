@@ -173,7 +173,7 @@ test_that("report falls back from a nonexistent requested directory", {
   )
   
   expected_output <- file.path(
-    tempdir(),
+    output_dir,
     "custom-report.html"
   )
   
@@ -228,7 +228,7 @@ test_that("status falls back from a nonexistent requested directory", {
   )
   
   expected_output <- file.path(
-    tempdir(),
+    output_dir,
     "custom-status.html"
   )
   
@@ -267,12 +267,11 @@ test_that("report sends the generated file to the configured viewer", {
     )
   )
   
-  viewer_state <- new.env(parent = emptyenv())
-  viewer_state$file <- NULL
+  viewed_file <- NULL
   
   old_options <- options(
     viewer = function(path) {
-      viewer_state$file <- path
+      viewed_file <<- path
     }
   )
   
@@ -292,7 +291,7 @@ test_that("report sends the generated file to the configured viewer", {
   )
   
   expect_identical(
-    normalise_test_path(viewer_state$file),
+    normalise_test_path(viewed_file),
     normalise_test_path(output)
   )
   
@@ -326,12 +325,11 @@ test_that("status sends the generated file to the configured viewer", {
     )
   )
   
-  viewer_state <- new.env(parent = emptyenv())
-  viewer_state$file <- NULL
+  viewed_file <- NULL
   
   old_options <- options(
     viewer = function(path) {
-      viewer_state$file <- path
+      viewed_file <<- path
     }
   )
   
@@ -350,7 +348,7 @@ test_that("status sends the generated file to the configured viewer", {
   )
   
   expect_identical(
-    normalise_test_path(viewer_state$file),
+    normalise_test_path(viewed_file),
     normalise_test_path(output)
   )
   

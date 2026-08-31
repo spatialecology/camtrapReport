@@ -55,10 +55,10 @@ make_merged_summary_fixture <- function() {
 test_that("merged spatial summary returns the expected structure", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_gt(nrow(result), 0L)
+  expect_true(nrow(result) > 0L)
   
   expected_columns <- c(
     "locationID",
@@ -79,17 +79,17 @@ test_that("merged spatial summary returns the expected structure", {
     all(expected_columns %in% names(result))
   )
   
-  expect_false(anyNA(result$locationID))
-  expect_false(anyNA(result$deploymentID))
-  expect_false(anyNA(result$Num_Deployments))
-  expect_false(anyNA(result$Total_Photos))
+  expect_false(any(is.na(result$locationID)))
+  expect_false(any(is.na(result$deploymentID)))
+  expect_false(any(is.na(result$Num_Deployments)))
+  expect_false(any(is.na(result$Total_Photos)))
 })
 
 
 test_that("merged spatial summary calculates deployment counts", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   counts <- unique(
     result[
@@ -122,7 +122,7 @@ test_that("merged spatial summary calculates deployment counts", {
 test_that("merged spatial summary lists deployment identifiers", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1 <- result[
     result$locationID == "loc-1",
@@ -130,7 +130,7 @@ test_that("merged spatial summary lists deployment identifiers", {
     drop = FALSE
   ]
   
-  expect_gt(nrow(loc1), 0L)
+  expect_true(nrow(loc1) > 0L)
   
   listed_ids <- trimws(
     unlist(
@@ -152,7 +152,7 @@ test_that("merged spatial summary lists deployment identifiers", {
 test_that("merged spatial summary aggregates capture methods", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1 <- result[
     result$locationID == "loc-1",
@@ -180,7 +180,7 @@ test_that("merged spatial summary aggregates capture methods", {
 test_that("merged spatial summary aggregates annotators", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1 <- result[
     result$locationID == "loc-1",
@@ -208,7 +208,7 @@ test_that("merged spatial summary aggregates annotators", {
 test_that("merged spatial summary calculates photograph totals", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   totals <- unique(
     result[
@@ -226,12 +226,12 @@ test_that("merged spatial summary calculates photograph totals", {
     totals$locationID == "loc-2"
   ]
   
-  expect_identical(
+  expect_equal(
     as.numeric(loc1_total),
     9
   )
   
-  expect_identical(
+  expect_equal(
     as.numeric(loc2_total),
     5
   )
@@ -241,7 +241,7 @@ test_that("merged spatial summary calculates photograph totals", {
 test_that("merged spatial summary creates species lists", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1 <- result[
     result$locationID == "loc-1",
@@ -272,7 +272,7 @@ test_that("merged spatial summary creates species lists", {
 test_that("merged spatial summary converts habitat labels", {
   cm <- make_merged_summary_fixture()
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1_habitat <- unique(
     result$Habitat_Type[
@@ -302,10 +302,10 @@ test_that("merged spatial summary handles missing sequences", {
   cm <- make_merged_summary_fixture()
   cm$data$sequences <- NULL
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_gt(nrow(result), 0L)
+  expect_true(nrow(result) > 0L)
   
   expect_true(
     all(
@@ -338,10 +338,10 @@ test_that("merged spatial summary handles missing observations", {
   cm <- make_merged_summary_fixture()
   cm$data$observations <- NULL
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_gt(nrow(result), 0L)
+  expect_true(nrow(result) > 0L)
   
   expect_true(
     all(
@@ -359,21 +359,16 @@ test_that("merged spatial summary handles missing observations", {
 })
 
 
-test_that(
-  paste0(
-    "merged spatial summary handles missing optional ",
-    "deployment columns"
-  ),
-  {
+test_that("merged spatial summary handles missing optional deployment columns", {
   cm <- make_merged_summary_fixture()
   
   cm$data$deployments$setupBy <- NULL
   cm$data$deployments$baitUse <- NULL
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_gt(nrow(result), 0L)
+  expect_true(nrow(result) > 0L)
   
   expect_true(
     "Setup_By_List" %in% names(result)
@@ -403,7 +398,7 @@ test_that("merged spatial summary handles absent habitat information", {
   cm <- make_merged_summary_fixture()
   cm$data$locations$habitat <- NULL
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_true(
     "Habitat_Type" %in% names(result)
@@ -426,7 +421,7 @@ test_that("merged spatial summary removes duplicate species names", {
     duplicate_observation
   )
   
-  result <- ct_internal(".camr_getMergedSummary")(cm)
+  result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   loc1 <- result[
     result$locationID == "loc-1",

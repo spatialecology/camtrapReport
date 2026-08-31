@@ -43,56 +43,26 @@ knitr::include_graphics("figures/data-status/data-status-workflow.png")
 ```{r data-status-basic-code, eval=FALSE}
 library(camtrapReport)
 
-# Copy the bundled example dataset to a writable temporary directory
-example_root <- tempfile("camtrapReport-example-")
-dir.create(example_root, recursive = TRUE)
-
-example_source <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-copied <- file.copy(
-  from = example_source,
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset"))
-)
-
-# Load the example camera-trap data
-cm <- camData(
-  file.path(example_root, "dataset"),
-  update = TRUE
-)
+# Load camera-trap data
+cm <- camData("cameratrap.zip")
 
 # Generate and view the Data Status Report
-status(cm, view = TRUE)
+output_dir <- tempdir()  # Replace with an existing project output directory
+status(
+  cm,
+  filename = file.path(output_dir, "data_status"),
+  view = TRUE
+)
 ```
 
 When `view = TRUE`, the generated report is opened in the browser. This provides a quick, human-readable overview of dataset quality, completeness, and consistency.
 
-The function also invisibly returns the path to the HTML report. By default,
-`data_status.html` and its intermediate `data_status.Rmd` file are written to
-the R session's temporary directory. Use `filename` to give another file stem
-or a path inside an existing output directory:
+The function also invisibly returns the path to the HTML report. Supply `filename` to choose a deliberate file stem or an existing output path. The examples use `tempdir()` to avoid writing to the working directory:
 
 ```{r data-status-output-path, eval=FALSE}
-dir.create(
-  "reports",
-  recursive = TRUE,
-  showWarnings = FALSE
-)
-
 status_file <- status(
   cm,
-  filename = file.path("reports", "data_status_2026"),
+  filename = file.path(tempdir(), "data_status_2026"),
   view = FALSE
 )
 ```
@@ -223,7 +193,7 @@ Below are previews of Data Status Reports generated with `camtrapReport` for dif
 
 ## Exploring data-status results in R
 
-The results of the data-status checks are also stored inside the `camReport` object. Users can explore these results directly in R through `cm$data_status`. This is useful when users want to inspect the underlying tables, extract summaries, or use the quality-control outputs in another workflow.
+The results of the data-status checks are also stored inside the `camReport` object. Users can explore these results directly in R through the `data_status` slot. This is useful when users want to inspect the underlying tables, extract summaries, or use the quality-control outputs in another workflow.
 
 ```{r data-status-explore-object, eval=FALSE}
 # Explore all data-status outputs stored in the camReport object
@@ -249,4 +219,4 @@ cm$data_status$Species$Table
 ```
 
 
-Together, `status(cm, view = TRUE)` and `cm$data_status` provide both a human-readable HTML report and direct access to the underlying data-quality summaries in R. This makes the Data Status Report useful for documenting data readiness, identifying issues, and improving the dataset before generating the final Ecological Report.
+Together, `status(cm, filename = file.path(tempdir(), "data_status"), view = TRUE)` and `cm$data_status` provide both a human-readable HTML report and direct access to the underlying data-quality summaries in R. This makes the Data Status Report useful for documenting data readiness, identifying issues, and improving the dataset before generating the final Ecological Report.

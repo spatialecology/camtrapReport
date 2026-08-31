@@ -1,5 +1,5 @@
 test_that("norm_parent standardizes root parent values", {
-  norm_parent <- ct_internal(".norm_parent")
+  norm_parent <- camtrapReport:::.norm_parent
   
   expect_identical(norm_parent(NULL), ".root")
   expect_identical(norm_parent(character()), ".root")
@@ -14,12 +14,12 @@ test_that("norm_parent standardizes root parent values", {
 
 
 test_that("empty_info returns the expected empty structure", {
-  result <- ct_internal(".empty_info")()
+  result <- camtrapReport:::.empty_info()
   
   expect_s3_class(result, "data.frame")
   
-  expect_named(
-    result,
+  expect_identical(
+    names(result),
     c("ID", "name", "parent")
   )
   
@@ -31,7 +31,7 @@ test_that("empty_info returns the expected empty structure", {
 
 
 test_that("resequence_info handles NULL and empty inputs", {
-  resequence_info <- ct_internal(".resequence_info")
+  resequence_info <- camtrapReport:::.resequence_info
   
   null_result <- resequence_info(NULL)
   
@@ -45,19 +45,19 @@ test_that("resequence_info handles NULL and empty inputs", {
   
   expect_identical(
     null_result,
-    ct_internal(".empty_info")()
+    camtrapReport:::.empty_info()
   )
   
   expect_identical(
     empty_result,
-    ct_internal(".empty_info")()
+    camtrapReport:::.empty_info()
   )
 })
 
 
 test_that("resequence_info validates required columns", {
   expect_error(
-    ct_internal(".resequence_info")(
+    camtrapReport:::.resequence_info(
       data.frame(
         name = "methods",
         stringsAsFactors = FALSE
@@ -68,7 +68,7 @@ test_that("resequence_info validates required columns", {
   )
   
   expect_error(
-    ct_internal(".resequence_info")(
+    camtrapReport:::.resequence_info(
       data.frame(
         parent = ".root",
         stringsAsFactors = FALSE
@@ -101,7 +101,7 @@ test_that("resequence_info trims, normalizes, removes blanks and duplicates", {
     stringsAsFactors = FALSE
   )
   
-  result <- ct_internal(".resequence_info")(input)
+  result <- camtrapReport:::.resequence_info(input)
   
   expected <- data.frame(
     ID = 1:3,
@@ -134,7 +134,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
   )
   
   expect_identical(
-    ct_internal(".ancestor_chain")(
+    camtrapReport:::.ancestor_chain(
       "cameras",
       parent_lookup
     ),
@@ -142,7 +142,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
   )
   
   expect_identical(
-    ct_internal(".ancestor_chain")(
+    camtrapReport:::.ancestor_chain(
       "sampling",
       parent_lookup
     ),
@@ -150,7 +150,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
   )
   
   expect_identical(
-    ct_internal(".ancestor_chain")(
+    camtrapReport:::.ancestor_chain(
       "methods",
       parent_lookup
     ),
@@ -182,7 +182,7 @@ test_that("subtree_end identifies complete nested subtrees", {
   )
   
   expect_identical(
-    ct_internal(".subtree_end")(
+    camtrapReport:::.subtree_end(
       info,
       ".root"
     ),
@@ -190,7 +190,7 @@ test_that("subtree_end identifies complete nested subtrees", {
   )
   
   expect_identical(
-    ct_internal(".subtree_end")(
+    camtrapReport:::.subtree_end(
       info,
       "methods"
     ),
@@ -198,7 +198,7 @@ test_that("subtree_end identifies complete nested subtrees", {
   )
   
   expect_identical(
-    ct_internal(".subtree_end")(
+    camtrapReport:::.subtree_end(
       info,
       "sampling"
     ),
@@ -206,7 +206,7 @@ test_that("subtree_end identifies complete nested subtrees", {
   )
   
   expect_identical(
-    ct_internal(".subtree_end")(
+    camtrapReport:::.subtree_end(
       info,
       "cameras"
     ),
@@ -214,7 +214,7 @@ test_that("subtree_end identifies complete nested subtrees", {
   )
   
   expect_error(
-    ct_internal(".subtree_end")(
+    camtrapReport:::.subtree_end(
       info,
       "unknown"
     ),
@@ -226,8 +226,8 @@ test_that("subtree_end identifies complete nested subtrees", {
 
 test_that("subtree_end handles empty information", {
   expect_identical(
-    ct_internal(".subtree_end")(
-      ct_internal(".empty_info")(),
+    camtrapReport:::.subtree_end(
+      camtrapReport:::.empty_info(),
       ".root"
     ),
     0L
@@ -248,19 +248,19 @@ test_that("insert_row supports beginning, middle, and end positions", {
     stringsAsFactors = FALSE
   )
   
-  at_start <- ct_internal(".insert_row")(
+  at_start <- camtrapReport:::.insert_row(
     input,
     row_b,
     1L
   )
   
-  in_middle <- ct_internal(".insert_row")(
+  in_middle <- camtrapReport:::.insert_row(
     input,
     row_b,
     2L
   )
   
-  at_end <- ct_internal(".insert_row")(
+  at_end <- camtrapReport:::.insert_row(
     input,
     row_b,
     99L
@@ -297,7 +297,7 @@ test_that("insert_row handles empty data frames", {
   )
   
   expect_identical(
-    ct_internal(".insert_row")(
+    camtrapReport:::.insert_row(
       empty,
       row,
       1L
@@ -328,7 +328,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
   )
   
   expect_identical(
-    ct_internal(".guess_root_insert_pos")(
+    camtrapReport:::.guess_root_insert_pos(
       info,
       "methods",
       level0
@@ -337,7 +337,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
   )
   
   expect_identical(
-    ct_internal(".guess_root_insert_pos")(
+    camtrapReport:::.guess_root_insert_pos(
       info,
       "acknowledgements",
       level0
@@ -346,7 +346,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
   )
   
   expect_identical(
-    ct_internal(".guess_root_insert_pos")(
+    camtrapReport:::.guess_root_insert_pos(
       info,
       "custom_section",
       level0
@@ -355,8 +355,8 @@ test_that("guess_root_insert_pos follows canonical root order", {
   )
   
   expect_identical(
-    ct_internal(".guess_root_insert_pos")(
-      ct_internal(".empty_info")(),
+    camtrapReport:::.guess_root_insert_pos(
+      camtrapReport:::.empty_info(),
       "methods",
       level0
     ),
@@ -366,8 +366,8 @@ test_that("guess_root_insert_pos follows canonical root order", {
 
 
 test_that("insert_module_info adds the first module", {
-  result <- ct_internal(".insert_module_info")(
-    info = ct_internal(".empty_info")(),
+  result <- camtrapReport:::.insert_module_info(
+    info = camtrapReport:::.empty_info(),
     name = "methods",
     parent = ".root"
   )
@@ -398,7 +398,7 @@ test_that("insert_module_info inserts root modules in canonical order", {
     stringsAsFactors = FALSE
   )
   
-  result <- ct_internal(".insert_module_info")(
+  result <- camtrapReport:::.insert_module_info(
     info = info,
     name = "methods",
     parent = ".root"
@@ -439,7 +439,7 @@ test_that("insert_module_info appends children after the parent subtree", {
     stringsAsFactors = FALSE
   )
   
-  result <- ct_internal(".insert_module_info")(
+  result <- camtrapReport:::.insert_module_info(
     info = info,
     name = "modelling",
     parent = "methods"
@@ -481,14 +481,14 @@ test_that("insert_module_info supports before and after placement", {
     stringsAsFactors = FALSE
   )
   
-  before_result <- ct_internal(".insert_module_info")(
+  before_result <- camtrapReport:::.insert_module_info(
     info = info,
     name = "camera_setup",
     parent = "methods",
     before = "analysis"
   )
   
-  after_result <- ct_internal(".insert_module_info")(
+  after_result <- camtrapReport:::.insert_module_info(
     info = info,
     name = "camera_setup",
     parent = "methods",
@@ -537,7 +537,7 @@ test_that("insert_module_info permits insertion at subtree boundary", {
     stringsAsFactors = FALSE
   )
   
-  result <- ct_internal(".insert_module_info")(
+  result <- camtrapReport:::.insert_module_info(
     info = info,
     name = "analysis",
     parent = "methods",
@@ -579,7 +579,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "",
       parent = ".root"
@@ -589,7 +589,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "methods",
       parent = ".root"
@@ -599,7 +599,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "new_module",
       parent = ".root",
@@ -611,7 +611,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "new_module",
       parent = "unknown"
@@ -621,7 +621,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "new_module",
       parent = "methods",
@@ -632,7 +632,7 @@ test_that("insert_module_info rejects invalid requests", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info,
       name = "new_module",
       parent = "methods",
@@ -663,7 +663,7 @@ test_that("insert_module_info rejects placement beyond parent subtree", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info = info,
       name = "analysis",
       parent = "methods",
@@ -674,7 +674,7 @@ test_that("insert_module_info rejects placement beyond parent subtree", {
   )
   
   expect_error(
-    ct_internal(".insert_module_info")(
+    camtrapReport:::.insert_module_info(
       info = info,
       name = "analysis",
       parent = "methods",

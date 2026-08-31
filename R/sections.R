@@ -45,21 +45,27 @@ setGeneric(
 #'
 #' sections(x, n)
 #' @name section_names
-#' @aliases section_names sections
-#' @aliases section_names,ANY-method
-#' @aliases sections,camReport-method
+#' @aliases section_names sections section_names,ANY-method sections,camReport-method
 #'
 #' @examples
 #' # List all available report-section names
 #' available_sections <- section_names()
 #' head(available_sections)
 #'
+#' \donttest{
 #' # Load the packaged example dataset
-#' example_dataset <- system.file(
+#' source_dataset <- system.file(
 #'   "external",
 #'   "dataset",
 #'   package = "camtrapReport"
 #' )
+#' example_dataset <- tempfile("camtrapReport-example-")
+#' dir.create(example_dataset)
+#' invisible(file.copy(
+#'   list.files(source_dataset, full.names = TRUE),
+#'   example_dataset,
+#'   recursive = TRUE
+#' ))
 #'
 #' cm <- camData(example_dataset)
 #'
@@ -73,6 +79,9 @@ setGeneric(
 #'
 #' # Show the selected section names
 #' selected_sections
+#'
+#' unlink(example_dataset, recursive = TRUE, force = TRUE)
+#' }
 setMethod("section_names",signature(keep = "ANY"),
   function(keep, exclude) {
     
@@ -89,16 +98,15 @@ setMethod("section_names",signature(keep = "ANY"),
       if (!all(w)) {
         if (!any(w)) {
           stop(
-            "None of the specified section/module names in 'keep' ",
-            "are available; use section_names() to get a list ",
-            "of existing modules."
+            "None of the specified section/module names in 'keep' are available; use section_names() to get a list of existing modules."
           )
         }
         
         warning(
-          "Several section/module names specified in 'keep' ",
-          "are not available: ",
-          .paste_comma_and(keep[!w])
+          paste0(
+            "Several section/module names specified in 'keep' are not available: ",
+            .paste_comma_and(keep[!w])
+          )
         )
       }
       
@@ -120,16 +128,15 @@ setMethod("section_names",signature(keep = "ANY"),
       if (!all(w)) {
         if (!any(w)) {
           stop(
-            "None of the specified section/module names in 'exclude' ",
-            "are available; use section_names() to get a list ",
-            "of existing modules."
+            "None of the specified section/module names in 'exclude' are available; use section_names() to get a list of existing modules."
           )
         }
         
         warning(
-          "Several section/module names specified in 'exclude' ",
-          "are not available: ",
-          .paste_comma_and(exclude[!w])
+          paste0(
+            "Several section/module names specified in 'exclude' are not available: ",
+            .paste_comma_and(exclude[!w])
+          )
         )
       }
       
@@ -186,25 +193,20 @@ setMethod("sections",signature(x = "camReport"),
       if (all(n %in% x$reportObjectElements$Modules_info$name)) {
         
         message(
-          "\nSome of the specified sections are excluded because ",
-          "their test results were problematic."
+          "\nSome of the specified sections are excluded because their test results were problematic."
         )
         
       } else {
         
         if (!any(n %in% nn)) {
           stop(
-            "None of the specified section names are known. ",
-            "Use section_names() to get the correct names ",
-            "of available sections."
+            "None of the specified section names are known. Use section_names() to get the correct names of available sections."
+          )
+        } else {
+          message(
+            "\nSome of the specified section names are unknown and ignored. Use section_names() to get the correct names of available sections."
           )
         }
-
-        message(
-          "\nSome of the specified section names are unknown ",
-          "and ignored. Use section_names() to get the correct ",
-          "names of available sections."
-        )
       }
     }
     

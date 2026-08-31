@@ -3,6 +3,7 @@
 ^.*\.Rproj$
 ^\.Rhistory$
 ^\.RData$
+^\.DS_Store
 ^docs$
 ^pkgdown$
 ^_pkgdown\.yml$
@@ -11,10 +12,8 @@
 ^dev$
 ^vignettes/articles$
 ^LICENSE\.md$
+^README\.Rmd$
 ^long-functions-audit\.csv$
 ^\.RDataTmp$
 ^doc$
 ^Meta$
-^README\.Rmd$
-^README\.html$
-^inst/external/dataset/_study_area\.map$

@@ -29,10 +29,5 @@ Useful links:
 \author{
 \strong{Maintainer}: Elham Ebrahimi \email{eebrahimi.bio@gmail.com} (\href{https://orcid.org/0000-0001-5191-9832}{ORCID})
 
-Authors:
-\itemize{
-  \item Elham Ebrahimi \email{eebrahimi.bio@gmail.com} (\href{https://orcid.org/0000-0001-5191-9832}{ORCID})
-}
-
 }
 \keyword{internal}
