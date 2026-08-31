@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Data Status Report • camtrapReport</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -29,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.46</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.49</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,15 +42,25 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">How to add new modules?</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
+<li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
+    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
+  </ul>
+</li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -121,7 +130,7 @@ p.caption {
 }
 </style>
 <div class="figure" style="text-align: center">
-<img src="figures%2Fdata-status%2Fdata-status-workflow.png" alt="Workflow for generating a Data Status Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
+<img src="figures/data-status/data-status-workflow.png" class="r-plt" alt="Workflow for generating a Data Status Report from camera-trap data using camtrapReport." width="100%"><p class="caption">
 Figure 1. Workflow for generating a Data Status Report from camera-trap
 data using camtrapReport.
 </p>
@@ -267,7 +276,7 @@ from a Camtrap DP dataset using the workflow described above.</p>
 }
 </style>
 <div class="status-gallery">
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fdata-status%2Fleuven-data-status.png" alt="Preview of the Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/leuven-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/leuven-data-status.png" alt="Preview of the Leuven Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Leuven
 </div>
@@ -277,7 +286,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fdata-status%2Famsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/amsterdam-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/amsterdam-data-status.png" alt="Preview of the Amsterdam Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Amsterdam Water Supply Dunes
 </div>
@@ -287,7 +296,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fdata-status%2Fluxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/luxembourg-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/luxembourg-data-status.png" alt="Preview of the Luxembourg Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 Lux National Monitoring
 </div>
@@ -297,7 +306,7 @@ Data Status Report
 <span class="status-card-badge">Open report</span>
 </div>
 <p></p></a>
-<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures%2Fdata-status%2Fmica-data-status.png" alt="Preview of the MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
+<a class="status-card" href="https://spatialecology.github.io/camtrapReport/reports/mica-data-status-check.html" target="_blank" rel="noopener noreferrer"><img src="figures/data-status/mica-data-status.png" alt="Preview of the MICA Data Status Report" loading="lazy" decoding="async"><div class="status-card-overlay">
 <div class="status-card-title">
 MICA Monitoring Project
 </div>
@@ -357,7 +366,7 @@ final Ecological Report.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

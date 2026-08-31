@@ -38,9 +38,11 @@ or GitLab dependencies are installed from their corresponding repositories.
 All package installation is handled by \code{\link[pak:pkg_install]{pak::pkg_install()}}.
 
 Unlike a direct call to \code{pak}, \code{install_All()} discovers the packages declared
-by the currently installed YAML report modules and combines them with any
-additional packages supplied through \code{pkgs}. It then delegates resolution and
-installation to \code{pak}.
+by the currently available YAML report modules, including modules added or
+modified by users, and combines them with any additional packages supplied
+through \code{pkgs}. It then delegates resolution and installation to \code{pak}. The
+function is opt-in and is never called when the package is loaded or a report
+is rendered.
 
 When \code{update = TRUE}, the requested optional packages are force-reinstalled
 from their configured sources using the \code{pak} \code{reinstall} parameter.

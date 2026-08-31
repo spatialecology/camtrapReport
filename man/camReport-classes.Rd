@@ -17,6 +17,9 @@
 \alias{show,camReport-method}
 \alias{show,camInfo-method}
 \title{camReport classes}
+\value{
+This is a documentation-only topic and does not return a value.
+}
 \description{
 Class definitions used by camtrapReport to store camera-trap data, report
 metadata, report sections, and intermediate report objects.

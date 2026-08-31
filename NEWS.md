@@ -1,3 +1,7 @@
+# camtrapReport 1.0.50
+
+* update manuals and website.
+
 # camtrapReport 1.0.49
 
 * Improve multiple R scripts to pass pkgcheck test.

@@ -119,9 +119,9 @@ unlink(example_dataset, recursive = TRUE, force = TRUE)
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=info]{info()}}
 
-Other report sections: 
+Other report sections:
 \code{\link{reportSection,character-method}},
-\code{\link{section_names}()},
+\code{\link[=section_names]{section_names()}},
 \code{\link{testSection,.textSection-method}}
 }
 \concept{report sections}

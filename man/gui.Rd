@@ -37,7 +37,7 @@ The GUI can be used with an existing \code{camReport} object and provides an
 interactive alternative to configuring reports directly in R.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 source_dataset <- system.file(
   "external",
   "dataset",
@@ -61,7 +61,7 @@ unlink(example_dataset, recursive = TRUE, force = TRUE)
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}
 
-Other report generation: 
-\code{\link{report}()}
+Other report generation:
+\code{\link[=report]{report()}}
 }
 \concept{report generation}
