@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.48</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,23 +53,35 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.47" id="camtrapreport-1047-2026-08-09">camtrapReport 1.0.47 (2026-08-09)<a class="anchor" aria-label="anchor" href="#camtrapreport-1047-2026-08-09"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.48" id="camtrapreport-1048">camtrapReport 1.0.48<a class="anchor" aria-label="anchor" href="#camtrapreport-1048"></a></h2>
+<ul><li>Further improvement to address rOpenSci editor feedbacks.</li>
+<li>install_All is adopted to use pak.</li>
+<li>Documented the opt-in role of <code>install_All()</code> in discovering dependencies from bundled and user-provided report modules before delegating to <code>pak</code>.</li>
+<li>Split internal rendering, taxonomy, and spatial utilities into focused files without changing their implementations or the public API.</li>
+<li>Replaced contributor names and contact details in the bundled toy dataset’s JSON metadata with clearly fictional example records.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.47" id="camtrapreport-1047">camtrapReport 1.0.47<a class="anchor" aria-label="anchor" href="#camtrapreport-1047"></a></h2>
+<ul><li>Responded to rOpenSci editor feedback by improving the worked example, contributor documentation, optional-dependency tests, website navigation, and temporary-file cleanup.</li>
+<li>Corrected citation metadata for the package and its related conference paper.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.46" id="camtrapreport-1046-2026-08-09">camtrapReport 1.0.46 (2026-08-09)<a class="anchor" aria-label="anchor" href="#camtrapreport-1046-2026-08-09"></a></h2>
 <div class="section level3">
-<h3 id="improvements-1-0-47">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-0-47"></a></h3>
+<h3 id="improvements-1-0-46">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-0-46"></a></h3>
 <ul><li>Prepared the package for rOpenSci software peer review.</li>
 <li>Improved package structure, namespace management, and internal code quality.</li>
 <li>Strengthened automated testing and package-check workflows.</li>
 <li>Improved robustness of report generation and supporting utilities.</li>
-<li>Replaced the former S4 <code>install_All()</code> implementation with the simpler snake-case <code><a href="../reference/install_all.html">install_all()</a></code> function. It automatically discovers dependencies declared by bundled and registered user-managed report modules, and delegates dependency resolution and installation to <code>pak</code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-1-0-47">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-0-47"></a></h3>
+<h3 id="documentation-1-0-46">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-0-46"></a></h3>
 <ul><li>Expanded and revised the package documentation to clarify the scope, workflow, and differences from existing camera-trap tools.</li>
 <li>Improved the pkgdown website, reference documentation, vignettes, and reporting resources.</li>
 <li>Standardised package metadata, citations, links, and release information.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="maintenance-1-0-47">Maintenance<a class="anchor" aria-label="anchor" href="#maintenance-1-0-47"></a></h3>
+<h3 id="maintenance-1-0-46">Maintenance<a class="anchor" aria-label="anchor" href="#maintenance-1-0-46"></a></h3>
 <ul><li>Removed obsolete and unused package assets and temporary files.</li>
 <li>Resolved non-ASCII source-code issues and other package-check findings.</li>
 <li>Updated CRAN package links to their canonical form.</li>

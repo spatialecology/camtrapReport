@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 .RDataTmp
+.DS_Store
+docs/
 /doc/
-README.html
-inst/external/dataset/_study_area.map
+/Meta/

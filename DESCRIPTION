@@ -1,16 +1,15 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.47
-Authors@R: person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832"))
+Version: 1.0.48
+Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible
-    data-status and ecological reports. The package supports data-quality
-    checks, ecological summaries, visualisations, maps, tables, and modular
-    report sections for wildlife-monitoring applications. Optional taxonomic
-    enrichment queries the Global Biodiversity Information Facility (GBIF)
-    Species API <https://techdocs.gbif.org/en/openapi/v1/species> through
-    'taxize'.
+    data-status and ecological reports. The package supports data-quality checks, ecological
+    summaries, visualisations, maps, tables and modular report sections for
+    wildlife-monitoring applications. Optional taxonomic enrichment queries the
+    Global Biodiversity Information Facility Species API
+    <https://techdocs.gbif.org/en/openapi/v1/species> through 'taxize'.
 License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
@@ -19,47 +18,19 @@ Depends:
 Imports:
     data.table,
     dplyr,
+    shiny,
     glue,
     jsonlite,
     lubridate,
+    knitr,
     methods,
-    spatstat.explore,
-    spatstat.geom,
+    rmarkdown,
     terra
 Suggests:
-    activity,
-    camtrapDensity,
-    camtraptor,
-    corrplot,
-    Distance,
-    dygraphs,
-    ggplot2,
-    ggrepel,
-    gt,
-    htmltools,
-    htmlwidgets,
-    iNEXT,
-    knitr,
-    leaflet,
-    lutz,
-    magick,
+    roxygen2,
     pak,
-    readr,
-    rmarkdown,
-    sbd,
-    scales,
-    sf,
-    shiny,
-    spatstat,
-    suncalc,
-    taxize,
     testthat (>= 3.1.7),
-    tidyr,
-    withr,
-    xts
-Remotes:
-    inbo/camtraptor,
-    MarcusRowcliffe/camtrapDensity
+    xml2
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

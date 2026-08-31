@@ -42,80 +42,13 @@ knitr::include_graphics(
 Figure 1 summarises the main workflow for generating an Ecological Report with `camtrapReport`. Camera-trap data are first loaded with `camData()`, creating an object that supports data preprocessing, manipulation, analysis, summarisation, and visualisation. This processed object is then passed to the `report()` function, which generates a complete HTML Ecological Report.
 
 
-```{r ecological-report-basic-code, eval=FALSE}
-library(camtrapReport)
-
-# Copy the bundled example dataset to a writable temporary directory
-example_root <- tempfile("camtrapReport-example-")
-dir.create(example_root, recursive = TRUE)
-
-example_source <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-copied <- file.copy(
-  from = example_source,
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-habitat <- utils::read.csv(
-  system.file(
-    "external",
-    "habitat",
-    "habitat.csv",
-    package = "camtrapReport",
-    mustWork = TRUE
-  )
-)
-
-study_area <- system.file(
-  "external",
-  "study_area",
-  "study_area.shp",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset")),
-  file.exists(study_area)
-)
-
-# Load the example camera-trap data and optional spatial inputs
-cm <- camData(
-  data = file.path(example_root, "dataset"),
-  habitat = habitat,
-  study_area = study_area,
-  update = TRUE
-)
-
-# Generate the Ecological Report
-report(cm, view = TRUE)
-```
-
-`report()` invisibly returns the path to the generated HTML file. By default,
-`report.html` and the intermediate `report.Rmd` file are written to the R
-session's temporary directory. A specific file stem or a path inside an
-existing output directory can be supplied through `filename`:
-
 ```{r ecological-report-output-path, eval=FALSE}
-dir.create(
-  "reports",
-  recursive = TRUE,
-  showWarnings = FALSE
-)
+cm <- camData(
+  data = "/path/camera-trap-data.zip",
+  habitat = "/path/habitat.csv",
+  study_area = "/path/study_area.shp")
 
-report_file <- report(
-  cm,
-  filename = file.path("reports", "ecological_report_2026"),
-  view = FALSE
-)
+report(cm, filename = "/path/outputs/report", view = TRUE)
 ```
 
 An existing output with the same name may be replaced. Use explicit, versioned filenames when reports from multiple datasets, settings, or processing dates must be retained.
@@ -367,14 +300,13 @@ info(cm, name = "siteName")
 info(cm, name = "logoPath")
 
 # Update metadata fields
-info(cm, name = "title") <- "Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"
+info(cm, name = "title") <- "Camera-Trap Monitoring Report:GMU8 Leuven, Belgium"
 info(cm, name = "subtitle") <- "Ecological insights from long-term camera-trap data"
-info(cm, name = "authors") <- c("Elham Ebrahimi", "Patrick Jansen")
-info(cm, name = "institute") <- "Utrecht University, the Netherlands"
-info(cm, name = "siteName") <- "Hoge Veluwe National Park"
-
+info(cm, name = "authors") <- c("First Author", "Second Author")
+info(cm, name = "institute") <- "Research Institute for Nature and Forest"
+info(cm, name = "siteName") <- "GMU8 Monitoring site"
 # Optional: add an institute or project logo
-info(cm, name = "logoPath") <- "path_to_logo/UU_logo.png"
+info(cm, name = "logoPath") <- "path_to_logo/Organisation_logo.png"
 
 # Check the updated metadata
 info(cm)
@@ -445,7 +377,7 @@ Reports can be generated for all available years in the dataset or for a selecte
 cm$extractYears()
 
 # Select a specific monitoring period
-cm$years <- 2023:2024
+cm$years <- 2022:2023
 
 # Re-run setup after changing the selected years
 cm$setup()
