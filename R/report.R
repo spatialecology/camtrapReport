@@ -5,7 +5,7 @@
 setGeneric(
   "report",
   function(object, filename, view, test) {
-    methods::standardGeneric("report")
+  methods::standardGeneric("report")
   }
 )
 .generate_report <- function(object, output_file, rmd_file) {
@@ -67,11 +67,8 @@ setGeneric(
 #' )
 #'
 #' cm <- camData(example_dataset)
-#'
-#' # Use one lightweight section for the ecological report
 #' cm <- sections(cm, "introduction")
 #'
-#' # Generate an ecological report in a temporary directory
 #' report_stem <- tempfile("camtrapReport-report-")
 #' report_file <- report(
 #'   cm,
@@ -81,7 +78,9 @@ setGeneric(
 #'
 #' file.exists(report_file)
 #'
-#' # Generate a data-status report in a temporary directory
+#' @examplesIf rmarkdown::pandoc_available() &&
+#'   requireNamespace("readr", quietly = TRUE) &&
+#'   requireNamespace("ggplot2", quietly = TRUE)
 #' status_stem <- tempfile("camtrapReport-status-")
 #' status_file <- status(
 #'   cm,

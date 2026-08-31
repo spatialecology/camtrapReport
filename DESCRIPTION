@@ -25,7 +25,9 @@ Imports:
     knitr,
     methods,
     rmarkdown,
-    terra
+    terra,
+    spatstat.explore,
+    spatstat.geom
 Suggests:
     roxygen2,
     pak,

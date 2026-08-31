@@ -7,7 +7,7 @@ export(camR)
 export(empty_trash)
 export(gui)
 export(info)
-export(install_All)
+export(install_all)
 export(listReportSections)
 export(list_Modules)
 export(move_Module)
@@ -21,55 +21,80 @@ export(status)
 export(testSection)
 export(updateReportSection)
 exportClasses(camReport)
-import(methods)
 importFrom(data.table,data.table)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,select)
-importFrom(dplyr,slice)
+importFrom(dplyr,
+  bind_rows,
+  distinct,
+  filter,
+  group_by,
+  left_join,
+  mutate,
+  select,
+  slice
+)
 importFrom(glue,glue)
 importFrom(grDevices,colorRampPalette)
-importFrom(graphics,abline)
-importFrom(graphics,arrows)
-importFrom(graphics,axis)
-importFrom(graphics,barplot)
-importFrom(graphics,boxplot)
-importFrom(graphics,image)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,par)
-importFrom(graphics,points)
-importFrom(graphics,polygon)
-importFrom(graphics,segments)
-importFrom(graphics,text)
+importFrom(graphics,
+  abline,
+  arrows,
+  axis,
+  barplot,
+  boxplot,
+  image,
+  legend,
+  lines,
+  par,
+  points,
+  polygon,
+  segments,
+  text
+)
 importFrom(lubridate,interval)
-importFrom(stats,cor)
-importFrom(stats,cov)
-importFrom(stats,density)
-importFrom(stats,na.omit)
-importFrom(stats,predict)
-importFrom(stats,quantile)
-importFrom(stats,setNames)
-importFrom(stats,time)
-importFrom(terra,crs)
-importFrom(terra,expanse)
-importFrom(terra,extract)
-importFrom(terra,hull)
-importFrom(terra,project)
-importFrom(terra,rast)
-importFrom(terra,readRDS)
-importFrom(terra,unwrap)
-importFrom(terra,vect)
-importFrom(terra,wrap)
-importFrom(terra,writeRaster)
-importFrom(utils,head)
-importFrom(utils,install.packages)
-importFrom(utils,read.csv)
-importFrom(utils,remove.packages)
-importFrom(utils,tail)
-importFrom(utils,timestamp)
-importFrom(utils,unzip)
+importFrom(methods,
+  new,
+  setClass,
+  setGeneric,
+  setMethod,
+  setReplaceMethod,
+  signature
+)
+importFrom(spatstat.explore,
+  Kest,
+  quadrat.test
+)
+importFrom(spatstat.geom,
+  owin,
+  ppp
+)
+importFrom(stats,
+  cor,
+  cov,
+  density,
+  na.omit,
+  predict,
+  quantile,
+  setNames,
+  time
+)
+importFrom(terra,
+  crs,
+  expanse,
+  extract,
+  hull,
+  project,
+  rast,
+  readRDS,
+  unwrap,
+  vect,
+  wrap,
+  writeRaster
+)
+importFrom(utils,
+  head,
+  install.packages,
+  read.csv,
+  remove.packages,
+  tail,
+  timestamp,
+  unzip
+)
