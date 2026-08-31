@@ -24,7 +24,7 @@ Invisibly returns the supplied \code{camReport} object after launching the
 application.
 }
 \description{
-Launch an interactive Shiny interface for configuring and generating
+Launch a Shiny interface for reviewing, configuring, and generating
 camtrapReport outputs from an existing \code{\link[=camReport-classes]{camReport}}
 object.
 }
@@ -33,35 +33,28 @@ The function starts a Shiny-based graphical user interface for editing report
 metadata, selecting report sections, defining focus groups, and generating
 data-status or ecological reports.
 
-The GUI can be used with an existing \code{camReport} object and provides an
-interactive alternative to configuring reports directly in R.
+The GUI provides an interactive alternative to configuring reports directly
+in R. Files created by the GUI are written only in response to an explicit
+user action. If no output directory is supplied, the R session temporary
+directory is used. Temporary copies of uploaded files are removed when the
+Shiny session ends.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-source_dataset <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport"
-)
-example_dataset <- tempfile("camtrapReport-example-")
-dir.create(example_dataset)
-invisible(file.copy(
-  list.files(source_dataset, full.names = TRUE),
-  example_dataset,
-  recursive = TRUE
-))
+if (interactive()) {
+  example_dataset <- system.file(
+    "external",
+    "dataset",
+    package = "camtrapReport"
+  )
 
-cm <- camData(example_dataset)
-
-gui(cm)
-
-unlink(example_dataset, recursive = TRUE, force = TRUE)
-\dontshow{\}) # examplesIf}
+  cm <- camData(example_dataset)
+  gui(cm)
+}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}
 
-Other report generation: 
-\code{\link{report}()}
+Other report generation:
+\code{\link[=report]{report()}}
 }
 \concept{report generation}

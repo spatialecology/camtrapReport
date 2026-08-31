@@ -69,9 +69,16 @@ tx2 <- reportSection(
   code_setting = {
     c(echo = FALSE, results = "asis", warning = FALSE)
   },
+  packages = c("gt", "dplyr"),
   code = {
     object$camera_setup |>
-      summary()
+      gt::gt() |>
+      gt::tab_header(
+        title = gt::md("**Camera Deployment Summary**"),
+        subtitle = gt::md(
+          "Details of camera deployments per year"
+        )
+      )
   }
 )
 
@@ -80,9 +87,9 @@ tx2
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=testSection]{testSection()}}
 
-Other report sections: 
-\code{\link{section_names}()},
+Other report sections:
+\code{\link[=section_names]{section_names()}},
 \code{\link{testSection,.textSection-method}},
-\code{\link{updateReportSection}()}
+\code{\link[=updateReportSection]{updateReportSection()}}
 }
 \concept{report sections}

@@ -17,11 +17,11 @@ status(object, filename, view)
 
 \item{filename}{An optional character string giving the output filename or
 file path without an extension. The default is \code{"report"} for \code{report()}
-and \code{"data_status"} for \code{status()}. Relative default filenames are written
-to the camera-trap data directory.}
+and \code{"data_status"} for \code{status()}. If no output directory is explicitly
+supplied, files are written to the R session's temporary directory.}
 
-\item{view}{A logical value (default \code{FALSE}) specifying whether the generated
-HTML report is opened after rendering.}
+\item{view}{A logical value (default \code{FALSE}) specifying whether
+the generated HTML report is opened after rendering.}
 
 \item{test}{A logical value (default \code{FALSE}). If \code{TRUE}, report modules are
 tested when ecological report generation fails, helping identify
@@ -50,20 +50,12 @@ modules when rendering fails. This can help identify modules that cause
 errors during report generation.
 }
 \examples{
-\donttest{
-if (rmarkdown::pandoc_available()) {
-source_dataset <- system.file(
+\dontshow{if (rmarkdown::pandoc_available()) withAutoprint(\{ # examplesIf}
+example_dataset <- system.file(
   "external",
   "dataset",
   package = "camtrapReport"
 )
-example_dataset <- tempfile("camtrapReport-example-")
-dir.create(example_dataset)
-invisible(file.copy(
-  list.files(source_dataset, full.names = TRUE),
-  example_dataset,
-  recursive = TRUE
-))
 
 cm <- camData(example_dataset)
 
@@ -95,17 +87,15 @@ unlink(c(
   report_file,
   paste0(report_stem, ".Rmd"),
   status_file,
-  paste0(status_stem, ".Rmd"),
-  example_dataset
-), recursive = TRUE, force = TRUE)
-}
-}
+  paste0(status_stem, ".Rmd")
+))
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}},
 \code{\link[=section_names]{section_names()}}
 
-Other report generation: 
+Other report generation:
 \code{\link{gui,camReport-method}}
 }
 \concept{report generation}

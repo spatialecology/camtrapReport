@@ -33,10 +33,9 @@ The main input is a camera-trap dataset in
 [Camtrap DP format](https://camtrap-dp.tdwg.org/), supplied either as a ZIP
 archive or as an extracted Camtrap DP directory.
 
-Optional supporting data can also be provided. These include habitat information
-and a study-area boundary, which can be used in relevant summaries, maps, and
-ecological analyses. An example [`habitat.csv` template](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing)
-is available for download.
+Optional supporting data can also be provided. These include habitat
+information and a study-area boundary, which can be used in relevant
+summaries, maps, and ecological analyses.
 
 ## Key outputs
 
@@ -94,8 +93,8 @@ info(cm)
 info(cm, name = "authors")
 
 info(cm, name = "authors") <- c(
-  "First Author",
-  "Second Author"
+  "Elham Ebrahimi",
+  "Patrick Jansen"
 )
 ```
 

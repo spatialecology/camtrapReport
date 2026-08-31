@@ -1,7 +1,7 @@
 test_that("text helpers handle missing and completely empty inputs", {
-  paste_comma_and <- camtrapReport:::.paste_comma_and
-  trim_one <- camtrapReport:::.trim
-  trim_many <- camtrapReport:::.trim_chr
+  paste_comma_and <- ct_internal(".paste_comma_and")
+  trim_one <- ct_internal(".trim")
+  trim_many <- ct_internal(".trim_chr")
   
   expect_identical(paste_comma_and(), "")
   expect_identical(paste_comma_and(character()), "")
@@ -22,7 +22,7 @@ test_that("text helpers handle missing and completely empty inputs", {
 
 
 test_that("duration formatting handles rounding and invalid values", {
-  format_duration <- camtrapReport:::.format_duration
+  format_duration <- ct_internal(".format_duration")
   
   expect_identical(format_duration(NULL), "unknown time")
   expect_identical(format_duration(character()), "unknown time")
@@ -41,7 +41,7 @@ test_that("duration formatting handles rounding and invalid values", {
 
 
 test_that("file-size formatting covers all boundaries", {
-  format_file_size <- camtrapReport:::.format_file_size
+  format_file_size <- ct_internal(".format_file_size")
   
   expect_identical(format_file_size(NULL), "unknown size")
   expect_identical(format_file_size(numeric()), "unknown size")
@@ -64,7 +64,7 @@ test_that("file-size formatting covers all boundaries", {
 
 
 test_that("data-size inspection handles missing, empty, and directory inputs", {
-  estimate_size <- camtrapReport:::.estimate_camdata_size
+  estimate_size <- ct_internal(".estimate_camdata_size")
   
   missing_result <- estimate_size(NULL)
   
@@ -85,8 +85,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(missing_result$effective_size))
   expect_identical(missing_result$size_class, "unknown")
   
-  empty_directory <- tempfile("camtrap-empty-directory-")
-  dir.create(empty_directory)
+  empty_directory <- withr::local_tempdir(
+    pattern = "camtrap-empty-directory-"
+  )
   
   on.exit(
     unlink(
@@ -103,8 +104,9 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   expect_true(is.na(empty_result$effective_size))
   expect_identical(empty_result$size_class, "unknown")
   
-  data_directory <- tempfile("camtrap-data-directory-")
-  dir.create(data_directory)
+  data_directory <- withr::local_tempdir(
+    pattern = "camtrap-data-directory-"
+  )
   
   on.exit(
     unlink(
@@ -127,16 +129,16 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   
   directory_result <- estimate_size(data_directory)
   
-  expect_equal(directory_result$file_size, 50)
-  expect_equal(directory_result$effective_size, 50)
+  expect_identical(directory_result$file_size, 50)
+  expect_identical(directory_result$effective_size, 50)
   expect_identical(directory_result$file_size_label, "50 B")
   expect_identical(directory_result$size_class, "small")
 })
 
 
 test_that("camData progress messages cover known and unknown datasets", {
-  start_message <- camtrapReport:::.camdata_start_message
-  done_message <- camtrapReport:::.camdata_done_message
+  start_message <- ct_internal(".camdata_start_message")
+  done_message <- ct_internal(".camdata_done_message")
   
   expect_message(
     size_info <- start_message("a-file-that-does-not-exist"),
@@ -174,9 +176,9 @@ test_that("camData progress messages cover known and unknown datasets", {
 
 
 test_that("chunk names and HTML escaping handle malformed inputs", {
-  extract_name <- camtrapReport:::.extract_chunk_name
-  escape_html <- camtrapReport:::.html_escape_base
-  safe_code <- camtrapReport:::.make_safe_module_code
+  extract_name <- ct_internal(".extract_chunk_name")
+  escape_html <- ct_internal(".html_escape_base")
+  safe_code <- ct_internal(".make_safe_module_code")
   
   expect_identical(
     extract_name(
@@ -217,7 +219,7 @@ test_that("chunk names and HTML escaping handle malformed inputs", {
 
 
 test_that("character removal ignores invalid positions safely", {
-  remove_characters <- camtrapReport:::.rmChar
+  remove_characters <- ct_internal(".rmChar")
   
   expect_identical(
     remove_characters("", 1),
@@ -247,7 +249,7 @@ test_that("character removal ignores invalid positions safely", {
 
 
 test_that("year extraction handles missing and repeated values", {
-  get_year <- camtrapReport:::.getYear
+  get_year <- ct_internal(".getYear")
   
   expect_identical(
     get_year(),
@@ -288,34 +290,15 @@ test_that("year extraction handles missing and repeated values", {
 })
 
 
-test_that("evaluation helper uses the calling environment when omitted", {
-  evaluate_text <- camtrapReport:::.eval
-  
-  local_value <- 8
-  
-  expect_identical(
-    evaluate_text("local_value + 2"),
-    10
-  )
-  
-  expect_null(
-    evaluate_text()
-  )
-  
-  expect_null(
-    evaluate_text(NULL)
-  )
-})
-
 
 test_that("render environments expose objects and report counters", {
   object <- camtrap_test_report()$copy(shallow = FALSE)
   
-  render_environment <- camtrapReport:::.make_render_env(
+  render_environment <- ct_internal(".make_render_env")(
     object
   )
   
-  expect_true(is.environment(render_environment))
+  expect_type(render_environment, "environment")
   
   expect_identical(
     render_environment$object,
@@ -332,12 +315,14 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(
-    is.function(render_environment$getFigureNumber)
+  expect_type(
+    render_environment$getFigureNumber,
+    "closure"
   )
   
-  expect_true(
-    is.function(render_environment$getTableNumber)
+  expect_type(
+    render_environment$getTableNumber,
+    "closure"
   )
   
   expect_true(

@@ -38,10 +38,10 @@ setGeneric(
 #'   [camData()].
 #' @param filename An optional character string giving the output filename or
 #'   file path without an extension. The default is `"report"` for `report()`
-#'   and `"data_status"` for `status()`. Relative default filenames are written
-#'   to the camera-trap data directory.
-#' @param view A logical value (default `FALSE`) specifying whether the generated
-#'   HTML report is opened after rendering.
+#'   and `"data_status"` for `status()`. If no output directory is explicitly
+#'   supplied, files are written to the R session's temporary directory.
+#' @param view A logical value (default `FALSE`) specifying whether
+#'   the generated HTML report is opened after rendering.
 #' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
 #'   tested when ecological report generation fails, helping identify
 #'   problematic modules.
@@ -59,21 +59,12 @@ setGeneric(
 #' @name report
 #' @aliases report status report,camReport-method status,camReport-method
 #'
-#' @examples
-#' \donttest{
-#' if (rmarkdown::pandoc_available()) {
-#' source_dataset <- system.file(
+#' @examplesIf rmarkdown::pandoc_available()
+#' example_dataset <- system.file(
 #'   "external",
 #'   "dataset",
 #'   package = "camtrapReport"
 #' )
-#' example_dataset <- tempfile("camtrapReport-example-")
-#' dir.create(example_dataset)
-#' invisible(file.copy(
-#'   list.files(source_dataset, full.names = TRUE),
-#'   example_dataset,
-#'   recursive = TRUE
-#' ))
 #'
 #' cm <- camData(example_dataset)
 #'
@@ -105,11 +96,8 @@ setGeneric(
 #'   report_file,
 #'   paste0(report_stem, ".Rmd"),
 #'   status_file,
-#'   paste0(status_stem, ".Rmd"),
-#'   example_dataset
-#' ), recursive = TRUE, force = TRUE)
-#' }
-#' }
+#'   paste0(status_stem, ".Rmd")
+#' ))
 setMethod(
   "report",
   signature(object = "camReport"),
@@ -129,14 +117,7 @@ setMethod(
     }
     
     # Resolve base output directory
-    base_dir <- object$info$directory
-    
-    base_dir <- tryCatch(
-      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
-      error = function(e) {
-        getwd()
-      }
-    )
+    base_dir <- tempdir()
     
     # Decide final output stem
     if (is.null(fi)) {
@@ -175,15 +156,18 @@ setMethod(
         
         if (length(ww) > 0) {
           
-          dir.create(
-            paste0(object$info$directory, "/_temp"),
-            showWarnings = FALSE
-          )
+          .path <- file.path(tempdir(), "_camtrapReport_test")
+          dir.create(.path, showWarnings = FALSE, recursive = TRUE)
           
-          if (dir.exists(paste0(object$info$directory, "/_temp"))) {
-            .path <- paste0(object$info$directory, "/_temp")
-          } else {
+          if (!dir.exists(.path)) {
             .path <- NULL
+          }
+
+          if (!is.null(.path)) {
+            on.exit(
+              unlink(.path, recursive = TRUE, force = TRUE),
+              add = TRUE
+            )
           }
           
           n <- object$reportObjectElements$Modules_info$name[ww]
@@ -208,7 +192,8 @@ setMethod(
           )
           
           message(
-            "\nTesting is done; the modules are attached, and the report generation is started...!"
+            "\nTesting is done; the modules are attached, ",
+            "and the report generation is started...!"
           )
           
           return(report(object, filename = filename, view = view, test = FALSE))
@@ -216,25 +201,32 @@ setMethod(
         } else {
           
           if (!all(object$reportObjectElements$Modules_info$tested)) {
-            
             .attach_modules(
               object,
               n = object$reportObjectElements$Modules_info$name[
                 which(object$reportObjectElements$Modules_info$tested)
               ]
             )
-            
-            return(report(object, filename = filename, view = view, test = FALSE))
-            
-          } else {
-            stop("Although all sections are tested, the report cannot be generated...!")
+
+            return(report(
+              object,
+              filename = filename,
+              view = view,
+              test = FALSE
+            ))
           }
+
+          stop(
+            "Although all sections are tested, ",
+            "the report cannot be generated...!"
+          )
         }
         
       } else {
         
         message(
-          "Report generation is stopped because of an error; add `test = TRUE` to exclude the modules that cause error!"
+          "Report generation is stopped because of an error; ",
+          "add `test = TRUE` to exclude the modules that cause error!"
         )
         
         return(w)

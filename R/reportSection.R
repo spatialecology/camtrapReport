@@ -188,7 +188,7 @@
         "```{r ",
         chunk_name,
         ", ",
-        paste(setting, collapse = ", "),
+        toString(setting),
         "}"
       )
     }
@@ -225,7 +225,11 @@
   
   section_name <- x@name
   
-  if (is.null(section_name) || length(section_name) == 0 || is.na(section_name[1])) {
+  if (
+    is.null(section_name) ||
+      length(section_name) == 0 ||
+      is.na(section_name[1])
+  ) {
     section_name <- "unknown"
   }
   
@@ -237,11 +241,20 @@
   
   title <- x@title
   
-  if (!is.null(title) && length(title) > 0 && !is.na(title[1]) && nzchar(title[1])) {
+  if (
+    !is.null(title) &&
+      length(title) > 0 &&
+      !is.na(title[1]) &&
+      nzchar(title[1])
+  ) {
     
     head_level <- x@headLevel
     
-    if (is.null(head_level) || length(head_level) == 0 || is.na(head_level[1])) {
+    if (
+      is.null(head_level) ||
+        length(head_level) == 0 ||
+        is.na(head_level[1])
+    ) {
       head_level <- 1
     }
     
@@ -260,7 +273,7 @@
     out <- c(
       out,
       paste0(
-        paste(rep("#", head_level), collapse = ""),
+        strrep("#", head_level),
         " ",
         title
       )
@@ -395,9 +408,16 @@ setGeneric(
 #'   code_setting = {
 #'     c(echo = FALSE, results = "asis", warning = FALSE)
 #'   },
+#'   packages = c("gt", "dplyr"),
 #'   code = {
 #'     object$camera_setup |>
-#'       summary()
+#'       gt::gt() |>
+#'       gt::tab_header(
+#'         title = gt::md("**Camera Deployment Summary**"),
+#'         subtitle = gt::md(
+#'           "Details of camera deployments per year"
+#'         )
+#'       )
 #'   }
 #' )
 #'

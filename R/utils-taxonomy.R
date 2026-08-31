@@ -1,7 +1,3 @@
-# Internal taxonomy utilities for camtrapReport
-# Licence: MIT
-#--------
-
 .getMissingTaxon_GBIF <- function(x) {
   x <- unique(as.character(x))
   x <- x[!is.na(x) & nzchar(x)]
@@ -17,7 +13,14 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        taxize::get_gbifid(
+          x,
+          rows = 1,
+          ask = FALSE,
+          messages = FALSE
+        )
+      ),
       silent = TRUE
     )
     
@@ -30,7 +33,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
+    .x <- try(
+      taxize::classification(
+        .id$ids,
+        db = "gbif"
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -48,7 +57,7 @@
       x <- x[-w]
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else if (is.data.frame(z) && nrow(z) >= 3) {
@@ -56,9 +65,9 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else if (is.data.frame(z) && nrow(z) >= 4) {
@@ -66,7 +75,7 @@
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
@@ -98,7 +107,14 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(
+        taxize::get_uid(
+          x,
+          rows = 1,
+          ask = FALSE,
+          messages = FALSE
+        )
+      ),
       silent = TRUE
     )
     
@@ -111,7 +127,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
+    .x <- try(
+      taxize::classification(
+        .id$ids,
+        db = "ncbi"
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -122,21 +144,21 @@
       ))
     }
     
-    .class <- sapply(.x, function(z) {
+    .class <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
         z$name[z$rank == "class"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
-    .order <- sapply(.x, function(z) {
+    .order <- vapply(.x, function(z) {
       if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
         z$name[z$rank == "order"][1]
       } else {
         NA_character_
       }
-    })
+    }, character(1))
     
     names(.class) <- names(.order) <- NULL
     
@@ -150,4 +172,6 @@
     stop("The taxize package is required for NCBI taxonomic lookup.")
   }
 }
+
+#--------
 

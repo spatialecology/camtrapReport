@@ -1,35 +1,40 @@
-library(testthat)
-
 capture_report_conditions <- function(expr) {
-  messages <- character()
-  warnings <- character()
+  state <- new.env(parent = emptyenv())
+  state$messages <- character()
+  state$warnings <- character()
   
   value <- withCallingHandlers(
     expr,
     message = function(condition) {
-      messages <<- c(messages, conditionMessage(condition))
+      state$messages <- c(
+        state$messages,
+        conditionMessage(condition)
+      )
       invokeRestart("muffleMessage")
     },
     warning = function(condition) {
-      warnings <<- c(warnings, conditionMessage(condition))
+      state$warnings <- c(
+        state$warnings,
+        conditionMessage(condition)
+      )
       invokeRestart("muffleWarning")
     }
   )
   
   list(
     value = value,
-    messages = messages,
-    warnings = warnings
+    messages = state$messages,
+    warnings = state$warnings
   )
 }
-
 
 test_that("report returns rendering errors without crashing", {
   original <- camtrap_test_report()
   report_object <- original$copy(shallow = FALSE)
   
-  output_dir <- tempfile("camtrapReport-report-error-")
-  dir.create(output_dir)
+  output_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-report-error-"
+  )
   
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
@@ -73,8 +78,9 @@ test_that("report warns and falls back when output directory is missing", {
   original <- camtrap_test_report()
   report_object <- original$copy(shallow = FALSE)
   
-  fallback_dir <- tempfile("camtrapReport-fallback-")
-  dir.create(fallback_dir)
+  fallback_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-fallback-"
+  )
   
   on.exit(
     unlink(fallback_dir, recursive = TRUE, force = TRUE),
@@ -124,15 +130,17 @@ test_that("report does not invoke viewer after rendering failure", {
   original <- camtrap_test_report()
   report_object <- original$copy(shallow = FALSE)
   
-  output_dir <- tempfile("camtrapReport-viewer-")
-  dir.create(output_dir)
+  output_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-viewer-"
+  )
   
   old_viewer <- getOption("viewer")
-  viewer_called <- FALSE
+  viewer_state <- new.env(parent = emptyenv())
+  viewer_state$called <- FALSE
   
   options(
     viewer = function(path) {
-      viewer_called <<- TRUE
+      viewer_state$called <- TRUE
     }
   )
   
@@ -157,5 +165,5 @@ test_that("report does not invoke viewer after rendering failure", {
   )
   
   expect_s3_class(captured$value, "try-error")
-  expect_false(viewer_called)
+  expect_false(viewer_state$called)
 })

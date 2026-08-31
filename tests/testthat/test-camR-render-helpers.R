@@ -1,5 +1,5 @@
 test_that("package normalization handles vectors and comma-separated entries", {
-  normalize_packages <- camtrapReport:::.normalize_packages
+  normalize_packages <- ct_internal(".normalize_packages")
   
   expect_identical(
     normalize_packages(NULL),
@@ -27,7 +27,7 @@ test_that("package normalization handles vectors and comma-separated entries", {
 
 
 test_that("module package collection handles single report chunks", {
-  collect_packages <- camtrapReport:::.collect_module_packages
+  collect_packages <- ct_internal(".collect_module_packages")
   
   section <- reportSection(
     name = "summary",
@@ -48,7 +48,7 @@ test_that("module package collection handles single report chunks", {
 
 
 test_that("module package collection handles nested sections", {
-  collect_packages <- camtrapReport:::.collect_module_packages
+  collect_packages <- ct_internal(".collect_module_packages")
   
   first <- reportSection(
     name = "first",
@@ -84,7 +84,7 @@ test_that("module package collection handles nested sections", {
 
 
 test_that("module package collection handles lists of chunks", {
-  collect_packages <- camtrapReport:::.collect_module_packages
+  collect_packages <- ct_internal(".collect_module_packages")
   
   section <- reportSection(
     name = "multi_chunk",
@@ -124,7 +124,7 @@ test_that("module package collection handles lists of chunks", {
 
 
 test_that("module package collection handles empty structures", {
-  collect_packages <- camtrapReport:::.collect_module_packages
+  collect_packages <- ct_internal(".collect_module_packages")
   
   expect_identical(
     collect_packages(NULL),
@@ -148,19 +148,20 @@ test_that("module package collection handles empty structures", {
 })
 
 
-test_that("package loader creates an empty setup chunk", {
-  make_loader <- camtrapReport:::.make_package_loader_chunk
+test_that("package loader creates an empty uniquely labelled chunk", {
+  make_loader <- ct_internal(".make_package_loader_chunk")
   
   loader <- make_loader(
     pkgs = NULL,
     core = character(),
-    attach = TRUE
+    attach = TRUE,
+    label = "test-packages"
   )
   
   expect_identical(
     loader,
     paste0(
-      "```{r setup, include=FALSE}\n",
+      "```{r test-packages, include=FALSE}\n",
       "# no extra packages\n",
       "```\n"
     )
@@ -169,7 +170,7 @@ test_that("package loader creates an empty setup chunk", {
 
 
 test_that("package loader normalizes and deduplicates packages", {
-  make_loader <- camtrapReport:::.make_package_loader_chunk
+  make_loader <- ct_internal(".make_package_loader_chunk")
   
   loader <- make_loader(
     pkgs = c(
@@ -178,7 +179,8 @@ test_that("package loader normalizes and deduplicates packages", {
       "stats"
     ),
     core = c("knitr", " methods "),
-    attach = TRUE
+    attach = TRUE,
+    label = "test-packages"
   )
   
   expect_match(
@@ -204,7 +206,7 @@ test_that("package loader normalizes and deduplicates packages", {
     fixed = TRUE
   )
   
-  expect_equal(
+  expect_identical(
     lengths(
       regmatches(
         loader,
@@ -221,7 +223,7 @@ test_that("package loader normalizes and deduplicates packages", {
 
 
 test_that("package loader can check packages without attaching them", {
-  make_loader <- camtrapReport:::.make_package_loader_chunk
+  make_loader <- ct_internal(".make_package_loader_chunk")
   
   loader <- make_loader(
     pkgs = c("stats", "methods"),
@@ -248,18 +250,20 @@ test_that("package loader can check packages without attaching them", {
   
   expect_no_match(
     loader,
-    "library\\("
+    "library(",
+    fixed = TRUE
   )
   
   expect_no_match(
     loader,
-    "lapply\\("
+    "lapply(",
+    fixed = TRUE
   )
 })
 
 
 test_that("HTML attribute escaping protects report markup", {
-  escape_attribute <- camtrapReport:::.html_attr_escape
+  escape_attribute <- ct_internal(".html_attr_escape")
   
   result <- escape_attribute(
     '<image title="A & B">'
@@ -309,7 +313,7 @@ test_that("report logo block embeds a user-provided PNG", {
     file.exists(logo_file)
   )
   
-  logo_block <- camtrapReport:::.report_logo_block(
+  logo_block <- ct_internal(".report_logo_block")(
     logo_file
   )
   
@@ -340,7 +344,7 @@ test_that("report logo block embeds a user-provided PNG", {
 
 
 test_that("report logo block handles absent user logos safely", {
-  logo_block <- camtrapReport:::.report_logo_block(
+  logo_block <- ct_internal(".report_logo_block")(
     "a-logo-file-that-does-not-exist.png"
   )
   
@@ -378,7 +382,7 @@ test_that("report logo block handles absent user logos safely", {
 
 
 test_that("report CSS block contains essential report styles", {
-  css <- camtrapReport:::.report_css_block()
+  css <- ct_internal(".report_css_block")()
   
   expect_type(
     css,

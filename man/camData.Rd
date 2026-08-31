@@ -38,31 +38,21 @@ If habitat information is provided, it is linked to camera locations and
 used in habitat-related summaries. If a study-area boundary is provided, it
 is stored with the object and used in spatial summaries where relevant.
 
-The \code{camReport} object is saved within an extracted dataset directory as
-\verb{__camReport_Object.rds}. A later call using that directory reuses the saved
-object unless \code{update = TRUE}, in which case the object is recreated.
+The \code{camReport} object is normally saved within the dataset directory as
+\verb{__camReport_Object.rds}. A later call using the same dataset reuses the
+saved object unless \code{update = TRUE}, in which case the object is recreated.
+If the dataset location is not writable, a package-specific user cache
+directory is used instead.
 }
 \examples{
-\donttest{
-source_dataset <- system.file(
+example_dataset <- system.file(
   "external",
   "dataset",
   package = "camtrapReport"
 )
-example_dataset <- tempfile("camtrapReport-example-")
-dir.create(example_dataset)
-invisible(file.copy(
-  list.files(source_dataset, full.names = TRUE),
-  example_dataset,
-  recursive = TRUE
-))
 
 cm <- camData(example_dataset)
-
 cm
-
-unlink(example_dataset, recursive = TRUE, force = TRUE)
-}
 }
 \seealso{
 \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=info]{info()}}, \code{\link[=gui]{gui()}}

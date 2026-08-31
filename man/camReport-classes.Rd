@@ -17,6 +17,11 @@
 \alias{show,camReport-method}
 \alias{show,camInfo-method}
 \title{camReport classes}
+\value{
+A \code{camReport} reference-class object containing the imported
+camera-trap data, metadata, settings, analysis results, and report
+components.
+}
 \description{
 Class definitions used by camtrapReport to store camera-trap data, report
 metadata, report sections, and intermediate report objects.

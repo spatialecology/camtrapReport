@@ -1,10 +1,10 @@
 test_that("species and class helpers summarise the bundled data", {
   cm <- camtrap_test_report()
 
-  species_counts <- camtrapReport:::.get_species(cm$data, count = TRUE)
-  species_names <- camtrapReport:::.get_species(cm$data, count = FALSE)
-  class_counts <- camtrapReport:::.get_classes(cm$data, count = TRUE)
-  class_names <- camtrapReport:::.get_classes(cm$data, count = FALSE)
+  species_counts <- ct_internal(".get_species")(cm$data, count = TRUE)
+  species_names <- ct_internal(".get_species")(cm$data, count = FALSE)
+  class_counts <- ct_internal(".get_classes")(cm$data, count = TRUE)
+  class_names <- ct_internal(".get_classes")(cm$data, count = FALSE)
 
   expect_s3_class(species_counts, "data.frame")
   expect_true(all(species_names %in% species_counts$scientificName))
@@ -15,74 +15,86 @@ test_that("species and class helpers summarise the bundled data", {
 
 test_that("merged data can retain nested media records", {
   cm <- camtrap_test_report()
-  merged <- camtrapReport:::.merge_data(cm$data, dropMedia = FALSE)
+  merged <- ct_internal(".merge_data")(cm$data, dropMedia = FALSE)
 
   expect_s3_class(merged, "data.frame")
   expect_true("media" %in% names(merged))
-  expect_true(is.list(merged$media))
+  expect_type(merged$media, "list")
   expect_true(any(lengths(merged$media) > 0L))
 })
 
 test_that("effort helpers aggregate deployments and draw with base graphics", {
   cm <- camtrap_test_report()
-  total <- camtrapReport:::.calc_effort(cm$data, unit = "day")
-  by_location <- camtrapReport:::.calc_effort(
+  total <- ct_internal(".calc_effort")(cm$data, unit = "day")
+  by_location <- ct_internal(".calc_effort")(
     cm$data,
     by = "locationID",
     unit = "hour"
   )
-  step_table <- camtrapReport:::.effort_table(cm, startend = TRUE)
+  step_table <- ct_internal(".effort_table")(cm, startend = TRUE)
 
   expect_gt(total$effort, 0)
   expect_identical(total$unit, "day")
   expect_true(all(c("locationID", "effort") %in% names(by_location)))
   expect_true(all(c("time", "nrCams") %in% names(step_table)))
   expect_error(
-    camtrapReport:::.calc_effort(cm$data, by = "missing_column"),
+    ct_internal(".calc_effort")(cm$data, by = "missing_column"),
     "Grouping columns"
   )
 
-  file <- tempfile(fileext = ".pdf")
+  file <- withr::local_tempfile(fileext = ".pdf")
   grDevices::pdf(file)
-  on.exit(
-    {
-      grDevices::dev.off()
-      unlink(file, force = TRUE)
-    },
-    add = TRUE
-  )
-  expect_null(camtrapReport:::.plot_effort(cm, dynamic = FALSE))
+  on.exit(grDevices::dev.off(), add = TRUE)
+  expect_null(ct_internal(".plot_effort")(cm, dynamic = FALSE))
 })
 
 test_that("base left join handles equal and differently named keys", {
-  left <- data.frame(id = c(1, 2), value = c("a", "b"))
-  right <- data.frame(id = 2, extra = "x")
-  right2 <- data.frame(other_id = 2, extra = "x")
+  left <- data.frame(
+    id = c(1, 2),
+    value = c("a", "b"),
+    stringsAsFactors = FALSE
+  )
+  right <- data.frame(
+    id = 2,
+    extra = "x",
+    stringsAsFactors = FALSE
+  )
+  right2 <- data.frame(
+    other_id = 2,
+    extra = "x",
+    stringsAsFactors = FALSE
+  )
 
-  joined <- camtrapReport:::.left_join(left, right, "id")
-  joined2 <- camtrapReport:::.left_join(left, right2, c("id", "other_id"))
+  joined <- ct_internal(".left_join")(left, right, "id")
+  joined2 <- ct_internal(".left_join")(left, right2, c("id", "other_id"))
 
   expect_identical(nrow(joined), 2L)
   expect_identical(nrow(joined2), 2L)
   expect_true(is.na(joined$extra[joined$id == 1]))
-  expect_error(camtrapReport:::.left_join(left, right, "missing"))
+  expect_error(ct_internal(".left_join")(left, right, "missing"))
 })
 
-test_that("the internal pivot helper supports tidy-style column specifications", {
+test_that(
+  paste0(
+    "the internal pivot helper supports tidy-style ",
+    "column specifications"
+  ),
+  {
   data <- data.frame(
     location = c("A", "A", "B"),
     species = c("fox", "hare", "fox"),
-    count = c(2, 1, 3)
+    count = c(2, 1, 3),
+    stringsAsFactors = FALSE
   )
 
-  wide_bare <- camtrapReport:::.pivot_wider(
+  wide_bare <- ct_internal(".pivot_wider")(
     data,
     id_cols = location,
     names_from = species,
     values_from = count
   )
   ids <- "location"
-  wide_character <- camtrapReport:::.pivot_wider(
+  wide_character <- ct_internal(".pivot_wider")(
     data,
     id_cols = ids,
     names_from = "species",
@@ -93,11 +105,11 @@ test_that("the internal pivot helper supports tidy-style column specifications",
   expect_true(all(c("location", "fox", "hare") %in% names(wide_bare)))
   expect_identical(wide_bare$hare[wide_bare$location == "B"], 0)
   expect_error(
-    camtrapReport:::.pivot_wider(data, id_cols = character(), species, count),
+    ct_internal(".pivot_wider")(data, id_cols = character(), species, count),
     "No 'id_cols'"
   )
   expect_error(
-    camtrapReport:::.pivot_wider(data, location, unknown, count),
+    ct_internal(".pivot_wider")(data, location, unknown, count),
     "Unknown column"
   )
 })

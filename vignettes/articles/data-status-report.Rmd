@@ -41,16 +41,62 @@ knitr::include_graphics("figures/data-status/data-status-workflow.png")
 
 
 ```{r data-status-basic-code, eval=FALSE}
-cm <- camData(
-  data = "/path/camera-trap-data.zip",
-  habitat = "/path/habitat.csv",
-  study_area = "/path/study_area.shp")
+library(camtrapReport)
 
-status(cm, filename = "/path/outputs/status", view = TRUE)
-```
+# Copy the bundled example dataset to a writable temporary directory
+example_root <- tempfile("camtrapReport-example-")
+dir.create(example_root, recursive = TRUE)
+
+example_source <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport",
+  mustWork = TRUE
+)
+
+copied <- file.copy(
+  from = example_source,
+  to = example_root,
+  recursive = TRUE,
+  copy.mode = FALSE
+)
+
+stopifnot(
+  isTRUE(copied),
+  dir.exists(file.path(example_root, "dataset"))
+)
+
+# Load the example camera-trap data
+cm <- camData(
+  file.path(example_root, "dataset"),
+  update = TRUE
+)
+
+# Generate and view the Data Status Report
+status(cm, view = TRUE)
 ```
 
 When `view = TRUE`, the generated report is opened in the browser. This provides a quick, human-readable overview of dataset quality, completeness, and consistency.
+
+The function also invisibly returns the path to the HTML report. By default,
+`data_status.html` and its intermediate `data_status.Rmd` file are written to
+the R session's temporary directory. Use `filename` to give another file stem
+or a path inside an existing output directory:
+
+```{r data-status-output-path, eval=FALSE}
+dir.create(
+  "reports",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
+status_file <- status(
+  cm,
+  filename = file.path("reports", "data_status_2026"),
+  view = FALSE
+)
+```
+
 An existing file with the same name may be replaced. Use a deliberate, versioned filename when reports from multiple processing runs must be retained.
 
 

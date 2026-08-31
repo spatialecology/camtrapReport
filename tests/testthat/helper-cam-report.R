@@ -1,26 +1,4 @@
 .camtrap_test_cache <- new.env(parent = emptyenv())
-.camtrap_test_cache$temp_paths <- character()
-
-reg.finalizer(
-  .camtrap_test_cache,
-  function(cache) {
-    unlink(
-      cache$temp_paths,
-      recursive = TRUE,
-      force = TRUE
-    )
-  },
-  onexit = TRUE
-)
-
-.register_camtrap_test_path <- function(path) {
-  .camtrap_test_cache$temp_paths <- unique(c(
-    .camtrap_test_cache$temp_paths,
-    path
-  ))
-
-  path
-}
 
 camtrap_test_dataset <- function() {
   path <- system.file("external/dataset", package = "camtrapReport")
@@ -34,13 +12,10 @@ camtrap_test_dataset <- function() {
 
 copy_camtrap_test_dataset <- function() {
   source <- camtrap_test_dataset()
-  root <- .register_camtrap_test_path(
-    tempfile("camtrapReport-test-data-")
+  root <- withr::local_tempdir(
+    pattern = "camtrapReport-test-data-",
+    .local_envir = testthat::teardown_env()
   )
-
-  if (!dir.create(root)) {
-    stop("Could not create a temporary directory for the test dataset.")
-  }
 
   copied <- file.copy(source, root, recursive = TRUE, copy.date = TRUE)
 
@@ -84,21 +59,26 @@ camtrap_test_report <- function() {
     
     invisible(
       capture.output(
-        object <- withCallingHandlers(
-          suppressMessages(
-            camData(
-              dataset,
-              update = TRUE
-            )
-          ),
-          warning = function(w) {
-            if (grepl(
-              "chi\\^2 approximation may be inaccurate",
-              conditionMessage(w)
-            )) {
-              invokeRestart("muffleWarning")
+        assign(
+          "object",
+          withCallingHandlers(
+            suppressMessages(
+              camData(
+                dataset,
+                update = TRUE
+              )
+            ),
+            warning = function(w) {
+              if (grepl(
+                "chi^2 approximation may be inaccurate",
+                conditionMessage(w),
+                fixed = TRUE
+              )) {
+                invokeRestart("muffleWarning")
+              }
             }
-          }
+          ),
+          envir = environment()
         )
       )
     )
@@ -145,14 +125,10 @@ copy_camtrap_module_library <- function() {
   if (!nzchar(source) || !dir.exists(source)) {
     stop("The bundled report module library is not available.")
   }
-
-  root <- .register_camtrap_test_path(
-    tempfile("camtrapReport-test-modules-")
+  root <- withr::local_tempdir(
+    pattern = "camtrapReport-test-modules-",
+    .local_envir = testthat::teardown_env()
   )
-
-  if (!dir.create(root)) {
-    stop("Could not create a temporary module directory.")
-  }
 
   copied <- file.copy(source, root, recursive = TRUE, copy.date = TRUE)
 

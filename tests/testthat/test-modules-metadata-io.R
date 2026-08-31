@@ -1,13 +1,14 @@
 test_that("section_dir uses a supplied existing directory", {
-  test_dir <- tempfile("camtrapReport-section-dir-")
-  dir.create(test_dir)
+  test_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-section-dir-"
+  )
   
   on.exit(
     unlink(test_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
   
-  result <- camtrapReport:::.section_dir(
+  result <- ct_internal(".section_dir")(
     dir = test_dir
   )
   
@@ -32,7 +33,7 @@ test_that("section_dir rejects a supplied missing directory", {
   )
   
   expect_error(
-    camtrapReport:::.section_dir(
+    ct_internal(".section_dir")(
       dir = missing_dir
     )
   )
@@ -40,8 +41,9 @@ test_that("section_dir rejects a supplied missing directory", {
 
 
 test_that("modules_info_path finds the metadata CSV", {
-  test_dir <- tempfile("camtrapReport-module-info-")
-  dir.create(test_dir)
+  test_dir <- withr::local_tempdir(
+    pattern = "camtrapReport-module-info-"
+  )
   
   on.exit(
     unlink(test_dir, recursive = TRUE, force = TRUE),
@@ -64,7 +66,7 @@ test_that("modules_info_path finds the metadata CSV", {
     row.names = FALSE
   )
   
-  result <- camtrapReport:::.modules_info_path(
+  result <- ct_internal(".modules_info_path")(
     test_dir
   )
   
@@ -102,7 +104,7 @@ test_that("modules_info_path accepts a prefixed metadata filename", {
   
   file.create(info_file)
   
-  result <- camtrapReport:::.modules_info_path(
+  result <- ct_internal(".modules_info_path")(
     test_dir
   )
   
@@ -126,7 +128,7 @@ test_that("modules_info_path errors when metadata CSV is absent", {
   )
   
   expect_error(
-    camtrapReport:::.modules_info_path(
+    ct_internal(".modules_info_path")(
       test_dir
     ),
     "Could not find '__modulesList.csv'",
@@ -148,7 +150,7 @@ test_that("read_modules_info errors when metadata is missing", {
   )
   
   expect_error(
-    camtrapReport:::.read_modules_info(
+    ct_internal(".read_modules_info")(
       dir = test_dir,
       create_if_missing = FALSE
     ),
@@ -177,7 +179,7 @@ test_that("read_modules_info creates metadata from root sections", {
     "appendix"
   )
   
-  result <- camtrapReport:::.read_modules_info(
+  result <- ct_internal(".read_modules_info")(
     dir = test_dir,
     level0 = level0,
     create_if_missing = TRUE
@@ -227,13 +229,13 @@ test_that("created module metadata can be read again", {
     "results"
   )
   
-  created <- camtrapReport:::.read_modules_info(
+  created <- ct_internal(".read_modules_info")(
     dir = test_dir,
     level0 = level0,
     create_if_missing = TRUE
   )
   
-  reread <- camtrapReport:::.read_modules_info(
+  reread <- ct_internal(".read_modules_info")(
     dir = test_dir,
     create_if_missing = FALSE
   )
@@ -280,7 +282,7 @@ test_that("read_modules_info sorts rows by ID", {
     row.names = FALSE
   )
   
-  result <- camtrapReport:::.read_modules_info(
+  result <- ct_internal(".read_modules_info")(
     dir = test_dir
   )
   
@@ -339,7 +341,7 @@ test_that("read_modules_info normalizes parent values", {
     na = ""
   )
   
-  result <- camtrapReport:::.read_modules_info(
+  result <- ct_internal(".read_modules_info")(
     dir = test_dir
   )
   
@@ -395,7 +397,7 @@ test_that("read_modules_info removes blank and duplicate names", {
     row.names = FALSE
   )
   
-  result <- camtrapReport:::.read_modules_info(
+  result <- ct_internal(".read_modules_info")(
     dir = test_dir
   )
   
@@ -459,7 +461,7 @@ test_that("read_modules_info handles metadata without an ID column", {
     row.names = FALSE
   )
   
-  result <- camtrapReport:::.read_modules_info(
+  result <- ct_internal(".read_modules_info")(
     dir = test_dir
   )
   

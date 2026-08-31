@@ -18,7 +18,7 @@ test_that("reportSection captures code, settings, and package requirements", {
     name = "summary",
     title = "Summary",
     code_setting = {c(echo = FALSE, results = "asis")},
-    packages = c("stats"),
+    packages = "stats",
     code = {
       mean(1:3)
     }
@@ -50,7 +50,7 @@ test_that("testSection renders a self-contained section", {
 })
 
 test_that("low-level report chunks and Pandoc attributes are preserved", {
-  chunk <- camtrapReport:::.getRchunk(
+  chunk <- ct_internal(".getRchunk")(
     parent = "methods",
     name = "low_level",
     setting = {c(echo = FALSE)},
@@ -60,7 +60,7 @@ test_that("low-level report chunks and Pandoc attributes are preserved", {
     }
   )
   env <- list2env(list(value = "camera traps"), parent = baseenv())
-  glued <- camtrapReport:::.safe_glue_text(
+  glued <- ct_internal(".safe_glue_text")(
     "Results for {value} {.unnumbered}",
     env,
     "pandoc_test"
@@ -69,11 +69,11 @@ test_that("low-level report chunks and Pandoc attributes are preserved", {
   expect_s4_class(chunk, ".Rchunk")
   expect_match(chunk@setting, "echo = FALSE", fixed = TRUE)
   expect_identical(glued, "Results for camera traps {.unnumbered}")
-  expect_identical(camtrapReport:::.clean_chunk_name("bad & name"), "bad_name")
-  expect_identical(camtrapReport:::.clean_chunk_name("", ""), "module")
-  expect_identical(camtrapReport:::.glueRchunk(NULL), "")
+  expect_identical(ct_internal(".clean_chunk_name")("bad & name"), "bad_name")
+  expect_identical(ct_internal(".clean_chunk_name")("", ""), "module")
+  expect_identical(ct_internal(".glueRchunk")(NULL), "")
   expect_error(
-    camtrapReport:::.safe_glue_text("{missing_value}", env, "bad_section"),
+    ct_internal(".safe_glue_text")("{missing_value}", env, "bad_section"),
     "bad_section"
   )
 })
@@ -82,11 +82,11 @@ test_that("quick section checks report rendering success and failure", {
   skip_if_not(rmarkdown::pandoc_available())
 
   valid <- reportSection("quick_valid", txt = "Valid quick test")
-  expect_true(camtrapReport:::.QuickTestReportSection(valid))
+  expect_true(ct_internal(".QuickTestReportSection")(valid))
 
   testthat::local_mocked_bindings(
     render = function(...) stop("intentional render failure"),
     .package = "rmarkdown"
   )
-  expect_false(camtrapReport:::.QuickTestReportSection(valid))
+  expect_false(ct_internal(".QuickTestReportSection")(valid))
 })

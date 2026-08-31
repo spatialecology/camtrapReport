@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.48</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.47</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,12 +133,77 @@ visualisation. This processed object is then passed to the
 <code><a href="../reference/report.html">report()</a></code> function, which generates a complete HTML
 Ecological Report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="st">"/path/camera-trap-data.zip"</span>,</span>
-<span>  habitat <span class="op">=</span> <span class="st">"/path/habitat.csv"</span>,</span>
-<span>  study_area <span class="op">=</span> <span class="st">"/path/study_area.shp"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"/path/outputs/report"</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Copy the bundled example dataset to a writable temporary directory</span></span>
+<span><span class="va">example_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">example_root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">example_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>  <span class="st">"external"</span>,</span>
+<span>  <span class="st">"dataset"</span>,</span>
+<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
+<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">copied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span></span>
+<span>  from <span class="op">=</span> <span class="va">example_source</span>,</span>
+<span>  to <span class="op">=</span> <span class="va">example_root</span>,</span>
+<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  copy.mode <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>    <span class="st">"external"</span>,</span>
+<span>    <span class="st">"habitat"</span>,</span>
+<span>    <span class="st">"habitat.csv"</span>,</span>
+<span>    package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
+<span>    mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">study_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>  <span class="st">"external"</span>,</span>
+<span>  <span class="st">"study_area"</span>,</span>
+<span>  <span class="st">"study_area.shp"</span>,</span>
+<span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span>,</span>
+<span>  mustWork <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">copied</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load the example camera-trap data and optional spatial inputs</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">example_root</span>, <span class="st">"dataset"</span><span class="op">)</span>,</span>
+<span>  habitat <span class="op">=</span> <span class="va">habitat</span>,</span>
+<span>  study_area <span class="op">=</span> <span class="va">study_area</span>,</span>
+<span>  update <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the Ecological Report</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/report.html">report()</a></code> invisibly returns the path to the generated
+HTML file. By default, <code>report.html</code> and the intermediate
+<code>report.Rmd</code> file are written to the R session’s temporary
+directory. A specific file stem or a path inside an existing output
+directory can be supplied through <code>filename</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span></span>
+<span>  <span class="st">"reports"</span>,</span>
+<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  showWarnings <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"ecological_report_2026"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>An existing output with the same name may be replaced. Use explicit,
 versioned filenames when reports from multiple datasets, settings, or
 processing dates must be retained.</p>
@@ -424,7 +489,7 @@ Specific fields, such as the report title, subtitle, authors, institute,
 site name, or logo path, can also be retrieved individually. If needed,
 these fields can be updated before generating the final report using the
 following steps:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View all available metadata fields</span></span>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
@@ -437,13 +502,14 @@ following steps:</p>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Update metadata fields</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-Trap Monitoring Report:GMU8 Leuven, Belgium"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"title"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"</span></span>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"subtitle"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Ecological insights from long-term camera-trap data"</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"First Author"</span>, <span class="st">"Second Author"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Research Institute for Nature and Forest"</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"GMU8 Monitoring site"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Elham Ebrahimi"</span>, <span class="st">"Patrick Jansen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"institute"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Utrecht University, the Netherlands"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"siteName"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Hoge Veluwe National Park"</span></span>
+<span></span>
 <span><span class="co"># Optional: add an institute or project logo</span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"path_to_logo/Organisation_logo.png"</span></span>
+<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"logoPath"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"path_to_logo/UU_logo.png"</span></span>
 <span></span>
 <span><span class="co"># Check the updated metadata</span></span>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
@@ -461,7 +527,7 @@ as <code>large_mammals</code>, <code>wild_animals</code>,
 or more fields, including <code>scientificName</code>,
 <code>class</code>, <code>order</code>, and
 <code>observationType</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check the current focus group</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">focus_groups</span></span>
 <span></span>
@@ -483,7 +549,7 @@ or more fields, including <code>scientificName</code>,
 a specific set of species or records. Before defining a new group, it is
 useful to check the species table to see which species are available in
 the dataset.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check the list of species available in the dataset</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="va">data_status</span><span class="op">$</span><span class="va">Species</span><span class="op">$</span><span class="va">Table</span></span>
 <span></span>
@@ -517,12 +583,12 @@ focus on a specific time window, such as a single monitoring year or a
 multi-year period. The count filter can also be adjusted to control the
 minimum number of observations required for a species to be included in
 the report.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check which years are available in the dataset</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">extractYears</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Select a specific monitoring period</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2022</span><span class="op">:</span><span class="fl">2023</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2023</span><span class="op">:</span><span class="fl">2024</span></span>
 <span></span>
 <span><span class="co"># Re-run setup after changing the selected years</span></span>
 <span><span class="va">cm</span><span class="op">$</span><span class="fu">setup</span><span class="op">(</span><span class="op">)</span></span>
@@ -542,7 +608,7 @@ the report.</p>
 <p>Users can also control which sections are included in the final
 report. This is useful when a shorter report is needed, or when some
 analyses are not relevant for a particular dataset.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View the sections currently available</span></span>
 <span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
