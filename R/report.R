@@ -5,7 +5,7 @@
 setGeneric(
   "report",
   function(object, filename, view, test) {
-  methods::standardGeneric("report")
+    methods::standardGeneric("report")
   }
 )
 .generate_report <- function(object, output_file, rmd_file) {
@@ -38,10 +38,10 @@ setGeneric(
 #'   [camData()].
 #' @param filename An optional character string giving the output filename or
 #'   file path without an extension. The default is `"report"` for `report()`
-#'   and `"data_status"` for `status()`. If no output directory is explicitly
-#'   supplied, files are written to the R session's temporary directory.
-#' @param view A logical value (default `FALSE`) specifying whether
-#'   the generated HTML report is opened after rendering.
+#'   and `"data_status"` for `status()`. Relative default filenames are written
+#'   to the camera-trap data directory.
+#' @param view A logical value (default `FALSE`) specifying whether the generated
+#'   HTML report is opened after rendering.
 #' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
 #'   tested when ecological report generation fails, helping identify
 #'   problematic modules.
@@ -59,16 +59,28 @@ setGeneric(
 #' @name report
 #' @aliases report status report,camReport-method status,camReport-method
 #'
-#' @examplesIf rmarkdown::pandoc_available()
-#' example_dataset <- system.file(
+#' @examples
+#' \donttest{
+#' if (rmarkdown::pandoc_available()) {
+#' source_dataset <- system.file(
 #'   "external",
 #'   "dataset",
 #'   package = "camtrapReport"
 #' )
+#' example_dataset <- tempfile("camtrapReport-example-")
+#' dir.create(example_dataset)
+#' invisible(file.copy(
+#'   list.files(source_dataset, full.names = TRUE),
+#'   example_dataset,
+#'   recursive = TRUE
+#' ))
 #'
 #' cm <- camData(example_dataset)
+#'
+#' # Use one lightweight section for the ecological report
 #' cm <- sections(cm, "introduction")
 #'
+#' # Generate an ecological report in a temporary directory
 #' report_stem <- tempfile("camtrapReport-report-")
 #' report_file <- report(
 #'   cm,
@@ -78,9 +90,7 @@ setGeneric(
 #'
 #' file.exists(report_file)
 #'
-#' @examplesIf rmarkdown::pandoc_available() &&
-#'   requireNamespace("readr", quietly = TRUE) &&
-#'   requireNamespace("ggplot2", quietly = TRUE)
+#' # Generate a data-status report in a temporary directory
 #' status_stem <- tempfile("camtrapReport-status-")
 #' status_file <- status(
 #'   cm,
@@ -95,8 +105,11 @@ setGeneric(
 #'   report_file,
 #'   paste0(report_stem, ".Rmd"),
 #'   status_file,
-#'   paste0(status_stem, ".Rmd")
-#' ))
+#'   paste0(status_stem, ".Rmd"),
+#'   example_dataset
+#' ), recursive = TRUE, force = TRUE)
+#' }
+#' }
 setMethod(
   "report",
   signature(object = "camReport"),
@@ -116,7 +129,14 @@ setMethod(
     }
     
     # Resolve base output directory
-    base_dir <- tempdir()
+    base_dir <- object$info$directory
+    
+    base_dir <- tryCatch(
+      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
+      error = function(e) {
+        getwd()
+      }
+    )
     
     # Decide final output stem
     if (is.null(fi)) {
@@ -155,18 +175,15 @@ setMethod(
         
         if (length(ww) > 0) {
           
-          .path <- file.path(tempdir(), "_camtrapReport_test")
-          dir.create(.path, showWarnings = FALSE, recursive = TRUE)
+          dir.create(
+            paste0(object$info$directory, "/_temp"),
+            showWarnings = FALSE
+          )
           
-          if (!dir.exists(.path)) {
+          if (dir.exists(paste0(object$info$directory, "/_temp"))) {
+            .path <- paste0(object$info$directory, "/_temp")
+          } else {
             .path <- NULL
-          }
-
-          if (!is.null(.path)) {
-            on.exit(
-              unlink(.path, recursive = TRUE, force = TRUE),
-              add = TRUE
-            )
           }
           
           n <- object$reportObjectElements$Modules_info$name[ww]
@@ -191,8 +208,7 @@ setMethod(
           )
           
           message(
-            "\nTesting is done; the modules are attached, ",
-            "and the report generation is started...!"
+            "\nTesting is done; the modules are attached, and the report generation is started...!"
           )
           
           return(report(object, filename = filename, view = view, test = FALSE))
@@ -200,32 +216,25 @@ setMethod(
         } else {
           
           if (!all(object$reportObjectElements$Modules_info$tested)) {
+            
             .attach_modules(
               object,
               n = object$reportObjectElements$Modules_info$name[
                 which(object$reportObjectElements$Modules_info$tested)
               ]
             )
-
-            return(report(
-              object,
-              filename = filename,
-              view = view,
-              test = FALSE
-            ))
+            
+            return(report(object, filename = filename, view = view, test = FALSE))
+            
+          } else {
+            stop("Although all sections are tested, the report cannot be generated...!")
           }
-
-          stop(
-            "Although all sections are tested, ",
-            "the report cannot be generated...!"
-          )
         }
         
       } else {
         
         message(
-          "Report generation is stopped because of an error; ",
-          "add `test = TRUE` to exclude the modules that cause error!"
+          "Report generation is stopped because of an error; add `test = TRUE` to exclude the modules that cause error!"
         )
         
         return(w)

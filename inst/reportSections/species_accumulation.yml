@@ -193,15 +193,14 @@ code: |
   if (length(years_chr) <= length(tol_cols)) {
     year_cols <- setNames(tol_cols[seq_along(years_chr)], years_chr)
   } else {
-    extra_cols <- grDevices::hcl.colors(
-  length(years_chr) - length(tol_cols),
-  palette = "Dark 3")
+    extra_cols <- .eval("grDevices::hcl.colors(length(years_chr) - length(tol_cols), palette = 'Dark 3')",env=environment())
     year_cols <- setNames(c(tol_cols, extra_cols), years_chr)
   }
 
   fill_cols <- setNames(
-  grDevices::adjustcolor(year_cols, alpha.f = 0.18),
-  names(year_cols) )
+    .eval("grDevices::adjustcolor(year_cols, alpha.f = 0.18)",env=environment()),
+    names(year_cols)
+  )
 
   style_gginext_plot <- function(p,
                                  show_ribbon = TRUE,

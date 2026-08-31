@@ -61,25 +61,32 @@ report sections attached to the object.
 }
 \description{
 Update the content of a report section in a
-\code{\link[=camReport-classes]{camReport}} object, or list the report
-sections currently attached to the object.
+\code{\link[=camReport-classes]{camReport}} object, or list the report sections currently
+attached to the object.
 }
 \details{
 Report sections can be identified using either their name or title.
-\code{listReportSections()} lists the sections attached to a
-\code{camReport} object and can be used to find the exact section names
-before updating them.
+\code{listReportSections()} lists the sections attached to a \code{camReport} object and
+can be used to find the exact section names before updating them.
 
 \code{updateReportSection()} is useful for adapting the default report content to
 project-specific needs, including changing section titles, replacing or
 appending text, and adding or updating R code chunks.
 }
 \examples{
-example_dataset <- system.file(
+\donttest{
+source_dataset <- system.file(
   "external",
   "dataset",
   package = "camtrapReport"
 )
+example_dataset <- tempfile("camtrapReport-example-")
+dir.create(example_dataset)
+invisible(file.copy(
+  list.files(source_dataset, full.names = TRUE),
+  example_dataset,
+  recursive = TRUE
+))
 
 cm <- camData(example_dataset)
 
@@ -87,31 +94,34 @@ cm <- camData(example_dataset)
 section_catalog <- listReportSections(cm)
 head(section_catalog)
 
-# Update the methods section
+# Update the introduction
 cm <- updateReportSection(
   cm,
-  section = "methods",
-  title = "Project methods",
+  section = "introduction",
+  title = "Project introduction",
   text = paste(
-    "This section describes camera-trap monitoring",
-    "methods for the example study site."
+    "This report summarises camera-trap monitoring",
+    "data for the example study site."
   )
 )
 
 # Confirm the updated section title
 updated_catalog <- listReportSections(cm)
 updated_catalog[
-  updated_catalog$name == "methods",
+  updated_catalog$name == "introduction",
   c("name", "title"),
   drop = FALSE
 ]
+
+unlink(example_dataset, recursive = TRUE, force = TRUE)
+}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=info]{info()}}
 
-Other report sections:
+Other report sections: 
 \code{\link{reportSection,character-method}},
-\code{\link[=section_names]{section_names()}},
+\code{\link{section_names}()},
 \code{\link{testSection,.textSection-method}}
 }
 \concept{report sections}

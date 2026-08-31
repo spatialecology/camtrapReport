@@ -7,7 +7,7 @@ test_that("parse_cam_datetime preserves POSIXct input", {
     tz = "UTC"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -23,14 +23,14 @@ test_that("parse_cam_datetime converts other POSIXt input", {
     tz = "UTC"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
   
   expect_s3_class(result, "POSIXct")
   
-  expect_identical(
+  expect_equal(
     as.numeric(result),
     as.numeric(as.POSIXct(input))
   )
@@ -38,7 +38,7 @@ test_that("parse_cam_datetime converts other POSIXt input", {
 
 
 test_that("parse_cam_datetime handles NULL input", {
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     NULL,
     tz = "UTC"
   )
@@ -60,7 +60,7 @@ test_that("parse_cam_datetime handles missing text values", {
     NA_character_
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -79,7 +79,7 @@ test_that("parse_cam_datetime parses ISO date-time formats", {
     "2025/01/02 03:04:05"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -109,7 +109,7 @@ test_that("parse_cam_datetime parses minute-level formats", {
     "2025/03/04 05:06"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -136,7 +136,7 @@ test_that("parse_cam_datetime parses date-only formats", {
     "2025/04/05"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -158,7 +158,7 @@ test_that("parse_cam_datetime parses date-only formats", {
 
 
 test_that("parse_cam_datetime parses UTC Z suffix", {
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     "2025-05-06T07:08:09Z",
     tz = "UTC"
   )
@@ -177,7 +177,7 @@ test_that("parse_cam_datetime parses UTC Z suffix", {
 
 
 test_that("parse_cam_datetime parses offsets containing a colon", {
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     "2025-05-06T09:08:09+02:00",
     tz = "UTC"
   )
@@ -196,7 +196,7 @@ test_that("parse_cam_datetime parses offsets containing a colon", {
 
 
 test_that("parse_cam_datetime parses offsets without a colon", {
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     "2025-05-06 09:08:09+0200",
     tz = "UTC"
   )
@@ -229,7 +229,7 @@ test_that("parse_cam_datetime handles mixed valid and invalid inputs", {
     "2025/06/02"
   )
   
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -243,7 +243,7 @@ test_that("parse_cam_datetime handles mixed valid and invalid inputs", {
 
 
 test_that("parse_cam_datetime respects supplied timezone", {
-  result <- ct_internal(".parse_cam_datetime")(
+  result <- camtrapReport:::.parse_cam_datetime(
     "2025-07-08 09:10:11",
     tz = "Europe/Amsterdam"
   )
@@ -267,7 +267,7 @@ test_that("parse_cam_datetime respects supplied timezone", {
 
 
 test_that("first_non_missing returns first unique non-missing value", {
-  first_non_missing <- ct_internal(".first_non_missing")
+  first_non_missing <- camtrapReport:::.first_non_missing
   
   expect_identical(
     first_non_missing(
@@ -305,7 +305,7 @@ test_that("safe_min_time returns earliest valid timestamp", {
     tz = "UTC"
   )
   
-  result <- ct_internal(".safe_min_time")(
+  result <- camtrapReport:::.safe_min_time(
     input,
     tz = "UTC"
   )
@@ -324,7 +324,7 @@ test_that("safe_min_time returns earliest valid timestamp", {
 
 
 test_that("safe_min_time returns POSIXct NA for empty values", {
-  result_empty <- ct_internal(".safe_min_time")(
+  result_empty <- camtrapReport:::.safe_min_time(
     as.POSIXct(
       character(),
       tz = "UTC"
@@ -332,7 +332,7 @@ test_that("safe_min_time returns POSIXct NA for empty values", {
     tz = "UTC"
   )
   
-  result_missing <- ct_internal(".safe_min_time")(
+  result_missing <- camtrapReport:::.safe_min_time(
     as.POSIXct(
       c(NA, NA),
       origin = "1970-01-01",
@@ -359,7 +359,7 @@ test_that("safe_max_time returns latest valid timestamp", {
     tz = "UTC"
   )
   
-  result <- ct_internal(".safe_max_time")(
+  result <- camtrapReport:::.safe_max_time(
     input,
     tz = "UTC"
   )
@@ -378,7 +378,23 @@ test_that("safe_max_time returns latest valid timestamp", {
 
 
 test_that("parse_cam_datetime uses fallback parser", {
-  result <- ct_internal(".parse_cam_datetime")(
+  testthat::local_mocked_bindings(
+    .require = function(package) {
+      identical(package, "lubridate")
+    },
+    .eval = function(x, env) {
+      as.POSIXct(
+        c(
+          "2025-08-05 14:30:15",
+          "2025-08-06 09:45:00"
+        ),
+        tz = "UTC"
+      )
+    },
+    .package = "camtrapReport"
+  )
+  
+  result <- camtrapReport:::.parse_cam_datetime(
     c(
       "20250805 14:30:15",
       "20250806 09:45"

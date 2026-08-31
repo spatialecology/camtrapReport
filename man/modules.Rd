@@ -16,17 +16,17 @@
 \alias{list_Modules,ANY-method}
 \title{Manage report modules}
 \usage{
-add_Module(x, before, after, test, object, dir)
+add_Module(x, before, after, test, object)
 
-move_Module(name, before, after, parent, level0, dir)
+move_Module(name, before, after, parent, level0)
 
-remove_Module(name, recursive, dir)
+remove_Module(name, recursive)
 
-restore_Module(name, batch_id, test, dir)
+restore_Module(name, batch_id, test)
 
-empty_trash(name, id, dir)
+empty_trash(name, id)
 
-list_Modules(tree, brief, include_trash, validate, dir)
+list_Modules(tree, brief, include_trash, validate)
 }
 \arguments{
 \item{x}{A character string giving the path to a module YAML file to add to
@@ -46,12 +46,6 @@ For \code{restore_Module()}, the default is \code{TRUE}.}
 \item{object}{An optional \code{\link[=camReport-classes]{camReport}} object used when
 testing a module that requires access to report data. The default is
 \code{NULL}.}
-
-\item{dir}{An optional character string giving a module-registry directory.
-Read-only operations use the package's bundled registry when \code{dir = NULL}.
-Operations that add, move, remove, restore, or permanently delete modules
-require an explicit writable \code{dir} and never modify the installed package
-directory.}
 
 \item{name}{A character string naming the module to move, remove, restore, or
 permanently delete from the trash. For \code{empty_trash()}, the default is
@@ -99,9 +93,12 @@ camtrapReport uses a modular report architecture in which each report section
 is stored as a module. A module can contain section metadata, text,
 executable R code, required packages, and rendering settings.
 
-\code{add_Module()} adds a new YAML-defined module to an explicitly
-supplied writable module directory. The module can optionally be
-inserted before or after an existing module.
+Because modules can execute arbitrary R code with the permissions of the
+current R process, only install modules from trusted sources and inspect their
+contents before running them.
+
+\code{add_Module()} adds a new YAML-defined module to the package module directory.
+The module can optionally be inserted before or after an existing module.
 
 \code{move_Module()} changes the position or parent of an existing module within
 the hierarchical report structure.
@@ -124,25 +121,9 @@ head(module_tree)
 # List modules in table form
 module_table <- list_Modules(tree = FALSE)
 head(module_table)
-
-if (interactive()) {
-  # Mutating operations require an explicit writable module directory.
-  module_dir <- tempfile("camtrapReport-modules-")
-  dir.create(module_dir)
-
-  bundled_dir <- system.file("reportSections", package = "camtrapReport")
-  files <- list.files(bundled_dir, full.names = TRUE, recursive = FALSE)
-  file.copy(files, module_dir, recursive = TRUE)
-
-  # Example:
-  # add_Module("new_module.yml", after = "captures", dir = module_dir)
-}
 }
 \seealso{
 \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, \code{\link[=testSection]{testSection()}},
 \code{\link[=report]{report()}}
-
-Other report modules:
-\code{\link[=install_all]{install_all()}}
 }
 \concept{report modules}

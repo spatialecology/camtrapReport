@@ -27,7 +27,14 @@ setMethod("status",signature(object = "camReport"),
     }
     
     # Resolve base output directory
-    base_dir <- tempdir()
+    base_dir <- object$info$directory
+    
+    base_dir <- tryCatch(
+      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
+      error = function(e) {
+        getwd()
+      }
+    )
     
     # Decide final output stem
     if (is.null(fi)) {

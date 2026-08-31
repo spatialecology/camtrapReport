@@ -1,10 +1,36 @@
-citHeader("To cite camtrapReport in publications, use:")
+citHeader(paste(
+  "To cite the camtrapReport R package, use the first entry below.",
+  "The second entry is a conference paper describing the package."
+))
 
 bibentry(
   bibtype = "Manual",
-  title = "camtrapReport: Camera-Trap Report Generator",
+  title = "camtrapReport: An R Package for Automated Camera-Trap Reporting",
   author = person("Elham", "Ebrahimi"),
   year = "2026",
   note = "R package version 1.0.47",
-  url = "https://spatialecology.github.io/camtrapReport/"
+  url = "https://github.com/spatialecology/camtrapReport",
+  textVersion = paste(
+    "Ebrahimi, Elham (2026).",
+    "camtrapReport: An R Package for Automated Camera-Trap Reporting.",
+    "R package version 1.0.47.",
+    "https://github.com/spatialecology/camtrapReport."
+  )
+)
+
+bibentry(
+  bibtype = "Misc",
+  title = paste(
+    "camtrapReport: An R Package for Automating Camera-Trap Data Reporting",
+    "for Wildlife Monitoring"
+  ),
+  author = c(
+    person("Elham", "Ebrahimi"),
+    person("Patrick A.", "Jansen")
+  ),
+  year = "2026",
+  howpublished = "Conference paper",
+  publisher = "Zenodo",
+  doi = "10.5281/zenodo.18405441",
+  url = "https://doi.org/10.5281/zenodo.18405441"
 )

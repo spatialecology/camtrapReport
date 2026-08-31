@@ -1,6 +1,6 @@
 test_that("the GUI app is built and exposes its read-only server outputs", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  app <- ct_internal(".camtrapReport_gui_app")(cm)
+  app <- camtrapReport:::.camtrapReport_gui_app(cm)
 
   expect_s3_class(app, "shiny.appobj")
   expect_type(app$serverFuncSource(), "closure")
@@ -8,13 +8,13 @@ test_that("the GUI app is built and exposes its read-only server outputs", {
   shiny::testServer(app$serverFuncSource(), {
     session$flushReact()
 
-    expect_gt(length(output$object_status), 0L)
-    expect_gt(length(output$years_ui), 0L)
-    expect_gt(length(output$existing_group_ui), 0L)
-    expect_gt(length(output$group_values_ui), 0L)
-    expect_gt(length(output$species_table), 0L)
-    expect_gt(length(output$sections_ui), 0L)
-    expect_gt(length(output$section_edit_select_ui), 0L)
+    expect_true(length(output$object_status) > 0L)
+    expect_true(length(output$years_ui) > 0L)
+    expect_true(length(output$existing_group_ui) > 0L)
+    expect_true(length(output$group_values_ui) > 0L)
+    expect_true(length(output$species_table) > 0L)
+    expect_true(length(output$sections_ui) > 0L)
+    expect_true(length(output$section_edit_select_ui) > 0L)
     expect_match(output$section_list, "name")
     expect_match(output$cm_summary, cm$siteName, fixed = TRUE)
   })
@@ -22,9 +22,12 @@ test_that("the GUI app is built and exposes its read-only server outputs", {
 
 test_that("the GUI saves edited settings without running report modules", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  app <- ct_internal(".camtrapReport_gui_app")(cm)
-  out_dir <- withr::local_tempdir(
-    pattern = "camtrap-gui-output-"
+  app <- camtrapReport:::.camtrapReport_gui_app(cm)
+  out_dir <- tempfile("camtrap-gui-output-")
+
+  on.exit(
+    unlink(out_dir, recursive = TRUE, force = TRUE),
+    add = TRUE
   )
 
   shiny::testServer(app$serverFuncSource(), {
@@ -57,7 +60,7 @@ test_that("the GUI saves edited settings without running report modules", {
 
 test_that("the GUI can load an existing saved camReport directory", {
   cm <- camtrap_test_report()
-  app <- ct_internal(".camtrapReport_gui_app")(NULL)
+  app <- camtrapReport:::.camtrapReport_gui_app(NULL)
 
   shiny::testServer(app$serverFuncSource(), {
     expect_true(any(grepl(
