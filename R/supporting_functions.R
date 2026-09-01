@@ -500,7 +500,7 @@
   if (capture_unit == "auto") {
     if ("eventID" %in% names(y) && !all(is.na(y[["eventID"]]))) {
       capture_unit <- "event"
-    } else if ("sequenceID" %in% names(y) && any(!is.na(y[["sequenceID"]]))) {
+    } else if ("sequenceID" %in% names(y) && !all(is.na(y[["sequenceID"]]))) {
       capture_unit <- "sequence"
     } else {
       capture_unit <- "observation"
@@ -681,7 +681,7 @@
       newdata <- dat |> 
         dplyr::select(dplyr::all_of(covars)) |> 
         lapply(function(x) if (is.numeric(x))
-          mean(x, na.rm = T)
+          mean(x, na.rm = TRUE)
           else sort(unique(x))) |> 
         expand.grid()
     } else {
@@ -1011,7 +1011,8 @@
 .rem <- function (parameters) {
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
-  if (!all(required_rows %in% rownames(parameters)) | !all(required_cols %in% colnames(parameters))) 
+  if (!all(required_rows %in% rownames(parameters)) ||
+      !all(required_cols %in% colnames(parameters)))
     stop(paste("parameters must have (at least) row names:", 
                paste(required_rows, collapse = ", "), ";\nand (at least) column names:", 
                paste(required_cols, collapse = ", ")))
@@ -1097,7 +1098,7 @@
   
   f$title <- .trim(f$title)
   
-  if (substr(f$title,1,1) == "#") {
+  if (startsWith(f$title, "#")) {
     .h <- 0
     .w <- strsplit(f$title ,"")[[1]]
     for (i in 1:4) {
@@ -1121,11 +1122,12 @@
   #-----
   .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
   
-  if (length(which(grepl('code', names(f)))) == 1 && is.null(f[[which(grepl('code', names(f)))]])) {
+  if (length(grep('code', names(f))) == 1 &&
+      is.null(f[[grep('code', names(f))]])) {
     return(.txt)
-  } else if (length(which(grepl('code', names(f)))) > 0) {
+  } else if (length(grep('code', names(f))) > 0) {
     codeList <- list()
-    .w <- which(grepl('code', names(f)))
+    .w <- grep('code', names(f))
     for (i in .w) {
       
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
@@ -1232,10 +1234,10 @@
 #--------
 .left_join <- function(d1,d2,by) {
   if (length(by) == 1) {
-    if(!by %in% colnames(d1) & by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
+    if(!by %in% colnames(d1) && by %in% colnames(d2)) stop('the "by" column does not exist in both data!')
     merge(d1,d2,by=by,all.x=TRUE)
   } else if (length(by) == 2) {
-    if(!by[1] %in% colnames(d1) & by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
+    if(!by[1] %in% colnames(d1) && by[2] %in% colnames(d2)) stop('the "by" columns do not exist in the data!')
     merge(d1,d2,by.x=by[1],by.y=by[2],all.x=TRUE)
   }
 }

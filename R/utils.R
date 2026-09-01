@@ -513,7 +513,7 @@
   
   for (i in seq_along(.dtFormats)) {
     parsed <- suppressWarnings(as.POSIXct(x, format = .dtFormats[i], tz = "UTC"))
-    o[i] <- all(!is.na(parsed))
+    o[i] <- !anyNA(parsed)
   }
   
   if (any(o)) {
