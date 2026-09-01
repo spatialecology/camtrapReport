@@ -968,7 +968,7 @@
       c("module_name", "filename", "parent", "path"),
       drop = FALSE
     ],
-    active_trash = idx[idx$recovered == FALSE, , drop = FALSE]
+    active_trash = idx[!idx$recovered, , drop = FALSE]
   )
 }
 #-----

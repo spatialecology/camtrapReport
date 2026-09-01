@@ -148,7 +148,7 @@
   if (
     is.null(package_names) ||
     anyNA(package_names) ||
-    any(!nzchar(package_names))
+    !all(nzchar(package_names))
   ) {
     stop(
       sprintf(
@@ -161,7 +161,7 @@
   
   repositories <- trimws(repositories)
   
-  if (anyNA(repositories) || any(!nzchar(repositories))) {
+  if (anyNA(repositories) || !all(nzchar(repositories))) {
     stop(
       sprintf(
         "%s repository references must not be empty.",
@@ -228,7 +228,7 @@
     if (
       is.null(dot_names) ||
       anyNA(dot_names) ||
-      any(!nzchar(dot_names))
+      !all(nzchar(dot_names))
     ) {
       stop(
         "All arguments passed through '...' must be named.",

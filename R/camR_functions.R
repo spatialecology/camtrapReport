@@ -1785,7 +1785,7 @@
     pair_idx <- which(!is.na(lon_num) & !is.na(lat_num))
     if (!length(pair_idx)) return("")
     deg_like <- abs(lon_num[pair_idx]) <= 180 & abs(lat_num[pair_idx]) <= 90
-    if (all(deg_like) || all(!deg_like)) return("")
+    if (all(deg_like) || !any(deg_like)) return("")
     idx_deg    <- pair_idx[deg_like]
     idx_nondeg <- pair_idx[!deg_like]
     diff_rows  <- if (length(idx_deg) < length(idx_nondeg)) idx_deg else idx_nondeg

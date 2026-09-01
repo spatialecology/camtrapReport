@@ -498,7 +498,7 @@
   #---------------- choose capture unit ----------------
   
   if (capture_unit == "auto") {
-    if ("eventID" %in% names(y) && any(!is.na(y[["eventID"]]))) {
+    if ("eventID" %in% names(y) && !all(is.na(y[["eventID"]]))) {
       capture_unit <- "event"
     } else if ("sequenceID" %in% names(y) && any(!is.na(y[["sequenceID"]]))) {
       capture_unit <- "sequence"

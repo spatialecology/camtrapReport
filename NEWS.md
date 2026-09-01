@@ -1,3 +1,7 @@
+# camtrapReport 1.0.52
+
+* Minor update to pass jarl test
+
 # camtrapReport 1.0.51
 
 * Made the coverage test fixture independent of optional report-module

@@ -81,6 +81,36 @@
 }
 
 #--------
+
+.first_non_missing <- function(x) {
+  x <- unique(x[!is.na(x)])
+  if (length(x) == 0) return(NA)
+  x[1]
+}
+
+#--------
+
+.safe_min_time <- function(x, tz = "UTC") {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) {
+    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
+  }
+  as.POSIXct(min(x), tz = tz)
+}
+
+#--------
+
+.safe_max_time <- function(x, tz = "UTC") {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) {
+    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
+  }
+  as.POSIXct(max(x), tz = tz)
+}
+
+#--------
+
+
 .getSequences <- function(media) {
   if (!.require("data.table")) {
     stop("The data.table package is not installed...!")
@@ -507,7 +537,7 @@
     ] <- "angle"
   }
   
-  .w <- which(grepl("^bbox", colnames(.d$observations)))
+  .w <- grep("^bbox", colnames(.d$observations))
   if (length(.w) > 0) {
     .d$observations <- .d$observations[, -.w, drop = FALSE]
   }

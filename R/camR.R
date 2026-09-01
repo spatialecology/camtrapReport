@@ -332,7 +332,6 @@ camR <- setRefClass(
           for (.g in .n) {
             if (sp %in% get_speciesNames(.g)) {
               return(.g)
-              break
             }
           }
         }
@@ -450,7 +449,8 @@ camR <- setRefClass(
       if (!is.null(.ext) && length(as.vector(.ext)) == 4) {
         .ext <- as.vector(.ext)
         if (!is.null(.crop)) {
-          if (xr[1] < .ext[1] | xr[2] > .ext[2] | yr[1] < .ext[3] | yr[2] > .ext[4]) {
+          if (xr[1] < .ext[1] || xr[2] > .ext[2] ||
+              yr[1] < .ext[3] || yr[2] > .ext[4]) {
             .ww <- c()
             .w <- xr[1] - .ext[1]
             if (.w < 0) .ww <- c(.ww,abs(.w))
@@ -1278,7 +1278,9 @@ camR <- setRefClass(
       
       if (length(.self$filterExclude) > 0 || length(.self$filterKeep) > 0 || length(.self$filterCount) > 0) {
         w1 <- w2 <- w3 <- w4 <- TRUE
-        if (length(.self$filterKeep) > 0 && 'order' %in% names(.self$filterKeep) && any(!is.na(.self$data$taxonomy$order))) {
+        if (length(.self$filterKeep) > 0 &&
+            'order' %in% names(.self$filterKeep) &&
+            !all(is.na(.self$data$taxonomy$order))) {
           w1 <- .self$data$taxonomy$order %in% .self$filterKeep$order
         } 
         
