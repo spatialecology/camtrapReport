@@ -1,5 +1,5 @@
 test_that("duration formatting covers invalid, seconds, minutes, and hours", {
-  format_duration <- camtrapReport:::.format_duration
+  format_duration <- .format_duration
   
   expect_identical(
     format_duration(NULL),
@@ -54,7 +54,7 @@ test_that("duration formatting covers invalid, seconds, minutes, and hours", {
 
 
 test_that("file-size formatting covers all size units", {
-  format_size <- camtrapReport:::.format_file_size
+  format_size <- .format_file_size
   
   expect_identical(
     format_size(NULL),
@@ -104,7 +104,7 @@ test_that("file-size formatting covers all size units", {
 
 
 test_that("size estimation handles missing input safely", {
-  estimate_size <- camtrapReport:::.estimate_camdata_size
+  estimate_size <- .estimate_camdata_size
   
   inputs <- list(
     NULL,
@@ -177,7 +177,7 @@ test_that("size estimation reads a regular file", {
     add = TRUE
   )
   
-  result <- camtrapReport:::.estimate_camdata_size(
+  result <- .estimate_camdata_size(
     test_file
   )
   
@@ -245,7 +245,7 @@ test_that("size estimation sums files in a directory", {
     add = TRUE
   )
   
-  result <- camtrapReport:::.estimate_camdata_size(
+  result <- .estimate_camdata_size(
     test_dir
   )
   
@@ -282,7 +282,7 @@ test_that("size estimation handles an empty directory", {
     add = TRUE
   )
   
-  result <- camtrapReport:::.estimate_camdata_size(
+  result <- .estimate_camdata_size(
     test_dir
   )
   
@@ -359,7 +359,7 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     file.exists(zip_file)
   )
   
-  result <- camtrapReport:::.estimate_camdata_size(
+  result <- .estimate_camdata_size(
     zip_file
   )
   
@@ -409,7 +409,7 @@ test_that("camdata start message reports small datasets", {
   )
   
   expect_message(
-    result <- camtrapReport:::.camdata_start_message(
+    result <- .camdata_start_message(
       "dummy-data"
     ),
     "File size looks modest",
@@ -442,7 +442,13 @@ test_that("camdata start message reports compressed ZIP size", {
   )
   
   messages <- capture_messages(
-    result <- camtrapReport:::.camdata_start_message(
+    .camdata_start_message(
+      "dummy.zip"
+    )
+  )
+
+  result <- suppressMessages(
+    .camdata_start_message(
       "dummy.zip"
     )
   )
@@ -491,7 +497,7 @@ test_that("camdata start message covers all size classes", {
     )
     
     expect_message(
-      result <- camtrapReport:::.camdata_start_message(
+      result <- .camdata_start_message(
         "dummy-data"
       ),
       cases[[size_class]],

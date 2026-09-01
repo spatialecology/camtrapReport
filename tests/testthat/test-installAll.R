@@ -1,7 +1,7 @@
 test_that("installer inventory helpers return stable package vectors", {
-  packages <- camtrapReport:::.getPackageList()
-  github <- camtrapReport:::.getPackageGitHubList()
-  gitlab <- camtrapReport:::.getPackageGitLabList()
+  packages <- .getPackageList()
+  github <- .getPackageGitHubList()
+  gitlab <- .getPackageGitLabList()
 
   expect_type(packages, "character")
   expect_false(anyNA(packages))
@@ -9,16 +9,16 @@ test_that("installer inventory helpers return stable package vectors", {
   expect_type(github, "character")
   expect_type(gitlab, "character")
 
-  expect_true(camtrapReport:::.is.installed("methods"))
+  expect_true(.is.installed("methods"))
   expect_false(
-    camtrapReport:::.is.installed(
+    .is.installed(
       "a_package_that_does_not_exist_123"
     )
   )
 
   expect_identical(
     unname(
-      camtrapReport:::.loadLib(
+      .loadLib(
         list("methods", c("stats", "methods"))
       )
     ),
@@ -28,12 +28,12 @@ test_that("installer inventory helpers return stable package vectors", {
 
 
 test_that("pak remote references retain package names and sources", {
-  github <- camtrapReport:::.pakRemoteReferences(
+  github <- .pakRemoteReferences(
     c(examplePackage = "owner/repository"),
     source = "github"
   )
 
-  gitlab <- camtrapReport:::.pakRemoteReferences(
+  gitlab <- .pakRemoteReferences(
     c(otherPackage = "group/project"),
     source = "gitlab"
   )
@@ -49,7 +49,7 @@ test_that("pak remote references retain package names and sources", {
   )
 
   expect_identical(
-    camtrapReport:::.pakRemoteReferences(character(), "github"),
+    .pakRemoteReferences(character(), "github"),
     stats::setNames(character(), character())
   )
 })
@@ -57,7 +57,7 @@ test_that("pak remote references retain package names and sources", {
 
 test_that("pak remote references reject incomplete configuration", {
   expect_error(
-    camtrapReport:::.pakRemoteReferences(
+    .pakRemoteReferences(
       "owner/repository",
       source = "github"
     ),
@@ -66,7 +66,7 @@ test_that("pak remote references reject incomplete configuration", {
   )
 
   expect_error(
-    camtrapReport:::.pakRemoteReferences(
+    .pakRemoteReferences(
       c(examplePackage = ""),
       source = "github"
     ),
@@ -75,7 +75,7 @@ test_that("pak remote references reject incomplete configuration", {
   )
 
   expect_error(
-    camtrapReport:::.pakRemoteReferences(
+    .pakRemoteReferences(
       c(examplePackage = "owner/repository"),
       source = "invalid"
     ),
@@ -92,7 +92,7 @@ test_that("pak reinstall references preserve existing query parameters", {
   )
 
   expect_identical(
-    camtrapReport:::.pakReinstallReferences(references),
+    .pakReinstallReferences(references),
     c(
       cranPackage = "cranPackage?reinstall",
       githubPackage = paste0(
@@ -103,14 +103,14 @@ test_that("pak reinstall references preserve existing query parameters", {
   )
 
   expect_identical(
-    camtrapReport:::.pakReinstallReferences(character()),
+    .pakReinstallReferences(character()),
     character()
   )
 })
 
 
 test_that("pak installation helper handles empty input without pak", {
-  expect_null(camtrapReport:::.installPak(character()))
+  expect_null(.installPak(character()))
 })
 
 
@@ -121,7 +121,7 @@ test_that("pak installation helper gives a clear missing-package error", {
   )
 
   expect_error(
-    camtrapReport:::.installPak("examplePackage"),
+    .installPak("examplePackage"),
     "Package 'pak' is required",
     fixed = TRUE
   )
@@ -168,8 +168,8 @@ test_that("install_All reports an empty optional inventory", {
     .package = "camtrapReport"
   )
 
-  expect_output(
-    result <- install_All(gitlab = FALSE),
+  result <- expect_output(
+    install_All(gitlab = FALSE),
     "No optional packages are configured for installation",
     fixed = TRUE
   )
@@ -194,8 +194,8 @@ test_that("install_All does nothing when requested packages are installed", {
     .package = "camtrapReport"
   )
 
-  expect_output(
-    result <- install_All(
+  result <- expect_output(
+    install_All(
       pkgs = c(" methods ", "", "stats"),
       update = FALSE,
       gitlab = FALSE
@@ -424,8 +424,8 @@ test_that("install_All update mode protects base and recommended packages", {
     .package = "camtrapReport"
   )
 
-  expect_output(
-    result <- install_All(
+  result <- expect_output(
+    install_All(
       update = TRUE,
       gitlab = FALSE
     ),

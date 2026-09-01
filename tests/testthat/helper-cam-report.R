@@ -112,31 +112,27 @@ camtrap_test_report <- function() {
       .package = "camtrapReport"
     )
     
-    invisible(
-      capture.output(
-        object <- withCallingHandlers(
-          suppressMessages(
-            camData(
-              dataset,
-              update = TRUE
-            )
-          ),
-          warning = function(w) {
-            expected_warning <- grepl(
-              "chi\\^2 approximation may be inaccurate",
-              conditionMessage(w)
-            ) || grepl(
-              "package is not installed; it is required",
-              conditionMessage(w),
-              fixed = TRUE
-            )
-
-            if (expected_warning) {
-              invokeRestart("muffleWarning")
-            }
-          }
+    object <- withCallingHandlers(
+      suppressMessages(
+        camData(
+          dataset,
+          update = TRUE
         )
-      )
+      ),
+      warning = function(w) {
+        expected_warning <- grepl(
+          "chi\\^2 approximation may be inaccurate",
+          conditionMessage(w)
+        ) || grepl(
+          "package is not installed; it is required",
+          conditionMessage(w),
+          fixed = TRUE
+        )
+
+        if (expected_warning) {
+          invokeRestart("muffleWarning")
+        }
+      }
     )
     
     assign(
