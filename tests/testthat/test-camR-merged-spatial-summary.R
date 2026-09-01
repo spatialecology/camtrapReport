@@ -58,7 +58,7 @@ test_that("merged spatial summary returns the expected structure", {
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expected_columns <- c(
     "locationID",
@@ -79,10 +79,10 @@ test_that("merged spatial summary returns the expected structure", {
     all(expected_columns %in% names(result))
   )
   
-  expect_false(any(is.na(result$locationID)))
-  expect_false(any(is.na(result$deploymentID)))
-  expect_false(any(is.na(result$Num_Deployments)))
-  expect_false(any(is.na(result$Total_Photos)))
+  expect_false(anyNA(result$locationID))
+  expect_false(anyNA(result$deploymentID))
+  expect_false(anyNA(result$Num_Deployments))
+  expect_false(anyNA(result$Total_Photos))
 })
 
 
@@ -130,7 +130,7 @@ test_that("merged spatial summary lists deployment identifiers", {
     drop = FALSE
   ]
   
-  expect_true(nrow(loc1) > 0L)
+  expect_gt(nrow(loc1), 0L)
   
   listed_ids <- trimws(
     unlist(
@@ -305,7 +305,7 @@ test_that("merged spatial summary handles missing sequences", {
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expect_true(
     all(
@@ -341,7 +341,7 @@ test_that("merged spatial summary handles missing observations", {
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expect_true(
     all(
@@ -368,7 +368,7 @@ test_that("merged spatial summary handles missing optional deployment columns", 
   result <- camtrapReport:::.camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
-  expect_true(nrow(result) > 0L)
+  expect_gt(nrow(result), 0L)
   
   expect_true(
     "Setup_By_List" %in% names(result)

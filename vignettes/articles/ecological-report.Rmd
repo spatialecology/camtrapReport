@@ -33,7 +33,9 @@ p.caption {
 </style>
 
 ```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
-knitr::include_graphics("figures/ecological-report/ecological-report-workflow.png")
+knitr::include_graphics(
+  "figures/ecological-report/ecological-report-workflow.png"
+)
 ```
 
 
@@ -43,24 +45,75 @@ Figure 1 summarises the main workflow for generating an Ecological Report with `
 ```{r ecological-report-basic-code, eval=FALSE}
 library(camtrapReport)
 
-# Load camera-trap data
-cm <- camData("cameratrap.zip")
+# Copy the bundled example dataset to a writable temporary directory
+example_root <- tempfile("camtrapReport-example-")
+dir.create(example_root, recursive = TRUE)
+
+example_source <- system.file(
+  "external",
+  "dataset",
+  package = "camtrapReport",
+  mustWork = TRUE
+)
+
+copied <- file.copy(
+  from = example_source,
+  to = example_root,
+  recursive = TRUE,
+  copy.mode = FALSE
+)
+
+habitat <- utils::read.csv(
+  system.file(
+    "external",
+    "habitat",
+    "habitat.csv",
+    package = "camtrapReport",
+    mustWork = TRUE
+  )
+)
+
+study_area <- system.file(
+  "external",
+  "study_area",
+  "study_area.shp",
+  package = "camtrapReport",
+  mustWork = TRUE
+)
+
+stopifnot(
+  isTRUE(copied),
+  dir.exists(file.path(example_root, "dataset")),
+  file.exists(study_area)
+)
+
+# Load the example camera-trap data and optional spatial inputs
+cm <- camData(
+  data = file.path(example_root, "dataset"),
+  habitat = habitat,
+  study_area = study_area,
+  update = TRUE
+)
 
 # Generate the Ecological Report
-output_dir <- tempdir()  # Replace with an existing project output directory
-report(
-  cm,
-  filename = file.path(output_dir, "ecological_report"),
-  view = TRUE
-)
+report(cm, view = TRUE)
 ```
 
-`report()` invisibly returns the path to the generated HTML file. Supply a specific file stem or existing output directory through `filename`. The examples use `tempdir()` to avoid writing to the working directory:
+`report()` invisibly returns the path to the generated HTML file. By default,
+`report.html` and the intermediate `report.Rmd` file are written to the R
+session's temporary directory. A specific file stem or a path inside an
+existing output directory can be supplied through `filename`:
 
 ```{r ecological-report-output-path, eval=FALSE}
+dir.create(
+  "reports",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 report_file <- report(
   cm,
-  filename = file.path(tempdir(), "ecological_report_2026"),
+  filename = file.path("reports", "ecological_report_2026"),
   view = FALSE
 )
 ```
@@ -330,7 +383,7 @@ info(cm)
 
 ### Adjusting the focus group
 
-The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, or a custom-defined group.
+The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, `human_observation`, or a custom-defined group.
 
 Users can also define a new group by assigning records based on one or more fields, including `scientificName`, `class`, `order`, and `observationType`.
 
@@ -349,7 +402,6 @@ cm$setup()
 
 # Inspect the rules used to define existing groups
 cm$get_group("large_mammals")
-cm$get_group("wild_mammals")
 cm$get_group("wild_animals")
 cm$get_group("birds")
 cm$get_group("amphibians")
@@ -405,11 +457,7 @@ cm$filterCount
 cm$filterCount <- 10
 
 # Generate the report using the selected years and filter settings
-report(
-  cm,
-  filename = file.path(tempdir(), "selected_years_report"),
-  view = TRUE
-)
+report(cm, view = TRUE)
 ```
 
 ### Selecting which sections are included
@@ -446,14 +494,12 @@ selected_sections
 sections(cm, selected_sections)
 
 # Generate the customised report
-report(
-  cm,
-  filename = file.path(tempdir(), "selected_sections_report"),
-  view = TRUE
-)
+report(cm, view = TRUE)
 
 # Restore all available sections
 sections(cm, n = section_names())
 ```
+
+A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
 
 Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.

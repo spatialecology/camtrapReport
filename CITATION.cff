@@ -7,7 +7,7 @@ message: 'To cite package "camtrapReport" in publications, please use:'
 type: software
 license: MIT
 title: 'camtrapReport: Camera-Trap Report Generator'
-version: '1.0.50'
+version: '1.0.51'
 
 abstract: >-
   Provides an extensible workflow for processing camera-trap data in the

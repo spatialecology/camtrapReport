@@ -1,17 +1,26 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.50
-Authors@R: c(person(given = "Elham", family = "Ebrahimi", role = c("aut", "cre"), email = "eebrahimi.bio@gmail.com", comment = c(ORCID = "0000-0001-5191-9832")))
+Version: 1.0.51
+Authors@R: c(
+    person(
+      given = "Elham",
+      family = "Ebrahimi",
+      role = c("aut", "cre"),
+      email = "eebrahimi.bio@gmail.com",
+      comment = c(ORCID = "0000-0001-5191-9832")
+    )
+  )
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible
-    data-status and ecological reports. The package supports data-quality checks, ecological
-    summaries, visualisations, maps, tables and modular report sections for
-    wildlife-monitoring applications. Optional taxonomic enrichment queries the
-    Global Biodiversity Information Facility Species API
+    data-status and ecological reports. The package supports data-quality
+    checks, ecological summaries, visualisations, maps, tables and modular
+    report sections for wildlife-monitoring applications. Optional taxonomic
+    enrichment queries the Global Biodiversity Information Facility Species API
     <https://techdocs.gbif.org/en/openapi/v1/species> through 'taxize'.
 License: MIT + file LICENSE
-URL: https://spatialecology.github.io/camtrapReport/, https://github.com/spatialecology/camtrapReport
+URL: https://spatialecology.github.io/camtrapReport/,
+    https://github.com/spatialecology/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
 Depends:
     R (>= 4.1.0)

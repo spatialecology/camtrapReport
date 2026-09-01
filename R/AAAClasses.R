@@ -44,7 +44,11 @@
 #' `listORnull`, and `data.frameORnull`.
 #'
 #' @name camReport-classes
-#' @aliases camReport camReport-class camR camInfo-class characterORnull-class characterORlist-class characterORlistORnull-class listORnull-class data.frameORnull-class .Rchunk-class .textSection-class show,camReport-method show,camInfo-method
+#' @aliases camReport camReport-class camR camInfo-class
+#' @aliases characterORnull-class characterORlist-class
+#' @aliases characterORlistORnull-class listORnull-class data.frameORnull-class
+#' @aliases .Rchunk-class .textSection-class
+#' @aliases show,camReport-method show,camInfo-method
 #' @docType class
 #' @return This is a documentation-only topic and does not return a value.
 #' @seealso [camData()], [report()], [status()], [info()], [reportSection()]
@@ -94,4 +98,4 @@ setClass('.textSection',
            Rchunk='.RchunkORlistORnull'
          )
 )
-# in txt slot, a list can be provided with items which are either character (text) or .Rchunk object!
+# In the txt slot, a list can contain either character text or .Rchunk objects.

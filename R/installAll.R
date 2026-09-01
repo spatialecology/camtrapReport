@@ -307,7 +307,7 @@ setGeneric("install_All",
 #'
 #' @usage install_All(pkgs = NULL, update = FALSE, github = TRUE,
 #'   gitlab = FALSE, ...)
-#' @rdname install_All
+#' @rdname install_all
 #' @aliases install_All
 #'
 #' @examples

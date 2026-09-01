@@ -81,38 +81,10 @@
 }
 
 #--------
-
-.first_non_missing <- function(x) {
-  x <- unique(x[!is.na(x)])
-  if (length(x) == 0) return(NA)
-  x[1]
-}
-
-#--------
-
-.safe_min_time <- function(x, tz = "UTC") {
-  x <- x[!is.na(x)]
-  if (length(x) == 0) {
-    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
-  }
-  as.POSIXct(min(x), tz = tz)
-}
-
-#--------
-
-.safe_max_time <- function(x, tz = "UTC") {
-  x <- x[!is.na(x)]
-  if (length(x) == 0) {
-    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
-  }
-  as.POSIXct(max(x), tz = tz)
-}
-
-#--------
-
-
 .getSequences <- function(media) {
-  if (!.require('data.table')) stop('The data.table package is not installed...!')
+  if (!.require("data.table")) {
+    stop("The data.table package is not installed...!")
+  }
   
   sequences <- .eval('media |> 
     dplyr::distinct() |> 
@@ -264,21 +236,37 @@
     if (!is.null(path) && is.character(path)) {
       .path <- file.path(
         path.expand(path),
-        gsub(basename(file), pattern = ".zip", replacement = "", ignore.case = TRUE)
+        gsub(
+          basename(file),
+          pattern = ".zip",
+          replacement = "",
+          ignore.case = TRUE
+        )
       )
     } else {
-      .path <- gsub(basename(file), pattern = ".zip", replacement = "", ignore.case = TRUE)
+      .path <- gsub(
+        basename(file),
+        pattern = ".zip",
+        replacement = "",
+        ignore.case = TRUE
+      )
     }
     
     file <- utils::unzip(file, exdir = .path)
     
   } else if (dir.exists(file)) {
-    if (all(c("datapackage.json", "deployments.csv", "observations.csv") %in% tolower(dir(file)))) {
+    core_files <- c(
+      "datapackage.json",
+      "deployments.csv",
+      "observations.csv"
+    )
+
+    if (all(core_files %in% tolower(dir(file)))) {
       .path <- file
       file <- dir(file, full.names = TRUE)
     } else {
-      if (any(c("datapackage.json", "deployments.csv", "observations.csv") %in% tolower(dir(file)))) {
-        required_files <- c("datapackage.json", "deployments.csv", "observations.csv", "media.csv")
+      if (any(core_files %in% tolower(dir(file)))) {
+        required_files <- c(core_files, "media.csv")
         .w <- !required_files %in% tolower(dir(file))
         
         stop(paste0(
@@ -287,7 +275,9 @@
           ") are not available in the specified folder."
         ))
       } else {
-        stop("The specified folder does not have the standard Camtrap DP files.")
+        stop(
+          "The specified folder does not have the standard Camtrap DP files."
+        )
       }
     }
   } else {
@@ -323,11 +313,17 @@
   }
   
   if ("deploymentStart" %in% names(.d$deployments)) {
-    .d$deployments$deploymentStart <- .parse_cam_datetime(.d$deployments$deploymentStart, tz = tz)
+    .d$deployments$deploymentStart <- .parse_cam_datetime(
+      .d$deployments$deploymentStart,
+      tz = tz
+    )
   }
   
   if ("deploymentEnd" %in% names(.d$deployments)) {
-    .d$deployments$deploymentEnd <- .parse_cam_datetime(.d$deployments$deploymentEnd, tz = tz)
+    .d$deployments$deploymentEnd <- .parse_cam_datetime(
+      .d$deployments$deploymentEnd,
+      tz = tz
+    )
   }
   
   if ("timestamp" %in% names(.d$media)) {
@@ -335,11 +331,17 @@
   }
   
   if ("eventStart" %in% names(.d$observations)) {
-    .d$observations$eventStart <- .parse_cam_datetime(.d$observations$eventStart, tz = tz)
+    .d$observations$eventStart <- .parse_cam_datetime(
+      .d$observations$eventStart,
+      tz = tz
+    )
   }
   
   if ("eventEnd" %in% names(.d$observations)) {
-    .d$observations$eventEnd <- .parse_cam_datetime(.d$observations$eventEnd, tz = tz)
+    .d$observations$eventEnd <- .parse_cam_datetime(
+      .d$observations$eventEnd,
+      tz = tz
+    )
   }
   
   if ("classificationTimestamp" %in% names(.d$observations)) {
@@ -354,7 +356,10 @@
   )
   
   .d$deployments <- .d$deployments[
-    , -which(colnames(.d$deployments) %in% c("locationName", "longitude", "latitude")),
+    , -which(
+      colnames(.d$deployments) %in%
+        c("locationName", "longitude", "latitude")
+    ),
     drop = FALSE
   ]
   
@@ -365,7 +370,9 @@
       deployment_interval = lubridate::interval(deploymentStart, deploymentEnd),
       deployment_interval = lubridate::int_standardize(deployment_interval)
     ) |>
-    dplyr::relocate(deployment_interval, .before = deploymentStart)",environment())
+    dplyr::relocate(deployment_interval, .before = deploymentStart)",
+    environment()
+  )
   
   if (!"observationLevel" %in% names(.d$observations)) {
     .d$observations$observationLevel <- NA_character_
@@ -387,7 +394,11 @@
     }
   }
   
-  .media.obs <- .d$observations[.d$observations$observationLevel == "media", , drop = FALSE]
+  .media.obs <- .d$observations[
+    .d$observations$observationLevel == "media",
+    ,
+    drop = FALSE
+  ]
   
   if (nrow(.media.obs) > 0) {
     obs_first_radius_angle <- .eval('.media.obs |>
@@ -420,7 +431,11 @@
     )
   }
   
-  .obs <- .d$observations[.d$observations$observationLevel == "event", , drop = FALSE]
+  .obs <- .d$observations[
+    .d$observations$observationLevel == "event",
+    ,
+    drop = FALSE
+  ]
   
   if (nrow(.obs) == 0) {
     .obs <- .d$observations
@@ -455,7 +470,8 @@
   rm(.obs, obs_first_radius_angle)
   
   if ("classificationTimestamp" %in% names(.d$observations)) {
-    .d$observations$observation_timestamp <- .d$observations$classificationTimestamp
+    .d$observations$observation_timestamp <-
+      .d$observations$classificationTimestamp
     .d$observations$classificationTimestamp <- NULL
   } else {
     .d$observations$observation_timestamp <- as.POSIXct(
@@ -466,21 +482,29 @@
   }
   
   if ("cameraSetupType" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "cameraSetupType"] <- "cameraSetup"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "cameraSetupType"
+    ] <- "cameraSetup"
   } else {
     .d$observations$cameraSetup <- NA
   }
   
   if ("individualSpeed" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "individualSpeed"] <- "speed"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "individualSpeed"
+    ] <- "speed"
   }
   
   if ("individualPositionRadius" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "individualPositionRadius"] <- "radius"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "individualPositionRadius"
+    ] <- "radius"
   }
   
   if ("individualPositionAngle" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "individualPositionAngle"] <- "angle"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "individualPositionAngle"
+    ] <- "angle"
   }
   
   .w <- which(grepl("^bbox", colnames(.d$observations)))
@@ -497,7 +521,9 @@
   }
   
   if ("classificationProbability" %in% colnames(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "classificationProbability"] <- "classificationConfidence"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "classificationProbability"
+    ] <- "classificationConfidence"
   }
   
   if (!"mediaID" %in% names(.d$observations)) {
@@ -520,13 +546,17 @@
   .event_obs$eventEnd <- .parse_cam_datetime(.event_obs$eventEnd, tz = tz)
   
   if ("eventID" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "eventID"] <- "sequenceID"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "eventID"
+    ] <- "sequenceID"
   } else {
     .d$observations$sequenceID <- NA
   }
   
   if ("eventStart" %in% names(.d$observations)) {
-    colnames(.d$observations)[colnames(.d$observations) == "eventStart"] <- "timestamp"
+    colnames(.d$observations)[
+      colnames(.d$observations) == "eventStart"
+    ] <- "timestamp"
   }
   
   if (!"timestamp" %in% names(.d$observations)) {
@@ -537,7 +567,10 @@
     )
   }
   
-  .d$observations$timestamp <- .parse_cam_datetime(.d$observations$timestamp, tz = tz)
+  .d$observations$timestamp <- .parse_cam_datetime(
+    .d$observations$timestamp,
+    tz = tz
+  )
   
   if (nrow(.event_obs) > 0) {
     by <- .eval("dplyr::join_by(
@@ -773,7 +806,9 @@ setMethod(
         cm$study_area$path <- study_area_file
         
       } else {
-        warning("study_area was ignored; it should be a filename or a spatial object.")
+        warning(
+          "study_area was ignored; it should be a filename or a spatial object."
+        )
       }
     }
     

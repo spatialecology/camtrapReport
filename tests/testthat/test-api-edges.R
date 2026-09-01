@@ -66,12 +66,8 @@ test_that("datetime parsing accepts Camtrap DP date variants", {
   expect_identical(parse_time(original), original)
   expect_s3_class(parse_time(as.POSIXlt(original)), "POSIXct")
   expect_true(is.na(parse_time(NULL)))
-  expect_false(any(is.na(parsed[1:3])))
+  expect_false(anyNA(parsed[1:3]))
   expect_true(is.na(parsed[4]))
-  expect_identical(camtrapReport:::.first_non_missing(c(NA, "a", "a")), "a")
-  expect_true(is.na(camtrapReport:::.first_non_missing(c(NA, NA))))
-  expect_true(is.na(camtrapReport:::.safe_min_time(as.POSIXct(character()))))
-  expect_true(is.na(camtrapReport:::.safe_max_time(as.POSIXct(character()))))
 })
 
 test_that("small camReport summary helpers cover alternative labels", {

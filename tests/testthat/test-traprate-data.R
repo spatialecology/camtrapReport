@@ -202,7 +202,7 @@ test_that("trap-rate data automatically retain scientific names", {
   )
   
   expect_false(
-    any(is.na(result$n))
+    anyNA(result$n)
   )
   
   expect_false(
@@ -483,7 +483,7 @@ test_that("trap-rate data handle missing location names", {
   )
   
   expect_true(
-    any(is.na(result$locationName))
+    anyNA(result$locationName)
   )
   
   missing_location <- result[

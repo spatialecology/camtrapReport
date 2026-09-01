@@ -45,7 +45,8 @@ setGeneric(
 #'
 #' sections(x, n)
 #' @name section_names
-#' @aliases section_names sections section_names,ANY-method sections,camReport-method
+#' @aliases section_names sections section_names,ANY-method
+#' @aliases sections,camReport-method
 #'
 #' @examples
 #' # List all available report-section names

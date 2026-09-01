@@ -428,7 +428,9 @@ setGeneric(
 #'
 #' listReportSections(x)
 #' @name updateReportSection
-#' @aliases updateReportSection listReportSections updateReportSection,camReport-method listReportSections,camReport-method
+#' @aliases updateReportSection listReportSections
+#' @aliases updateReportSection,camReport-method
+#' @aliases listReportSections,camReport-method
 #'
 #' @examples
 #' \donttest{

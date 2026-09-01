@@ -1,6 +1,14 @@
+# camtrapReport 1.0.51
+
+* Made the coverage test fixture independent of optional report-module
+  packages and made Pandoc availability explicit in the coverage workflow.
+* Added network-free tests for taxonomy lookup failure handling.
+* Avoided a case-insensitive roxygen2 filename collision for the
+  `install_All()` help topic.
+  
 # camtrapReport 1.0.50
 
-* update manuals and website.
+* Updated manuals and website.
 
 # camtrapReport 1.0.49
 

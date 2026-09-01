@@ -17,7 +17,13 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_gbifid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(.eval(
+        paste0(
+          "taxize::get_gbifid(x, rows = 1, ask = FALSE, ",
+          "messages = FALSE)"
+        ),
+        environment()
+      )),
       silent = TRUE
     )
     
@@ -30,7 +36,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "gbif")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "gbif")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -98,7 +110,13 @@
   
   if (.require("taxize")) {
     .id <- try(
-      as.data.frame(.eval("taxize::get_uid(x, rows = 1, ask = FALSE, messages = FALSE)",environment())),
+      as.data.frame(.eval(
+        paste0(
+          "taxize::get_uid(x, rows = 1, ask = FALSE, ",
+          "messages = FALSE)"
+        ),
+        environment()
+      )),
       silent = TRUE
     )
     
@@ -111,7 +129,13 @@
       ))
     }
     
-    .x <- try(.eval('taxize::classification(.id$ids, db = "ncbi")',environment()), silent = TRUE)
+    .x <- try(
+      .eval(
+        'taxize::classification(.id$ids, db = "ncbi")',
+        environment()
+      ),
+      silent = TRUE
+    )
     
     if (inherits(.x, "try-error")) {
       return(data.frame(
@@ -150,4 +174,3 @@
     stop("The taxize package is required for NCBI taxonomic lookup.")
   }
 }
-

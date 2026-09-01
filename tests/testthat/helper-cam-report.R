@@ -60,7 +60,40 @@ camtrap_test_report <- function() {
     dataset <- copy_camtrap_test_dataset()
     object <- NULL
     
-    # Routine tests must not contact GBIF.
+    # Keep the shared fixture independent of optional module packages. These
+    # packages are exercised through mocks in their own unit tests; routine
+    # fixture creation must not change with the runner's installed packages or
+    # contact external services such as GBIF.
+    optional_packages <- c(
+      "activity",
+      "camtrapDensity",
+      "camtraptor",
+      "corrplot",
+      "Distance",
+      "dygraphs",
+      "ggplot2",
+      "ggrepel",
+      "gt",
+      "htmltools",
+      "htmlwidgets",
+      "iNEXT",
+      "leaflet",
+      "lutz",
+      "magick",
+      "readr",
+      "sbd",
+      "scales",
+      "sf",
+      "spatstat",
+      "spatstat.explore",
+      "spatstat.geom",
+      "suncalc",
+      "taxize",
+      "tidyr",
+      "withr",
+      "xts"
+    )
+
     original_require <- get(
       ".require",
       envir = asNamespace("camtrapReport")
@@ -70,10 +103,7 @@ camtrap_test_report <- function() {
       .require = function(x) {
         package <- as.character(x)[1]
         
-        if (
-          !is.na(package) &&
-          identical(package, "taxize")
-        ) {
+        if (!is.na(package) && package %in% optional_packages) {
           return(FALSE)
         }
         
@@ -92,10 +122,16 @@ camtrap_test_report <- function() {
             )
           ),
           warning = function(w) {
-            if (grepl(
+            expected_warning <- grepl(
               "chi\\^2 approximation may be inaccurate",
               conditionMessage(w)
-            )) {
+            ) || grepl(
+              "package is not installed; it is required",
+              conditionMessage(w),
+              fixed = TRUE
+            )
+
+            if (expected_warning) {
               invokeRestart("muffleWarning")
             }
           }

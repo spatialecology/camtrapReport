@@ -192,7 +192,11 @@ Ebrahimi, E., Stubbe, A., Dijkhuis, L. R., Liefting, Y., de Knegt, H. J., &amp; 
 
 ## Workshops and training
 
-The following workshops and training activities have been held so far to introduce `camtrapReport` and demonstrate its main functionality. Public workshop pages or materials are not currently available, so these entries document the completed events rather than linking to unpublished resources. Links will be added when public materials become available.
+The following workshops and training activities have been held so far to
+introduce `camtrapReport` and demonstrate its main functionality. Public
+workshop materials are not currently available, so these entries document the
+completed events rather than linking to unpublished resources. Upcoming
+workshops and public training materials will be added here when available.
 
 <div class="resource-list">
 

@@ -20,14 +20,18 @@
 #'
 #' @keywords internal
 #' @import methods
-#' @importFrom graphics abline legend par points lines boxplot barplot arrows segments text axis image polygon
+#' @importFrom graphics abline legend par points lines boxplot barplot arrows
+#'   segments text axis image polygon
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cor cov density quantile na.omit predict setNames time
-#' @importFrom utils read.csv install.packages unzip head remove.packages tail timestamp
+#' @importFrom utils read.csv install.packages unzip head remove.packages tail
+#'   timestamp
 #' @importFrom glue glue
 #' @importFrom data.table data.table
-#' @importFrom dplyr bind_rows distinct filter group_by mutate select slice left_join
-#' @importFrom terra hull crs expanse extract project rast readRDS unwrap vect wrap writeRaster
+#' @importFrom dplyr bind_rows distinct filter group_by mutate select slice
+#'   left_join
+#' @importFrom terra hull crs expanse extract project rast readRDS unwrap vect
+#'   wrap writeRaster
 #' @importFrom lubridate interval
 #' @export add_Module
 #' @export camData
