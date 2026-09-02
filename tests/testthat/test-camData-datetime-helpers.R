@@ -7,7 +7,7 @@ test_that("parse_cam_datetime preserves POSIXct input", {
     tz = "UTC"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -23,7 +23,7 @@ test_that("parse_cam_datetime converts other POSIXt input", {
     tz = "UTC"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -38,7 +38,7 @@ test_that("parse_cam_datetime converts other POSIXt input", {
 
 
 test_that("parse_cam_datetime handles NULL input", {
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     NULL,
     tz = "UTC"
   )
@@ -60,7 +60,7 @@ test_that("parse_cam_datetime handles missing text values", {
     NA_character_
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -79,7 +79,7 @@ test_that("parse_cam_datetime parses ISO date-time formats", {
     "2025/01/02 03:04:05"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -109,7 +109,7 @@ test_that("parse_cam_datetime parses minute-level formats", {
     "2025/03/04 05:06"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -136,7 +136,7 @@ test_that("parse_cam_datetime parses date-only formats", {
     "2025/04/05"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -158,7 +158,7 @@ test_that("parse_cam_datetime parses date-only formats", {
 
 
 test_that("parse_cam_datetime parses UTC Z suffix", {
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     "2025-05-06T07:08:09Z",
     tz = "UTC"
   )
@@ -177,7 +177,7 @@ test_that("parse_cam_datetime parses UTC Z suffix", {
 
 
 test_that("parse_cam_datetime parses offsets containing a colon", {
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     "2025-05-06T09:08:09+02:00",
     tz = "UTC"
   )
@@ -196,7 +196,7 @@ test_that("parse_cam_datetime parses offsets containing a colon", {
 
 
 test_that("parse_cam_datetime parses offsets without a colon", {
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     "2025-05-06 09:08:09+0200",
     tz = "UTC"
   )
@@ -229,7 +229,7 @@ test_that("parse_cam_datetime handles mixed valid and invalid inputs", {
     "2025/06/02"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
@@ -243,7 +243,7 @@ test_that("parse_cam_datetime handles mixed valid and invalid inputs", {
 
 
 test_that("parse_cam_datetime respects supplied timezone", {
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     "2025-07-08 09:10:11",
     tz = "Europe/Amsterdam"
   )
@@ -284,7 +284,7 @@ test_that("parse_cam_datetime uses fallback parser", {
     .package = "camtrapReport"
   )
   
-  result <- camtrapReport:::.parse_cam_datetime(
+  result <- .parse_cam_datetime(
     c(
       "20250805 14:30:15",
       "20250806 09:45"

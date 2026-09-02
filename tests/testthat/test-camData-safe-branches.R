@@ -7,7 +7,7 @@ test_that("read_camdp reports a missing jsonlite dependency", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = tempfile("camdp-input-")
     ),
     "jsonlite package is not installed",
@@ -25,7 +25,7 @@ test_that("read_camdp reports a missing data.table dependency", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = tempfile("camdp-input-")
     ),
     "data.table package is not installed",
@@ -50,7 +50,7 @@ test_that("read_camdp rejects an input that is neither ZIP nor directory", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = missing_path
     ),
     "not a zip file or a directory",
@@ -82,7 +82,7 @@ test_that("read_camdp rejects an empty directory", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = test_dir
     ),
     "does not have the standard Camtrap DP files",
@@ -121,7 +121,7 @@ test_that("read_camdp reports missing standard files", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = test_dir
     ),
     "standard data files",
@@ -129,7 +129,7 @@ test_that("read_camdp reports missing standard files", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = test_dir
     ),
     "deployments.csv",
@@ -137,7 +137,7 @@ test_that("read_camdp reports missing standard files", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = test_dir
     ),
     "observations.csv",
@@ -145,7 +145,7 @@ test_that("read_camdp reports missing standard files", {
   )
   
   expect_error(
-    camtrapReport:::.read_camdp(
+    .read_camdp(
       file = test_dir
     ),
     "media.csv",
@@ -185,7 +185,7 @@ test_that("read_camdp uses UTC when timezone is empty", {
   
   for (timezone in empty_timezone_values) {
     expect_error(
-      camtrapReport:::.read_camdp(
+      .read_camdp(
         file = test_dir,
         tz = timezone
       ),
@@ -216,7 +216,7 @@ test_that("get_Taxonomic_DF handles taxa without vernacular names", {
     )
   )
   
-  result <- camtrapReport:::.get_Taxonomic_DF(
+  result <- .get_Taxonomic_DF(
     taxa
   )
   
@@ -280,7 +280,7 @@ test_that("get_Taxonomic_DF handles one named vernacular language", {
     )
   )
   
-  result <- camtrapReport:::.get_Taxonomic_DF(
+  result <- .get_Taxonomic_DF(
     taxa
   )
   
@@ -333,7 +333,7 @@ test_that("get_Taxonomic_DF combines different vernacular languages", {
     )
   )
   
-  result <- camtrapReport:::.get_Taxonomic_DF(
+  result <- .get_Taxonomic_DF(
     taxa
   )
   
@@ -386,7 +386,7 @@ test_that("get_Taxonomic_DF handles unnamed vernacular values safely", {
     )
   )
   
-  result <- camtrapReport:::.get_Taxonomic_DF(
+  result <- .get_Taxonomic_DF(
     taxa
   )
   
@@ -429,7 +429,7 @@ test_that("get_Taxonomic_DF preserves taxonomic ranks", {
     )
   )
   
-  result <- camtrapReport:::.get_Taxonomic_DF(
+  result <- .get_Taxonomic_DF(
     taxa
   )
   

@@ -1,6 +1,6 @@
 test_that("the GUI app is built and exposes its read-only server outputs", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  app <- camtrapReport:::.camtrapReport_gui_app(cm)
+  app <- .camtrapReport_gui_app(cm)
 
   expect_s3_class(app, "shiny.appobj")
   expect_type(app$serverFuncSource(), "closure")
@@ -22,7 +22,7 @@ test_that("the GUI app is built and exposes its read-only server outputs", {
 
 test_that("the GUI saves edited settings without running report modules", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  app <- camtrapReport:::.camtrapReport_gui_app(cm)
+  app <- .camtrapReport_gui_app(cm)
   out_dir <- tempfile("camtrap-gui-output-")
 
   on.exit(
@@ -60,7 +60,7 @@ test_that("the GUI saves edited settings without running report modules", {
 
 test_that("the GUI can load an existing saved camReport directory", {
   cm <- camtrap_test_report()
-  app <- camtrapReport:::.camtrapReport_gui_app(NULL)
+  app <- .camtrapReport_gui_app(NULL)
 
   shiny::testServer(app$serverFuncSource(), {
     expect_true(any(grepl(

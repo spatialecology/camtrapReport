@@ -54,7 +54,7 @@ test_that("metadata access validates fields and aliases", {
 })
 
 test_that("datetime parsing accepts Camtrap DP date variants", {
-  parse_time <- camtrapReport:::.parse_cam_datetime
+  parse_time <- .parse_cam_datetime
   original <- as.POSIXct("2024-01-01 12:30:00", tz = "UTC")
   parsed <- parse_time(c(
     "2024-01-01T12:30:00Z",
@@ -71,14 +71,14 @@ test_that("datetime parsing accepts Camtrap DP date variants", {
 })
 
 test_that("small camReport summary helpers cover alternative labels", {
-  expect_identical(camtrapReport:::.ct_icons(FALSE)$green, "[OK]")
-  expect_false(identical(camtrapReport:::.ct_icons(TRUE)$green, "[OK]"))
-  expect_match(camtrapReport:::.format_area(0.5), "m")
-  expect_match(camtrapReport:::.format_area(50), "km")
-  expect_match(camtrapReport:::.format_area(5000), "km")
-  expect_identical(camtrapReport:::.round_capture_metric(c(1.234, NA)), c(1.23, NA))
+  expect_identical(.ct_icons(FALSE)$green, "[OK]")
+  expect_false(identical(.ct_icons(TRUE)$green, "[OK]"))
+  expect_match(.format_area(0.5), "m")
+  expect_match(.format_area(50), "km")
+  expect_match(.format_area(5000), "km")
+  expect_identical(.round_capture_metric(c(1.234, NA)), c(1.23, NA))
   expect_identical(
-    camtrapReport:::.pick_station_col(list(
+    .pick_station_col(list(
       locations = NULL,
       deployments = data.frame(locationID = "A")
     )),

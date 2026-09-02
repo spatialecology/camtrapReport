@@ -53,7 +53,7 @@ make_traprate_test_data <- function() {
 test_that("trap-rate data are calculated for a selected species", {
   dat <- make_traprate_test_data()
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Vulpes vulpes",
     unit = "day"
@@ -142,7 +142,7 @@ test_that("trap-rate effort supports all available time units", {
   )
   
   for (unit_name in names(multipliers)) {
-    result <- camtrapReport:::.get_traprate_data(
+    result <- .get_traprate_data(
       dat = dat,
       species = "Vulpes vulpes",
       unit = unit_name
@@ -180,7 +180,7 @@ test_that("trap-rate effort supports all available time units", {
 test_that("trap-rate data automatically retain scientific names", {
   dat <- make_traprate_test_data()
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = NULL,
     unit = "day"
@@ -214,7 +214,7 @@ test_that("trap-rate data automatically retain scientific names", {
 test_that("trap-rate data return an empty result when no species match", {
   dat <- make_traprate_test_data()
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Species not present",
     unit = "day"
@@ -264,7 +264,7 @@ test_that("trap-rate data return an empty result without observations", {
   dat <- make_traprate_test_data()
   dat$observations <- NULL
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Vulpes vulpes",
     unit = "day"
@@ -304,7 +304,7 @@ test_that("trap-rate data handle an empty observations table", {
     stringsAsFactors = FALSE
   )
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Vulpes vulpes",
     unit = "day"
@@ -324,7 +324,7 @@ test_that("trap-rate data validate the main input tables", {
   missing_deployments$deployments <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_deployments,
       species = "Vulpes vulpes"
     ),
@@ -335,7 +335,7 @@ test_that("trap-rate data validate the main input tables", {
   missing_locations$locations <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_locations,
       species = "Vulpes vulpes"
     ),
@@ -346,7 +346,7 @@ test_that("trap-rate data validate the main input tables", {
   invalid_deployments$deployments <- "not a data frame"
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       invalid_deployments,
       species = "Vulpes vulpes"
     ),
@@ -357,7 +357,7 @@ test_that("trap-rate data validate the main input tables", {
   invalid_locations$locations <- "not a data frame"
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       invalid_locations,
       species = "Vulpes vulpes"
     ),
@@ -374,7 +374,7 @@ test_that("trap-rate data validate observation columns", {
   missing_deployment_id$observations$deploymentID <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_deployment_id,
       species = "Vulpes vulpes"
     ),
@@ -386,7 +386,7 @@ test_that("trap-rate data validate observation columns", {
   missing_scientific_name$observations$scientificName <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_scientific_name,
       species = "Vulpes vulpes"
     ),
@@ -404,7 +404,7 @@ test_that("trap-rate data validate deployment-location join columns", {
     deployments$locationID <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_deployment_location_id,
       species = "Vulpes vulpes"
     ),
@@ -417,7 +417,7 @@ test_that("trap-rate data validate deployment-location join columns", {
     locations$locationID <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_location_location_id,
       species = "Vulpes vulpes"
     ),
@@ -433,7 +433,7 @@ test_that("trap-rate data validate columns required after joining", {
   missing_location_name$locations$locationName <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_location_name,
       species = "Vulpes vulpes"
     ),
@@ -444,7 +444,7 @@ test_that("trap-rate data validate columns required after joining", {
   missing_latitude$locations$latitude <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_latitude,
       species = "Vulpes vulpes"
     ),
@@ -455,7 +455,7 @@ test_that("trap-rate data validate columns required after joining", {
   missing_longitude$locations$longitude <- NULL
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       missing_longitude,
       species = "Vulpes vulpes"
     ),
@@ -471,7 +471,7 @@ test_that("trap-rate data handle missing location names", {
     dat$locations$locationID == "L2"
   ] <- NA_character_
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Vulpes vulpes",
     unit = "day"
@@ -512,7 +512,7 @@ test_that("trap-rate joins handle internal row-name collisions", {
     "existing-2"
   )
   
-  result <- camtrapReport:::.get_traprate_data(
+  result <- .get_traprate_data(
     dat = dat,
     species = "Vulpes vulpes",
     unit = "day"
@@ -534,7 +534,7 @@ test_that("trap-rate data reject an unsupported effort unit", {
   dat <- make_traprate_test_data()
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       dat = dat,
       species = "Vulpes vulpes",
       unit = "week"
@@ -558,7 +558,7 @@ test_that("trap-rate data validate calculated effort output", {
   )
   
   expect_error(
-    camtrapReport:::.get_traprate_data(
+    .get_traprate_data(
       dat = dat,
       species = "Vulpes vulpes",
       unit = "day"

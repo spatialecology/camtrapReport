@@ -1,7 +1,7 @@
 test_that("formatting helpers handle normal and boundary inputs", {
-  paste_list <- camtrapReport:::.paste_comma_and
-  format_duration <- camtrapReport:::.format_duration
-  format_size <- camtrapReport:::.format_file_size
+  paste_list <- .paste_comma_and
+  format_duration <- .format_duration
+  format_size <- .format_file_size
 
   expect_identical(paste_list(NULL), "")
   expect_identical(paste_list(c("fox", NA, "fox")), "fox")
@@ -21,9 +21,9 @@ test_that("formatting helpers handle normal and boundary inputs", {
 })
 
 test_that("text parsing helpers preserve their documented contracts", {
-  trim_one <- camtrapReport:::.trim
-  trim_many <- camtrapReport:::.trim_chr
-  chunk_name <- camtrapReport:::.extract_chunk_name
+  trim_one <- .trim
+  trim_many <- .trim_chr
+  chunk_name <- .extract_chunk_name
 
   expect_identical(trim_one("  two   words  "), "two words")
   expect_identical(trim_one("  two   words  ", squish = FALSE), "two   words")
@@ -37,16 +37,16 @@ test_that("text parsing helpers preserve their documented contracts", {
   expect_identical(chunk_name(NULL, "fallback name"), "fallback_name")
   expect_identical(chunk_name("# ordinary comment", ""), "module")
 
-  expect_identical(camtrapReport:::.rmChar("abcdef", c(1, 2), TRUE), "cde")
-  expect_identical(camtrapReport:::.firstUpper(c("FOX", NA)), c("Fox", ""))
-  expect_identical(camtrapReport:::.pretty_label(c("wild_mammals", "birds")),
+  expect_identical(.rmChar("abcdef", c(1, 2), TRUE), "cde")
+  expect_identical(.firstUpper(c("FOX", NA)), c("Fox", ""))
+  expect_identical(.pretty_label(c("wild_mammals", "birds")),
                    "wild mammals and birds")
 })
 
 test_that("date, time, and filename helpers cover common input forms", {
-  get_year <- camtrapReport:::.getYear
-  get_hour <- camtrapReport:::.get_hour
-  time_length <- camtrapReport:::.get_Time_length
+  get_year <- .getYear
+  get_hour <- .get_hour
+  time_length <- .get_Time_length
 
   expect_identical(get_year(c("2022-01-01", "2024-03-02")), c(2022, 2024))
   expect_identical(
@@ -67,18 +67,18 @@ test_that("date, time, and filename helpers cover common input forms", {
   )
   expect_true(is.na(time_length("not-an-interval")))
 
-  expect_true(camtrapReport:::.isZip("DATA.ZIP"))
-  expect_true(camtrapReport:::.isJson("data.Json"))
-  expect_false(camtrapReport:::.isZip(NULL))
-  expect_true(camtrapReport:::.is.POSIXct(as.POSIXct("2024-01-01", tz = "UTC")))
-  expect_identical(camtrapReport:::.getFormat("2024-01-01T13:30:00"),
+  expect_true(.isZip("DATA.ZIP"))
+  expect_true(.isJson("data.Json"))
+  expect_false(.isZip(NULL))
+  expect_true(.is.POSIXct(as.POSIXct("2024-01-01", tz = "UTC")))
+  expect_identical(.getFormat("2024-01-01T13:30:00"),
                    "%Y-%m-%dT%H:%M:%OS")
-  expect_true(is.na(camtrapReport:::.getFormat("not a date")))
+  expect_true(is.na(.getFormat("not a date")))
 })
 
 test_that("small data helpers return stable base objects", {
-  bind_rows <- camtrapReport:::.bind_rows
-  get_match <- camtrapReport:::.get_match
+  bind_rows <- .bind_rows
+  get_match <- .get_match
 
   expect_s3_class(bind_rows(NULL), "data.frame")
   bound <- bind_rows(list(data.frame(a = 1), NULL, data.frame(a = 2, b = 3)))
@@ -90,14 +90,14 @@ test_that("small data helpers return stable base objects", {
   expect_true(is.na(get_match("deer", c("fox", "hare"))))
   expect_true(is.na(get_match(NULL, "fox")))
 
-  expect_identical(camtrapReport:::.pick_col(data.frame(a = 1), c("b", "a")), "a")
-  expect_true(is.na(camtrapReport:::.pick_col(NULL, "a")))
-  expect_identical(unname(camtrapReport:::.charN(c("two words", ""))), c(9, 0))
-  expect_identical(camtrapReport:::.charN("two words", space = FALSE), 8L)
-  expect_identical(unname(camtrapReport:::.wordN(c("two words", ""))), c(2, 0))
-  expect_identical(camtrapReport:::.word("one two three", 2, 3), c("two", "three"))
-  expect_identical(camtrapReport:::.word("one two three", -2), c("two", "three"))
-  expect_warning(camtrapReport:::.word("one two", 2, 1), "cannot be lower")
+  expect_identical(.pick_col(data.frame(a = 1), c("b", "a")), "a")
+  expect_true(is.na(.pick_col(NULL, "a")))
+  expect_identical(unname(.charN(c("two words", ""))), c(9, 0))
+  expect_identical(.charN("two words", space = FALSE), 8L)
+  expect_identical(unname(.wordN(c("two words", ""))), c(2, 0))
+  expect_identical(.word("one two three", 2, 3), c("two", "three"))
+  expect_identical(.word("one two three", -2), c("two", "three"))
+  expect_warning(.word("one two", 2, 1), "cannot be lower")
 })
 
 test_that("file and size helpers inspect temporary data without side effects", {
@@ -109,15 +109,15 @@ test_that("file and size helpers inspect temporary data without side effects", {
   )
   writeLines("camera trap", file.path(d, "sample.data.csv"))
 
-  size <- camtrapReport:::.estimate_camdata_size(d)
-  info <- camtrapReport:::.file_info(file.path(d, "sample.data.csv"))
+  size <- .estimate_camdata_size(d)
+  info <- .file_info(file.path(d, "sample.data.csv"))
 
   expect_identical(size$size_class, "small")
   expect_gt(size$effective_size, 0)
   expect_identical(info$filename, "sample_data")
   expect_identical(info$extension, "csv")
-  expect_identical(camtrapReport:::.file_info("README")$extension, NA_character_)
-  expect_identical(camtrapReport:::.estimate_camdata_size("missing")$size_class,
+  expect_identical(.file_info("README")$extension, NA_character_)
+  expect_identical(.estimate_camdata_size("missing")$size_class,
                    "unknown")
 })
 
@@ -125,19 +125,19 @@ test_that("evaluation and package helpers are safe for core packages", {
   env <- new.env(parent = baseenv())
   env$x <- 2
 
-  expect_identical(camtrapReport:::.eval("x + 3", env), 5)
-  expect_null(camtrapReport:::.eval(NULL, env))
-  expect_true(camtrapReport:::.require("methods"))
-  expect_false(camtrapReport:::.require("a_package_that_does_not_exist_123"))
-  expect_true(camtrapReport:::.loadPKG(c("methods", "stats")))
-  expect_false(camtrapReport:::.loadPKG("a_package_that_does_not_exist_123"))
-  expect_identical(camtrapReport:::.suppress_startup({
+  expect_identical(.eval("x + 3", env), 5)
+  expect_null(.eval(NULL, env))
+  expect_true(.require("methods"))
+  expect_false(.require("a_package_that_does_not_exist_123"))
+  expect_true(.loadPKG(c("methods", "stats")))
+  expect_false(.loadPKG("a_package_that_does_not_exist_123"))
+  expect_identical(.suppress_startup({
     message("suppressed message")
     7
   }), 7)
-  expect_identical(camtrapReport:::.make_safe_module_code(NULL), "")
+  expect_identical(.make_safe_module_code(NULL), "")
   expect_identical(
-    camtrapReport:::.make_safe_module_code(c("x <- 1", "x + 1")),
+    .make_safe_module_code(c("x <- 1", "x + 1")),
     "x <- 1\nx + 1"
   )
 })
@@ -145,14 +145,14 @@ test_that("evaluation and package helpers are safe for core packages", {
 test_that("nested section and empty taxonomy helpers return stable structures", {
   section <- reportSection("child", parent = "parent", txt = "text")
   tree <- list(root = list(child = section))
-  found <- camtrapReport:::.findParent(tree, "parent")
+  found <- .findParent(tree, "parent")
 
   expect_identical(unname(found), c("1", "child", "parent"))
-  expect_true(is.na(camtrapReport:::.findParent(tree, "unknown")))
-  expect_true(is.na(camtrapReport:::.findParent(list(), "parent")))
+  expect_true(is.na(.findParent(tree, "unknown")))
+  expect_true(is.na(.findParent(list(), "parent")))
 
-  ncbi <- camtrapReport:::.getMissingTaxon_NCBI(character())
-  gbif <- camtrapReport:::.getMissingTaxon_GBIF(character())
+  ncbi <- .getMissingTaxon_NCBI(character())
+  gbif <- .getMissingTaxon_GBIF(character())
   expect_named(ncbi, c("scientificName", "class", "order"))
   expect_identical(nrow(ncbi), 0L)
   expect_identical(nrow(gbif), 0L)
@@ -164,12 +164,12 @@ test_that("spatial helpers recognise geographic and projected terra objects", {
     geom = c("lon", "lat"),
     crs = "EPSG:4326"
   )
-  projected <- camtrapReport:::.get_projected_vect(geographic)
+  projected <- .get_projected_vect(geographic)
 
-  expect_false(camtrapReport:::.is.projected(geographic))
-  expect_true(camtrapReport:::.is.projected(projected))
+  expect_false(.is.projected(geographic))
+  expect_true(.is.projected(projected))
   expect_s4_class(projected, "SpatVector")
-  expect_identical(camtrapReport:::.get_projected_vect(projected), projected)
+  expect_identical(.get_projected_vect(projected), projected)
 })
 
 test_that("the base correlation plot draws on a non-interactive device", {
@@ -186,5 +186,5 @@ test_that("the base correlation plot draws on a non-interactive device", {
   x <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
   colnames(x) <- rownames(x) <- c("fox", "hare")
 
-  expect_type(camtrapReport:::.basic_corrplot(x), "list")
+  expect_type(.basic_corrplot(x), "list")
 })

@@ -5,12 +5,12 @@ test_that("taxonomy lookup helpers fail clearly without taxize", {
   )
 
   expect_error(
-    camtrapReport:::.getMissingTaxon_GBIF("Vulpes vulpes"),
+    .getMissingTaxon_GBIF("Vulpes vulpes"),
     "taxize package is required",
     fixed = TRUE
   )
   expect_error(
-    camtrapReport:::.getMissingTaxon_NCBI("Vulpes vulpes"),
+    .getMissingTaxon_NCBI("Vulpes vulpes"),
     "taxize package is required",
     fixed = TRUE
   )
@@ -24,8 +24,8 @@ test_that("taxonomy lookup helpers handle identifier lookup failures", {
     .package = "camtrapReport"
   )
 
-  gbif <- camtrapReport:::.getMissingTaxon_GBIF("Vulpes vulpes")
-  ncbi <- camtrapReport:::.getMissingTaxon_NCBI("Vulpes vulpes")
+  gbif <- .getMissingTaxon_GBIF("Vulpes vulpes")
+  ncbi <- .getMissingTaxon_NCBI("Vulpes vulpes")
 
   expect_named(gbif, c("scientificName", "class", "order"))
   expect_named(ncbi, c("scientificName", "class", "order"))

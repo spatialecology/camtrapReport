@@ -1,3 +1,7 @@
+# camtrapReport 1.0.55
+
+* Fixing testunit to pass the jarl test
+
 # camtrapReport 1.0.54
 
 * Additional updates to pass the jarl test

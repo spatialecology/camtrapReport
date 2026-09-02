@@ -43,7 +43,7 @@ test_that("merged summary rejects missing deployment join column", {
   cm$data$deployments$locationID <- NULL
   
   expect_error(
-    camtrapReport:::.camr_getMergedSummary(cm),
+    .camr_getMergedSummary(cm),
     "Missing join column(s) in x: locationID",
     fixed = TRUE
   )
@@ -55,7 +55,7 @@ test_that("merged summary rejects missing location join column", {
   cm$data$locations$locationID <- NULL
   
   expect_error(
-    camtrapReport:::.camr_getMergedSummary(cm),
+    .camr_getMergedSummary(cm),
     "Missing join column(s) in y: locationID",
     fixed = TRUE
   )
@@ -67,7 +67,7 @@ test_that("merged summary rejects non-data-frame deployments", {
   cm$data$deployments <- list()
   
   expect_error(
-    camtrapReport:::.camr_getMergedSummary(cm),
+    .camr_getMergedSummary(cm),
     "'x' must be a data.frame.",
     fixed = TRUE
   )
@@ -79,7 +79,7 @@ test_that("merged summary rejects non-data-frame locations", {
   cm$data$locations <- list()
   
   expect_error(
-    camtrapReport:::.camr_getMergedSummary(cm),
+    .camr_getMergedSummary(cm),
     "'y' must be a data.frame.",
     fixed = TRUE
   )
@@ -94,7 +94,7 @@ test_that("merged summary ignores invalid sequence structures", {
     stringsAsFactors = FALSE
   )
   
-  result <- camtrapReport:::.camr_getMergedSummary(cm)
+  result <- .camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
   expect_true(nrow(result) > 0L)
@@ -120,7 +120,7 @@ test_that("merged summary ignores incomplete taxonomy", {
     stringsAsFactors = FALSE
   )
   
-  result <- camtrapReport:::.camr_getMergedSummary(cm)
+  result <- .camr_getMergedSummary(cm)
   
   expect_s3_class(result, "data.frame")
   expect_true(nrow(result) > 0L)
@@ -139,7 +139,7 @@ test_that("merged summary excludes invalid one-word taxa", {
   
   cm$data$taxonomy$scientificName <- "Unknown"
   
-  result <- camtrapReport:::.camr_getMergedSummary(cm)
+  result <- .camr_getMergedSummary(cm)
   
   expect_true(
     all(
