@@ -2,20 +2,28 @@ name: pkgcheck
 
 # Cancel a running job when a newer run is triggered
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event.workflow_run.head_sha || github.ref
+    }}
   cancel-in-progress: true
 
 on:
   # Manually trigger the workflow under Actions/pkgcheck
   workflow_dispatch:
 
-  # Run on every push to main
-  push:
-    branches:
-      - main
+  # Wait for the slowest CI workflow so pkgcheck does not evaluate a
+  # still-pending R CMD check as a failure.
+  workflow_run:
+    workflows: ["R-CMD-check.yaml"]
+    types: [completed]
+    branches: [main, master]
 
 jobs:
   pkgcheck:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     permissions:
@@ -27,6 +35,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: >-
+            ${{ github.event_name == 'workflow_run' &&
+              github.event.workflow_run.head_sha || github.ref }}
 
       - name: Mark repository as safe for pkgcheck
         shell: bash
