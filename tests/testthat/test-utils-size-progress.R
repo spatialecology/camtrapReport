@@ -326,12 +326,8 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     fileext = ".zip"
   )
   
-  old_dir <- getwd()
-  
   on.exit(
     {
-      setwd(old_dir)
-      
       unlink(
         test_dir,
         recursive = TRUE,
@@ -346,14 +342,10 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     add = TRUE
   )
   
-  setwd(test_dir)
-  
   utils::zip(
     zipfile = zip_file,
-    files = basename(source_file)
+    files = source_file
   )
-  
-  setwd(old_dir)
   
   expect_true(
     file.exists(zip_file)
@@ -371,9 +363,7 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     is.na(result$zip_uncompressed_size)
   )
   
-  expect_true(
-    result$zip_uncompressed_size > 0
-  )
+  expect_gt(result$zip_uncompressed_size, 0)
   
   expect_equal(
     result$effective_size,

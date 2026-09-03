@@ -116,13 +116,13 @@
 #--------
 
 .get_Taxonomic_DF <- function(x) {
-  w <- sapply(x, function(z) {
+  w <- vapply(x, function(z) {
     length(names(z$vernacularNames))
-  })
+  }, integer(1))
   
   if (all(w == 0)) {
     dplyr::bind_rows(lapply(x, function(z) {
-      .x <- strsplit(z$taxonID, "/")[[1]]
+      .x <- strsplit(z$taxonID, "/", fixed = TRUE)[[1]]
       
       .x <- data.frame(
         taxonID = .x[length(.x)],
@@ -183,7 +183,7 @@
     dplyr::bind_rows(lapply(x, function(z) {
       .x <- .xx
       
-      .tmp <- strsplit(z$taxonID, "/")[[1]]
+      .tmp <- strsplit(z$taxonID, "/", fixed = TRUE)[[1]]
       .x$taxonID <- .tmp[length(.tmp)]
       .x$scientificName <- z$scientificName
       .x$family <- z$family
@@ -271,11 +271,11 @@
         required_files <- c(core_files, "media.csv")
         .w <- !required_files %in% tolower(dir(file))
         
-        stop(paste0(
+        stop(
           "The standard data files (",
           paste(required_files[.w], collapse = ", "),
           ") are not available in the specified folder."
-        ))
+        )
       } else {
         stop(
           "The specified folder does not have the standard Camtrap DP files."
@@ -833,7 +833,7 @@ setMethod(
     )
     
     cm$filterKeep <- list(
-      observationType = c("animal"),
+      observationType = "animal",
       class = NULL
     )
     
@@ -926,7 +926,10 @@ setMethod(
     
     .camdata_done_message(.camdata_start_time, cm$siteName)
     
-    saveRDS(cm,paste0(cm$info$directory,"/__camReport_Object.rds"))
+    saveRDS(
+      cm,
+      file.path(cm$info$directory, "__camReport_Object.rds")
+    )
     
     cm
   }

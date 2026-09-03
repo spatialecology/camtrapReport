@@ -179,13 +179,14 @@ test_that("install_All reports an empty optional inventory", {
 
 
 test_that("install_All does nothing when requested packages are installed", {
-  checked_packages <- character()
+  capture <- new.env(parent = emptyenv())
+  capture$checked_packages <- character()
 
   local_mocked_bindings(
     .getPackageList = function() c("methods", "stats"),
     .getPackageGitHubList = function() character(),
     .is.installed = function(n) {
-      checked_packages <<- as.character(n)
+      capture$checked_packages <- as.character(n)
       stats::setNames(rep(TRUE, length(n)), n)
     },
     .installPak = function(...) {
@@ -205,7 +206,7 @@ test_that("install_All does nothing when requested packages are installed", {
   )
 
   expect_null(result)
-  expect_setequal(checked_packages, c("methods", "stats"))
+  expect_setequal(capture$checked_packages, c("methods", "stats"))
 })
 
 
@@ -282,7 +283,8 @@ test_that("install_All sends named GitHub and GitLab references to pak", {
 
 
 test_that("remote package configuration takes precedence over CRAN", {
-  references <- NULL
+  capture <- new.env(parent = emptyenv())
+  capture$references <- NULL
 
   local_mocked_bindings(
     .getPackageList = function() c("sharedPackage", "cranPackage"),
@@ -293,7 +295,7 @@ test_that("remote package configuration takes precedence over CRAN", {
       stats::setNames(rep(FALSE, length(n)), n)
     },
     .installPak = function(x, ...) {
-      references <<- x
+      capture$references <- x
       invisible(NULL)
     },
     .package = "camtrapReport"
@@ -302,7 +304,7 @@ test_that("remote package configuration takes precedence over CRAN", {
   expect_null(install_All(update = FALSE, gitlab = FALSE))
 
   expect_identical(
-    references,
+    capture$references,
     c(
       "cranPackage",
       sharedPackage = "sharedPackage=github::owner/repository"
@@ -332,7 +334,8 @@ test_that("install_All rejects packages configured for two remotes", {
 
 
 test_that("install_All omits disabled remote inventories", {
-  installed_references <- NULL
+  capture <- new.env(parent = emptyenv())
+  capture$installed_references <- NULL
 
   local_mocked_bindings(
     .getPackageList = function() "cranPackage",
@@ -346,7 +349,7 @@ test_that("install_All omits disabled remote inventories", {
       stats::setNames(rep(FALSE, length(n)), n)
     },
     .installPak = function(references, ...) {
-      installed_references <<- references
+      capture$installed_references <- references
       invisible(NULL)
     },
     .package = "camtrapReport"
@@ -359,7 +362,7 @@ test_that("install_All omits disabled remote inventories", {
     )
   )
 
-  expect_identical(installed_references, "cranPackage")
+  expect_identical(capture$installed_references, "cranPackage")
 })
 
 

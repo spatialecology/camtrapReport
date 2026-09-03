@@ -121,8 +121,9 @@ camtrap_test_report <- function() {
       ),
       warning = function(w) {
         expected_warning <- grepl(
-          "chi\\^2 approximation may be inaccurate",
-          conditionMessage(w)
+          "chi^2 approximation may be inaccurate",
+          conditionMessage(w),
+          fixed = TRUE
         ) || grepl(
           "package is not installed; it is required",
           conditionMessage(w),

@@ -104,10 +104,8 @@ setMethod("section_names",signature(keep = "ANY"),
         }
         
         warning(
-          paste0(
-            "Several section/module names specified in 'keep' are not available: ",
-            .paste_comma_and(keep[!w])
-          )
+          "Several section/module names specified in 'keep' are not available: ",
+          .paste_comma_and(keep[!w])
         )
       }
       
@@ -134,10 +132,8 @@ setMethod("section_names",signature(keep = "ANY"),
         }
         
         warning(
-          paste0(
-            "Several section/module names specified in 'exclude' are not available: ",
-            .paste_comma_and(exclude[!w])
-          )
+          "Several section/module names specified in 'exclude' are not available: ",
+          .paste_comma_and(exclude[!w])
         )
       }
       

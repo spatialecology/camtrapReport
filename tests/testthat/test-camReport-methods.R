@@ -40,7 +40,7 @@ test_that("camReport stores nested ecological report sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = FALSE)
 
   expect_named(tree, "root")
-  expect_true(is.list(tree$root))
+  expect_type(tree$root, "list")
   expect_true("child" %in% names(tree$root))
 })
 
@@ -49,7 +49,7 @@ test_that("camReport stores nested data-status sections and chunks", {
   tree <- exercise_report_object_tree(cm, status = TRUE)
 
   expect_named(tree, "root")
-  expect_true(is.list(tree$root))
+  expect_type(tree$root, "list")
   expect_true("child" %in% names(tree$root))
 })
 
@@ -74,10 +74,8 @@ test_that("camReport grouping and counters behave consistently", {
   expect_gt(length(group_species), 0L)
   expect_gt(length(cm$get_speciesNames(multiple_groups)), 0L)
   expect_true(all(cm$get_focus_group(group_species[1]) %in% names(cm$species_summary)))
-  expect_identical(
-    names(cm$get_focus_group(group_species[seq_len(min(2L, length(group_species)))])),
-    group_species[seq_len(min(2L, length(group_species)))]
-  )
+  focus_species <- group_species[seq_len(min(2L, length(group_species)))]
+  expect_named(cm$get_focus_group(focus_species), focus_species)
   expect_error(cm$get_speciesNames(123), "group is unknown")
   expect_error(cm$get_speciesNames("unknown_group"), "group is unknown")
 

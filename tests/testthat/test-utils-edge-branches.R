@@ -315,7 +315,7 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(is.environment(render_environment))
+  expect_type(render_environment, "environment")
   
   expect_identical(
     render_environment$object,
@@ -332,13 +332,9 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(
-    is.function(render_environment$getFigureNumber)
-  )
+  expect_type(render_environment$getFigureNumber, "closure")
   
-  expect_true(
-    is.function(render_environment$getTableNumber)
-  )
+  expect_type(render_environment$getTableNumber, "closure")
   
   expect_true(
     exists(

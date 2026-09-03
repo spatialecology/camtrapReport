@@ -19,7 +19,7 @@ test_that("merged data can retain nested media records", {
 
   expect_s3_class(merged, "data.frame")
   expect_true("media" %in% names(merged))
-  expect_true(is.list(merged$media))
+  expect_type(merged$media, "list")
   expect_true(any(lengths(merged$media) > 0L))
 })
 

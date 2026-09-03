@@ -381,11 +381,9 @@ setMethod("install_All",signature(pkgs = "ANY"),
     
     if (length(duplicated_remote_packages) > 0L) {
       stop(
-        paste0(
-          "The following packages are configured for both GitHub and GitLab: ",
-          paste(duplicated_remote_packages, collapse = ", "),
-          "."
-        ),
+        "The following packages are configured for both GitHub and GitLab: ",
+        paste(duplicated_remote_packages, collapse = ", "),
+        ".",
         call. = FALSE
       )
     }
@@ -432,7 +430,21 @@ setMethod("install_All",signature(pkgs = "ANY"),
       return(invisible(NULL))
     }
     
-    protected_packages <- rownames(utils::installed.packages(priority = c("base", "recommended")))
+    protected <- vapply(
+      cran_packages,
+      function(package) {
+        priority <- tryCatch(
+          utils::packageDescription(package, fields = "Priority"),
+          warning = function(condition) NA_character_,
+          error = function(condition) NA_character_
+        )
+
+        !is.na(priority) && priority %in% c("base", "recommended")
+      },
+      logical(1)
+    )
+
+    protected_packages <- cran_packages[protected]
     
     cran_to_update <- setdiff(
       cran_packages,
