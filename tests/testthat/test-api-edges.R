@@ -3,15 +3,15 @@ test_that("section selectors validate partial and unknown selections", {
   first <- available[[1]]
 
   expect_identical(section_names(keep = first), first)
-  expect_warning(
-    kept <- section_names(keep = c(first, "unknown_section")),
+  kept <- capture_expected_warning(
+    section_names(keep = c(first, "unknown_section")),
     "not available"
   )
   expect_identical(kept, first)
   expect_error(section_names(keep = "unknown_section"), "None")
 
-  expect_warning(
-    excluded <- section_names(exclude = c(first, "unknown_section")),
+  excluded <- capture_expected_warning(
+    section_names(exclude = c(first, "unknown_section")),
     "not available"
   )
   expect_false(first %in% excluded)
@@ -22,11 +22,11 @@ test_that("sections handles invalid, partial, and failed module selections", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   known <- sections(cm)
 
-  expect_warning(current <- sections(cm, 1), "should be character")
+  current <- capture_expected_warning(sections(cm, 1), "should be character")
   expect_identical(current, known)
   expect_error(sections(cm, "unknown_section"), "None")
-  expect_message(
-    partial <- sections(cm, c(known[[1]], "unknown_section")),
+  partial <- capture_expected_message(
+    sections(cm, c(known[[1]], "unknown_section")),
     "unknown and ignored"
   )
   expect_s4_class(partial, "camReport")
@@ -36,8 +36,14 @@ test_that("metadata access validates fields and aliases", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
   defaults <- info(cm)
-  expect_named(defaults, c("title", "subtitle", "authors", "institute", "siteName", "logoPath"))
-  expect_warning(fallback <- info(cm, "not_a_field"), "default fields")
+  expect_named(
+    defaults,
+    c("title", "subtitle", "authors", "institute", "siteName", "logoPath")
+  )
+  fallback <- capture_expected_warning(
+    info(cm, "not_a_field"),
+    "default fields"
+  )
   expect_named(fallback, names(defaults))
 
   expect_error(
@@ -49,7 +55,10 @@ test_that("metadata access validates fields and aliases", {
   info(cm, "study area") <- "Updated study-area description"
   expect_identical(cm$description, "Updated study-area description")
   info(cm, "acknowledgement") <- "Updated acknowledgement"
-  acknowledgement <- find_test_report_section(cm$reportObjects, "acknowledgements")
+  acknowledgement <- find_test_report_section(
+    cm$reportObjects,
+    "acknowledgements"
+  )
   expect_identical(acknowledgement@txt, "Updated acknowledgement")
 })
 
@@ -80,7 +89,10 @@ test_that("small camReport summary helpers cover alternative labels", {
   expect_identical(
     .pick_station_col(list(
       locations = NULL,
-      deployments = data.frame(locationID = "A")
+      deployments = data.frame(
+        locationID = "A",
+        stringsAsFactors = FALSE
+      )
     )),
     "locationID"
   )

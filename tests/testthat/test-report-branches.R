@@ -162,8 +162,8 @@ test_that("report falls back from a nonexistent requested directory", {
     "custom-report"
   )
   
-  expect_warning(
-    output <- report(
+  output <- capture_expected_warning(
+    report(
       cm,
       filename = requested_file,
       view = FALSE,
@@ -218,8 +218,8 @@ test_that("status falls back from a nonexistent requested directory", {
     "custom-status"
   )
   
-  expect_warning(
-    output <- status(
+  output <- capture_expected_warning(
+    status(
       cm,
       filename = requested_file,
       view = FALSE
@@ -281,8 +281,8 @@ test_that("report sends the generated file to the configured viewer", {
     add = TRUE
   )
   
-  expect_message(
-    output <- report(
+  output <- capture_expected_message(
+    report(
       cm,
       filename = "viewer-report",
       view = TRUE,
@@ -340,8 +340,8 @@ test_that("status sends the generated file to the configured viewer", {
     add = TRUE
   )
   
-  expect_message(
-    output <- status(
+  output <- capture_expected_message(
+    status(
       cm,
       filename = "viewer-status",
       view = TRUE

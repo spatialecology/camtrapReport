@@ -25,7 +25,12 @@ setMethod ('show' , 'camInfo',
                if (length(w) > 0) {
                  for (n in names(object[w])) {
                    .nr <- .charN(n)
-                   if (.nr < 25) .n <- paste0(n,paste(rep(' ',25 - .nr),collapse = ''),' : ',object[[n]])
+                   if (.nr < 25) .n <- paste0(
+                     n,
+                     strrep(" ", 25 - .nr),
+                     " : ",
+                     object[[n]]
+                   )
                    else .n <- paste0(n,' : ',object[[n]])
                    
                    cat(.n, '\n')

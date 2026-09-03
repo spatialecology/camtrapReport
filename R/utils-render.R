@@ -80,7 +80,9 @@
 
 #--------
 
-.make_safe_module_code <- function(code, module_name = NULL, show_note_in_report = TRUE) {
+.make_safe_module_code <- function(code,
+                                   module_name = NULL,
+                                   show_note_in_report = TRUE) {
   if (is.null(code) || length(code) == 0 || is.na(code[1])) {
     return("")
   }
@@ -148,4 +150,3 @@
   
   env
 }
-

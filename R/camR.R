@@ -1126,7 +1126,10 @@ camR <- setRefClass(
         
         # Filter Wild Mammals (excluding domestic species)
         wild_mammals <- .data_year$taxonomy |>
-          dplyr::filter(class == "Mammalia" & scientificName %in% .self$frequent_species$scientificName)
+          dplyr::filter(
+            class == "Mammalia",
+            scientificName %in% .self$frequent_species$scientificName
+          )
         
         # Count unique wild mammals
         number_of_wild_mammals <- length(unique(wild_mammals$scientificName))

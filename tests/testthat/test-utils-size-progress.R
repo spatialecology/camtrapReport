@@ -398,8 +398,8 @@ test_that("camdata start message reports small datasets", {
     .package = "camtrapReport"
   )
   
-  expect_message(
-    result <- .camdata_start_message(
+  result <- capture_expected_message(
+    .camdata_start_message(
       "dummy-data"
     ),
     "File size looks modest",
@@ -486,8 +486,8 @@ test_that("camdata start message covers all size classes", {
       .package = "camtrapReport"
     )
     
-    expect_message(
-      result <- .camdata_start_message(
+    result <- capture_expected_message(
+      .camdata_start_message(
         "dummy-data"
       ),
       cases[[size_class]],

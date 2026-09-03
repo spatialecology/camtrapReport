@@ -1,35 +1,5 @@
 library(testthat)
 
-capture_report_conditions <- function(expr) {
-  captured <- new.env(parent = emptyenv())
-  captured$messages <- character()
-  captured$warnings <- character()
-  
-  value <- withCallingHandlers(
-    expr,
-    message = function(condition) {
-      captured$messages <- c(
-        captured$messages,
-        conditionMessage(condition)
-      )
-      invokeRestart("muffleMessage")
-    },
-    warning = function(condition) {
-      captured$warnings <- c(
-        captured$warnings,
-        conditionMessage(condition)
-      )
-      invokeRestart("muffleWarning")
-    }
-  )
-  
-  list(
-    value = value,
-    messages = captured$messages,
-    warnings = captured$warnings
-  )
-}
-
 
 test_that("report returns rendering errors without crashing", {
   original <- camtrap_test_report()

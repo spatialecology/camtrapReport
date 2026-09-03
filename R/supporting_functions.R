@@ -717,7 +717,7 @@
   args <- c(list(formula = formula,data=dat),list(...))
   res <- .eval('do.call(sbd::sbm,args)',environment())
   
-  res$unit <- paste(distUnit, timeUnit, sep = "/")
+  res$unit <- sprintf("%s/%s", distUnit, timeUnit)
   res
 }
 #-------------

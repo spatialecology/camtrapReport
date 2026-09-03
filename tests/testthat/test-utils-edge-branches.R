@@ -138,8 +138,8 @@ test_that("camData progress messages cover known and unknown datasets", {
   start_message <- .camdata_start_message
   done_message <- .camdata_done_message
   
-  expect_message(
-    size_info <- start_message("a-file-that-does-not-exist"),
+  size_info <- capture_expected_message(
+    start_message("a-file-that-does-not-exist"),
     "The camReport object is being created",
     fixed = TRUE
   )
@@ -149,8 +149,8 @@ test_that("camData progress messages cover known and unknown datasets", {
     "unknown"
   )
   
-  expect_message(
-    result <- done_message(
+  result <- capture_expected_message(
+    done_message(
       Sys.time() - 2,
       site_name = NULL
     ),
@@ -160,8 +160,8 @@ test_that("camData progress messages cover known and unknown datasets", {
   
   expect_true(result)
   
-  expect_message(
-    result_named <- done_message(
+  result_named <- capture_expected_message(
+    done_message(
       Sys.time() - 2,
       site_name = "Veluwe"
     ),

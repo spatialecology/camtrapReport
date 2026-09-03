@@ -175,7 +175,8 @@ setGeneric(
 #' the section text and code can be rendered successfully.
 #'
 #' This function is mainly used to test custom report sections before they are
-#' added to a full [`camReport`][camReport-classes] report. It checks whether the
+#' added to a full [`camReport`][camReport-classes] report. It checks whether
+#' the
 #' section text, R Markdown chunk settings, required packages, and R code can be
 #' rendered successfully.
 #'

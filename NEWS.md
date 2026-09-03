@@ -1,3 +1,12 @@
+# camtrapReport 1.0.56
+
+* Applied behavior-preserving good-practice cleanup to package code and tests.
+* Made test expectation assignments explicit, clarified portable path and string
+  construction, and made character-column handling explicit in selected data
+  frames.
+* Preserved the package's dynamic module evaluation and dependency-loading
+  design.
+
 # camtrapReport 1.0.55
 
 * Fixing testunit to pass the jarl test
