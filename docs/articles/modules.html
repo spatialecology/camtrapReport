@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.49</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.56</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -227,19 +227,19 @@ name if you want the new module to appear elsewhere in the report.</p>
 <h3 id="install-module-dependencies">4. Install module dependencies<a class="anchor" aria-label="anchor" href="#install-module-dependencies"></a>
 </h3>
 <p>The module registry is registered automatically when
-<code><a href="../reference/modules.html">add_Module()</a></code> is called. <code><a href="../reference/install_All.html">install_All()</a></code> then
+<code><a href="../reference/modules.html">add_Module()</a></code> is called. <code><a href="../reference/install_all.html">install_All()</a></code> then
 scans the <code>#| packages:</code> options of all bundled and
 user-managed modules and delegates installation to <code>pak</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Discover and install all dependencies declared by all modules</span></span>
-<span><span class="fu"><a href="../reference/install_All.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/install_all.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Additional CRAN packages can be included explicitly. Known GitHub
 dependencies configured by <code>camtrapReport</code> are included by
 default, and configured GitLab dependencies can be included with
 <code>gitlab = TRUE</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/install_All.html">install_All</a></span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"readr"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/install_All.html">install_All</a></span><span class="op">(</span>gitlab <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/install_all.html">install_All</a></span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"readr"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/install_all.html">install_All</a></span><span class="op">(</span>gitlab <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>If a user module depends on an unconfigured non-CRAN repository,
 install that repository explicitly with <code><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pak::pkg_install()</a></code>
 before rendering the module.</p>

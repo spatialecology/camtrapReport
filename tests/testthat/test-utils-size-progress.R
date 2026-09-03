@@ -181,10 +181,7 @@ test_that("size estimation reads a regular file", {
     test_file
   )
   
-  expect_equal(
-    result$file_size,
-    2048
-  )
+  expect_identical(result$file_size, 2048)
   
   expect_identical(
     result$file_size_label,
@@ -195,10 +192,7 @@ test_that("size estimation reads a regular file", {
     is.na(result$zip_uncompressed_size)
   )
   
-  expect_equal(
-    result$effective_size,
-    2048
-  )
+  expect_identical(result$effective_size, 2048)
   
   expect_identical(
     result$effective_size_label,
@@ -249,15 +243,9 @@ test_that("size estimation sums files in a directory", {
     test_dir
   )
   
-  expect_equal(
-    result$file_size,
-    3000
-  )
+  expect_identical(result$file_size, 3000)
   
-  expect_equal(
-    result$effective_size,
-    3000
-  )
+  expect_identical(result$effective_size, 3000)
   
   expect_identical(
     result$size_class,
@@ -365,13 +353,10 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
   
   expect_gt(result$zip_uncompressed_size, 0)
   
-  expect_equal(
-    result$effective_size,
-    max(
+  expect_identical(result$effective_size, max(
       result$file_size,
       result$zip_uncompressed_size
-    )
-  )
+    ))
   
   expect_identical(
     result$size_class,

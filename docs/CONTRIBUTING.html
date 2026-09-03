@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.49</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.56</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@
 <div class="section level2">
 <h2 id="dependency-policy">Dependency policy<a class="anchor" aria-label="anchor" href="#dependency-policy"></a></h2>
 <p>Core dependencies in <code>Imports</code> are required for data input, object setup, the interactive interface, or report rendering. Both <code>data.table</code> and <code>dplyr</code> are used deliberately: the former supports keyed sequence aggregation and efficient table operations, while the latter provides the joins and column transformations used throughout the data-preparation and summary workflow.</p>
-<p>Packages needed only for particular analytical or visual report sections should remain optional and must be declared in that module’s YAML <code>packages</code> field. <code><a href="reference/install_All.html">install_All()</a></code> discovers those declarations from all currently available YAML modules, including modules added or modified by users, and passes the resulting references to <code>pak</code>. It is an explicit opt-in operation and is never called at package load or report-render time. When adding or changing a module dependency, update its documentation and tests, and verify that a missing optional package produces a clear message rather than breaking unrelated sections.</p>
+<p>Packages needed only for particular analytical or visual report sections should remain optional and must be declared in that module’s YAML <code>packages</code> field. <code><a href="reference/install_all.html">install_All()</a></code> discovers those declarations from all currently available YAML modules, including modules added or modified by users, and passes the resulting references to <code>pak</code>. It is an explicit opt-in operation and is never called at package load or report-render time. When adding or changing a module dependency, update its documentation and tests, and verify that a missing optional package produces a clear message rather than breaking unrelated sections.</p>
 </div>
 <div class="section level2">
 <h2 id="coding-conventions">Coding conventions<a class="anchor" aria-label="anchor" href="#coding-conventions"></a></h2>

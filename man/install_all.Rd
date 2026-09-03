@@ -37,7 +37,8 @@ packages that are not currently available. Packages configured as GitHub
 or GitLab dependencies are installed from their corresponding repositories.
 All package installation is handled by \code{\link[pak:pkg_install]{pak::pkg_install()}}.
 
-Unlike a direct call to \code{pak}, \code{install_All()} discovers the packages declared
+Unlike a direct call to \code{pak}, \code{install_All()} discovers the packages
+declared
 by the currently available YAML report modules, including modules added or
 modified by users, and combines them with any additional packages supplied
 through \code{pkgs}. It then delegates resolution and installation to \code{pak}. The

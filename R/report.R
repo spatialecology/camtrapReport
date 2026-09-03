@@ -223,10 +223,7 @@ setMethod(
             ))
             
           } else {
-            stop(paste0(
-              "Although all sections are tested, the report cannot be ",
-              "generated...!"
-            ))
+            stop("Although all sections are tested, the report cannot be ", "generated...!")
           }
         }
         

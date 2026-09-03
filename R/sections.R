@@ -98,19 +98,10 @@ setMethod("section_names",signature(keep = "ANY"),
       
       if (!all(w)) {
         if (!any(w)) {
-          stop(paste0(
-            "None of the specified section/module names in 'keep' are ",
-            "available; use section_names() to get a list of existing modules."
-          ))
+          stop("None of the specified section/module names in 'keep' are ", "available; use section_names() to get a list of existing modules.")
         }
         
-        warning(
-          paste0(
-            "Several section/module names specified in 'keep' are not ",
-            "available: "
-          ),
-          .paste_comma_and(keep[!w])
-        )
+        warning("Several section/module names specified in 'keep' are not ", "available: ")
       }
       
       n <- keep[w]
@@ -130,19 +121,10 @@ setMethod("section_names",signature(keep = "ANY"),
       
       if (!all(w)) {
         if (!any(w)) {
-          stop(paste0(
-            "None of the specified section/module names in 'exclude' are ",
-            "available; use section_names() to get a list of existing modules."
-          ))
+          stop("None of the specified section/module names in 'exclude' are ", "available; use section_names() to get a list of existing modules.")
         }
         
-        warning(
-          paste0(
-            "Several section/module names specified in 'exclude' are not ",
-            "available: "
-          ),
-          .paste_comma_and(exclude[!w])
-        )
+        warning("Several section/module names specified in 'exclude' are not ", "available: ")
       }
       
       exclude <- exclude[w]
@@ -205,10 +187,7 @@ setMethod("sections",signature(x = "camReport"),
       } else {
         
         if (!any(n %in% nn)) {
-          stop(paste0(
-            "None of the specified section names are known. Use ",
-            "section_names() to get the correct names of available sections."
-          ))
+          stop("None of the specified section names are known. Use ", "section_names() to get the correct names of available sections.")
         } else {
           message(paste0(
             "\nSome of the specified section names are unknown and ignored. ",

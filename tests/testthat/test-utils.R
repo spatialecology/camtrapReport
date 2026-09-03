@@ -60,14 +60,8 @@ test_that("date, time, and filename helpers cover common input forms", {
   )
   expect_true(is.na(get_hour("not-a-date")))
 
-  expect_equal(
-    time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"),
-    2
-  )
-  expect_equal(
-    time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"),
-    2
-  )
+  expect_identical(time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"), 2)
+  expect_identical(time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"), 2)
   expect_true(is.na(time_length("not-an-interval")))
 
   expect_true(.isZip("DATA.ZIP"))

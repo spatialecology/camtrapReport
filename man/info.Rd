@@ -21,7 +21,8 @@ the default report-information fields are returned.}
 \item{value}{The new value to assign to the specified field.}
 }
 \value{
-\code{info()} returns an object of class \code{camInfo} containing the requested
+\code{info()} returns an object of class \code{camInfo} containing the
+requested
 fields. The replacement method returns the updated \code{camReport} object
 invisibly.
 }

@@ -110,12 +110,7 @@ setMethod(
       name <- name[name %in% names(camR$fields())]
       
       if (length(name) == 0) {
-        warning(
-          paste0(
-            "The specified name(s) are not identified or available in the ",
-            "camReport object; the default fields are used."
-          )
-        )
+        warning("The specified name(s) are not identified or available in the ", "camReport object; the default fields are used.")
         name <- .default_cam_info_names
       }
     }
@@ -194,12 +189,7 @@ setReplaceMethod(
       name <- name[name %in% names(.f)]
       
       if (length(name) == 0) {
-        stop(
-          paste0(
-            "The specified name is not identified or available in the ",
-            "camReport object."
-          )
-        )
+        stop("The specified name is not identified or available in the ", "camReport object.")
       }
       
       x[[name]] <- value
