@@ -197,10 +197,10 @@ setMethod(
             ]
           )
           
-          message(paste0(
+          message(
             "\nTesting is done; the modules are attached, and the report ",
             "generation is started...!"
-          ))
+          )
           
           return(report(object, filename = filename, view = view, test = FALSE))
           
@@ -229,10 +229,10 @@ setMethod(
         
       } else {
         
-        message(paste0(
+        message(
           "Report generation is stopped because of an error; add `test = ",
           "TRUE` to exclude the modules that cause error!"
-        ))
+        )
         
         return(w)
       }

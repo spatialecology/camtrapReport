@@ -151,12 +151,26 @@
     }))
     
     if (length(unique(.tmp[!is.na(.tmp)])) > .w) {
-      n <- rep(NA, .w)
+      n <- rep(NA_character_, .w)
       
       for (i in seq_len(.w)) {
-        n[i] <- names(sort(table(sapply(x, function(z) {
-          names(z$vernacularNames)[i]
-        })), decreasing = TRUE))[1]
+        vernacular_names <- vapply(
+          x,
+          function(z) {
+            z_names <- names(z$vernacularNames)
+            
+            if (length(z_names) >= i) {
+              z_names[[i]]
+            } else {
+              NA_character_
+            }
+          },
+          character(1)
+        )
+        
+        n[i] <- names(
+          sort(table(vernacular_names), decreasing = TRUE)
+        )[1]
       }
     } else {
       ww <- which.max(w)

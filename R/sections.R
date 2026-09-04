@@ -179,21 +179,21 @@ setMethod("sections",signature(x = "camReport"),
       
       if (all(n %in% x$reportObjectElements$Modules_info$name)) {
         
-        message(paste0(
+        message(
           "\nSome of the specified sections are excluded because their test ",
           "results were problematic."
-        ))
+        )
         
       } else {
         
         if (!any(n %in% nn)) {
           stop("None of the specified section names are known. Use ", "section_names() to get the correct names of available sections.")
         } else {
-          message(paste0(
+          message(
             "\nSome of the specified section names are unknown and ignored. ",
             "Use section_names() to get the correct names of available ",
             "sections."
-          ))
+          )
         }
       }
     }
