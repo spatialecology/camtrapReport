@@ -858,7 +858,9 @@
     "invalid_yml"
   )
   
-  duplicate_hit <- hit & out$duplicate_module_name %in% TRUE
+  duplicate_flag <- out$duplicate_module_name
+  duplicate_flag[is.na(duplicate_flag)] <- FALSE
+  duplicate_hit <- hit & duplicate_flag
   out$status[duplicate_hit] <- "duplicate_module_name"
   
   # unlisted but readable files

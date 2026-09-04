@@ -28,8 +28,6 @@ documentation](https://img.shields.io/badge/docs-pkgdown-orange.svg)](https://sp
 
 ------------------------------------------------------------------------
 
-------------------------------------------------------------------------
-
 `camtrapReport` converts camera-trap data in [Camtrap
 DP](https://camtrap-dp.tdwg.org/) format into two coordinated HTML
 outputs:
@@ -46,7 +44,7 @@ than replacing them.
 
 <p align="center">
 
-<img src="vignettes/figures/package-architecture.png"
+<img src="man/figures/package-architecture.png"
        width="900"
        alt="Workflow from Camtrap DP input through the camReport object to the Data Status Check and Ecological Report"><br>
 <em>Overview of the camtrapReport workflow.</em>
@@ -87,7 +85,7 @@ pak::pkg_install(
 )
 ```
 
-If you add or update report modules, check their dependencies with:
+its report modules:
 
 ``` r
 camtrapReport::install_All()
@@ -169,31 +167,35 @@ cm
 Camtrap DP directory. Habitat data and a study-area boundary are
 optional.
 
-### Generate a Data Status Check
+### Generate a Data Status Report
 
 ``` r
 status_file <- status(
   cm,
   view = FALSE
 )
+
+file.exists(status_file)
+#> [1] TRUE
 ```
 
-### Generate an Ecological Report
+### Generate a Full Ecological Report
 
-For this introductory example, select the lightweight introduction
-module so that rendering does not require packages used only by optional
-modules.
+The full Ecological Report integrates the available ecological summaries
+and analyses, including sampling effort, captures, relative abundance
+patterns, species richness, species accumulation, activity patterns,
+species co-occurrence, habitat associations, and spatial patterns.
+Modules requiring additional data or parameters contribute results when
+those inputs are available.
 
 ``` r
-cm <- sections(
-  cm,
-  "introduction"
-)
-
 report_file <- report(
   cm,
   view = FALSE
 )
+
+file.exists(report_file)
+#> [1] TRUE
 ```
 
 ## Configure a report
@@ -252,13 +254,11 @@ species locations. Review all content before sharing a report.
 
 ## Example-data provenance
 
-The bundled example dataset is derived from the [GMU8_LEUVEN Camtrap DP
+The bundled example data are derived from the [GMU8_LEUVEN Camtrap DP
 dataset](https://doi.org/10.15468/4u3wm4), published by the Research
-Institute for Nature and Forest (INBO) through GBIF. It contains 8
-derived location identifiers, 87 deployments, 15,492 retained media
-records, and 11,092 observation records. The relationship-preserving
-subset is intended for demonstration and software testing, not
-ecological inference. Its preparation and media-reduction rules are
+Institute for Nature and Forest (INBO) through GBIF. This
+relationship-preserving subset is provided for demonstration and
+software testing, not ecological inference. Its preparation is
 documented in the [example-data
 README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
 
@@ -278,9 +278,9 @@ Several R packages support related parts of camera-trap workflows:
 checks, selected ecological analyses, figures, maps, tables, metadata,
 and explanatory text within a configurable reporting workflow. Its
 extensible module framework allows users to incorporate additional
-analyses and report components without modifying the core package. To
-our knowledge, it is the first R package designed specifically to
-automate the generation of both data-status and ecological reports from
+analyses and report components without modifying the core package. To my
+knowledge, it is the first R package designed specifically to automate
+the generation of both data-status and ecological reports from
 camera-trap data.
 
 ## Documentation and support

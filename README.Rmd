@@ -6,7 +6,7 @@ output:
 
 <!-- README.md is generated from README.Rmd. Edit README.Rmd, not README.md. -->
 
-```{r setup, include=FALSE}
+```{r readme-setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 options(width = 80)
 ```
+
 <h1 align="center">camtrapReport</h1>
 
 <p align="center">
@@ -29,8 +30,6 @@ options(width = 80)
 [![R version](https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
 [![MIT license](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md)
 [![pkgdown documentation](https://img.shields.io/badge/docs-pkgdown-orange.svg)](https://spatialecology.github.io/camtrapReport/)
-
----
 
 ---
 
@@ -49,7 +48,7 @@ camera-trap data management and specialised ecological modelling rather than
 replacing them.
 
 <p align="center">
-  <img src="vignettes/figures/package-architecture.png"
+  <img src="man/figures/package-architecture.png"
        width="900"
        alt="Workflow from Camtrap DP input through the camReport object to the Data Status Check and Ecological Report"><br>
   <em>Overview of the camtrapReport workflow.</em>
@@ -77,7 +76,7 @@ pak::pkg_install(
 )
 ```
 
-If you add or update report modules, check their dependencies with:
+its report modules:
 
 ```{r module-dependencies, eval=FALSE}
 camtrapReport::install_All()
@@ -156,16 +155,18 @@ cm
 `camData()` also accepts a Camtrap DP ZIP archive or an extracted Camtrap DP
 directory. Habitat data and a study-area boundary are optional.
 
-### Generate a Data Status Check
+### Generate a Data Status Report
 
-```{r generate-data-status, eval=FALSE}
+```{r generate-data-status, message=FALSE, warning=FALSE}
 status_file <- status(
   cm,
   view = FALSE
 )
+
+file.exists(status_file)
 ```
 
-```{r validate-data-status, eval=FALSE, include=FALSE}
+```{r validate-data-status, include=FALSE}
 stopifnot(
   is.character(status_file),
   length(status_file) == 1L,
@@ -173,24 +174,25 @@ stopifnot(
 )
 ```
 
-### Generate an Ecological Report
+### Generate a Full Ecological Report
 
-For this introductory example, select the lightweight introduction module so
-that rendering does not require packages used only by optional modules.
+The full Ecological Report integrates the available ecological summaries and
+analyses, including sampling effort, captures, relative abundance patterns,
+species richness, species accumulation, activity patterns, species
+co-occurrence, habitat associations, and spatial patterns. Modules requiring
+additional data or parameters contribute results when those inputs are
+available.
 
-```{r generate-ecological-report, eval=FALSE}
-cm <- sections(
-  cm,
-  "introduction"
-)
-
+```{r generate-ecological-report, message=FALSE, warning=FALSE}
 report_file <- report(
   cm,
   view = FALSE
 )
+
+file.exists(report_file)
 ```
 
-```{r validate-ecological-report, eval=FALSE, include=FALSE}
+```{r validate-ecological-report, include=FALSE}
 stopifnot(
   is.character(report_file),
   length(report_file) == 1L,
@@ -254,14 +256,8 @@ locations. Review all content before sharing a report.
 
 ## Example-data provenance
 
-The bundled example dataset is derived from the
-[GMU8_LEUVEN Camtrap DP dataset](https://doi.org/10.15468/4u3wm4), published by
-the Research Institute for Nature and Forest (INBO) through GBIF. It contains
-8 derived location identifiers, 87 deployments, 15,492 retained media records,
-and 11,092 observation records. The relationship-preserving subset is intended
-for demonstration and software testing, not ecological inference. Its
-preparation and media-reduction rules are documented in the
-[example-data README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
+The bundled example data are derived from the [GMU8_LEUVEN Camtrap DP dataset](https://doi.org/10.15468/4u3wm4), published by the Research Institute for Nature and Forest (INBO) through GBIF. This relationship-preserving subset is provided for demonstration and software testing, not ecological inference. Its preparation is documented in the [example-data README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
+
 
 ## Relationship to other camera-trap packages
 
@@ -279,7 +275,7 @@ Several R packages support related parts of camera-trap workflows:
 selected ecological analyses, figures, maps, tables, metadata, and explanatory
 text within a configurable reporting workflow. Its extensible module framework
 allows users to incorporate additional analyses and report components without
-modifying the core package. To our knowledge, it is the first R package
+modifying the core package. To my knowledge, it is the first R package
 designed specifically to automate the generation of both data-status and
 ecological reports from camera-trap data.
 
