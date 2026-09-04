@@ -58,7 +58,7 @@ replacing them.
 
 Although `camtrapReport` has not yet been applied in a published ecological study, it has been developed and evaluated using real-world camera-trap monitoring datasets from multiple study sites across North America, Asia, Europe, Africa, and Australia. Evaluation involved both developer-led testing and independent users who applied the package to their own datasets and provided feedback. In Europe, this evaluation has drawn particularly on datasets available through camera-trap research networks, including the [European Observatory of Wildlife network](https://enetwild.com/), which spans diverse geographic settings and monitoring designs.
 
-Experience across these heterogeneous datasets has informed checks for metadata completeness and spatiotemporal coverage, improvements to report generation, and revisions based on user feedback. Related publications, presentations, and training activities are listed on the [Resources page](https://spatialecology.github.io/camtrapReport/articles/resources.html).
+Experience across these heterogeneous datasets has informed checks for metadata completeness and spatiotemporal coverage, improvements to report generation, and revisions based on user feedback. 
 
 
 ## Installation

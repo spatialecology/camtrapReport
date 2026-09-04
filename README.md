@@ -65,10 +65,7 @@ and monitoring designs.
 
 Experience across these heterogeneous datasets has informed checks for
 metadata completeness and spatiotemporal coverage, improvements to
-report generation, and revisions based on user feedback. Related
-publications, presentations, and training activities are listed on the
-[Resources
-page](https://spatialecology.github.io/camtrapReport/articles/resources.html).
+report generation, and revisions based on user feedback.
 
 ## Installation
 

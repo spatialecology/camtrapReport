@@ -57,8 +57,8 @@
   missing_i <- is.na(out) & !is.na(x_chr)
   
   if (any(missing_i) && .require("lubridate")) {
-    parsed <- suppressWarnings(
-      .eval('lubridate::parse_date_time(
+    suppressWarnings(
+      lubridate::parse_date_time(
         x_chr[missing_i],
         orders = c(
           "ymd HMS z", "ymd HMS",
@@ -70,7 +70,7 @@
         ),
         tz = tz,
         quiet = TRUE
-      )',environment())
+      )
     )
     
     ok <- !is.na(parsed)
