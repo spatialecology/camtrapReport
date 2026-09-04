@@ -85,7 +85,8 @@ pak::pkg_install(
 )
 ```
 
-its report modules:
+To generate the full Ecological Report, install the optional
+dependencies used by its report modules:
 
 ``` r
 camtrapReport::install_All()

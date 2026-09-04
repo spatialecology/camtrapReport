@@ -116,7 +116,7 @@ camtrapReport
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span></span>
 <span>  <span class="st">"spatialecology/camtrapReport"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>If you add or update report modules, check their dependencies with:</p>
+<p>To generate the full Ecological Report, install the optional dependencies used by its report modules:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">camtrapReport</span><span class="fu">::</span><span class="fu"><a href="reference/install_all.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="reference/install_all.html">install_All()</a></code> scans the bundled and registered user modules and installs any missing dependencies automatically.</p>
@@ -195,16 +195,11 @@ camtrapReport
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="generate-an-ecological-report">Generate an Ecological Report<a class="anchor" aria-label="anchor" href="#generate-an-ecological-report"></a>
+<h3 id="generate-a-full-ecological-report">Generate a Full Ecological Report<a class="anchor" aria-label="anchor" href="#generate-a-full-ecological-report"></a>
 </h3>
-<p>For this introductory example, select the lightweight introduction module so that rendering does not require packages used only by optional modules.</p>
+<p>The full Ecological Report integrates the available ecological summaries and analyses, including sampling effort, captures, relative abundance patterns, species richness, species accumulation, activity patterns, species co-occurrence, habitat associations, and spatial patterns. Modules requiring additional data or parameters contribute results when those inputs are available.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/section_names.html">sections</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  <span class="st">"introduction"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
