@@ -7,11 +7,20 @@
   if (inherits(x, "POSIXt")) return(as.POSIXct(x, tz = tz))
   
   if (is.null(x)) {
-    return(as.POSIXct(NA_real_, origin = "1970-01-01", tz = tz))
+    return(
+      as.POSIXct(
+        NA_real_,
+        origin = "1970-01-01",
+        tz = tz
+      )
+    )
   }
   
   x_chr <- trimws(as.character(x))
-  x_chr[x_chr %in% c("", "NA", "NaN", "NULL", "null")] <- NA_character_
+  
+  x_chr[
+    x_chr %in% c("", "NA", "NaN", "NULL", "null")
+  ] <- NA_character_
   
   out <- as.POSIXct(
     rep(NA_real_, length(x_chr)),
@@ -21,7 +30,11 @@
   
   x_try <- x_chr
   x_try <- gsub("Z$", "+0000", x_try)
-  x_try <- gsub("([+-][0-9]{2}):([0-9]{2})$", "\\1\\2", x_try)
+  x_try <- gsub(
+    "([+-][0-9]{2}):([0-9]{2})$",
+    "\\1\\2",
+    x_try
+  )
   
   formats <- c(
     "%Y-%m-%dT%H:%M:%OS%z",
@@ -44,37 +57,72 @@
   
   for (fmt in formats) {
     missing_i <- is.na(out) & !is.na(x_try)
-    if (!any(missing_i)) break
+    
+    if (!any(missing_i)) {
+      break
+    }
     
     parsed <- suppressWarnings(
-      as.POSIXct(x_try[missing_i], format = fmt, tz = tz)
+      as.POSIXct(
+        x_try[missing_i],
+        format = fmt,
+        tz = tz
+      )
     )
     
     ok <- !is.na(parsed)
+    
     out[which(missing_i)[ok]] <- parsed[ok]
   }
   
   missing_i <- is.na(out) & !is.na(x_chr)
   
   if (any(missing_i) && .require("lubridate")) {
-    suppressWarnings(
-      lubridate::parse_date_time(
-        x_chr[missing_i],
-        orders = c(
-          "ymd HMS z", "ymd HMS",
-          "ymd HM z",  "ymd HM",
-          "ymd z",     "ymd",
-          "Ymd HMS z", "Ymd HMS",
-          "ymdT HMS z", "ymdT HMS",
-          "ymdT HM z",  "ymdT HM"
-        ),
-        tz = tz,
-        quiet = TRUE
-      )
+    fallback_orders <- c(
+      "ymd HMS z", "ymd HMS",
+      "ymd HM z",  "ymd HM",
+      "ymd z",     "ymd",
+      "Ymd HMS z", "Ymd HMS",
+      "ymdT HMS z", "ymdT HMS",
+      "ymdT HM z",  "ymdT HM"
     )
     
-    ok <- !is.na(parsed)
-    out[which(missing_i)[ok]] <- as.POSIXct(parsed[ok], tz = tz)
+    # Trying the orders separately prevents lubridate from constructing
+    # one excessively large regular expression.
+    for (order_spec in fallback_orders) {
+      missing_i <- is.na(out) & !is.na(x_chr)
+      
+      if (!any(missing_i)) {
+        break
+      }
+      
+      parsed <- tryCatch(
+        suppressWarnings(
+          lubridate::parse_date_time(
+            x_chr[missing_i],
+            orders = order_spec,
+            tz = tz,
+            quiet = TRUE
+          )
+        ),
+        error = function(e) {
+          as.POSIXct(
+            rep(NA_real_, sum(missing_i)),
+            origin = "1970-01-01",
+            tz = tz
+          )
+        }
+      )
+      
+      ok <- !is.na(parsed)
+      
+      if (any(ok)) {
+        out[which(missing_i)[ok]] <- as.POSIXct(
+          parsed[ok],
+          tz = tz
+        )
+      }
+    }
   }
   
   out
