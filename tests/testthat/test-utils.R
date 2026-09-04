@@ -54,17 +54,14 @@ test_that("date, time, and filename helpers cover common input forms", {
     list(c(2022, 2024), numeric())
   )
   expect_identical(get_hour("2024-01-01T13:30:00", tz = "UTC"), 13.5)
-  expect_identical(get_hour(as.POSIXlt("2024-01-01 04:15:00", tz = "UTC")), 4.25)
+  expect_identical(
+    get_hour(as.POSIXlt("2024-01-01 04:15:00", tz = "UTC")),
+    4.25
+  )
   expect_true(is.na(get_hour("not-a-date")))
 
-  expect_equal(
-    time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"),
-    2
-  )
-  expect_equal(
-    time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"),
-    2
-  )
+  expect_identical(time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"), 2)
+  expect_identical(time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"), 2)
   expect_true(is.na(time_length("not-an-interval")))
 
   expect_true(.isZip("DATA.ZIP"))
@@ -86,7 +83,10 @@ test_that("small data helpers return stable base objects", {
   expect_named(bound, c("a", "b"))
 
   expect_identical(get_match("FOX", c("fox", "hare")), "fox")
-  expect_identical(get_match("fox", c("fox", "hare"), case_sensitive = TRUE), "fox")
+  expect_identical(
+    get_match("fox", c("fox", "hare"), case_sensitive = TRUE),
+    "fox"
+  )
   expect_true(is.na(get_match("deer", c("fox", "hare"))))
   expect_true(is.na(get_match(NULL, "fox")))
 

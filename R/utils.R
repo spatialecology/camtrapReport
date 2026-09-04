@@ -275,7 +275,7 @@
 #--------
 
 .rmChar <- function(x, rm, rmLast = FALSE) {
-  x <- strsplit(as.character(x), "")[[1]]
+  x <- strsplit(as.character(x), "", fixed = TRUE)[[1]]
   
   if (length(x) == 0) {
     return("")
@@ -413,7 +413,7 @@
   if (is.null(y)) {
     x <- as.character(x)
     
-    out <- sapply(x, function(z) {
+    out <- vapply(x, function(z) {
       if (is.na(z) || !nzchar(z) || !grepl("--", z, fixed = TRUE)) {
         return(NA_real_)
       }
@@ -432,7 +432,7 @@
       }
       
       as.numeric(difftime(end, start, units = unit))
-    })
+    }, numeric(1))
     
     names(out) <- NULL
     out
@@ -484,7 +484,7 @@
     pkgs <- as.character(pkgs)
     pkgs <- pkgs[!is.na(pkgs) & nzchar(pkgs)]
     
-    all(unlist(lapply(pkgs, function(p) .require(p))))
+    all(unlist(lapply(pkgs, .require)))
   })
 }
 
@@ -617,7 +617,7 @@
     }
   }
   
-  w <- strsplit(basename(x), "\\.")[[1]]
+  w <- strsplit(basename(x), ".", fixed = TRUE)[[1]]
   
   if (length(w) > 1) {
     .filename <- paste(w[-length(w)], collapse = "_")
@@ -656,7 +656,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .charN, space = space))
+    return(vapply(x, .charN, numeric(1), space = space))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {
@@ -664,7 +664,7 @@
   }
   
   x <- .trim(x)
-  x <- strsplit(x, "")[[1]]
+  x <- strsplit(x, "", fixed = TRUE)[[1]]
   
   if (space) {
     length(x)
@@ -683,7 +683,7 @@
   x <- as.character(x)
   
   if (length(x) > 1) {
-    return(sapply(x, .wordN))
+    return(vapply(x, .wordN, numeric(1)))
   }
   
   if (is.na(x) || !nzchar(trimws(x))) {
@@ -755,7 +755,7 @@
   }
   
   x <- as.character(x)
-  x <- gsub("_", " ", x)
+  x <- gsub("_", " ", x, fixed = TRUE)
   x <- gsub("\\s+", " ", x)
   x <- trimws(x)
   x <- x[!is.na(x) & nzchar(x)]

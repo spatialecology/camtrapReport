@@ -277,7 +277,8 @@ setGeneric("install_All",
 #' or GitLab dependencies are installed from their corresponding repositories.
 #' All package installation is handled by [pak::pkg_install()].
 #'
-#' Unlike a direct call to `pak`, `install_All()` discovers the packages declared
+#' Unlike a direct call to `pak`, `install_All()` discovers the packages
+#' declared
 #' by the currently available YAML report modules, including modules added or
 #' modified by users, and combines them with any additional packages supplied
 #' through `pkgs`. It then delegates resolution and installation to `pak`. The
@@ -381,11 +382,9 @@ setMethod("install_All",signature(pkgs = "ANY"),
     
     if (length(duplicated_remote_packages) > 0L) {
       stop(
-        paste0(
-          "The following packages are configured for both GitHub and GitLab: ",
-          paste(duplicated_remote_packages, collapse = ", "),
-          "."
-        ),
+        "The following packages are configured for both GitHub and GitLab: ",
+        paste(duplicated_remote_packages, collapse = ", "),
+        ".",
         call. = FALSE
       )
     }
@@ -424,15 +423,39 @@ setMethod("install_All",signature(pkgs = "ANY"),
       
       references <- c(cran_packages[cran_packages %in% missing_packages])
       
-      if (github) references <- c(references, github_references[names(github_references) %in% missing_packages])
-      if (gitlab) references <- c(references, gitlab_references[names(gitlab_references) %in% missing_packages])
+      if (github) {
+        references <- c(
+          references,
+          github_references[names(github_references) %in% missing_packages]
+        )
+      }
+      if (gitlab) {
+        references <- c(
+          references,
+          gitlab_references[names(gitlab_references) %in% missing_packages]
+        )
+      }
       
       .installPak(references,...)
       
       return(invisible(NULL))
     }
     
-    protected_packages <- rownames(utils::installed.packages(priority = c("base", "recommended")))
+    protected <- vapply(
+      cran_packages,
+      function(package) {
+        priority <- tryCatch(
+          utils::packageDescription(package, fields = "Priority"),
+          warning = function(condition) NA_character_,
+          error = function(condition) NA_character_
+        )
+
+        !is.na(priority) && priority %in% c("base", "recommended")
+      },
+      logical(1)
+    )
+
+    protected_packages <- cran_packages[protected]
     
     cran_to_update <- setdiff(
       cran_packages,

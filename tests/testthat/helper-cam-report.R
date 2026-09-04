@@ -1,6 +1,60 @@
 .camtrap_test_cache <- new.env(parent = emptyenv())
 .camtrap_test_cache$temp_paths <- character()
 
+capture_report_conditions <- function(expr) {
+  captured <- new.env(parent = emptyenv())
+  captured$messages <- character()
+  captured$warnings <- character()
+
+  value <- withCallingHandlers(
+    expr,
+    message = function(condition) {
+      captured$messages <- c(
+        captured$messages,
+        conditionMessage(condition)
+      )
+      invokeRestart("muffleMessage")
+    },
+    warning = function(condition) {
+      captured$warnings <- c(
+        captured$warnings,
+        conditionMessage(condition)
+      )
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  list(
+    value = value,
+    messages = captured$messages,
+    warnings = captured$warnings
+  )
+}
+
+capture_expected_warning <- function(expr, regexp, fixed = FALSE) {
+  captured <- capture_report_conditions(expr)
+  matched <- grepl(regexp, captured$warnings, fixed = fixed)
+
+  testthat::expect_true(
+    any(matched),
+    info = paste0("Expected warning matching: ", regexp)
+  )
+
+  captured$value
+}
+
+capture_expected_message <- function(expr, regexp, fixed = FALSE) {
+  captured <- capture_report_conditions(expr)
+  matched <- grepl(regexp, captured$messages, fixed = fixed)
+
+  testthat::expect_true(
+    any(matched),
+    info = paste0("Expected message matching: ", regexp)
+  )
+
+  captured$value
+}
+
 reg.finalizer(
   .camtrap_test_cache,
   function(cache) {
@@ -121,8 +175,9 @@ camtrap_test_report <- function() {
       ),
       warning = function(w) {
         expected_warning <- grepl(
-          "chi\\^2 approximation may be inaccurate",
-          conditionMessage(w)
+          "chi^2 approximation may be inaccurate",
+          conditionMessage(w),
+          fixed = TRUE
         ) || grepl(
           "package is not installed; it is required",
           conditionMessage(w),

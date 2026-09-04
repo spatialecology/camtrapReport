@@ -110,10 +110,10 @@
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
     lines <- vapply(
       as.list(expr)[-1],
-      function(e) {
-        paste(deparse(e), collapse = "\n")
-      },
-      character(1)
+      deparse1,
+      character(1),
+      collapse = "\n",
+      width.cutoff = 60L
     )
     return(paste(lines, collapse = "\n"))
   }
@@ -126,7 +126,7 @@
   }
   
   # fallback: deparse expression
-  paste(deparse(expr), collapse = "\n")
+  deparse1(expr, collapse = "\n", width.cutoff = 60L)
 }
 
 #--------
@@ -136,7 +136,11 @@
   if (is.null(expr)) return(NULL)
   
   # setting passed as { c(...) }
-  if (is.call(expr) && identical(expr[[1]], as.name("{")) && length(expr) == 2L) {
+  if (
+    is.call(expr) &&
+      identical(expr[[1]], as.name("{")) &&
+      length(expr) == 2L
+  ) {
     expr <- expr[[2]]
   }
   
@@ -177,7 +181,7 @@
     }
   }
   
-  paste(deparse(expr), collapse = "")
+  deparse1(expr, collapse = "", width.cutoff = 60L)
 }
 
 #--------
@@ -209,7 +213,8 @@
                                   packages = NULL,
                                   append_code = FALSE) {
   
-  wants_chunk_update <- (!code_missing) || (!code_setting_missing) || (!packages_missing)
+  wants_chunk_update <-
+    (!code_missing) || (!code_setting_missing) || (!packages_missing)
   
   if (!wants_chunk_update) {
     return(sec)
@@ -372,11 +377,13 @@ setGeneric(
 #' Update report sections
 #'
 #' Update the content of a report section in a
-#' [`camReport`][camReport-classes] object, or list the report sections currently
+#' [`camReport`][camReport-classes] object, or list the report sections
+#' currently
 #' attached to the object.
 #'
 #' Report sections can be identified using either their name or title.
-#' `listReportSections()` lists the sections attached to a `camReport` object and
+#' `listReportSections()` lists the sections attached to a `camReport` object
+#' and
 #' can be used to find the exact section names before updating them.
 #'
 #' `updateReportSection()` is useful for adapting the default report content to
@@ -512,7 +519,7 @@ setMethod("updateReportSection",signature(x = "camReport"),
     if (missing(append_text)) append_text <- FALSE
     
     if (missing(section) || !is.character(section) || length(section) != 1L) {
-      stop("'section' should be a single character string, either a section name or title.")
+      stop("'section' should be a single character string, either a section ", "name or title.")
     }
     
     catalog <- .reportSection_catalog(x$reportObjects)
@@ -535,7 +542,10 @@ setMethod("updateReportSection",signature(x = "camReport"),
     }
     
     if (!code_setting_missing) {
-      code_setting <- .capture_setting_text(code_setting_expr, env = parent.frame())
+      code_setting <- .capture_setting_text(
+        code_setting_expr,
+        env = parent.frame()
+      )
     }
     
     updater <- function(sec) {

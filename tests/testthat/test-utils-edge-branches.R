@@ -127,8 +127,8 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   
   directory_result <- estimate_size(data_directory)
   
-  expect_equal(directory_result$file_size, 50)
-  expect_equal(directory_result$effective_size, 50)
+  expect_identical(directory_result$file_size, 50)
+  expect_identical(directory_result$effective_size, 50)
   expect_identical(directory_result$file_size_label, "50 B")
   expect_identical(directory_result$size_class, "small")
 })
@@ -138,8 +138,8 @@ test_that("camData progress messages cover known and unknown datasets", {
   start_message <- .camdata_start_message
   done_message <- .camdata_done_message
   
-  expect_message(
-    size_info <- start_message("a-file-that-does-not-exist"),
+  size_info <- capture_expected_message(
+    start_message("a-file-that-does-not-exist"),
     "The camReport object is being created",
     fixed = TRUE
   )
@@ -149,8 +149,8 @@ test_that("camData progress messages cover known and unknown datasets", {
     "unknown"
   )
   
-  expect_message(
-    result <- done_message(
+  result <- capture_expected_message(
+    done_message(
       Sys.time() - 2,
       site_name = NULL
     ),
@@ -160,8 +160,8 @@ test_that("camData progress messages cover known and unknown datasets", {
   
   expect_true(result)
   
-  expect_message(
-    result_named <- done_message(
+  result_named <- capture_expected_message(
+    done_message(
       Sys.time() - 2,
       site_name = "Veluwe"
     ),
@@ -315,7 +315,7 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(is.environment(render_environment))
+  expect_type(render_environment, "environment")
   
   expect_identical(
     render_environment$object,
@@ -332,13 +332,9 @@ test_that("render environments expose objects and report counters", {
     object
   )
   
-  expect_true(
-    is.function(render_environment$getFigureNumber)
-  )
+  expect_type(render_environment$getFigureNumber, "closure")
   
-  expect_true(
-    is.function(render_environment$getTableNumber)
-  )
+  expect_type(render_environment$getTableNumber, "closure")
   
   expect_true(
     exists(

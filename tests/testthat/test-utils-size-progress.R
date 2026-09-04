@@ -181,10 +181,7 @@ test_that("size estimation reads a regular file", {
     test_file
   )
   
-  expect_equal(
-    result$file_size,
-    2048
-  )
+  expect_identical(result$file_size, 2048)
   
   expect_identical(
     result$file_size_label,
@@ -195,10 +192,7 @@ test_that("size estimation reads a regular file", {
     is.na(result$zip_uncompressed_size)
   )
   
-  expect_equal(
-    result$effective_size,
-    2048
-  )
+  expect_identical(result$effective_size, 2048)
   
   expect_identical(
     result$effective_size_label,
@@ -249,15 +243,9 @@ test_that("size estimation sums files in a directory", {
     test_dir
   )
   
-  expect_equal(
-    result$file_size,
-    3000
-  )
+  expect_identical(result$file_size, 3000)
   
-  expect_equal(
-    result$effective_size,
-    3000
-  )
+  expect_identical(result$effective_size, 3000)
   
   expect_identical(
     result$size_class,
@@ -326,12 +314,8 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     fileext = ".zip"
   )
   
-  old_dir <- getwd()
-  
   on.exit(
     {
-      setwd(old_dir)
-      
       unlink(
         test_dir,
         recursive = TRUE,
@@ -346,14 +330,10 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     add = TRUE
   )
   
-  setwd(test_dir)
-  
   utils::zip(
     zipfile = zip_file,
-    files = basename(source_file)
+    files = source_file
   )
-  
-  setwd(old_dir)
   
   expect_true(
     file.exists(zip_file)
@@ -371,17 +351,12 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     is.na(result$zip_uncompressed_size)
   )
   
-  expect_true(
-    result$zip_uncompressed_size > 0
-  )
+  expect_gt(result$zip_uncompressed_size, 0)
   
-  expect_equal(
-    result$effective_size,
-    max(
+  expect_identical(result$effective_size, max(
       result$file_size,
       result$zip_uncompressed_size
-    )
-  )
+    ))
   
   expect_identical(
     result$size_class,
@@ -408,8 +383,8 @@ test_that("camdata start message reports small datasets", {
     .package = "camtrapReport"
   )
   
-  expect_message(
-    result <- .camdata_start_message(
+  result <- capture_expected_message(
+    .camdata_start_message(
       "dummy-data"
     ),
     "File size looks modest",
@@ -496,8 +471,8 @@ test_that("camdata start message covers all size classes", {
       .package = "camtrapReport"
     )
     
-    expect_message(
-      result <- .camdata_start_message(
+    result <- capture_expected_message(
+      .camdata_start_message(
         "dummy-data"
       ),
       cases[[size_class]],

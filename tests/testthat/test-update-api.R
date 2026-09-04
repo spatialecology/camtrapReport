@@ -8,7 +8,10 @@ test_that("report-section matching supports names, titles, and informative error
   match_section <- .matchReportSection
 
   expect_identical(match_section(catalog, "INTRO")$name, "intro")
-  expect_identical(match_section(catalog, "Introduction", by = "title")$name, "intro")
+  expect_identical(
+    match_section(catalog, "Introduction", by = "title")$name,
+    "intro"
+  )
   expect_identical(
     suppressWarnings(match_section(catalog, "effort", by = "name"))$name,
     "sampling_effort"
@@ -18,8 +21,14 @@ test_that("report-section matching supports names, titles, and informative error
     "intro"
   )
   expect_error(match_section(catalog, ""), "empty")
-  expect_error(suppressWarnings(match_section(catalog, "unknown")), "No report section")
-  expect_error(suppressWarnings(match_section(catalog, "amp", by = "title")), "More than one")
+  expect_error(
+    suppressWarnings(match_section(catalog, "unknown")),
+    "No report section"
+  )
+  expect_error(
+    suppressWarnings(match_section(catalog, "amp", by = "title")),
+    "More than one"
+  )
 })
 
 test_that("code and chunk settings are captured without evaluation side effects", {
@@ -86,7 +95,7 @@ test_that("section chunks can be created, patched, appended, and selected", {
     code_setting_missing = TRUE,
     packages_missing = TRUE
   )
-  expect_true(is.list(multiple@Rchunk))
+  expect_type(multiple@Rchunk, "list")
   expect_named(multiple@Rchunk, c("first", "second"))
 
   expect_error(
@@ -166,5 +175,8 @@ test_that("updateReportSection updates title, text, code, and packages", {
   expect_error(updateReportSection(updated, section = 1), "single character")
   empty <- camR$new()
   empty$reportObjects <- list()
-  expect_error(updateReportSection(empty, "missing", text = "x"), "No report sections")
+  expect_error(
+    updateReportSection(empty, "missing", text = "x"),
+    "No report sections"
+  )
 })

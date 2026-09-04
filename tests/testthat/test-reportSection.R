@@ -18,7 +18,7 @@ test_that("reportSection captures code, settings, and package requirements", {
     name = "summary",
     title = "Summary",
     code_setting = {c(echo = FALSE, results = "asis")},
-    packages = c("stats"),
+    packages = "stats",
     code = {
       mean(1:3)
     }

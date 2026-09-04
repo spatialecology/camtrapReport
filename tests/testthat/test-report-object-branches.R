@@ -76,9 +76,7 @@ test_that("root and nested report sections can be replaced", {
     
     tree <- api$objects()
     
-    expect_true(
-      is.list(tree$root)
-    )
+    expect_type(tree$root, "list")
     
     expect_true(
       "child" %in% names(tree$root)
@@ -94,10 +92,7 @@ test_that("root and nested report sections can be replaced", {
       "Replacement root text."
     )
     
-    expect_equal(
-      tree$root$root@headLevel,
-      1
-    )
+    expect_identical(tree$root$root@headLevel, 1)
     
     replacement_child <- reportSection(
       name = "child",
@@ -120,10 +115,7 @@ test_that("root and nested report sections can be replaced", {
       "Replacement child text."
     )
     
-    expect_equal(
-      tree$root$child@headLevel,
-      2
-    )
+    expect_identical(tree$root$child@headLevel, 2)
   }
 })
 
@@ -170,13 +162,9 @@ test_that("third-level report sections can be added and replaced", {
     
     tree <- api$objects()
     
-    expect_true(
-      is.list(tree$root)
-    )
+    expect_type(tree$root, "list")
     
-    expect_true(
-      is.list(tree$root$child)
-    )
+    expect_type(tree$root$child, "list")
     
     expect_true(
       "grandchild" %in% names(tree$root$child)
@@ -192,10 +180,7 @@ test_that("third-level report sections can be added and replaced", {
       "Replacement grandchild text."
     )
     
-    expect_equal(
-      tree$root$child$grandchild@headLevel,
-      3
-    )
+    expect_identical(tree$root$child$grandchild@headLevel, 3)
   }
 })
 
@@ -264,9 +249,7 @@ test_that("root report chunks can be added, converted to a list, and replaced", 
     tree <- api$objects()
     chunks <- tree$root@Rchunk
     
-    expect_true(
-      is.list(chunks)
-    )
+    expect_type(chunks, "list")
     
     expect_true(
       all(c("chunk_a", "chunk_b") %in% names(chunks))
@@ -291,9 +274,7 @@ test_that("root report chunks can be added, converted to a list, and replaced", 
     tree <- api$objects()
     chunks <- tree$root@Rchunk
     
-    expect_true(
-      is.list(chunks)
-    )
+    expect_type(chunks, "list")
     
     expect_true(
       all(
@@ -375,9 +356,7 @@ test_that("second-level report chunks can be added and replaced", {
     tree <- api$objects()
     chunks <- tree$root$child@Rchunk
     
-    expect_true(
-      is.list(chunks)
-    )
+    expect_type(chunks, "list")
     
     expect_true(
       all(
@@ -460,9 +439,7 @@ test_that("third-level report chunks can be added and replaced", {
     tree <- api$objects()
     chunks <- tree$root$child$grandchild@Rchunk
     
-    expect_true(
-      is.list(chunks)
-    )
+    expect_type(chunks, "list")
     
     expect_true(
       all(
@@ -522,10 +499,7 @@ test_that("unsupported objects and chunks with unknown parents are ignored", {
     
     tree <- api$objects()
     
-    expect_identical(
-      names(tree),
-      "root"
-    )
+    expect_named(tree, "root")
     
     expect_null(
       tree$root@Rchunk

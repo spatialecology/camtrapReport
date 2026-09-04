@@ -19,7 +19,7 @@ test_that("merged data can retain nested media records", {
 
   expect_s3_class(merged, "data.frame")
   expect_true("media" %in% names(merged))
-  expect_true(is.list(merged$media))
+  expect_type(merged$media, "list")
   expect_true(any(lengths(merged$media) > 0L))
 })
 
@@ -55,9 +55,17 @@ test_that("effort helpers aggregate deployments and draw with base graphics", {
 })
 
 test_that("base left join handles equal and differently named keys", {
-  left <- data.frame(id = c(1, 2), value = c("a", "b"))
-  right <- data.frame(id = 2, extra = "x")
-  right2 <- data.frame(other_id = 2, extra = "x")
+  left <- data.frame(
+    id = c(1, 2),
+    value = c("a", "b"),
+    stringsAsFactors = FALSE
+  )
+  right <- data.frame(id = 2, extra = "x", stringsAsFactors = FALSE)
+  right2 <- data.frame(
+    other_id = 2,
+    extra = "x",
+    stringsAsFactors = FALSE
+  )
 
   joined <- .left_join(left, right, "id")
   joined2 <- .left_join(left, right2, c("id", "other_id"))
@@ -72,7 +80,8 @@ test_that("the internal pivot helper supports tidy-style column specifications",
   data <- data.frame(
     location = c("A", "A", "B"),
     species = c("fox", "hare", "fox"),
-    count = c(2, 1, 3)
+    count = c(2, 1, 3),
+    stringsAsFactors = FALSE
   )
 
   wide_bare <- .pivot_wider(

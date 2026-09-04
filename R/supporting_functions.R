@@ -85,12 +85,12 @@
   )
   
   linkStructure <- list(
-    locations = c("locations"),
+    locations = "locations",
     deployments = c("locations", "deployments"),
     sequences = c("deployments", "sequences"),
     observations = c("sequences", "observations", "taxonomy"),
     media = c("sequences", "media"),
-    taxonomy = c("taxonomy")
+    taxonomy = "taxonomy"
   )
   
   #---------------- helper functions ----------------
@@ -665,7 +665,7 @@
     colnames(dat)[which(colnames(dat) == depvar)] <- 'distance'
     dat$distance <- abs(dat$distance)
   } else {
-    cats <- strsplit(as.character(dat[,depvar]),"-")
+    cats <- strsplit(as.character(dat[, depvar]), "-", fixed = TRUE)
     dat$distbegin <- unlist(lapply(cats, function(x) as.numeric(x[1])))
     dat$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
     dat$distance <- (dat$distbegin + dat$distend)/2
@@ -717,7 +717,7 @@
   args <- c(list(formula = formula,data=dat),list(...))
   res <- .eval('do.call(sbd::sbm,args)',environment())
   
-  res$unit <- paste(distUnit, timeUnit, sep = "/")
+  res$unit <- sprintf("%s/%s", distUnit, timeUnit)
   res
 }
 #-------------
@@ -1012,10 +1012,14 @@
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
   if (!all(required_rows %in% rownames(parameters)) ||
-      !all(required_cols %in% colnames(parameters)))
-    stop(paste("parameters must have (at least) row names:", 
-               paste(required_rows, collapse = ", "), ";\nand (at least) column names:", 
-               paste(required_cols, collapse = ", ")))
+      !all(required_cols %in% colnames(parameters))) {
+    stop(
+      "parameters must have (at least) row names: ",
+      paste(required_rows, collapse = ", "),
+      " ;\nand (at least) column names: ",
+      paste(required_cols, collapse = ", ")
+    )
+  }
   param <- .eval("camtrapDensity::convert_units(parameters[required_rows, ])",environment())
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
@@ -1095,24 +1099,25 @@
 .read_yml <- function(x) {
   f <- .read_section_module(x)
   code <- NULL
+  code_fields <- grep("code", names(f), fixed = TRUE)
   
   f$title <- .trim(f$title)
   
   if (startsWith(f$title, "#")) {
     .h <- 0
-    .w <- strsplit(f$title ,"")[[1]]
+    .w <- strsplit(f$title, "", fixed = TRUE)[[1]]
     for (i in 1:4) {
       if (.w[i] == '#') {
         .h <- .h + 1
       } else {
-        .w <- .w[-c(1:.h)]
+        .w <- .w[-(1:.h)]
         .w <- .trim(paste(.w,collapse = ''))
         break
       }
     }
     #------
     if (length(.w) > 1) {
-      .w <- .w[-c(1:.h)]
+      .w <- .w[-(1:.h)]
       .w <- .trim(paste(.w,collapse = ''))
       .h <- 3
     }
@@ -1122,12 +1127,11 @@
   #-----
   .txt <- .getTextObj(name=f$name,title = f$title,parent = f$parent,headLevel = .h,txt = f$text)
   
-  if (length(grep('code', names(f))) == 1 &&
-      is.null(f[[grep('code', names(f))]])) {
+  if (length(code_fields) == 1 && is.null(f[[code_fields]])) {
     return(.txt)
-  } else if (length(grep('code', names(f))) > 0) {
+  } else if (length(code_fields) > 0) {
     codeList <- list()
-    .w <- grep('code', names(f))
+    .w <- code_fields
     for (i in .w) {
       
       code <- .parse_setting_lines(f[[i]],key=c('name','packages','setting'))
@@ -1380,11 +1384,11 @@
   ml <- list_Modules()
   ml <- ml[ml$name %in% n,]
   #-----
-  .x <- c()
+  .x <- NULL
   for (i in seq_len(nrow(ml))) {
-    if (ml$parent[i] == '.root') next
-    else if (ml$parent[i] %in% ml$name) next
-    else .x <- c(.x,ml$name[i])
+    if (ml$parent[i] != ".root" && !ml$parent[i] %in% ml$name) {
+      .x <- c(.x, ml$name[i])
+    }
   }
   if (length(.x) > 0) return(.x)
   
@@ -1402,7 +1406,11 @@
       #---------
       nn <- .check_parent(n)
       if (!is.null(nn)) {
-        warning(paste0('Some sections (',.paste_comma_and(nn),') are excluded because their parents are not available!'))
+        warning(
+          "Some sections (",
+          .paste_comma_and(nn),
+          ") are excluded because their parents are not available!"
+        )
         n <- n[!n %in% nn]
       }
       if (length(n) == 0) stop('No modules (report sections) are selected!')

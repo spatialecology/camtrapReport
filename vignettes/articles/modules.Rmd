@@ -1,7 +1,7 @@
 ---
 title: "Module Management"
 author: "Elham Ebrahimi"
-description: "This vignette explains how users can manage modules, customize them, remove them from the report, change their order, and register and integrate new modules into the ecological report."
+description: "This vignette explains how users can manage modules, customise them, remove them from the report, change their order, and register and integrate new modules into the ecological report."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Module Management}
@@ -34,7 +34,10 @@ p.caption {
 knitr::include_graphics("figures/modular-design.png")
 ```
 
-Figure 1 summarises how new modules are added to the report workflow. A module can be defined using R code or a YAML file, registered in the module library, added to the main `camReport` object, tested separately, and then included when generating the final Ecological Report.
+Figure 1 summarises how new modules are added to the report workflow. A module
+is defined in a YAML file containing explanatory text, R code, or both. It is
+then registered in the module library, added to the main `camReport` object,
+tested separately, and included when generating the final Ecological Report.
 
 ### 1. List existing modules
 
@@ -131,17 +134,15 @@ user-managed modules and delegates installation to `pak`.
 install_All()
 ```
 
-Additional CRAN packages can be included explicitly. Known GitHub dependencies
-configured by `camtrapReport` are included by default, and configured GitLab
-dependencies can be included with `gitlab = TRUE`:
+For a package that is available only from GitHub or another non-CRAN source,
+provide a named `pak` package reference. The name must match the package name
+declared in the module:
 
 ```{r install-module-github-dependency, eval=FALSE}
-install_All(pkgs = "readr")
-install_All(gitlab = TRUE)
+install_All(
+  package_references = c(myPackage = "owner/myPackage")
+)
 ```
-
-If a user module depends on an unconfigured non-CRAN repository, install that
-repository explicitly with `pak::pkg_install()` before rendering the module.
 
 ### 5. Add the module to the current camReport object
 

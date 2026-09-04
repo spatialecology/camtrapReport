@@ -1,28 +1,5 @@
 library(testthat)
 
-capture_report_conditions <- function(expr) {
-  messages <- character()
-  warnings <- character()
-  
-  value <- withCallingHandlers(
-    expr,
-    message = function(condition) {
-      messages <<- c(messages, conditionMessage(condition))
-      invokeRestart("muffleMessage")
-    },
-    warning = function(condition) {
-      warnings <<- c(warnings, conditionMessage(condition))
-      invokeRestart("muffleWarning")
-    }
-  )
-  
-  list(
-    value = value,
-    messages = messages,
-    warnings = warnings
-  )
-}
-
 
 test_that("report returns rendering errors without crashing", {
   original <- camtrap_test_report()
@@ -128,11 +105,12 @@ test_that("report does not invoke viewer after rendering failure", {
   dir.create(output_dir)
   
   old_viewer <- getOption("viewer")
-  viewer_called <- FALSE
+  viewer_state <- new.env(parent = emptyenv())
+  viewer_state$called <- FALSE
   
   options(
     viewer = function(path) {
-      viewer_called <<- TRUE
+      viewer_state$called <- TRUE
     }
   )
   
@@ -157,5 +135,5 @@ test_that("report does not invoke viewer after rendering failure", {
   )
   
   expect_s3_class(captured$value, "try-error")
-  expect_false(viewer_called)
+  expect_false(viewer_state$called)
 })

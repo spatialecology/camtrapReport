@@ -47,8 +47,8 @@ test_that("section selectors expose and update valid modules", {
 
   selected <- attached[[1]]
 
-  expect_message(
-    result <- sections(cm, selected),
+  result <- capture_expected_message(
+    sections(cm, selected),
     "report sections are updated",
     fixed = TRUE
   )

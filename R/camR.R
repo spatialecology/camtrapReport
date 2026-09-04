@@ -51,7 +51,7 @@
 #-------
 #-------
 .make_package_loader_chunk <- function(pkgs,
-                                       core = c("knitr"),
+                                       core = "knitr",
                                        attach = TRUE) {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
   
@@ -317,7 +317,7 @@ camR <- setRefClass(
       if (length(.n) > 0) {
         .n <- .n[.n != 'count']
         if (length(sp) > 1) {
-          .o <- c()
+          .o <- NULL
           for (.s in sp) {
             for (.g in .n) {
               if (.s %in% get_speciesNames(.g)) {
@@ -357,7 +357,7 @@ camR <- setRefClass(
             } else stop('group is unknown!')
           }
         } else {
-          .n <- c()
+          .n <- NULL
           for (.g in group) {
             if (.g %in% names(.self$species_summary)) {
               .n <- c(.n,unique(.self$species_summary[[.g]]$site_list$scientificName))
@@ -451,7 +451,7 @@ camR <- setRefClass(
         if (!is.null(.crop)) {
           if (xr[1] < .ext[1] || xr[2] > .ext[2] ||
               yr[1] < .ext[3] || yr[2] > .ext[4]) {
-            .ww <- c()
+            .ww <- NULL
             .w <- xr[1] - .ext[1]
             if (.w < 0) .ww <- c(.ww,abs(.w))
             .w <- xr[2] - .ext[2]
@@ -833,7 +833,10 @@ camR <- setRefClass(
       if (!'wild_mammals' %in% names(.self$group_definition) && 'Mammalia' %in% .self$data$taxonomy$class 
           && 'domestic' %in% names(.self$group_definition)) {
         
-        .w <- .self$data$taxonomy$class == "Mammalia" & (!.self$data$taxonomy$scientificName %in% .self$group_definition$domestic$scientificName) & grepl(" ", .self$data$taxonomy$scientificName)
+      .w <- .self$data$taxonomy$class == "Mammalia" &
+        (!.self$data$taxonomy$scientificName %in%
+          .self$group_definition$domestic$scientificName) &
+        grepl(" ", .self$data$taxonomy$scientificName, fixed = TRUE)
         if (length(.w) > 0) .self$group_definition[['wild_mammals']] <- list(scientificName = .self$data$taxonomy$scientificName[.w])
         
       }
@@ -965,7 +968,14 @@ camR <- setRefClass(
       
       #=============================
       # Attach summary counts to species_summary object
-      .self$species_summary$count <- data.frame(Group=names(.self$species_summary),Count=sapply(.self$species_summary,function(x) nrow(x$site_list)))
+      .self$species_summary$count <- data.frame(
+        Group = names(.self$species_summary),
+        Count = vapply(
+          .self$species_summary,
+          function(x) nrow(x$site_list),
+          integer(1)
+        )
+      )
       
       # add a Name column to be used in the report text:
       .self$species_summary$count$Name <- .self$species_summary$count$Group
@@ -1064,9 +1074,10 @@ camR <- setRefClass(
         # 5-days*24h*60m*60s -> 432000 sec.
         
         # Count failed cameras (stopped >5 days before the latest end date)
-        failed_cameras <- deployments_grouped |>
-          dplyr::filter(end_date < (latest_end - (432000))) |>
-          nrow()
+        failed_cameras <- sum(
+          deployments_grouped$end_date < (latest_end - 432000),
+          na.rm = TRUE
+        )
         
         # Compute runtime in days
         deployments_grouped <- deployments_grouped |>
@@ -1115,7 +1126,10 @@ camR <- setRefClass(
         
         # Filter Wild Mammals (excluding domestic species)
         wild_mammals <- .data_year$taxonomy |>
-          dplyr::filter(class == "Mammalia" & scientificName %in% .self$frequent_species$scientificName)
+          dplyr::filter(
+            class == "Mammalia",
+            scientificName %in% .self$frequent_species$scientificName
+          )
         
         # Count unique wild mammals
         number_of_wild_mammals <- length(unique(wild_mammals$scientificName))
@@ -1179,13 +1193,15 @@ camR <- setRefClass(
       # Captures per species and site, with scientificName
       
       if (nrow(.self$habitat) > 0) {
+        taxonomy_names <- .self$data$taxonomy |>
+          dplyr::select(taxonID, scientificName)
+
         caps_by_site <- .captures(.self$data, by = "locationName") |>
           dplyr::select(-scientificName) |>
           dplyr::left_join(
-            .self$data$taxonomy |> 
-              dplyr::select(taxonID, scientificName),
+            taxonomy_names,
             by = "taxonID"
-          ) 
+          )
         
         
         
@@ -1240,7 +1256,7 @@ camR <- setRefClass(
       
       .self$reportObjectElements$Modules <- mods
       .self$reportObjectElements$Modules_info <- attributes(mods)$info
-      .self$reportObjectElements$Modules_info$tested <- as.logical(NA)
+      .self$reportObjectElements$Modules_info$tested <- NA
       #-----------
       .module_dir <- system.file("statusSections", package = "camtrapReport")
       
@@ -1255,7 +1271,7 @@ camR <- setRefClass(
       
       .self$reportObjectElements$Status_modules <- mods
       .self$reportObjectElements$Status_modules_info <- attributes(mods)$info
-      .self$reportObjectElements$Status_modules_info$tested <- as.logical(NA)
+      .self$reportObjectElements$Status_modules_info$tested <- NA
       
       
       message('Setup is done!')
@@ -1376,7 +1392,11 @@ camR <- setRefClass(
         .added <- FALSE
         if (x@parent %in% names(.self$reportObjects)) {
           if (is.list(.self$reportObjects[[x@parent]])) {
-            .tmp <- sapply(.self$reportObjects[[x@parent]],function(.x) .x@name)
+            .tmp <- vapply(
+              .self$reportObjects[[x@parent]],
+              function(.x) .x@name,
+              character(1)
+            )
             .w <- which(.tmp == x@parent)
             if (length(.w) > 1) {
               if (is.null(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1385,7 +1405,11 @@ camR <- setRefClass(
               } else {
                 if (is.list(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
                   if (length(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                    .n <- sapply(.self$reportObjects[[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                    .n <- vapply(
+                      .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk,
+                      function(x) x@name,
+                      character(1)
+                    )
                     if (x@name %in% .n) {
                       .self$reportObjects[[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .n)]] <- x
                       .added <- TRUE
@@ -1418,7 +1442,11 @@ camR <- setRefClass(
             } else {
               if (is.list(.self$reportObjects[[x@parent]]@Rchunk)) {
                 if (length(.self$reportObjects[[x@parent]]@Rchunk) > 0) {
-                  .n <- sapply(.self$reportObjects[[x@parent]]@Rchunk,function(x) x@name)
+                  .n <- vapply(
+                    .self$reportObjects[[x@parent]]@Rchunk,
+                    function(x) x@name,
+                    character(1)
+                  )
                   if (x@name %in% .n) {
                     .self$reportObjects[[x@parent]]@Rchunk[[match(x@name, .n)]] <- x
                     .added <- TRUE
@@ -1449,7 +1477,11 @@ camR <- setRefClass(
             if (is.list(.self$reportObjects[[.n]])) {
               if (x@parent %in% names(.self$reportObjects[[.n]])) {
                 if (is.list(.self$reportObjects[[.n]][[x@parent]])) {
-                  .tmp <- sapply(.self$reportObjects[[.n]][[x@parent]],function(.x) .x@name)
+                  .tmp <- vapply(
+                    .self$reportObjects[[.n]][[x@parent]],
+                    function(.x) .x@name,
+                    character(1)
+                  )
                   .w <- which(.tmp == x@parent)
                   if (length(.w) > 1) {
                     if (is.null(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1459,7 +1491,11 @@ camR <- setRefClass(
                     } else {
                       if (is.list(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
                         if (length(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                          .nn <- sapply(.self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                          .nn <- vapply(
+                            .self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk,
+                            function(x) x@name,
+                            character(1)
+                          )
                           if (x@name %in% .nn) {
                             .self$reportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nn)]] <- x
                             .added <- TRUE
@@ -1498,7 +1534,11 @@ camR <- setRefClass(
                   } else {
                     if (is.list(.self$reportObjects[[.n]][[x@parent]]@Rchunk)) {
                       if (length(.self$reportObjects[[.n]][[x@parent]]@Rchunk) > 0) {
-                        .nn <- sapply(.self$reportObjects[[.n]][[x@parent]]@Rchunk,function(x) x@name)
+                        .nn <- vapply(
+                          .self$reportObjects[[.n]][[x@parent]]@Rchunk,
+                          function(x) x@name,
+                          character(1)
+                        )
                         if (x@name %in% .nn) {
                           .self$reportObjects[[.n]][[x@parent]]@Rchunk[[.nn[.nn == x@name]]] <- x
                           .added <- TRUE
@@ -1534,7 +1574,11 @@ camR <- setRefClass(
                   if (is.list(.self$reportObjects[[.n]][[.nn]])) {
                     if (x@parent %in% names(.self$reportObjects[[.n]][[.nn]])) {
                       if (is.list(.self$reportObjects[[.n]][[.nn]][[x@parent]])) {
-                        .tmp <- sapply(.self$reportObjects[[.n]][[.nn]][[x@parent]],function(.x) .x@name)
+                        .tmp <- vapply(
+                          .self$reportObjects[[.n]][[.nn]][[x@parent]],
+                          function(.x) .x@name,
+                          character(1)
+                        )
                         .w <- which(.tmp == x@parent)
                         if (length(.w) > 1) {
                           if (is.null(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1544,7 +1588,11 @@ camR <- setRefClass(
                           } else {
                             if (is.list(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
                               if (length(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                                .nnn <- sapply(.self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                                .nnn <- vapply(
+                                  .self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk,
+                                  function(x) x@name,
+                                  character(1)
+                                )
                                 if (x@name %in% .nnn) {
                                   .self$reportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nnn)]] <- x
                                   .added <- TRUE
@@ -1583,7 +1631,11 @@ camR <- setRefClass(
                         } else {
                           if (is.list(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
                             if (length(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
-                              .nnn <- sapply(.self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk,function(x) x@name)
+                              .nnn <- vapply(
+                                .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk,
+                                function(x) x@name,
+                                character(1)
+                              )
                               if (x@name %in% .nnn) {
                                 .self$reportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[.nnn[.nnn == x@name]]] <- x
                                 .added <- TRUE
@@ -1627,7 +1679,11 @@ camR <- setRefClass(
                 } else {
                   if (is.list(.self$reportObjects[[.n]]@Rchunk)) {
                     if (length(.self$reportObjects[[.n]]@Rchunk) > 0) {
-                      .nn <- sapply(.self$reportObjects[[.n]]@Rchunk,function(x) x@name)
+                      .nn <- vapply(
+                        .self$reportObjects[[.n]]@Rchunk,
+                        function(x) x@name,
+                        character(1)
+                      )
                       if (x@name %in% .nn) {
                         .self$reportObjects[[.n]]@Rchunk[[.nn[.nn == x@name]]] <- x
                         .added <- TRUE
@@ -1727,7 +1783,11 @@ camR <- setRefClass(
         .added <- FALSE
         if (x@parent %in% names(.self$statusReportObjects)) {
           if (is.list(.self$statusReportObjects[[x@parent]])) {
-            .tmp <- sapply(.self$statusReportObjects[[x@parent]],function(.x) .x@name)
+            .tmp <- vapply(
+              .self$statusReportObjects[[x@parent]],
+              function(.x) .x@name,
+              character(1)
+            )
             .w <- which(.tmp == x@parent)
             if (length(.w) > 1) {
               if (is.null(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1736,7 +1796,11 @@ camR <- setRefClass(
               } else {
                 if (is.list(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk)) {
                   if (length(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                    .n <- sapply(.self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                    .n <- vapply(
+                      .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk,
+                      function(x) x@name,
+                      character(1)
+                    )
                     if (x@name %in% .n) {
                       .self$statusReportObjects[[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .n)]] <- x
                       .added <- TRUE
@@ -1769,7 +1833,11 @@ camR <- setRefClass(
             } else {
               if (is.list(.self$statusReportObjects[[x@parent]]@Rchunk)) {
                 if (length(.self$statusReportObjects[[x@parent]]@Rchunk) > 0) {
-                  .n <- sapply(.self$statusReportObjects[[x@parent]]@Rchunk,function(x) x@name)
+                  .n <- vapply(
+                    .self$statusReportObjects[[x@parent]]@Rchunk,
+                    function(x) x@name,
+                    character(1)
+                  )
                   if (x@name %in% .n) {
                     .self$statusReportObjects[[x@parent]]@Rchunk[[match(x@name, .n)]] <- x
                     .added <- TRUE
@@ -1800,7 +1868,11 @@ camR <- setRefClass(
             if (is.list(.self$statusReportObjects[[.n]])) {
               if (x@parent %in% names(.self$statusReportObjects[[.n]])) {
                 if (is.list(.self$statusReportObjects[[.n]][[x@parent]])) {
-                  .tmp <- sapply(.self$statusReportObjects[[.n]][[x@parent]],function(.x) .x@name)
+                  .tmp <- vapply(
+                    .self$statusReportObjects[[.n]][[x@parent]],
+                    function(.x) .x@name,
+                    character(1)
+                  )
                   .w <- which(.tmp == x@parent)
                   if (length(.w) > 1) {
                     if (is.null(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1810,7 +1882,11 @@ camR <- setRefClass(
                     } else {
                       if (is.list(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk)) {
                         if (length(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                          .nn <- sapply(.self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                          .nn <- vapply(
+                            .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk,
+                            function(x) x@name,
+                            character(1)
+                          )
                           if (x@name %in% .nn) {
                             .self$statusReportObjects[[.n]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nn)]] <- x
                             .added <- TRUE
@@ -1849,7 +1925,11 @@ camR <- setRefClass(
                   } else {
                     if (is.list(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk)) {
                       if (length(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk) > 0) {
-                        .nn <- sapply(.self$statusReportObjects[[.n]][[x@parent]]@Rchunk,function(x) x@name)
+                        .nn <- vapply(
+                          .self$statusReportObjects[[.n]][[x@parent]]@Rchunk,
+                          function(x) x@name,
+                          character(1)
+                        )
                         if (x@name %in% .nn) {
                           .self$statusReportObjects[[.n]][[x@parent]]@Rchunk[[.nn[.nn == x@name]]] <- x
                           .added <- TRUE
@@ -1885,7 +1965,11 @@ camR <- setRefClass(
                   if (is.list(.self$statusReportObjects[[.n]][[.nn]])) {
                     if (x@parent %in% names(.self$statusReportObjects[[.n]][[.nn]])) {
                       if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]])) {
-                        .tmp <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]],function(.x) .x@name)
+                        .tmp <- vapply(
+                          .self$statusReportObjects[[.n]][[.nn]][[x@parent]],
+                          function(.x) .x@name,
+                          character(1)
+                        )
                         .w <- which(.tmp == x@parent)
                         if (length(.w) > 1) {
                           if (is.null(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
@@ -1895,7 +1979,11 @@ camR <- setRefClass(
                           } else {
                             if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk)) {
                               if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk) > 0) {
-                                .nnn <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk,function(x) x@name)
+                                .nnn <- vapply(
+                                  .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk,
+                                  function(x) x@name,
+                                  character(1)
+                                )
                                 if (x@name %in% .nnn) {
                                   .self$statusReportObjects[[.n]][[.nn]][[x@parent]][[.w[1]]]@Rchunk[[match(x@name, .nnn)]] <- x
                                   .added <- TRUE
@@ -1934,7 +2022,11 @@ camR <- setRefClass(
                         } else {
                           if (is.list(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk)) {
                             if (length(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk) > 0) {
-                              .nnn <- sapply(.self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk,function(x) x@name)
+                              .nnn <- vapply(
+                                .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk,
+                                function(x) x@name,
+                                character(1)
+                              )
                               if (x@name %in% .nnn) {
                                 .self$statusReportObjects[[.n]][[.nn]][[x@parent]]@Rchunk[[.nnn[.nnn == x@name]]] <- x
                                 .added <- TRUE
@@ -1978,7 +2070,11 @@ camR <- setRefClass(
                 } else {
                   if (is.list(.self$statusReportObjects[[.n]]@Rchunk)) {
                     if (length(.self$statusReportObjects[[.n]]@Rchunk) > 0) {
-                      .nn <- sapply(.self$statusReportObjects[[.n]]@Rchunk,function(x) x@name)
+                      .nn <- vapply(
+                        .self$statusReportObjects[[.n]]@Rchunk,
+                        function(x) x@name,
+                        character(1)
+                      )
                       if (x@name %in% .nn) {
                         .self$statusReportObjects[[.n]]@Rchunk[[.nn[.nn == x@name]]] <- x
                         .added <- TRUE
@@ -2045,7 +2141,7 @@ camR <- setRefClass(
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$reportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
@@ -2118,7 +2214,7 @@ output:
       render_env <- .make_render_env(.self)
       
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = c("knitr"))
+      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
       
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)

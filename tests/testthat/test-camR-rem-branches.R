@@ -28,9 +28,7 @@ test_that("get_REM returns existing stored results without refitting", {
   
   valid <- which(!is.na(candidate_groups))
   
-  expect_true(
-    length(valid) > 0L
-  )
+  expect_gt(length(valid), 0L)
   
   species <- candidate_species[valid[1]]
   group <- candidate_groups[valid[1]]
@@ -93,9 +91,7 @@ test_that("get_REM returns existing yearly results", {
   
   valid <- which(!is.na(candidate_groups))
   
-  expect_true(
-    length(valid) > 0L
-  )
+  expect_gt(length(valid), 0L)
   
   species <- candidate_species[valid[1]]
   group <- candidate_groups[valid[1]]
