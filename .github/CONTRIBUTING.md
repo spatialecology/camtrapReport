@@ -107,7 +107,17 @@ of the established public API. Keep those names for backward compatibility.
 Use clear, consistent names for new internal helpers and avoid renaming existing
 functions as part of an unrelated change.
 
+## Use of coding-assistance tools
+
+The package architecture, scientific methodology, modular reporting framework, and core functionality of `camtrapReport` were designed and developed by the maintainer.
+Coding-assistance tools were used during later stages of development for specific supporting tasks, including code review, debugging, checking for inconsistencies, and converting manually written documentation into roxygen2 format.
+These tools were not used to determine the scientific methods, analytical choices, package architecture, or overall design of the software.
+All suggested code changes were reviewed, adapted where necessary, and tested by the maintainer before being incorporated into the package. Responsibility for the package design, implementation, scientific content, and released code remains with the maintainer.
+
+
 ## Code of Conduct
 
 Participation in this project is governed by the
 [Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)
+
+
