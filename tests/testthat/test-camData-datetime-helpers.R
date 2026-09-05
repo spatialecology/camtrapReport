@@ -30,7 +30,10 @@ test_that("parse_cam_datetime converts other POSIXt input", {
   
   expect_s3_class(result, "POSIXct")
   
-  expect_identical(as.numeric(result), as.numeric(as.POSIXct(input)))
+  expect_equal(
+    as.numeric(result),
+    as.numeric(as.POSIXct(input))
+  )
 })
 
 

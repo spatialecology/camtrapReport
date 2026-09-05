@@ -19,8 +19,7 @@
 #' * Report bugs at <https://github.com/spatialecology/camtrapReport/issues>
 #'
 #' @keywords internal
-#' @importFrom methods new representation setClass setClassUnion setGeneric
-#'   setMethod setOldClass setRefClass setReplaceMethod signature
+#' @import methods
 #' @importFrom graphics abline legend par points lines boxplot barplot arrows
 #'   segments text axis image polygon
 #' @importFrom grDevices colorRampPalette

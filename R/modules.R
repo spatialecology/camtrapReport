@@ -853,15 +853,10 @@
   out$duplicate_module_name[hit] <- valid_named$duplicate_module_name[m[hit]]
   
   out$status[hit] <- ifelse(
-    out$valid[hit],
-    "ok",
-    "invalid_yml"
+    out$duplicate_module_name[hit],
+    "duplicate_module_name",
+    ifelse(out$valid[hit], "ok", "invalid_yml")
   )
-  
-  duplicate_flag <- out$duplicate_module_name
-  duplicate_flag[is.na(duplicate_flag)] <- FALSE
-  duplicate_hit <- hit & duplicate_flag
-  out$status[duplicate_hit] <- "duplicate_module_name"
   
   # unlisted but readable files
   if (isTRUE(include_unlisted)) {

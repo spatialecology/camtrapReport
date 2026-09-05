@@ -77,7 +77,10 @@ test_that("trap-rate data are calculated for a selected species", {
     )
   )
   
-  expect_identical(nrow(result), 2L)
+  expect_equal(
+    nrow(result),
+    2L
+  )
   
   site_a <- result[
     result$locationName == "Site A",
@@ -91,13 +94,25 @@ test_that("trap-rate data are calculated for a selected species", {
     drop = FALSE
   ]
   
-  expect_identical(site_a$n, 2L)
+  expect_equal(
+    site_a$n,
+    2
+  )
   
-  expect_identical(site_b$n, 1L)
+  expect_equal(
+    site_b$n,
+    1
+  )
   
-  expect_identical(site_a$effort, 1)
+  expect_equal(
+    site_a$effort,
+    1
+  )
   
-  expect_identical(site_b$effort, 2)
+  expect_equal(
+    site_b$effort,
+    2
+  )
   
   expect_identical(
     site_a$effort_unit,
@@ -145,9 +160,15 @@ test_that("trap-rate effort supports all available time units", {
       drop = FALSE
     ]
     
-    expect_identical(site_a$effort, unname(multipliers[[unit_name]]))
+    expect_equal(
+      site_a$effort,
+      unname(multipliers[[unit_name]])
+    )
     
-    expect_identical(site_b$effort, 2 * unname(multipliers[[unit_name]]))
+    expect_equal(
+      site_b$effort,
+      2 * unname(multipliers[[unit_name]])
+    )
     
     expect_true(
       all(result$effort_unit == unit_name)
@@ -170,9 +191,15 @@ test_that("trap-rate data automatically retain scientific names", {
     "data.frame"
   )
   
-  expect_identical(nrow(result), 2L)
+  expect_equal(
+    nrow(result),
+    2L
+  )
   
-  expect_identical(sum(result$n), 3L)
+  expect_equal(
+    sum(result$n),
+    3
+  )
   
   expect_false(
     anyNA(result$n)
@@ -198,7 +225,10 @@ test_that("trap-rate data return an empty result when no species match", {
     "data.frame"
   )
   
-  expect_identical(nrow(result), 0L)
+  expect_equal(
+    nrow(result),
+    0L
+  )
   
   expect_named(
     result,
@@ -245,7 +275,10 @@ test_that("trap-rate data return an empty result without observations", {
     "data.frame"
   )
   
-  expect_identical(nrow(result), 0L)
+  expect_equal(
+    nrow(result),
+    0L
+  )
   
   expect_named(
     result,
@@ -277,7 +310,10 @@ test_that("trap-rate data handle an empty observations table", {
     unit = "day"
   )
   
-  expect_identical(nrow(result), 0L)
+  expect_equal(
+    nrow(result),
+    0L
+  )
 })
 
 
@@ -441,7 +477,10 @@ test_that("trap-rate data handle missing location names", {
     unit = "day"
   )
   
-  expect_identical(nrow(result), 2L)
+  expect_equal(
+    nrow(result),
+    2L
+  )
   
   expect_true(
     anyNA(result$locationName)
@@ -453,9 +492,15 @@ test_that("trap-rate data handle missing location names", {
     drop = FALSE
   ]
   
-  expect_identical(missing_location$n, 1L)
+  expect_equal(
+    missing_location$n,
+    1
+  )
   
-  expect_identical(missing_location$effort, 2)
+  expect_equal(
+    missing_location$effort,
+    2
+  )
 })
 
 
@@ -473,9 +518,15 @@ test_that("trap-rate joins handle internal row-name collisions", {
     unit = "day"
   )
   
-  expect_identical(nrow(result), 2L)
+  expect_equal(
+    nrow(result),
+    2L
+  )
   
-  expect_identical(sum(result$n), 3L)
+  expect_equal(
+    sum(result$n),
+    3
+  )
 })
 
 

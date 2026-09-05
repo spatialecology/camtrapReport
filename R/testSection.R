@@ -7,6 +7,11 @@
   if (is.null(path)) {
     rmd_file <- tempfile(fileext = ".Rmd")
     output_file <- tempfile(fileext = ".html")
+    
+    on.exit({
+      unlink(rmd_file,recursive = TRUE,force = TRUE)
+      unlink(output_file,recursive = TRUE,force = TRUE)
+    },add=TRUE)
   } else {
     rmd_file <- file.path(path, "test.Rmd")
     output_file <- file.path(path, "test.html")
@@ -83,8 +88,18 @@ output:
     stop("'x' should be a '.textSection' object.")
   }
   
-  rmd_file <- tempfile(fileext = ".Rmd")
-  output_file <- tempfile(fileext = ".html")
+  rmd_file <- tempfile("camtrapReport-section-",fileext = ".Rmd")
+  output_file <- tempfile("camtrapReport-section-",fileext = ".html")
+  
+  render_success <- FALSE
+  
+  on.exit({
+    unlink(rmd_file, force = TRUE)
+    
+    if (!render_success) {
+      unlink(output_file,recursive = TRUE,force = TRUE)
+    }
+  }, add = TRUE)
   
   # Title environment for glue
   .env <- new.env(parent = emptyenv())
@@ -142,6 +157,8 @@ output:
     quiet = !isTRUE(view)
   )
   
+  render_success <- TRUE
+  
   if (isTRUE(view)) {
     message(
       "Report generated at: ",
@@ -162,8 +179,7 @@ output:
 
 #---------
 
-setGeneric(
-  "testSection",
+setGeneric("testSection",
   function(x, object, view) {
     methods::standardGeneric("testSection")
   }

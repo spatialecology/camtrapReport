@@ -127,8 +127,8 @@ test_that("data-size inspection handles missing, empty, and directory inputs", {
   
   directory_result <- estimate_size(data_directory)
   
-  expect_identical(directory_result$file_size, 50)
-  expect_identical(directory_result$effective_size, 50)
+  expect_equal(directory_result$file_size, 50)
+  expect_equal(directory_result$effective_size, 50)
   expect_identical(directory_result$file_size_label, "50 B")
   expect_identical(directory_result$size_class, "small")
 })

@@ -1,26 +1,6 @@
 # Internal taxonomy utilities for camtrapReport
 # Licence: MIT
 #--------
-.taxonomy_rank_value <- function(z, rank, fallback_row = NA_integer_) {
-  if (!is.data.frame(z) || !"name" %in% names(z)) {
-    return(NA_character_)
-  }
-  
-  value <- NULL
-  
-  if ("rank" %in% names(z) && rank %in% z$rank) {
-    position <- which(z$rank == rank)[1]
-    value <- z$name[position]
-  } else if (!is.na(fallback_row) && nrow(z) >= fallback_row) {
-    value <- z$name[fallback_row]
-  }
-  
-  if (length(value) == 0 || is.na(value[1])) {
-    return(NA_character_)
-  }
-  
-  as.character(value[1])
-}
 
 .getMissingTaxon_GBIF <- function(x) {
   x <- unique(as.character(x))
@@ -80,19 +60,25 @@
       x <- x[-w]
     }
     
-    .class <- vapply(
-      .x,
-      .taxonomy_rank_value,
-      character(1),
-      rank = "class"
-    )
+    .class <- sapply(.x, function(z) {
+      if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
+        z$name[z$rank == "class"][1]
+      } else if (is.data.frame(z) && nrow(z) >= 3) {
+        z$name[3]
+      } else {
+        NA_character_
+      }
+    })
     
-    .order <- vapply(
-      .x,
-      .taxonomy_rank_value,
-      character(1),
-      rank = "order"
-    )
+    .order <- sapply(.x, function(z) {
+      if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
+        z$name[z$rank == "order"][1]
+      } else if (is.data.frame(z) && nrow(z) >= 4) {
+        z$name[4]
+      } else {
+        NA_character_
+      }
+    })
     
     names(.class) <- names(.order) <- NULL
     
@@ -160,28 +146,28 @@
       ))
     }
     
-    .class <- vapply(
-      .x,
-      .taxonomy_rank_value,
-      character(1),
-      rank = "class",
-      fallback_row = 3L
-    )
+    .class <- sapply(.x, function(z) {
+      if (is.data.frame(z) && "rank" %in% names(z) && "class" %in% z$rank) {
+        z$name[z$rank == "class"][1]
+      } else {
+        NA_character_
+      }
+    })
     
-    .order <- vapply(
-      .x,
-      .taxonomy_rank_value,
-      character(1),
-      rank = "order",
-      fallback_row = 4L
-    )
+    .order <- sapply(.x, function(z) {
+      if (is.data.frame(z) && "rank" %in% names(z) && "order" %in% z$rank) {
+        z$name[z$rank == "order"][1]
+      } else {
+        NA_character_
+      }
+    })
     
     names(.class) <- names(.order) <- NULL
     
     data.frame(
       scientificName = x,
-      class = .class,
-      order = .order,
+      class = unlist(.class),
+      order = unlist(.order),
       stringsAsFactors = FALSE
     )
   } else {

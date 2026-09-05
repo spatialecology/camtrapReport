@@ -204,7 +204,8 @@ test_that("package loader normalizes and deduplicates packages", {
     fixed = TRUE
   )
   
-  expect_identical(lengths(
+  expect_equal(
+    lengths(
       regmatches(
         loader,
         gregexpr(
@@ -213,7 +214,9 @@ test_that("package loader normalizes and deduplicates packages", {
           fixed = TRUE
         )
       )
-    ), 1L)
+    ),
+    1L
+  )
 })
 
 

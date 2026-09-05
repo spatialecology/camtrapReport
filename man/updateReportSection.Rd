@@ -61,14 +61,12 @@ report sections attached to the object.
 }
 \description{
 Update the content of a report section in a
-\code{\link[=camReport-classes]{camReport}} object, or list the report sections
-currently
+\code{\link[=camReport-classes]{camReport}} object, or list the report sections currently
 attached to the object.
 }
 \details{
 Report sections can be identified using either their name or title.
-\code{listReportSections()} lists the sections attached to a \code{camReport} object
-and
+\code{listReportSections()} lists the sections attached to a \code{camReport} object and
 can be used to find the exact section names before updating them.
 
 \code{updateReportSection()} is useful for adapting the default report content to

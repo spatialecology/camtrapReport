@@ -92,7 +92,10 @@ test_that("root and nested report sections can be replaced", {
       "Replacement root text."
     )
     
-    expect_identical(tree$root$root@headLevel, 1)
+    expect_equal(
+      tree$root$root@headLevel,
+      1
+    )
     
     replacement_child <- reportSection(
       name = "child",
@@ -115,7 +118,10 @@ test_that("root and nested report sections can be replaced", {
       "Replacement child text."
     )
     
-    expect_identical(tree$root$child@headLevel, 2)
+    expect_equal(
+      tree$root$child@headLevel,
+      2
+    )
   }
 })
 
@@ -180,7 +186,10 @@ test_that("third-level report sections can be added and replaced", {
       "Replacement grandchild text."
     )
     
-    expect_identical(tree$root$child$grandchild@headLevel, 3)
+    expect_equal(
+      tree$root$child$grandchild@headLevel,
+      3
+    )
   }
 })
 

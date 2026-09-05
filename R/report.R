@@ -2,12 +2,12 @@
 # Licence: MIT
 #--------
 
-setGeneric(
-  "report",
+setGeneric("report",
   function(object, filename, view, test) {
     methods::standardGeneric("report")
   }
 )
+
 .generate_report <- function(object, output_file, rmd_file) {
   object$generateReport(
     output_file = output_file,
@@ -99,8 +99,7 @@ setGeneric(
 #' ), recursive = TRUE, force = TRUE)
 #' }
 #' }
-setMethod(
-  "report",
+setMethod("report",
   signature(object = "camReport"),
   function(object, filename = "report", view, test) {
     
@@ -163,18 +162,18 @@ setMethod(
         ww <- which(is.na(object$reportObjectElements$Modules_info$tested))
         
         if (length(ww) > 0) {
-          temp_path <- file.path(object$info$directory, "_temp")
+          temp_path <- tempfile("camtrapReport-module-test-")
           
-          dir.create(
-            temp_path,
-            showWarnings = FALSE
+          if (!dir.create(temp_path,recursive = TRUE,showWarnings = FALSE)) {
+            stop("Could not create a temporary directory for module testing.")
+          }
+          
+          on.exit(
+            unlink(temp_path, recursive = TRUE, force = TRUE),
+            add = TRUE
           )
           
-          if (dir.exists(temp_path)) {
-            .path <- temp_path
-          } else {
-            .path <- NULL
-          }
+          .path <- temp_path
           
           n <- object$reportObjectElements$Modules_info$name[ww]
           

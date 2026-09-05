@@ -110,10 +110,10 @@
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
     lines <- vapply(
       as.list(expr)[-1],
-      deparse1,
-      character(1),
-      collapse = "\n",
-      width.cutoff = 60L
+      function(e) {
+        deparse1(e, collapse = "\n", width.cutoff = 60L)
+      },
+      character(1)
     )
     return(paste(lines, collapse = "\n"))
   }
@@ -519,7 +519,10 @@ setMethod("updateReportSection",signature(x = "camReport"),
     if (missing(append_text)) append_text <- FALSE
     
     if (missing(section) || !is.character(section) || length(section) != 1L) {
-      stop("'section' should be a single character string, either a section ", "name or title.")
+      stop(paste0(
+        "'section' should be a single character string, either a section ",
+        "name or title."
+      ))
     }
     
     catalog <- .reportSection_catalog(x$reportObjects)

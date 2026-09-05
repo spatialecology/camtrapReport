@@ -2,8 +2,7 @@
 # Licence: MIT
 #--------
 
-setGeneric(
-  "gui",
+setGeneric("gui",
   function(object, launch.browser, max_upload_mb, ...) {
     methods::standardGeneric("gui")
   }
@@ -129,24 +128,20 @@ setMethod("gui",signature(object = "camReport"),
     paste(x, collapse = ", ")
   }
   
-  .copy_upload <- function(upload) {
+  .copy_upload <- function(upload,temp_dir) {
     if (is.null(upload)) return(NULL)
     
-    out <- file.path(tempdir(), upload$name[1])
+    out <- file.path(temp_dir, upload$name[1])
     
-    file.copy(
-      from = upload$datapath[1],
-      to = out,
-      overwrite = TRUE
-    )
+    file.copy(from = upload$datapath[1],to = out,overwrite = TRUE)
     
     normalizePath(out, winslash = "/", mustWork = FALSE)
   }
   
-  .copy_study_area_upload <- function(upload) {
+  .copy_study_area_upload <- function(upload,temp_dir) {
     if (is.null(upload)) return(NULL)
     
-    d <- tempfile("study_area_")
+    d <- tempfile("study_area_",tmpdir = temp_dir)
     dir.create(d, recursive = TRUE, showWarnings = FALSE)
     
     for (i in seq_len(nrow(upload))) {
@@ -190,7 +185,7 @@ setMethod("gui",signature(object = "camReport"),
     NULL
   }
   
-  .get_zip_path <- function(upload = NULL, path = NULL) {
+  .get_zip_path <- function(upload = NULL, path = NULL, temp_dir = NULL) {
     path <- trimws(path %||% "")
     
     if (nzchar(path)) {
@@ -198,7 +193,10 @@ setMethod("gui",signature(object = "camReport"),
     }
     
     if (!is.null(upload)) {
-      return(.copy_upload(upload))
+      if (is.null(temp_dir)) {
+        stop("A temporary directory is required for uploaded files.",call. = FALSE)
+      }
+      return(.copy_upload(upload,temp_dir = temp_dir))
     }
     
     NULL
@@ -729,6 +727,16 @@ setMethod("gui",signature(object = "camReport"),
   
   server <- function(input, output, session) {
     
+    session_temp_dir <- tempfile("camtrapReport-gui-")
+    
+    if (!dir.create(session_temp_dir,recursive = TRUE,showWarnings = FALSE)) {
+      stop("Could not create the temporary GUI directory.")
+    }
+    
+    session$onSessionEnded(function() {
+      unlink(session_temp_dir,recursive = TRUE,force = TRUE)
+    })
+    #---
     rv <- shiny::reactiveValues(
       cm = object
     )
@@ -826,7 +834,8 @@ setMethod("gui",signature(object = "camReport"),
         {
           zip_path <- .get_zip_path(
             upload = input$data_zip,
-            path = input$data_zip_path
+            path = input$data_zip_path,
+            temp_dir = session_temp_dir
           )
         },
         error = function(e) {
@@ -870,7 +879,7 @@ setMethod("gui",signature(object = "camReport"),
         }
       )
       
-      study_area <- .copy_study_area_upload(input$study_area_files)
+      study_area <- .copy_study_area_upload(input$study_area_files,session_temp_dir)
       
       cm <- tryCatch(
         {
