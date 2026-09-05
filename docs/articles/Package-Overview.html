@@ -19,7 +19,6 @@
 <meta property="og:title" content="Package Overview">
 <meta name="description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
 <meta property="og:description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
-<meta property="og:image" content="https://spatialecology.github.io/camtrapReport/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -43,7 +42,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
-    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Report</a></li>
+    <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
   </ul>
@@ -56,7 +55,10 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
 <li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
     <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
   </ul>
 </li>
 <li class="nav-item"><form class="form-inline" role="search">
@@ -82,7 +84,8 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Package Overview</h1>
+
+      <h1>Package Overview</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -106,7 +109,7 @@ assemble each step separately.</p>
 <code>camReport</code> object from the input data. The same object is
 then used to generate two main outputs:</p>
 <ul>
-<li>a <strong>Data Status Report</strong>, created with
+<li>a <strong>Data Status Check</strong>, created with
 <code><a href="../reference/report.html">status()</a></code>, which helps users identify issues in the data
 before interpretation or analysis; and</li>
 <li>an <strong>Ecological Report</strong>, created with
@@ -121,27 +124,29 @@ tables, maps, and explanatory text in a single document.</li>
 either as a ZIP archive or as an extracted Camtrap DP directory.</p>
 <p>Optional supporting data can also be provided. These include habitat
 information and a study-area boundary, which can be used in relevant
-summaries, maps, and ecological analyses. An example <a href="https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing" class="external-link"><code>habitat.csv</code>
-template</a> is available for download.</p>
+summaries, maps, and ecological analyses.</p>
+<div class="section level3">
+<h3 id="bundled-example-data">Bundled example data<a class="anchor" aria-label="anchor" href="#bundled-example-data"></a>
+</h3>
+<p>The package includes a relationship-preserving subset of the
+GMU8_LEUVEN Camtrap DP dataset for examples, demonstrations, and
+automated tests. It contains eight derived camera locations, 87
+deployments, 15,492 retained media records, and 11,092 observation
+records. Bundled habitat data and a derived study-area boundary provide
+optional inputs for exercising those parts of the workflow. The subset
+is a software fixture and should not be used for ecological inference;
+its provenance and transformations are documented in
+<code>inst/external/README-Leuven-dataset.md</code> in the source
+repository.</p>
 </div>
-<div class="section level2">
-<h2 id="bundled-example-data">Bundled example data<a class="anchor" aria-label="anchor" href="#bundled-example-data"></a>
-</h2>
-<p>The package includes a relationship-preserving subset of the <a href="https://doi.org/10.15468/4u3wm4" class="external-link">GMU8_LEUVEN Camtrap DP
-dataset</a> for examples, demonstrations, and automated tests. Bundled
-habitat data and a derived study-area boundary support optional parts of
-the workflow. This subset is a software fixture and should not be used
-for ecological inference. Its provenance and preparation are documented
-in the <a href="https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md" class="external-link">example-data
-README</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="key-outputs">Key outputs<a class="anchor" aria-label="anchor" href="#key-outputs"></a>
 </h2>
 <div class="section level3">
-<h3 id="data-status-report">Data Status Report<a class="anchor" aria-label="anchor" href="#data-status-report"></a>
+<h3 id="data-status-check">Data Status Check<a class="anchor" aria-label="anchor" href="#data-status-check"></a>
 </h3>
-<p>The Data Status Report is intended to help users inspect the quality
+<p>The Data Status Check is intended to help users inspect the quality
 and completeness of a dataset before moving on to ecological
 interpretation. It summarises issues such as missing information,
 annotation and validation status, temporal inconsistencies, spatial
@@ -167,10 +172,12 @@ data, and analytical settings. Users can therefore adapt the report to
 the purpose and scope of a particular monitoring project.</p>
 <p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create an HTML
 file together with the intermediate R Markdown file used to render it.
-By default, these files are written to the R session’s temporary
-directory. Supply a file stem or an existing output directory through
-<code>filename</code> when the files should be retained at a specific
-location.</p>
+With their default relative filenames, these files are written beside
+the writable camera-trap data used to create the object. Supply an
+explicit file stem or an existing output directory through
+<code>filename</code> to control where the files are written. Package
+examples copy the bundled data and write generated reports to temporary
+directories.</p>
 </div>
 </div>
 <div class="section level2">
@@ -188,8 +195,8 @@ adjusted, and then used to regenerate reports with updated settings.</p>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"First Author"</span>,</span>
-<span>  <span class="st">"Second Author"</span></span>
+<span>  <span class="st">"Elham Ebrahimi"</span>,</span>
+<span>  <span class="st">"Patrick Jansen"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Users can also change the taxonomic focus, select years, adjust
 filters, or choose which report sections should be included before
@@ -231,12 +238,19 @@ management and extension</a> guide.</p>
 <div class="section level2">
 <h2 id="reproducibility-interpretation-and-scope">Reproducibility, interpretation, and scope<a class="anchor" aria-label="anchor" href="#reproducibility-interpretation-and-scope"></a>
 </h2>
-<p><code>camtrapReport</code> applies a consistent workflow from data
-checking to report generation. To reproduce a report, retain the input
-data, selected modules, settings, and relevant package versions. Results
-should be interpreted in relation to the sampling design and assumptions
-of the selected methods.</p>
-<p>For broader guidance, see the <a href="https://cran.r-project.org/view=ReproducibleResearch" class="external-link">Reproducible
+<p><code>camtrapReport</code> supports reproducible reporting by
+applying a consistent workflow from data checking through ecological
+analysis to report generation. Analytical modules use established
+ecological and statistical methods, with default settings that provide a
+common starting point across camera-trap datasets.</p>
+<p>Because the workflow is modular, users can select relevant analyses
+and adjust module-specific settings, species groups, and thresholds
+according to their data, study design, and analytical objectives.
+Results should therefore be interpreted in relation to the
+characteristics of the dataset, sampling design, and assumptions of the
+selected methods.</p>
+<p>General guidance on recording computational environments and managing
+reproducible research workflows is available from the <a href="https://cran.r-project.org/view=ReproducibleResearch" class="external-link">Reproducible
 Research CRAN Task View</a>.</p>
 </div>
 <div class="section level2">
@@ -313,7 +327,7 @@ ecological reporting. Its modular design allows the workflow to be
 adapted to different datasets, monitoring objectives, and analytical
 needs.</p>
 <p>For more detail, see the <a href="https://spatialecology.github.io/camtrapReport/articles/data-status-report.html">Data
-Status Report</a>, <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html">Ecological
+Status Check</a>, <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html">Ecological
 Report</a>, and <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">Module
 management and extension</a> articles.</p>
 </div>

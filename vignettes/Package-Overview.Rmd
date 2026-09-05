@@ -7,6 +7,8 @@ vignette: >
   %\VignetteIndexEntry{Package Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+resource_files:
+  - figures/package-architecture.png
 ---
 
 ## Introduction
@@ -20,7 +22,7 @@ having to assemble each step separately.
 The workflow starts with `camData()`, which creates a `camReport` object from
 the input data. The same object is then used to generate two main outputs:
 
-- a **Data Status Report**, created with `status()`, which helps users identify
+- a **Data Status Check**, created with `status()`, which helps users identify
   issues in the data before interpretation or analysis; and
 - an **Ecological Report**, created with `report()`, which combines selected
   analyses, figures, tables, maps, and explanatory text in a single document.
@@ -31,26 +33,26 @@ The main input is a camera-trap dataset in
 [Camtrap DP format](https://camtrap-dp.tdwg.org/), supplied either as a ZIP
 archive or as an extracted Camtrap DP directory.
 
-Optional supporting data can also be provided. These include habitat information
-and a study-area boundary, which can be used in relevant summaries, maps, and
-ecological analyses. An example [`habitat.csv` template](https://drive.google.com/file/d/1lo_CwpLQmuxOVB5193tIAsEq7WF9v0t-/view?usp=sharing)
-is available for download.
+Optional supporting data can also be provided. These include habitat
+information and a study-area boundary, which can be used in relevant
+summaries, maps, and ecological analyses.
 
-## Bundled example data
+### Bundled example data
 
-The package includes a relationship-preserving subset of the
-[GMU8_LEUVEN Camtrap DP dataset](https://doi.org/10.15468/4u3wm4) for
-examples, demonstrations, and automated tests. Bundled habitat data and a
-derived study-area boundary support optional parts of the workflow. This
-subset is a software fixture and should not be used for ecological inference.
-Its provenance and preparation are documented in the
-[example-data README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
+The package includes a relationship-preserving subset of the GMU8_LEUVEN
+Camtrap DP dataset for examples, demonstrations, and automated tests. It
+contains eight derived camera locations, 87 deployments, 15,492 retained media
+records, and 11,092 observation records. Bundled habitat data and a derived
+study-area boundary provide optional inputs for exercising those parts of the
+workflow. The subset is a software fixture and should not be used for
+ecological inference; its provenance and transformations are documented in
+`inst/external/README-Leuven-dataset.md` in the source repository.
 
 ## Key outputs
 
-### Data Status Report
+### Data Status Check
 
-The Data Status Report is intended to help users inspect the quality and
+The Data Status Check is intended to help users inspect the quality and
 completeness of a dataset before moving on to ecological interpretation. It
 summarises issues such as missing information, annotation and validation
 status, temporal inconsistencies, spatial outliers, observation types, and
@@ -82,10 +84,11 @@ and analytical settings. Users can therefore adapt the report to the purpose
 and scope of a particular monitoring project.
 
 Both `status()` and `report()` create an HTML file together with the
-intermediate R Markdown file used to render it. By default, these files are
-written to the R session's temporary directory. Supply a file stem or an
-existing output directory through `filename` when the files should be retained
-at a specific location.
+intermediate R Markdown file used to render it. With their default relative
+filenames, these files are written beside the writable camera-trap data used to
+create the object. Supply an explicit file stem or an existing output directory
+through `filename` to control where the files are written. Package examples
+copy the bundled data and write generated reports to temporary directories.
 
 ## Working with the `camReport` object
 
@@ -102,8 +105,8 @@ info(cm)
 info(cm, name = "authors")
 
 info(cm, name = "authors") <- c(
-  "First Author",
-  "Second Author"
+  "Elham Ebrahimi",
+  "Patrick Jansen"
 )
 ```
 
@@ -151,10 +154,21 @@ guide.
 
 ## Reproducibility, interpretation, and scope
 
-`camtrapReport` applies a consistent workflow from data checking to report generation. To reproduce a report, retain the input data, selected modules, settings, and relevant package versions. Results should be interpreted in relation to the sampling design and assumptions of the selected methods.
+`camtrapReport` supports reproducible reporting by applying a consistent
+workflow from data checking through ecological analysis to report generation.
+Analytical modules use established ecological and statistical methods, with
+default settings that provide a common starting point across camera-trap
+datasets.
 
-For broader guidance, see the [Reproducible Research CRAN Task View](https://cran.r-project.org/view=ReproducibleResearch).
+Because the workflow is modular, users can select relevant analyses and adjust
+module-specific settings, species groups, and thresholds according to their
+data, study design, and analytical objectives. Results should therefore be
+interpreted in relation to the characteristics of the dataset, sampling design,
+and assumptions of the selected methods.
 
+General guidance on recording computational environments and managing
+reproducible research workflows is available from the
+[Reproducible Research CRAN Task View](https://cran.r-project.org/view=ReproducibleResearch).
 
 ## Relationship to other camera-trap packages
 
@@ -182,7 +196,7 @@ Its modular design allows the workflow to be adapted to different datasets,
 monitoring objectives, and analytical needs.
 
 For more detail, see the
-[Data Status Report](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html),
+[Data Status Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html),
 [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html),
 and
 [Module management and extension](https://spatialecology.github.io/camtrapReport/articles/modules.html)

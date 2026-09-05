@@ -44,7 +44,7 @@ navbar:
         - text: Package Overview
           href: articles/Package-Overview.html
 
-        - text: Data Status Report
+        - text: Data Status Check
           href: articles/data-status-report.html
 
         - text: Ecological Report
@@ -67,8 +67,17 @@ navbar:
         - text: Authors
           href: authors.html
 
+        - text: Citation
+          href: authors.html#citation
+
         - text: License
           href: LICENSE.html
+
+        - text: Contributing guide
+          href: CONTRIBUTING.html
+
+        - text: Code of conduct
+          href: CODE_OF_CONDUCT.html
 
     support:
       text: Support
@@ -116,7 +125,7 @@ reference:
 
   - title: Report generation
     desc: >
-      Generate the Data Status Report or Ecological Report, or use the
+      Generate the Data Status Check or Ecological Report, or use the
       graphical interface.
 
   - contents:

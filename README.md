@@ -11,20 +11,16 @@ camtrapReport
 <em>Reproducible reporting for camera-trap monitoring data</em>
 </p>
 
-[![R CMD check
-status](https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml)
-[![rOpenSci package check
-status](https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml/badge.svg)](https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml)
-[![Test
-coverage](https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD)](https://app.codecov.io/github/spatialecology/camtrapReport)
-[![Project status:
-active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![R
-version](https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
-[![MIT
-license](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md)
-[![pkgdown
-documentation](https://img.shields.io/badge/docs-pkgdown-orange.svg)](https://spatialecology.github.io/camtrapReport/)
+<p align="center">
+
+<a href="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R CMD check status"></a>
+<a href="https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml/badge.svg" alt="rOpenSci package check status"></a>
+<a href="https://app.codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Test coverage"></a>
+<a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project status: active"></a>
+<a href="https://www.r-project.org/"><img src="https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white" alt="R version 4.1.0 or later"></a>
+<a href="https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license"></a>
+<a href="https://spatialecology.github.io/camtrapReport/"><img src="https://img.shields.io/badge/docs-pkgdown-orange.svg" alt="pkgdown documentation"></a>
+</p>
 
 ------------------------------------------------------------------------
 
@@ -44,7 +40,7 @@ than replacing them.
 
 <p align="center">
 
-<img src="man/figures/package-architecture.png"
+<img src="vignettes/figures/package-architecture.png"
        width="900"
        alt="Workflow from Camtrap DP input through the camReport object to the Data Status Check and Ecological Report"><br>
 <em>Overview of the camtrapReport workflow.</em>
@@ -65,7 +61,10 @@ and monitoring designs.
 
 Experience across these heterogeneous datasets has informed checks for
 metadata completeness and spatiotemporal coverage, improvements to
-report generation, and revisions based on user feedback.
+report generation, and revisions based on user feedback. Related
+publications, presentations, and training activities are listed on the
+[Resources
+page](https://spatialecology.github.io/camtrapReport/articles/resources.html).
 
 ## Installation
 
@@ -82,8 +81,7 @@ pak::pkg_install(
 )
 ```
 
-To generate the full Ecological Report, install the optional
-dependencies used by its report modules:
+If you add or update report modules, check their dependencies with:
 
 ``` r
 camtrapReport::install_All()
@@ -165,35 +163,22 @@ cm
 Camtrap DP directory. Habitat data and a study-area boundary are
 optional.
 
-### Generate a Data Status Report
+### Generate a Data Status Check
 
 ``` r
 status_file <- status(
   cm,
   view = FALSE
 )
-
-file.exists(status_file)
-#> [1] TRUE
 ```
 
-### Generate a Full Ecological Report
-
-The full Ecological Report integrates the available ecological summaries
-and analyses, including sampling effort, captures, relative abundance
-patterns, species richness, species accumulation, activity patterns,
-species co-occurrence, habitat associations, and spatial patterns.
-Modules requiring additional data or parameters contribute results when
-those inputs are available.
+### Generate an Ecological Report
 
 ``` r
 report_file <- report(
   cm,
   view = FALSE
 )
-
-file.exists(report_file)
-#> [1] TRUE
 ```
 
 ## Configure a report
@@ -252,11 +237,13 @@ species locations. Review all content before sharing a report.
 
 ## Example-data provenance
 
-The bundled example data are derived from the [GMU8_LEUVEN Camtrap DP
+The bundled example dataset is derived from the [GMU8_LEUVEN Camtrap DP
 dataset](https://doi.org/10.15468/4u3wm4), published by the Research
-Institute for Nature and Forest (INBO) through GBIF. This
-relationship-preserving subset is provided for demonstration and
-software testing, not ecological inference. Its preparation is
+Institute for Nature and Forest (INBO) through GBIF. It contains 8
+derived location identifiers, 87 deployments, 15,492 retained media
+records, and 11,092 observation records. The relationship-preserving
+subset is intended for demonstration and software testing, not
+ecological inference. Its preparation and media-reduction rules are
 documented in the [example-data
 README](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
 
@@ -276,9 +263,9 @@ Several R packages support related parts of camera-trap workflows:
 checks, selected ecological analyses, figures, maps, tables, metadata,
 and explanatory text within a configurable reporting workflow. Its
 extensible module framework allows users to incorporate additional
-analyses and report components without modifying the core package. To my
-knowledge, it is the first R package designed specifically to automate
-the generation of both data-status and ecological reports from
+analyses and report components without modifying the core package. To
+our knowledge, it is the first R package designed specifically to
+automate the generation of both data-status and ecological reports from
 camera-trap data.
 
 ## Documentation and support
