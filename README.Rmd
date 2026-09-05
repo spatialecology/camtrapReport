@@ -160,14 +160,14 @@ directory. Habitat data and a study-area boundary are optional.
 
 ### Generate a Data Status Check
 
-```{r generate-data-status, eval=FALSE}
+```{r generate-data-status}
 status_file <- status(
   cm,
   view = FALSE
 )
 ```
 
-```{r validate-data-status, eval=FALSE, include=FALSE}
+```{r validate-data-status, include=FALSE}
 stopifnot(
   is.character(status_file),
   length(status_file) == 1L,
@@ -177,14 +177,14 @@ stopifnot(
 
 ### Generate an Ecological Report
 
-```{r generate-ecological-report, eval=FALSE}
+```{r generate-ecological-report}
 report_file <- report(
   cm,
   view = FALSE
 )
 ```
 
-```{r validate-ecological-report, eval=FALSE, include=FALSE}
+```{r validate-ecological-report, include=FALSE}
 stopifnot(
   is.character(report_file),
   length(report_file) == 1L,
