@@ -170,6 +170,8 @@ status_file <- status(
   cm,
   view = FALSE
 )
+#> Rendering R Markdown data_status report ...
+#> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpQ9CQ6S\camtrapReport-example-487046766cac\dataset\data_status.html
 ```
 
 ### Generate an Ecological Report
@@ -179,6 +181,8 @@ report_file <- report(
   cm,
   view = FALSE
 )
+#> Rendering R Markdown report ...
+#> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpQ9CQ6S\camtrapReport-example-487046766cac\dataset\report.html
 ```
 
 ## Configure a report

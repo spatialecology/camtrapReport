@@ -14,7 +14,10 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 
-options(width = 80)
+options(
+  width = 80,
+  knitr.duplicate.label = "allow"
+)
 ```
 
 
@@ -160,7 +163,7 @@ directory. Habitat data and a study-area boundary are optional.
 
 ### Generate a Data Status Check
 
-```{r generate-data-status}
+```{r generate-data-status, message=FALSE, warning=FALSE}
 status_file <- status(
   cm,
   view = FALSE
@@ -177,7 +180,7 @@ stopifnot(
 
 ### Generate an Ecological Report
 
-```{r generate-ecological-report}
+```{r generate-ecological-report, message=FALSE, warning=FALSE}
 report_file <- report(
   cm,
   view = FALSE
@@ -273,7 +276,7 @@ Several R packages support related parts of camera-trap workflows:
 selected ecological analyses, figures, maps, tables, metadata, and explanatory
 text within a configurable reporting workflow. Its extensible module framework
 allows users to incorporate additional analyses and report components without
-modifying the core package. To our knowledge, it is the first R package
+modifying the core package. To my knowledge, it is the first R package
 designed specifically to automate the generation of both data-status and
 ecological reports from camera-trap data.
 
