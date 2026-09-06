@@ -20,7 +20,8 @@ file path without an extension. The default is \code{"report"} for \code{report(
 and \code{"data_status"} for \code{status()}. Relative default filenames are written
 to the camera-trap data directory.}
 
-\item{view}{A logical value (default \code{FALSE}) specifying whether the generated
+\item{view}{A logical value (default \code{FALSE}) specifying whether the
+generated
 HTML report is opened after rendering.}
 
 \item{test}{A logical value (default \code{FALSE}). If \code{TRUE}, report modules are
