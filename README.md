@@ -170,8 +170,6 @@ status_file <- status(
   cm,
   view = FALSE
 )
-#> Rendering R Markdown data_status report ...
-#> Data_Status Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpQ9CQ6S\camtrapReport-example-487046766cac\dataset\data_status.html
 ```
 
 ### Generate an Ecological Report
@@ -181,8 +179,6 @@ report_file <- report(
   cm,
   view = FALSE
 )
-#> Rendering R Markdown report ...
-#> Report generated at: C:\Users\ebrah010\AppData\Local\Temp\RtmpQ9CQ6S\camtrapReport-example-487046766cac\dataset\report.html
 ```
 
 ## Configure a report
@@ -267,9 +263,9 @@ Several R packages support related parts of camera-trap workflows:
 checks, selected ecological analyses, figures, maps, tables, metadata,
 and explanatory text within a configurable reporting workflow. Its
 extensible module framework allows users to incorporate additional
-analyses and report components without modifying the core package. To
-our knowledge, it is the first R package designed specifically to
-automate the generation of both data-status and ecological reports from
+analyses and report components without modifying the core package. To my
+knowledge, it is the first R package designed specifically to automate
+the generation of both data-status and ecological reports from
 camera-trap data.
 
 ## Documentation and support
