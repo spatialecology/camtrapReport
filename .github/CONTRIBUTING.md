@@ -50,34 +50,31 @@ Please make sure that all checks pass before submitting the pull request.
 
 ## Architecture and report-module execution
 
-The central `camReport` object is implemented as a Reference Class. This is an
-intentional design choice because report generation is stateful: the same object
-stores imported data, metadata, settings, selected sections, intermediate
-analytical results, and report configuration as the workflow progresses. It also
-avoids repeatedly copying potentially large camera-trap datasets. Changes to
-this class can affect the whole workflow, so discuss proposed class or public-API
-changes in an issue before implementing them.
+The central `camReport` object is implemented as a Reference Class because
+report generation is stateful: the same object stores imported data, metadata,
+settings, selected sections, intermediate results, and report configuration as
+the workflow progresses. R6 could provide similar reference semantics, but
+changing the established implementation would require substantial refactoring
+without a clear user-facing benefit.
 
-Report modules are YAML files that can store R code as text. The internal
-`.eval()` helper is the bridge between that representation and execution: it
-parses module code and evaluates it in the explicit environment supplied by the
-caller. This keeps package requirements module-specific and allows modules to be
-extended without hard-coding every analytical package in the core functions.
-Do not replace this mechanism casually, and never evaluate modules from an
-untrusted source.
+The term **module** is used here in the general sense of an independently
+defined report component, rather than in the specific sense of a Shiny module.
+Shiny is used separately for the optional graphical interface and is not part
+of the report-module execution mechanism.
 
-During rendering, `.make_render_env()` constructs the module environment. It
-exposes the central object under the historical names used by bundled modules,
-copies the required object fields and formatting helpers, and keeps assignments
-made by a module outside the user's global environment. New module code should
-use only the data and helpers it needs, qualify package calls where practical,
-and declare all required packages in the YAML metadata.
+A fixed R Markdown template would have been simpler internally, but modifying
+or adding analyses would then require changes to the central template. The
+module-based design instead keeps analytical and reporting components
+independently configurable and extensible without changing the package core.
 
-Internal utilities are split by responsibility: rendering and module execution
-helpers are in `R/utils-render.R`, taxonomy helpers are in
-`R/utils-taxonomy.R`, spatial and correlation-plot helpers are in
-`R/utils-spatial.R`, and general string, date, file, and formatting helpers
-remain in `R/utils.R`.
+Report modules are defined in YAML files and may include explanatory text,
+R code, rendering options, and declarations of optional package dependencies.
+During report generation, the module code is inserted into the generated
+R Markdown document and evaluated by `knitr`/`rmarkdown` in a dedicated
+rendering environment created by `.make_render_env()`.
+
+For guidance on creating and managing modules, including a worked example, see
+the [Module Management guide](../vignettes/articles/modules.Rmd).
 
 ## Dependency policy
 
@@ -88,13 +85,13 @@ table operations, while the latter provides the joins and column transformations
 used throughout the data-preparation and summary workflow.
 
 Packages needed only for particular analytical or visual report sections should
-remain optional and must be declared in that module's YAML `packages` field.
-`install_All()` discovers those declarations from all currently available YAML
-modules, including modules added or modified by users, and passes the resulting
-references to `pak`. It is an explicit opt-in operation and is never called at
-package load or report-render time. When adding or changing a module dependency,
-update its documentation and tests, and verify that a missing optional package
-produces a clear message rather than breaking unrelated sections.
+remain optional and must be declared within the module using `#| packages:`.
+`install_All()` discovers these declarations from the available YAML modules
+and passes the resulting package references to `pak`. It is an explicit opt-in
+operation and is never called at package load or report-render time. When adding
+or changing a module dependency, update its documentation and tests, and verify
+that a missing optional package produces a clear message rather than breaking
+unrelated sections.
 
 ## Coding conventions
 
@@ -109,15 +106,20 @@ functions as part of an unrelated change.
 
 ## Use of coding-assistance tools
 
-The package architecture, scientific methodology, modular reporting framework, and core functionality of `camtrapReport` were designed and developed by the maintainer.
-Coding-assistance tools were used during later stages of development for specific supporting tasks, including code review, debugging, checking for inconsistencies, and converting manually written documentation into roxygen2 format.
-These tools were not used to determine the scientific methods, analytical choices, package architecture, or overall design of the software.
-All suggested code changes were reviewed, adapted where necessary, and tested by the maintainer before being incorporated into the package. Responsibility for the package design, implementation, scientific content, and released code remains with the maintainer.
+The package architecture, scientific methodology, modular reporting framework,
+and core functionality of `camtrapReport` were designed and developed by the maintainer.
+Coding-assistance tools were used during later stages of development for specific supporting tasks,
+including code review, debugging, checking for inconsistencies,
+and converting manually written documentation into roxygen2 format.
+These tools were not used to determine the scientific methods,
+analytical choices, package architecture, or overall design of the software.
+All suggested code changes were reviewed, adapted where necessary,
+and tested by the maintainer before being incorporated into the package.
+Responsibility for the package design, implementation, scientific content,
+and released code remains with the maintainer.
 
 
 ## Code of Conduct
 
 Participation in this project is governed by the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)
-
-
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md) 

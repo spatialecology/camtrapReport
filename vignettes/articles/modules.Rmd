@@ -9,6 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 resource_files:
   - figures/modular-design.png
+  - figures/YAML_Module_to_EcologicalReport.png
 ---
 
 ## Managing and extending report modules
@@ -50,7 +51,18 @@ section_names()
 
 ### 2. Create a new module YAML file
 
-A module can be written as a YAML file. The example below defines a simple module called `species_table`, which adds a species summary table to the Ecological Report.
+A module can be written as a YAML file. Figure 2 illustrates how the main
+components of a YAML module correspond to the content generated in the
+Ecological Report.
+
+```{r yaml-module-structure, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 2. Relationship between the main components of a YAML report module and its output in the Ecological Report.", fig.alt="Diagram showing how the main components of a YAML report module correspond to the heading, explanatory text, and analytical output in the Ecological Report."}
+knitr::include_graphics(
+  "figures/YAML_Module_to_EcologicalReport.png"
+)
+```
+
+The example below defines a simple module called `species_table`, which adds a
+species summary table to the Ecological Report.
 
 Create a file called `species_table.yml` and save it in your working directory.
 
@@ -76,10 +88,6 @@ code: |
     cat("No species table is available for this dataset.")
   }
 ~~~
-
-The `name` field defines the internal module name. The `title` field controls the section title shown in the report. The `parent` field defines where the module belongs in the report structure, for example under `methods` or `results`. The `text` field adds explanatory text, and the `code` field contains the R code used to generate the module output.
-
-A scientific module should also document its purpose, required input fields, packages, preprocessing decisions, method assumptions, returned output, and interpretation limits. Prefer deterministic code, avoid modifying global state or source data, and qualify package calls explicitly where practical. If randomness is required, set and document a reproducible seed. Never place passwords, access tokens, personal data, or machine-specific absolute paths in a module file.
 
 ### 3. Add the new module
 

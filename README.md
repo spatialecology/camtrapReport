@@ -42,8 +42,9 @@ than replacing them.
 
 <img src="vignettes/figures/package-architecture.png"
        width="900"
-       alt="Workflow from Camtrap DP input through the camReport object to the Data Status Check and Ecological Report"><br>
-<em>Overview of the camtrapReport workflow.</em>
+       alt="Workflow from Camtrap DP input through camtrapReport to the Data Status Check and Ecological Report">
+<br> <em>Workflow from Camtrap DP input through camtrapReport to the
+Data Status Check and Ecological Report.</em>
 </p>
 
 ## Use in practice
@@ -81,7 +82,8 @@ pak::pkg_install(
 )
 ```
 
-If you add or update report modules, check their dependencies with:
+To automatically check and install packages required by available, newly
+added, or updated report modules:
 
 ``` r
 camtrapReport::install_All()
@@ -165,6 +167,22 @@ optional.
 
 ### Generate a Data Status Check
 
+`status()` generates a Data Status Check report that provides a
+structured assessment of whether the camera-trap dataset is ready for
+ecological reporting. It summarises five core areas: spatial quality,
+temporal coverage, essential data availability, classification and
+validation, and annotation quality. The report also summarises
+observation types by capture method and concludes with an overall
+data-quality classification, highlighting issues that require attention
+and providing clear guidance to users and data owners on what should be
+corrected or improved before ecological analysis. The function returns
+the path to the generated HTML report; set `view = TRUE` to open it in a
+browser.
+
+[**View an example Data Status Check generated from the bundled Leuven
+camera-trap data
+subset**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
+
 ``` r
 status_file <- status(
   cm,
@@ -173,6 +191,24 @@ status_file <- status(
 ```
 
 ### Generate an Ecological Report
+
+`report()` generates a structured Ecological Report that brings together
+the selected analytical modules in a single, reproducible document.
+Depending on the available data and selected report sections, it can
+include information on sampling effort, species richness and occurrence,
+co-occurrence, activity patterns, habitat use, abundance and density,
+species accumulation, and spatial patterns. Analytical results are
+integrated with tables, figures, maps, and automatically generated
+narrative text that adapts to the underlying data and metadata,
+providing an interpretable overview of the camera-trap monitoring
+dataset. Because the report is modular, users can select, omit, reorder,
+or extend sections according to their data and reporting needs. The
+function returns the path to the generated HTML report; set
+`view = TRUE` to open it in a browser.
+
+[**View an example Ecological Report generated from the bundled Leuven
+camera-trap data
+subset**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
 
 ``` r
 report_file <- report(
