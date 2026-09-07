@@ -6,12 +6,12 @@ test_that("parse_cam_datetime preserves POSIXct input", {
     ),
     tz = "UTC"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
   expect_identical(result, input)
 })
@@ -22,15 +22,15 @@ test_that("parse_cam_datetime converts other POSIXt input", {
     "2025-02-03 12:30:45",
     tz = "UTC"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
-  
-  expect_equal(
+
+  expect_identical(
     as.numeric(result),
     as.numeric(as.POSIXct(input))
   )
@@ -42,7 +42,7 @@ test_that("parse_cam_datetime handles NULL input", {
     NULL,
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
   expect_length(result, 1L)
   expect_true(is.na(result))
@@ -59,12 +59,12 @@ test_that("parse_cam_datetime handles missing text values", {
     "null",
     NA_character_
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
   expect_length(result, length(input))
   expect_true(all(is.na(result)))
@@ -78,15 +78,15 @@ test_that("parse_cam_datetime parses ISO date-time formats", {
     "2025/01/02T03:04:05",
     "2025/01/02 03:04:05"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
   expect_false(anyNA(result))
-  
+
   expect_identical(
     format(
       result,
@@ -108,14 +108,14 @@ test_that("parse_cam_datetime parses minute-level formats", {
     "2025/03/04T05:06",
     "2025/03/04 05:06"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_false(anyNA(result))
-  
+
   expect_identical(
     format(
       result,
@@ -135,14 +135,14 @@ test_that("parse_cam_datetime parses date-only formats", {
     "2025-04-05",
     "2025/04/05"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_false(anyNA(result))
-  
+
   expect_identical(
     format(
       result,
@@ -162,9 +162,9 @@ test_that("parse_cam_datetime parses UTC Z suffix", {
     "2025-05-06T07:08:09Z",
     tz = "UTC"
   )
-  
+
   expect_false(is.na(result))
-  
+
   expect_identical(
     format(
       result,
@@ -181,9 +181,9 @@ test_that("parse_cam_datetime parses offsets containing a colon", {
     "2025-05-06T09:08:09+02:00",
     tz = "UTC"
   )
-  
+
   expect_false(is.na(result))
-  
+
   expect_identical(
     format(
       result,
@@ -200,9 +200,9 @@ test_that("parse_cam_datetime parses offsets without a colon", {
     "2025-05-06 09:08:09+0200",
     tz = "UTC"
   )
-  
+
   expect_false(is.na(result))
-  
+
   expect_identical(
     format(
       result,
@@ -221,19 +221,19 @@ test_that("parse_cam_datetime handles mixed valid and invalid inputs", {
     },
     .package = "camtrapReport"
   )
-  
+
   input <- c(
     "2025-06-01 10:00:00",
     "not a date",
     NA_character_,
     "2025/06/02"
   )
-  
+
   result <- .parse_cam_datetime(
     input,
     tz = "UTC"
   )
-  
+
   expect_length(result, 4L)
   expect_false(is.na(result[1]))
   expect_true(is.na(result[2]))
@@ -247,14 +247,14 @@ test_that("parse_cam_datetime respects supplied timezone", {
     "2025-07-08 09:10:11",
     tz = "Europe/Amsterdam"
   )
-  
+
   expect_false(is.na(result))
-  
+
   expect_identical(
     attr(result, "tzone"),
     "Europe/Amsterdam"
   )
-  
+
   expect_identical(
     format(
       result,
@@ -264,7 +264,6 @@ test_that("parse_cam_datetime respects supplied timezone", {
     "2025-07-08 09:10:11"
   )
 })
-
 
 
 test_that("parse_cam_datetime uses fallback parser", {
@@ -283,7 +282,7 @@ test_that("parse_cam_datetime uses fallback parser", {
     },
     .package = "camtrapReport"
   )
-  
+
   result <- .parse_cam_datetime(
     c(
       "20250805 14:30:15",
@@ -291,11 +290,11 @@ test_that("parse_cam_datetime uses fallback parser", {
     ),
     tz = "UTC"
   )
-  
+
   expect_s3_class(result, "POSIXct")
   expect_length(result, 2L)
   expect_false(anyNA(result))
-  
+
   expect_identical(
     format(
       result,

@@ -1,4 +1,16 @@
-# camtrapReport 1.0.56 (development version)
+# camtrapReport 1.0.57 (development version)
+
+- Addressed the remaining behavior-preserving `goodpractice` recommendations:
+  type-stable iteration, non-nested pipes and conditionals, direct condition
+  messages, clearer character-vector formatting, and stricter exact unit-test
+  expectations.
+- Documented the intentional, narrowly scoped uses of `require()`, `detach()`,
+  and `setwd()` that support dynamic report modules, package updates, and GUI
+  report generation. Their runtime behavior is unchanged.
+- Retained the existing public API, dependency policy, dynamic `.eval()`
+  architecture, and report behavior.
+
+# camtrapReport 1.0.56
 
 ## Internal improvements
 

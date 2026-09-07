@@ -47,7 +47,9 @@ test_that("the public module listing supports tree and table views", {
   expect_true(is.data.frame(full) || is.list(full))
 })
 
-test_that("modules can be added, deleted, restored, and purged in a temporary library", {
+test_that(
+  "modules can be added, deleted, restored, and purged in a temporary library",
+  {
   module_dir <- copy_camtrap_module_library()
   parent_file <- write_test_module(
     .register_camtrap_test_path(
@@ -118,7 +120,8 @@ test_that("modules can be added, deleted, restored, and purged in a temporary li
     dir = module_dir
   )
   expect_identical(nrow(remaining_index), 0L)
-})
+  }
+)
 
 test_that("module inventory reports invalid and duplicate YAML files", {
   module_dir <- copy_camtrap_module_library()

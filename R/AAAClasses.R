@@ -67,35 +67,37 @@ setOldClass("camInfo")
 
 setClassUnion("characterORnull", c("character", "NULL"))
 setClassUnion("characterORlist", c("character", "list"))
-setClassUnion("characterORlistORnull", c("character", "list","NULL"))
-setClassUnion("listORnull", c("list","NULL"))
+setClassUnion("characterORlistORnull", c("character", "list", "NULL"))
+setClassUnion("listORnull", c("list", "NULL"))
 #setClassUnion("numericORdifftime", c("numeric","difftime"))
-setClassUnion("data.frameORnull", c("data.frame","NULL"))
+setClassUnion("data.frameORnull", c("data.frame", "NULL"))
 
 #-------
-setClass('.Rchunk',
-         representation(
-           parent='characterORnull',
-           name='characterORnull',
-           setting='characterORnull',
-           packages='characterORnull',
-           code='character'
-         )
+setClass(
+  '.Rchunk',
+  representation(
+    parent = 'characterORnull',
+    name = 'characterORnull',
+    setting = 'characterORnull',
+    packages = 'characterORnull',
+    code = 'character'
+  )
 )
 #----------
 
-setClassUnion(".RchunkORlistORnull", c(".Rchunk","list","NULL"))
+setClassUnion(".RchunkORlistORnull", c(".Rchunk", "list", "NULL"))
 
 
-setClass('.textSection',
-         representation(
-           parent='characterORnull',
-           name='character',
-           title='character',
-           headLevel='numeric',
-           txt='characterORlistORnull',
-           id='numeric',
-           Rchunk='.RchunkORlistORnull'
-         )
+setClass(
+  '.textSection',
+  representation(
+    parent = 'characterORnull',
+    name = 'character',
+    title = 'character',
+    headLevel = 'numeric',
+    txt = 'characterORlistORnull',
+    id = 'numeric',
+    Rchunk = '.RchunkORlistORnull'
+  )
 )
 # In the txt slot, a list can contain either character text or .Rchunk objects.

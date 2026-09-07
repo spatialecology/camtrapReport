@@ -3,20 +3,21 @@
 #--------
 
 .reportSection_catalog <- function(node, path = character()) {
-  out_state <- new.env(parent = emptyenv()); out_state$value <- list()
-  
+  out_state <- new.env(parent = emptyenv())
+  out_state$value <- list()
+
   walk <- function(x, path) {
     if (inherits(x, ".textSection")) {
       out_state$value[[length(out_state$value) + 1L]] <- data.frame(
-        name   = x@name,
-        title  = x@title %||% "",
+        name = x@name,
+        title = x@title %||% "",
         parent = .norm_parent(x@parent),
-        path   = paste(c(path, x@name), collapse = " / "),
+        path = paste(c(path, x@name), collapse = " / "),
         stringsAsFactors = FALSE
       )
       return(invisible(NULL))
     }
-    
+
     if (is.list(x)) {
       nms <- names(x)
       for (i in seq_along(x)) {
@@ -24,13 +25,13 @@
         walk(x[[i]], c(path, nm))
       }
     }
-    
+
     invisible(NULL)
   }
-  
+
   walk(node, path)
   out <- out_state$value
-  
+
   if (length(out) == 0L) {
     return(data.frame(
       name = character(),
@@ -40,26 +41,28 @@
       stringsAsFactors = FALSE
     ))
   }
-  
+
   do.call(rbind, out)
 }
 
 #--------
 
-.matchReportSection <- function(catalog,
-                                section,
-                                by = c("auto", "name", "title"),
-                                ignore.case = TRUE) {
+.matchReportSection <- function(
+  catalog,
+  section,
+  by = c("auto", "name", "title"),
+  ignore.case = TRUE
+) {
   by <- match.arg(by)
-  
+
   if (!nzchar(section)) {
     stop("'section' is empty.")
   }
-  
+
   cmp <- function(x, y) {
     if (ignore.case) tolower(x) == tolower(y) else x == y
   }
-  
+
   contains <- function(x, y) {
     if (ignore.case) {
       grepl(y, x, ignore.case = TRUE, fixed = TRUE)
@@ -67,64 +70,64 @@
       grepl(y, x, fixed = TRUE)
     }
   }
-  
+
   if (by == "name") {
-    
     w <- which(cmp(catalog$name, section))
     if (length(w) == 0) w <- which(contains(catalog$name, section))
-    
   } else if (by == "title") {
-    
     w <- which(cmp(catalog$title, section))
     if (length(w) == 0) w <- which(contains(catalog$title, section))
-    
   } else {
-    
     w <- which(cmp(catalog$name, section))
-    if (length(w) == 0) w <- which(cmp(catalog$title, section))
-    if (length(w) == 0) w <- which(contains(catalog$name, section))
+    if (length(w) == 0) {
+      w <- which(cmp(catalog$title, section))
+    }
+    if (length(w) == 0) {
+      w <- which(contains(catalog$name, section))
+    }
     if (length(w) == 0) w <- which(contains(catalog$title, section))
   }
-  
+
   if (length(w) == 0L) {
     stop("No report section matched '", section, "'.")
   }
-  
+
   if (length(w) > 1L) {
     msg <- paste0(
-      "More than one section matched '", section, "'.\n",
+      "More than one section matched '",
+      section,
+      "'.\n",
       paste0(" - ", catalog$path[w], collapse = "\n"),
       "\nUse 'by = \"name\"' or give a more specific section name/title."
     )
     stop(msg)
   }
-  
+
   catalog[w, , drop = FALSE]
 }
 
 #--------
 
 .capture_code_text <- function(expr, env = parent.frame()) {
-  
   # code passed as { ... }
   if (is.call(expr) && identical(expr[[1]], as.name("{"))) {
     lines <- vapply(
       as.list(expr)[-1],
-      function(e) {
-        deparse1(e, collapse = "\n", width.cutoff = 60L)
-      },
-      character(1)
+      deparse1,
+      character(1),
+      collapse = "\n",
+      width.cutoff = 60L
     )
     return(paste(lines, collapse = "\n"))
   }
-  
+
   # character value passed directly
   val <- try(eval(expr, envir = env), silent = TRUE)
-  
+
   if (!inherits(val, "try-error") && is.character(val)) {
     return(paste(val, collapse = "\n"))
   }
-  
+
   # fallback: deparse expression
   deparse1(expr, collapse = "\n", width.cutoff = 60L)
 }
@@ -132,9 +135,10 @@
 #--------
 
 .capture_setting_text <- function(expr, env = parent.frame()) {
-  
-  if (is.null(expr)) return(NULL)
-  
+  if (is.null(expr)) {
+    return(NULL)
+  }
+
   # setting passed as { c(...) }
   if (
     is.call(expr) &&
@@ -143,17 +147,18 @@
   ) {
     expr <- expr[[2]]
   }
-  
+
   val <- try(eval(expr, envir = env), silent = TRUE)
-  
+
   if (!inherits(val, "try-error")) {
-    
-    if (is.null(val)) return(NULL)
-    
+    if (is.null(val)) {
+      return(NULL)
+    }
+
     if (is.character(val) && length(val) == 1L) {
       return(val)
     }
-    
+
     if (is.atomic(val)) {
       if (!is.null(names(val)) && any(nzchar(names(val)))) {
         parts <- mapply(
@@ -163,12 +168,12 @@
           SIMPLIFY = TRUE,
           USE.NAMES = FALSE
         )
-        return(paste(parts, collapse = ", "))
+        return(toString(parts))
       } else {
-        return(paste(as.character(val), collapse = ", "))
+        return(toString(as.character(val)))
       }
     }
-    
+
     if (is.list(val) && !is.null(names(val))) {
       parts <- mapply(
         function(nm, vv) paste0(nm, " = ", deparse(vv)),
@@ -177,20 +182,22 @@
         SIMPLIFY = TRUE,
         USE.NAMES = FALSE
       )
-      return(paste(parts, collapse = ", "))
+      return(toString(parts))
     }
   }
-  
+
   deparse1(expr, collapse = "", width.cutoff = 60L)
 }
 
 #--------
 
-.make_rchunk_from_text <- function(parent = NULL,
-                                   name = NULL,
-                                   setting = NULL,
-                                   packages = NULL,
-                                   code = "") {
+.make_rchunk_from_text <- function(
+  parent = NULL,
+  name = NULL,
+  setting = NULL,
+  packages = NULL,
+  code = ""
+) {
   new(
     ".Rchunk",
     parent = parent,
@@ -203,25 +210,25 @@
 
 #--------
 
-.update_section_chunk <- function(sec,
-                                  code_missing,
-                                  code = NULL,
-                                  code_name = NULL,
-                                  code_setting_missing,
-                                  code_setting = NULL,
-                                  packages_missing,
-                                  packages = NULL,
-                                  append_code = FALSE) {
-  
+.update_section_chunk <- function(
+  sec,
+  code_missing,
+  code = NULL,
+  code_name = NULL,
+  code_setting_missing,
+  code_setting = NULL,
+  packages_missing,
+  packages = NULL,
+  append_code = FALSE
+) {
   wants_chunk_update <-
     (!code_missing) || (!code_setting_missing) || (!packages_missing)
-  
+
   if (!wants_chunk_update) {
     return(sec)
   }
-  
+
   patch_chunk <- function(ch) {
-    
     if (!code_missing) {
       ch@code <- if (append_code && nzchar(ch@code)) {
         paste(ch@code, code, sep = "\n")
@@ -229,23 +236,22 @@
         code
       }
     }
-    
+
     if (!code_setting_missing) {
       ch@setting <- code_setting
     }
-    
+
     if (!packages_missing) {
       ch@packages <- if (is.null(packages)) NULL else as.character(packages)
     }
-    
+
     ch
   }
-  
+
   # No chunk exists yet
   if (is.null(sec@Rchunk)) {
-    
     chunk_name <- code_name %||% paste0(sec@name, "__code")
-    
+
     sec@Rchunk <- .make_rchunk_from_text(
       parent = sec@name,
       name = chunk_name,
@@ -253,15 +259,13 @@
       setting = if (code_setting_missing) NULL else code_setting,
       packages = if (packages_missing) NULL else packages
     )
-    
+
     return(sec)
   }
-  
+
   # Single chunk
   if (inherits(sec@Rchunk, ".Rchunk")) {
-    
     if (!is.null(code_name) && !identical(sec@Rchunk@name, code_name)) {
-      
       new_chunk <- .make_rchunk_from_text(
         parent = sec@name,
         name = code_name,
@@ -269,41 +273,37 @@
         setting = if (code_setting_missing) NULL else code_setting,
         packages = if (packages_missing) NULL else packages
       )
-      
+
       sec@Rchunk <- list(sec@Rchunk, new_chunk)
       names(sec@Rchunk) <- c(sec@Rchunk[[1]]@name, new_chunk@name)
-      
+
       return(sec)
     }
-    
+
     sec@Rchunk <- patch_chunk(sec@Rchunk)
     return(sec)
   }
-  
+
   # Multiple chunks
   if (is.list(sec@Rchunk)) {
-    
     if (is.null(code_name)) {
-      
       if (length(sec@Rchunk) != 1L) {
         stop(
-          "Section '", sec@name,
+          "Section '",
+          sec@name,
           "' has multiple code chunks; please supply 'code_name'."
         )
       }
-      
+
       idx <- 1L
-      
     } else {
-      
       idx <- which(vapply(
         sec@Rchunk,
         function(ch) inherits(ch, ".Rchunk") && identical(ch@name, code_name),
         logical(1)
       ))
-      
+
       if (length(idx) == 0L) {
-        
         new_chunk <- .make_rchunk_from_text(
           parent = sec@name,
           name = code_name,
@@ -311,46 +311,48 @@
           setting = if (code_setting_missing) NULL else code_setting,
           packages = if (packages_missing) NULL else packages
         )
-        
+
         sec@Rchunk[[code_name]] <- new_chunk
-        
+
         return(sec)
       }
-      
+
       idx <- idx[1]
     }
-    
+
     sec@Rchunk[[idx]] <- patch_chunk(sec@Rchunk[[idx]])
     return(sec)
   }
-  
+
   sec
 }
 #-------
 .collapse_section_text <- function(x) {
-  if (is.null(x)) return("")
-  if (is.list(x)) x <- unlist(x, use.names = FALSE)
+  if (is.null(x)) {
+    return("")
+  }
+  if (is.list(x)) {
+    x <- unlist(x, use.names = FALSE)
+  }
   paste(as.character(x), collapse = "\n\n")
 }
 #--------
 
 .updateReportSection_tree <- function(node, target_name, updater) {
-  
   if (inherits(node, ".textSection")) {
-    
     if (identical(node@name, target_name)) {
       return(updater(node))
     }
-    
+
     return(node)
   }
-  
+
   if (is.list(node)) {
     for (i in seq_along(node)) {
       node[[i]] <- .updateReportSection_tree(node[[i]], target_name, updater)
     }
   }
-  
+
   node
 }
 
@@ -481,13 +483,28 @@ setGeneric(
 #'
 #' unlink(example_dataset, recursive = TRUE, force = TRUE)
 #' }
-setMethod("updateReportSection",signature(x = "camReport"),
-  function(x, section, text, title, code, code_name,
-           code_setting, packages, append_text, append_code) {
-    
-    if (missing(text)) text <- NULL
-    if (missing(title)) title <- NULL
-    
+setMethod(
+  "updateReportSection",
+  signature(x = "camReport"),
+  function(
+    x,
+    section,
+    text,
+    title,
+    code,
+    code_name,
+    code_setting,
+    packages,
+    append_text,
+    append_code
+  ) {
+    if (missing(text)) {
+      text <- NULL
+    }
+    if (missing(title)) {
+      title <- NULL
+    }
+
     if (missing(code)) {
       code <- NULL
       code_missing <- TRUE
@@ -495,11 +512,11 @@ setMethod("updateReportSection",signature(x = "camReport"),
       code_expr <- substitute(code)
       code_missing <- FALSE
     }
-    
+
     if (missing(code_name)) {
       code_name <- NULL
     }
-    
+
     if (missing(code_setting)) {
       code_setting <- NULL
       code_setting_missing <- TRUE
@@ -507,74 +524,73 @@ setMethod("updateReportSection",signature(x = "camReport"),
       code_setting_expr <- substitute(code_setting)
       code_setting_missing <- FALSE
     }
-    
+
     if (missing(packages)) {
       packages <- NULL
       packages_missing <- TRUE
     } else {
       packages_missing <- FALSE
     }
-    
-    if (missing(append_code)) append_code <- FALSE
-    if (missing(append_text)) append_text <- FALSE
-    
+
+    if (missing(append_code)) {
+      append_code <- FALSE
+    }
+    if (missing(append_text)) {
+      append_text <- FALSE
+    }
+
     if (missing(section) || !is.character(section) || length(section) != 1L) {
-      stop(paste0(
+      stop(
         "'section' should be a single character string, either a section ",
         "name or title."
-      ))
+      )
     }
-    
+
     catalog <- .reportSection_catalog(x$reportObjects)
-    
+
     if (nrow(catalog) == 0L) {
       stop("No report sections were found in x$reportObjects.")
     }
-    
+
     hit <- .matchReportSection(
       catalog = catalog,
       section = section,
       by = "auto",
       ignore.case = TRUE
     )
-    
+
     target_name <- hit$name[1]
-    
+
     if (!code_missing) {
       code <- .capture_code_text(code_expr, env = parent.frame())
     }
-    
+
     if (!code_setting_missing) {
       code_setting <- .capture_setting_text(
         code_setting_expr,
         env = parent.frame()
       )
     }
-    
+
     updater <- function(sec) {
-      
       if (!is.null(title)) {
         sec@title <- as.character(title)[1]
       }
-      
+
       if (!is.null(text)) {
-        
         if (append_text) {
-          
           old_txt <- .collapse_section_text(sec@txt)
-          
+
           sec@txt <- if (nzchar(old_txt)) {
             paste(old_txt, as.character(text), sep = "\n\n")
           } else {
             as.character(text)
           }
-          
         } else {
-          
           sec@txt <- as.character(text)
         }
       }
-      
+
       sec <- .update_section_chunk(
         sec = sec,
         code_missing = code_missing,
@@ -586,22 +602,21 @@ setMethod("updateReportSection",signature(x = "camReport"),
         packages = packages,
         append_code = append_code
       )
-      
+
       sec
     }
-    
+
     x$reportObjects <- .updateReportSection_tree(
       node = x$reportObjects,
       target_name = target_name,
       updater = updater
     )
-    
+
     invisible(x)
   }
 )
 
 #--------
-
 
 setGeneric(
   "listReportSections",
@@ -611,10 +626,8 @@ setGeneric(
 )
 
 
-setMethod("listReportSections",signature(x = "camReport"),
-  function(x) {
-    .reportSection_catalog(x$reportObjects)
-  }
-)
+setMethod("listReportSections", signature(x = "camReport"), function(x) {
+  .reportSection_catalog(x$reportObjects)
+})
 
 #--------

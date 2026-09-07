@@ -147,7 +147,11 @@ test_that("camReport extraction, filtering, and show methods are callable", {
   expect_named(
     subset,
     c(
-      "deployments", "media", "observations", "locations", "taxonomy",
+      "deployments",
+      "media",
+      "observations",
+      "locations",
+      "taxonomy",
       "sequences"
     )
   )

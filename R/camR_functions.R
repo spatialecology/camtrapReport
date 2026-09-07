@@ -3,218 +3,209 @@
 #--------
 
 .ct_icons <- function(use_icons = getOption("camtrapReport.icons", TRUE)) {
-  
   ascii <- list(
-    green  = "[OK]",
+    green = "[OK]",
     yellow = "[WARN]",
     orange = "[WARN]",
-    red    = "[ERROR]",
-    alarm  = "[ALARM]",
-    warn   = "[WARN]",
-    sea    = "[SEA]"
+    red = "[ERROR]",
+    alarm = "[ALARM]",
+    warn = "[WARN]",
+    sea = "[SEA]"
   )
-  
+
   if (!isTRUE(use_icons)) {
     return(ascii)
   }
-  
+
   list(
-    green  = "\U0001F7E2",      # green circle
-    yellow = "\U0001F7E1",      # yellow circle
-    orange = "\U0001F7E0",      # orange circle
-    red    = "\U0001F534",      # red circle
-    alarm  = "\U0001F6A8",      # police car light
-    warn   = "\u26A0\uFE0F",    # warning sign + emoji variation
-    sea    = "\U0001F30A"       # water wave
+    green = "\U0001F7E2", # green circle
+    yellow = "\U0001F7E1", # yellow circle
+    orange = "\U0001F7E0", # orange circle
+    red = "\U0001F534", # red circle
+    alarm = "\U0001F6A8", # police car light
+    warn = "\u26A0\uFE0F", # warning sign + emoji variation
+    sea = "\U0001F30A" # water wave
   )
 }
 
 
 #-----------
-  .camr_base_left_join <- function(x, y, by) {
-    
-    if (is.null(x) || !is.data.frame(x)) {
-      stop("'x' must be a data.frame.")
-    }
-    
-    if (is.null(y) || !is.data.frame(y)) {
-      stop("'y' must be a data.frame.")
-    }
-    
-    missing_x <- setdiff(by, names(x))
-    missing_y <- setdiff(by, names(y))
-    
-    if (length(missing_x) > 0) {
-      stop(
-        "Missing join column(s) in x: ",
-        paste(missing_x, collapse = ", ")
-      )
-    }
-    
-    if (length(missing_y) > 0) {
-      stop(
-        "Missing join column(s) in y: ",
-        paste(missing_y, collapse = ", ")
-      )
-    }
-    
-    row_id <- ".camr_row_id__"
-    
-    while (row_id %in% names(x) || row_id %in% names(y)) {
-      row_id <- paste0(row_id, "_")
-    }
-    
-    x[[row_id]] <- seq_len(nrow(x))
-    
-    out <- merge(
-      x = x,
-      y = y,
-      by = by,
-      all.x = TRUE,
-      sort = FALSE
+.camr_base_left_join <- function(x, y, by) {
+  if (is.null(x) || !is.data.frame(x)) {
+    stop("'x' must be a data.frame.")
+  }
+
+  if (is.null(y) || !is.data.frame(y)) {
+    stop("'y' must be a data.frame.")
+  }
+
+  missing_x <- setdiff(by, names(x))
+  missing_y <- setdiff(by, names(y))
+
+  if (length(missing_x) > 0) {
+    stop(
+      "Missing join column(s) in x: ",
+      toString(missing_x)
     )
-    
-    out <- out[
-      order(out[[row_id]]),
-      ,
-      drop = FALSE
-    ]
-    
-    out[[row_id]] <- NULL
-    rownames(out) <- NULL
-    
-    out
   }
-  
-  
-  .camr_unique_rows <- function(x, cols = names(x)) {
-    
-    if (is.null(x) || nrow(x) == 0) {
-      return(x)
-    }
-    
-    x[
-      !duplicated(x[, cols, drop = FALSE]),
-      ,
-      drop = FALSE
-    ]
+
+  if (length(missing_y) > 0) {
+    stop(
+      "Missing join column(s) in y: ",
+      toString(missing_y)
+    )
   }
-  
-  
-  .camr_clean_unique <- function(
+
+  row_id <- ".camr_row_id__"
+
+  while (row_id %in% names(x) || row_id %in% names(y)) {
+    row_id <- paste0(row_id, "_")
+  }
+
+  x[[row_id]] <- seq_len(nrow(x))
+
+  out <- merge(
+    x = x,
+    y = y,
+    by = by,
+    all.x = TRUE,
+    sort = FALSE
+  )
+
+  out <- out[
+    order(out[[row_id]]),
+    ,
+    drop = FALSE
+  ]
+
+  out[[row_id]] <- NULL
+  rownames(out) <- NULL
+
+  out
+}
+
+
+.camr_unique_rows <- function(x, cols = names(x)) {
+  if (is.null(x) || nrow(x) == 0) {
+    return(x)
+  }
+
+  x[
+    !duplicated(x[, cols, drop = FALSE]),
+    ,
+    drop = FALSE
+  ]
+}
+
+
+.camr_clean_unique <- function(
+  x,
+  sep = ", ",
+  sort_values = TRUE
+) {
+  x <- .trim_chr(x)
+  x <- x[!is.na(x) & x != ""]
+  x <- unique(x)
+
+  if (length(x) == 0) {
+    return("")
+  }
+
+  if (sort_values) {
+    x <- sort(x)
+  }
+
+  paste(
     x,
-    sep = ", ",
-    sort_values = TRUE
-  ) {
-    
-    x <- .trim_chr(x)
-    x <- x[!is.na(x) & x != ""]
-    x <- unique(x)
-    
-    if (length(x) == 0) {
-      return("")
-    }
-    
-    if (sort_values) {
-      x <- sort(x)
-    }
-    
-    paste(
-      x,
-      collapse = sep
-    )
+    collapse = sep
+  )
+}
+
+
+.camr_rows_for_location <- function(location_vec, loc) {
+  if (is.na(loc)) {
+    is.na(location_vec)
+  } else {
+    !is.na(location_vec) &
+      location_vec == loc
   }
-  
-  
-  .camr_rows_for_location <- function(location_vec, loc) {
-    
-    if (is.na(loc)) {
-      is.na(location_vec)
-    } else {
-      !is.na(location_vec) &
-        location_vec == loc
-    }
-  }
-  
-  
-  .camr_summary_by_location <- function(
-    df,
-    value_col,
-    out_col,
-    fun
-  ) {
-    
-    if (
-      is.null(df) ||
+}
+
+
+.camr_summary_by_location <- function(
+  df,
+  value_col,
+  out_col,
+  fun
+) {
+  if (
+    is.null(df) ||
       !is.data.frame(df) ||
       nrow(df) == 0 ||
       !"locationID" %in% names(df) ||
       !value_col %in% names(df)
-    ) {
-      
-      out <- data.frame(
-        locationID = character(),
-        stringsAsFactors = FALSE
-      )
-      
-      out[[out_col]] <- character()
-      
-      return(out)
-    }
-    
-    locs <- unique(
-      df[["locationID"]]
-    )
-    
-    vals <- vapply(
-      locs,
-      function(loc) {
-        
-        idx <- .camr_rows_for_location(
-          df[["locationID"]],
-          loc
-        )
-        
-        fun(
-          df[[value_col]][idx]
-        )
-      },
-      character(1)
-    )
-    
+  ) {
     out <- data.frame(
-      locationID = locs,
+      locationID = character(),
       stringsAsFactors = FALSE
     )
-    
-    out[[out_col]] <- vals
-    
-    out
+
+    out[[out_col]] <- character()
+
+    return(out)
   }
-  
-  
-  .camr_getMergedSummary <- function(cm) {
-    
-    #----------- deployments + locations ----------------
-    
-    dep_loc <- .camr_base_left_join(
-      cm$data$deployments,
-      cm$data$locations,
-      by = "locationID"
-    )
-  
+
+  locs <- unique(
+    df[["locationID"]]
+  )
+
+  vals <- vapply(
+    locs,
+    function(loc) {
+      idx <- .camr_rows_for_location(
+        df[["locationID"]],
+        loc
+      )
+
+      fun(
+        df[[value_col]][idx]
+      )
+    },
+    character(1)
+  )
+
+  out <- data.frame(
+    locationID = locs,
+    stringsAsFactors = FALSE
+  )
+
+  out[[out_col]] <- vals
+
+  out
+}
+
+
+.camr_getMergedSummary <- function(cm) {
   #----------- deployments + locations ----------------
-  
+
   dep_loc <- .camr_base_left_join(
     cm$data$deployments,
     cm$data$locations,
     by = "locationID"
   )
-  
+
+  #----------- deployments + locations ----------------
+
+  dep_loc <- .camr_base_left_join(
+    cm$data$deployments,
+    cm$data$locations,
+    by = "locationID"
+  )
+
   if (!"Habitat_Type" %in% names(dep_loc) && "habitat" %in% names(dep_loc)) {
     names(dep_loc)[names(dep_loc) == "habitat"] <- "Habitat_Type"
   }
-  
+
   if ("Habitat_Type" %in% names(dep_loc)) {
     dep_loc$Habitat_Type <- gsub(
       "_",
@@ -230,16 +221,16 @@
   } else {
     dep_loc$Habitat_Type <- NA_character_
   }
-  
+
   #---------------- Count deployments per location ----------------
-  
+
   deployments_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "deploymentID",
     out_col = "deploymentID_List",
     fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = FALSE)
   )
-  
+
   if (nrow(deployments_per_location) > 0) {
     deployments_per_location$Num_Deployments <- vapply(
       deployments_per_location$locationID,
@@ -251,33 +242,42 @@
   } else {
     deployments_per_location$Num_Deployments <- integer()
   }
-  
+
   #---------------- deployment-to-location mapping ----------------
-  
-  deployment_to_location <- dep_loc[, c("deploymentID", "locationID"), drop = FALSE]
+
+  deployment_to_location <- dep_loc[,
+    c("deploymentID", "locationID"),
+    drop = FALSE
+  ]
   deployment_to_location <- .camr_unique_rows(
     deployment_to_location,
     cols = c("deploymentID", "locationID")
   )
-  
+
   #---------------- Capture methods per location ----------------
-  
+
   if (
-    "sequences" %in% names(cm$data) &&
-    is.data.frame(cm$data$sequences) &&
-    all(c("deploymentID", "captureMethod") %in% names(cm$data$sequences))
+    "sequences" %in%
+      names(cm$data) &&
+      is.data.frame(cm$data$sequences) &&
+      all(c("deploymentID", "captureMethod") %in% names(cm$data$sequences))
   ) {
-    
-    seq_cap <- cm$data$sequences[, c("deploymentID", "captureMethod"), drop = FALSE]
-    seq_cap <- .camr_base_left_join(seq_cap, deployment_to_location, by = "deploymentID")
-    
+    seq_cap <- cm$data$sequences[,
+      c("deploymentID", "captureMethod"),
+      drop = FALSE
+    ]
+    seq_cap <- .camr_base_left_join(
+      seq_cap,
+      deployment_to_location,
+      by = "deploymentID"
+    )
+
     capture_methods_per_location <- .camr_summary_by_location(
       seq_cap,
       value_col = "captureMethod",
       out_col = "CaptureMethod_List",
       fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
     )
-    
   } else {
     capture_methods_per_location <- data.frame(
       locationID = character(),
@@ -285,30 +285,32 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   #---------------- setupBy per location ----------------
-  
+
   setup_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "setupBy",
     out_col = "Setup_By_List",
     fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
-  
+
   #---------------- sequenceID to deploymentID mapping ----------------
-  
+
   if (
-    "sequences" %in% names(cm$data) &&
-    is.data.frame(cm$data$sequences) &&
-    all(c("sequenceID", "deploymentID") %in% names(cm$data$sequences))
+    "sequences" %in%
+      names(cm$data) &&
+      is.data.frame(cm$data$sequences) &&
+      all(c("sequenceID", "deploymentID") %in% names(cm$data$sequences))
   ) {
-    
-    sequence_to_deployment <- cm$data$sequences[, c("sequenceID", "deploymentID"), drop = FALSE]
+    sequence_to_deployment <- cm$data$sequences[,
+      c("sequenceID", "deploymentID"),
+      drop = FALSE
+    ]
     sequence_to_deployment <- .camr_unique_rows(
       sequence_to_deployment,
       cols = c("sequenceID", "deploymentID")
     )
-    
   } else {
     sequence_to_deployment <- data.frame(
       sequenceID = character(),
@@ -316,41 +318,40 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   #---------------- classifiedBy per location ----------------
-  
+
   if (
-    "observations" %in% names(cm$data) &&
-    is.data.frame(cm$data$observations) &&
-    all(c("sequenceID", "classifiedBy") %in% names(cm$data$observations)) &&
-    nrow(sequence_to_deployment) > 0
+    "observations" %in%
+      names(cm$data) &&
+      is.data.frame(cm$data$observations) &&
+      all(c("sequenceID", "classifiedBy") %in% names(cm$data$observations)) &&
+      nrow(sequence_to_deployment) > 0
   ) {
-    
     obs_class <- cm$data$observations
-    
+
     if ("deploymentID" %in% names(obs_class)) {
       obs_class$deploymentID <- NULL
     }
-    
+
     obs_class <- .camr_base_left_join(
       obs_class,
       sequence_to_deployment,
       by = "sequenceID"
     )
-    
+
     obs_class <- .camr_base_left_join(
       obs_class,
       deployment_to_location,
       by = "deploymentID"
     )
-    
+
     Classify_per_location <- .camr_summary_by_location(
       obs_class,
       value_col = "classifiedBy",
       out_col = "Classify_By_List",
       fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
     )
-    
   } else {
     Classify_per_location <- data.frame(
       locationID = character(),
@@ -358,42 +359,42 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   #---------------- baitUse per location ----------------
-  
+
   bait_use_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "baitUse",
     out_col = "BaitUse_List",
     fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
-  
+
   #---------------- years per location ----------------
-  
+
   years_per_location <- .camr_summary_by_location(
     dep_loc,
     value_col = "Year",
     out_col = "Year_List",
     fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
   )
-  
+
   #---------------- photos per location ----------------
-  
+
   if (
-    "sequences" %in% names(cm$data) &&
-    is.data.frame(cm$data$sequences) &&
-    all(c("deploymentID", "nrphotos") %in% names(cm$data$sequences))
+    "sequences" %in%
+      names(cm$data) &&
+      is.data.frame(cm$data$sequences) &&
+      all(c("deploymentID", "nrphotos") %in% names(cm$data$sequences))
   ) {
-    
     photo_df <- cm$data$sequences[, c("deploymentID", "nrphotos"), drop = FALSE]
     photo_df <- .camr_base_left_join(
       deployment_to_location,
       photo_df,
       by = "deploymentID"
     )
-    
+
     locs <- unique(photo_df$locationID)
-    
+
     total_photos <- vapply(
       locs,
       function(loc) {
@@ -402,13 +403,12 @@
       },
       numeric(1)
     )
-    
+
     photos_per_location <- data.frame(
       locationID = locs,
       Total_Photos = total_photos,
       stringsAsFactors = FALSE
     )
-    
   } else {
     photos_per_location <- data.frame(
       locationID = unique(dep_loc$locationID),
@@ -416,54 +416,51 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   #---------------- species list per location ----------------
-  
+
   if (
-    "observations" %in% names(cm$data) &&
-    is.data.frame(cm$data$observations)
+    "observations" %in% names(cm$data) && is.data.frame(cm$data$observations)
   ) {
-    
     obs_tax <- cm$data$observations
-    
+
     if (
-      "taxonomy" %in% names(cm$data) &&
-      is.data.frame(cm$data$taxonomy) &&
-      "taxonID" %in% names(obs_tax) &&
-      all(c("taxonID", "scientificName") %in% names(cm$data$taxonomy))
+      "taxonomy" %in%
+        names(cm$data) &&
+        is.data.frame(cm$data$taxonomy) &&
+        "taxonID" %in% names(obs_tax) &&
+        all(c("taxonID", "scientificName") %in% names(cm$data$taxonomy))
     ) {
-      
       if ("scientificName" %in% names(obs_tax)) {
         obs_tax$scientificName <- NULL
       }
-      
+
       tax <- cm$data$taxonomy[, c("taxonID", "scientificName"), drop = FALSE]
       tax <- .camr_unique_rows(tax, cols = "taxonID")
-      
+
       obs_tax <- .camr_base_left_join(obs_tax, tax, by = "taxonID")
     }
-    
+
     if (
       all(c("sequenceID", "scientificName") %in% names(obs_tax)) &&
-      nrow(sequence_to_deployment) > 0
+        nrow(sequence_to_deployment) > 0
     ) {
-      
       species_obs <- obs_tax[, c("sequenceID", "scientificName"), drop = FALSE]
-      
+
       species_obs <- .camr_base_left_join(
         species_obs,
         sequence_to_deployment,
         by = "sequenceID"
       )
-      
+
       species_obs <- .camr_base_left_join(
         species_obs,
         deployment_to_location,
         by = "deploymentID"
       )
-      
+
       species_obs$scientificName <- .trim_chr(species_obs$scientificName)
-      
+
       species_obs <- species_obs[
         !is.na(species_obs$scientificName) &
           species_obs$scientificName != "" &
@@ -471,14 +468,13 @@
         ,
         drop = FALSE
       ]
-      
+
       species_per_location <- .camr_summary_by_location(
         species_obs,
         value_col = "scientificName",
         out_col = "Species_List",
         fun = function(x) .camr_clean_unique(x, sep = ", ", sort_values = TRUE)
       )
-      
     } else {
       species_per_location <- data.frame(
         locationID = character(),
@@ -486,7 +482,6 @@
         stringsAsFactors = FALSE
       )
     }
-    
   } else {
     species_per_location <- data.frame(
       locationID = character(),
@@ -494,50 +489,81 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   #---------------- Join all summaries ----------------
-  
+
   .d <- dep_loc
-  
+
   .d <- .camr_base_left_join(.d, deployments_per_location, by = "locationID")
-  .d <- .camr_base_left_join(.d, capture_methods_per_location, by = "locationID")
+  .d <- .camr_base_left_join(
+    .d,
+    capture_methods_per_location,
+    by = "locationID"
+  )
   .d <- .camr_base_left_join(.d, setup_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, Classify_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, bait_use_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, years_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, photos_per_location, by = "locationID")
   .d <- .camr_base_left_join(.d, species_per_location, by = "locationID")
-  
+
   rownames(.d) <- NULL
-  
+
   .d
 }
 #############
 
+.summarize_species <- function(
+  cm,
+  df,
+  class = NULL,
+  order = NULL,
+  domestic = FALSE,
+  scientificName = NULL,
+  .filterCount = TRUE,
+  observationType = NULL
+) {
+  # Summarise by scientificName or by another combination of criteria such as
+  # class and order. .filterCount controls whether the configured count
+  # threshold is applied.
 
-.summarize_species <- function(cm,df, class = NULL,order=NULL,domestic=FALSE,scientificName=NULL,.filterCount=TRUE,observationType=NULL) {
-  # To summarise, either scientificName, OR other criteria (one or combination of class, order, etc.) is provided!
-  # .filterCount = T -> the count threshold (if specified in cm$filterCount) is applied
-  
-  if (!is.null(observationType) && is.character(observationType)) df <- df[df$observationType %in% observationType,]
-  
+  if (!is.null(observationType) && is.character(observationType)) {
+    df <- df[df$observationType %in% observationType, ]
+  }
+
   if (is.null(scientificName) || length(scientificName) == 0) {
-    df <- df[grepl("\\s", df$scientificName),]
-    df <- df[!grepl(" sp.$", df$scientificName),]
-    
-    
-    # if domestic is FALSE, they are excluded, if TRUE, summary is for domestic (NULL: all are considered)
-    # both only if the scientificName vector is provided by user in cm$filterExclude$scientificName
+    df <- df[grepl("\\s", df$scientificName), ]
+    df <- df[!grepl(" sp.$", df$scientificName), ]
+
+    # FALSE excludes domestic species, TRUE selects them, and NULL considers
+    # all species. This applies when scientificName is supplied through
+    # cm$filterExclude or when the domestic group is defined.
     # or when domestic group is defined in the group_definition!
-    if (!is.null(cm$filterExclude$scientificName) && is.character(cm$filterExclude$scientificName)) {
+    if (
+      !is.null(cm$filterExclude$scientificName) &&
+        is.character(cm$filterExclude$scientificName)
+    ) {
       if (!is.null(domestic)) {
         if (domestic) {
-          if ('domestic' %in% names(cm$group_definition)) df <- df[df$scientificName %in% cm$group_definition$domestic$scientificName,]
-          else if (scientificName %in% names(cm$filterExclude)) df <- df[df$scientificName %in% cm$filterExclude$scientificName,]
-          else warning('domestic group is not defined!')
+          if ('domestic' %in% names(cm$group_definition)) {
+            df <- df[
+              df$scientificName %in%
+                cm$group_definition$domestic$scientificName,
+            ]
+          } else if (scientificName %in% names(cm$filterExclude)) {
+            df <- df[df$scientificName %in% cm$filterExclude$scientificName, ]
+          } else {
+            warning('domestic group is not defined!')
+          }
         } else {
-          if ('domestic' %in% names(cm$group_definition)) df <- df[!df$scientificName %in% cm$group_definition$domestic$scientificName,]
-          else if (scientificName %in% names(cm$filterExclude)) df <- df[!df$scientificName %in% cm$filterExclude$scientificName,]
+          if ('domestic' %in% names(cm$group_definition)) {
+            df <- df[
+              !df$scientificName %in%
+                cm$group_definition$domestic$scientificName,
+            ]
+          } else if (scientificName %in% names(cm$filterExclude)) {
+            df <- df[!df$scientificName %in% cm$filterExclude$scientificName, ]
+          }
         }
       }
     }
@@ -550,23 +576,33 @@
       df <- df[df$order %in% order, ]
     }
   } else {
-    df <- df[df$scientificName %in% scientificName,]
+    df <- df[df$scientificName %in% scientificName, ]
   }
   #--------------
-  if (.filterCount && length(cm$filterCount) > 0 && nrow(cm$observed_counts) > 0) {
-    df <- df[df$scientificName %in% cm$observed_counts$scientificName[cm$observed_counts$count > cm$filterCount[1]], ]
+  if (
+    .filterCount && length(cm$filterCount) > 0 && nrow(cm$observed_counts) > 0
+  ) {
+    df <- df[
+      df$scientificName %in%
+        cm$observed_counts$scientificName[
+          cm$observed_counts$count > cm$filterCount[1]
+        ],
+    ]
   }
   #---------
   .years <- unique(df$observation_Year)
   .years <- sort(.years[!is.na(.years)])
-  
-  .n <- .nn <- colnames(df)[grepl('^vernacularName',colnames(df))]
+
+  .n <- .nn <- colnames(df)[grepl('^vernacularName', colnames(df))]
   if (length(.n) > 0) {
-    .w <- which(vapply(
-      .n,
-      function(x) length(strsplit(x, ".", fixed = TRUE)[[1]]),
-      integer(1)
-    ) == 2)
+    .w <- which(
+      vapply(
+        .n,
+        function(x) length(strsplit(x, ".", fixed = TRUE)[[1]]),
+        integer(1)
+      ) ==
+        2
+    )
     if (length(.w) > 0) {
       .nn[.w] <- paste0(
         "species_list_",
@@ -578,69 +614,77 @@
       )
     }
   }
-  
+
   if (length(.years) > 0) {
     .df <- df[
       seq_along(.years),
       c("observation_Year", "count", "scientificName", .n)
     ]
-    colnames(.df) <- c('observation_Year','total_species','species_list_scientificName',.nn)
+    colnames(.df) <- c(
+      'observation_Year',
+      'total_species',
+      'species_list_scientificName',
+      .nn
+    )
     .df$total_observations <- 0
     .df$observation_Year <- as.numeric(.years)
-    
+
     for (i in seq_along(.years)) {
       .w <- which(df$observation_Year == .years[i])
       .df$total_observations[i] <- length(.w)
       .df$total_species[i] <- length(unique(df$scientificName[.w]))
-      .df$species_list_scientificName[i] <- paste(sort(unique(df$scientificName[.w])), collapse = ", ")
+      .df$species_list_scientificName[i] <- toString(
+        sort(unique(df$scientificName[.w]))
+      )
       if (length(.nn) > 0) {
         for (j in seq_along(.nn)) {
-          .df[[.nn[j]]] <- paste(sort(unique(df[[.n[j]]][.w])), collapse = ", ")
+          .df[[.nn[j]]] <- toString(sort(unique(df[[.n[j]]][.w])))
         }
       }
     }
     #----
-    
-    .dfs <- unique(df[,c("scientificName", .n)])
-    .dfs <- .dfs[order(.dfs$scientificName),]
-    
-    list(per_year=.df,site_list=.dfs)
+
+    .dfs <- unique(df[, c("scientificName", .n)])
+    .dfs <- .dfs[order(.dfs$scientificName), ]
+
+    list(per_year = .df, site_list = .dfs)
   }
 }
 #---------
 
 .format_area <- function(area_km2) {
-  
   area_km2 <- suppressWarnings(as.numeric(area_km2))
-  
+
   if (is.na(area_km2) || !is.finite(area_km2)) {
     return("not estimated")
   }
-  
+
   if (area_km2 < 0.0001) {
     return(paste0(round(area_km2 * 1e6, 0), " m\u00B2"))
   }
-  
+
   if (area_km2 < 0.01) {
     return(paste0(
-      round(area_km2 * 100, 2), " ha",
-      " (", signif(area_km2, 2), " km\u00B2)"
+      round(area_km2 * 100, 2),
+      " ha",
+      " (",
+      signif(area_km2, 2),
+      " km\u00B2)"
     ))
   }
-  
+
   if (area_km2 < 1) {
     return(paste0(round(area_km2, 3), " km\u00B2"))
   }
-  
+
   paste0(round(area_km2, 2), " km\u00B2")
 }
 
 #####################*************############################
-#       *********Data_status : Spatial********* 
+#       *********Data_status : Spatial*********
 #####################*************############################
 
 .summarize_spatial <- function(cm, coord_round = 6) {
-  
   ic <- .ct_icons()
   g <- ic$green
   y <- ic$yellow
@@ -648,18 +692,18 @@
   r <- ic$red
   w <- ic$warn
   sea <- ic$sea
-  
+
   out <- list(
-    total_locationsrow  = NA_integer_,
+    total_locationsrow = NA_integer_,
     total_unique_locations = NA_integer_,
     coordinate_range = "",
-    number_missing_rows   = NA_integer_,
+    number_missing_rows = NA_integer_,
     message_missing = "Not computed",
     num_duplicated_coordinate = NA_integer_,
     status_duplicated_coordinate = "Not computed",
     num_dup_locationID = NA_integer_,
     status_dup_locationID = "Not computed",
-    num_dup_locationName  = NA_integer_,
+    num_dup_locationName = NA_integer_,
     status_dup_locationName = "Not computed",
     mean_distance_cam = NA_real_,
     min_distance_cam = NA_real_,
@@ -669,7 +713,7 @@
     num_lowrisk_outliers = 0L,
     num_mediumrisk_outliers = 0L,
     num_highrisk_outliers = 0L,
-    num_sea_outliers  = 0L,
+    num_sea_outliers = 0L,
     outliers_status = "Not computed",
     spatial_pattern = NA_character_,
     status_spatial = "Not computed",
@@ -683,88 +727,111 @@
     TimeZone = NA_character_,
     summary_country_timezone = "Not computed"
   )
-  
+
   #---------------- helpers ----------------
-  
+
   .ensure_col <- function(df, col, value = NA) {
     if (!col %in% names(df)) {
       df[[col]] <- value
     }
     df
   }
-  
+
   .dup_status <- function(n_groups, n_extra, icon, label) {
     if (n_extra > 0) {
-      sprintf("%s %d duplicated %s (%d extra rows).", icon, n_groups, label, n_extra)
+      sprintf(
+        "%s %d duplicated %s (%d extra rows).",
+        icon,
+        n_groups,
+        label,
+        n_extra
+      )
     } else {
       sprintf("%s No duplicated %s", g, label)
     }
   }
-  
+
   .count_duplicates <- function(x) {
     x <- as.character(x)
     tab <- table(x, useNA = "ifany")
-    
+
     list(
       n_groups = sum(tab > 1),
       n_extra = sum(pmax(as.integer(tab) - 1L, 0L))
     )
   }
-  
+
   .coord_key <- function(lon, lat) {
     paste(as.character(lon), as.character(lat), sep = "\r")
   }
-  
+
   .valid_coord_rows <- function(df) {
     !is.na(df[["longitude"]]) & !is.na(df[["latitude"]])
   }
-  
+
   #---------------- metadata spatial pattern ----------------
-  
+
   dp_json <- cm$info$json
-  
+
   sp <- NA_character_
   if (!is.null(dp_json) && !is.null(dp_json$project$samplingDesign)) {
     sp <- as.character(dp_json$project$samplingDesign)
   }
-  
+
   if (length(sp) == 0 || is.na(sp) || !nzchar(trimws(sp))) {
     out$spatial_pattern <- "Not indicated in metadata"
   } else {
-    out$spatial_pattern <- paste0(trimws(sp), " (indicated explicitly in metadata)")
+    out$spatial_pattern <- paste0(
+      trimws(sp),
+      " (indicated explicitly in metadata)"
+    )
   }
-  
+
   #---------------- 1. initial cleaning ----------------
-  
+
   location_raw <- cm$data$locations
-  
+
   if (is.null(location_raw) || !is.data.frame(location_raw)) {
     out$total_locationsrow <- 0L
     out$total_unique_locations <- 0L
     out$message_missing <- paste0(r, " No valid cm$data$locations table found.")
-    out$status_spatial <- paste0(w, " Too few locations to detect a spatial pattern")
-    out$status_MCArea <- "No valid camera-location coordinates were available, so study-area size could not be estimated."
-    
+    out$status_spatial <- paste0(
+      w,
+      " Too few locations to detect a spatial pattern"
+    )
+    out$status_MCArea <- paste0(
+      "No valid camera-location coordinates were available, so study-area ",
+      "size could not be estimated."
+    )
+
     cm$data_status$Spatial <- out
     return(out)
   }
-  
+
   out$total_locationsrow <- nrow(location_raw)
-  
+
   location_df2 <- location_raw
   location_df2 <- .ensure_col(location_df2, "locationID", NA_character_)
   location_df2 <- .ensure_col(location_df2, "locationName", NA_character_)
   location_df2 <- .ensure_col(location_df2, "longitude", NA_real_)
   location_df2 <- .ensure_col(location_df2, "latitude", NA_real_)
-  
+
   location_df2[["row"]] <- seq_len(nrow(location_df2))
-  
-  location_df2[["locationID"]] <- trimws(as.character(location_df2[["locationID"]]))
-  location_df2[["locationID"]][location_df2[["locationID"]] == ""] <- NA_character_
-  
-  location_df2[["locationName"]] <- trimws(as.character(location_df2[["locationName"]]))
-  location_df2[["locationName"]][location_df2[["locationName"]] == ""] <- NA_character_
-  
+
+  location_df2[["locationID"]] <- trimws(as.character(location_df2[[
+    "locationID"
+  ]]))
+  location_df2[["locationID"]][
+    location_df2[["locationID"]] == ""
+  ] <- NA_character_
+
+  location_df2[["locationName"]] <- trimws(as.character(location_df2[[
+    "locationName"
+  ]]))
+  location_df2[["locationName"]][
+    location_df2[["locationName"]] == ""
+  ] <- NA_character_
+
   location_df2[["longitude"]] <- suppressWarnings(
     as.numeric(gsub(
       ",",
@@ -773,7 +840,7 @@
       fixed = TRUE
     ))
   )
-  
+
   location_df2[["latitude"]] <- suppressWarnings(
     as.numeric(gsub(
       ",",
@@ -782,25 +849,29 @@
       fixed = TRUE
     ))
   )
-  
+
   complete_idx <- stats::complete.cases(
     location_df2[, c("locationID", "locationName", "longitude", "latitude")]
   )
-  
+
   location_cleaned <- location_df2[complete_idx, , drop = FALSE]
-  
+
   missing_rows <- setdiff(location_df2[["row"]], location_cleaned[["row"]])
   out$number_missing_rows <- length(missing_rows)
-  
+
   out$message_missing <- if (length(missing_rows) == 0) {
     paste0(g, " No missing data found")
   } else {
     paste0(
-      r, " ", length(missing_rows), " rows with missing data: [",
-      paste(missing_rows, collapse = ", "), "]"
+      r,
+      " ",
+      length(missing_rows),
+      " rows with missing data: [",
+      toString(missing_rows),
+      "]"
     )
   }
-  
+
   if (nrow(location_cleaned) > 0) {
     out$coordinate_range <- sprintf(
       "%.3f\u00B0\u2013%.3f\u00B0N and %.3f\u00B0\u2013%.3f\u00B0E",
@@ -810,9 +881,9 @@
       max(location_cleaned[["longitude"]], na.rm = TRUE)
     )
   }
-  
+
   #---------------- 2. duplicated IDs / names ----------------
-  
+
   dup_id <- .count_duplicates(location_cleaned[["locationID"]])
   out$num_dup_locationID <- dup_id$n_extra
   out$status_dup_locationID <- .dup_status(
@@ -821,7 +892,7 @@
     r,
     "locationIDs"
   )
-  
+
   dup_nm <- .count_duplicates(location_cleaned[["locationName"]])
   out$num_dup_locationName <- dup_nm$n_extra
   out$status_dup_locationName <- .dup_status(
@@ -830,19 +901,28 @@
     o,
     "locationNames"
   )
-  
+
   #---------------- 3. duplicated coordinates ----------------
-  
+
   if (nrow(location_cleaned) > 0) {
-    location_cleaned[["lon_round"]] <- round(location_cleaned[["longitude"]], coord_round)
-    location_cleaned[["lat_round"]] <- round(location_cleaned[["latitude"]], coord_round)
-    
-    ckey <- .coord_key(location_cleaned[["lon_round"]], location_cleaned[["lat_round"]])
+    location_cleaned[["lon_round"]] <- round(
+      location_cleaned[["longitude"]],
+      coord_round
+    )
+    location_cleaned[["lat_round"]] <- round(
+      location_cleaned[["latitude"]],
+      coord_round
+    )
+
+    ckey <- .coord_key(
+      location_cleaned[["lon_round"]],
+      location_cleaned[["lat_round"]]
+    )
     ctab <- table(ckey, useNA = "ifany")
-    
+
     dup_coord_groups <- sum(ctab > 1)
     out$num_duplicated_coordinate <- sum(pmax(as.integer(ctab) - 1L, 0L))
-    
+
     out$status_duplicated_coordinate <- if (dup_coord_groups > 0) {
       sprintf(
         "%s Duplicate coordinates found in %d groups; %d duplicate rows.",
@@ -853,7 +933,7 @@
     } else {
       paste0(g, " No duplicated coordinates.")
     }
-    
+
     # Equivalent of group_by(lon_round, lat_round) |> slice(1)
     location_cleaned <- location_cleaned[!duplicated(ckey), , drop = FALSE]
     location_cleaned[["lon_round"]] <- NULL
@@ -862,61 +942,71 @@
     out$num_duplicated_coordinate <- 0L
     out$status_duplicated_coordinate <- paste0(g, " No duplicated coordinates.")
   }
-  
+
   #---------------- 4. unique locations ----------------
-  
+
   if (nrow(location_cleaned) > 0) {
-    xy_key <- .coord_key(location_cleaned[["longitude"]], location_cleaned[["latitude"]])
-    total_unique_locations_df <- location_cleaned[!duplicated(xy_key), , drop = FALSE]
+    xy_key <- .coord_key(
+      location_cleaned[["longitude"]],
+      location_cleaned[["latitude"]]
+    )
+    total_unique_locations_df <- location_cleaned[
+      !duplicated(xy_key),
+      ,
+      drop = FALSE
+    ]
   } else {
     total_unique_locations_df <- location_cleaned[0, , drop = FALSE]
   }
-  
+
   out$total_unique_locations <- nrow(total_unique_locations_df)
-  
+
   if (out$total_unique_locations <= 1) {
     out$note <- paste0(
       y,
       " Only one unique location - distance-based spatial analyses skipped."
     )
   }
-  
+
   #---------------- 5. nearest-neighbour outliers ----------------
-  
+
   .getOutlier <- function(df, minD = 2, prob = 0.99) {
     stopifnot(
       is.data.frame(df),
       all(c("longitude", "latitude", "locationName") %in% names(df))
     )
-    
+
     coords_mat <- as.matrix(df[, c("longitude", "latitude")])
     names_vec <- df[["locationName"]]
-    
+
     dist_matrix <- as.matrix(terra::distance(coords_mat, lonlat = TRUE))
     diag(dist_matrix) <- NA
-    
+
     nn_dist <- apply(dist_matrix, 1, min, na.rm = TRUE)
-    
+
     q_threshold <- stats::quantile(nn_dist, prob = prob, na.rm = TRUE)
     mean_within <- mean(nn_dist[nn_dist < q_threshold], na.rm = TRUE)
-    
+
     w3 <- which(nn_dist > q_threshold + ((minD + 2) * mean_within))
     w2 <- setdiff(which(nn_dist > q_threshold + ((minD + 1) * mean_within)), w3)
-    w1 <- setdiff(which(nn_dist > q_threshold + (minD * mean_within)), c(w2, w3))
-    
+    w1 <- setdiff(
+      which(nn_dist > q_threshold + (minD * mean_within)),
+      c(w2, w3)
+    )
+
     min_idx <- which(
       dist_matrix == min(dist_matrix, na.rm = TRUE),
       arr.ind = TRUE
     )[1, ]
-    
+
     max_idx <- which(
       dist_matrix == max(dist_matrix, na.rm = TRUE),
       arr.ind = TRUE
     )[1, ]
-    
+
     min_pair <- paste(names_vec[min_idx], collapse = " and ")
     max_pair <- paste(names_vec[max_idx], collapse = " and ")
-    
+
     list(
       low_prob = w1,
       medium = w2,
@@ -928,52 +1018,52 @@
       max_distance_names = max_pair
     )
   }
-  
+
   if (out$total_unique_locations < 2) {
-    
     out$mean_distance_cam <- NA_real_
     out$min_distance_cam <- NA_real_
     out$max_distance_cam <- NA_real_
     out$min_distance_camNames <- NA_character_
     out$max_distance_camNames <- NA_character_
-    
+
     out$num_lowrisk_outliers <- 0L
     out$num_mediumrisk_outliers <- 0L
     out$num_highrisk_outliers <- 0L
-    
+
     distance_outlier_summary <- paste0(
       y,
-      " Only one unique location - distance-based spatial outlier analysis skipped"
+      " Only one unique location - distance-based spatial ",
+      "outlier analysis skipped"
     )
-    
   } else {
-    
     outlier_res <- .getOutlier(total_unique_locations_df, minD = 2, prob = 0.99)
-    
+
     out$mean_distance_cam <- round(outlier_res$mean_distance, 2)
     out$min_distance_cam <- round(outlier_res$min_distance, 2)
     out$max_distance_cam <- round(outlier_res$max_distance, 2)
     out$min_distance_camNames <- outlier_res$min_distance_names
     out$max_distance_camNames <- outlier_res$max_distance_names
-    
+
     out$num_lowrisk_outliers <- length(outlier_res$low_prob)
     out$num_mediumrisk_outliers <- length(outlier_res$medium)
     out$num_highrisk_outliers <- length(outlier_res$high_prob)
-    
+
     safe_names <- function(idxs) {
       if (!length(idxs)) {
         return(character(0))
       }
-      
-      sort(unique(stats::na.omit(total_unique_locations_df[["locationName"]][idxs])))
+
+      sort(unique(stats::na.omit(total_unique_locations_df[["locationName"]][
+        idxs
+      ])))
     }
-    
+
     low_names <- safe_names(outlier_res$low_prob)
     med_names <- safe_names(outlier_res$medium)
     high_names <- safe_names(outlier_res$high_prob)
-    
+
     distance_outlier_summary <- ""
-    
+
     if (out$num_highrisk_outliers > 0) {
       distance_outlier_summary <- paste0(
         distance_outlier_summary,
@@ -981,10 +1071,10 @@
         " High-risk (",
         out$num_highrisk_outliers,
         "): ",
-        paste(high_names, collapse = ", ")
+        toString(high_names)
       )
     }
-    
+
     if (out$num_mediumrisk_outliers > 0) {
       distance_outlier_summary <- paste0(
         distance_outlier_summary,
@@ -993,10 +1083,10 @@
         " Medium-risk (",
         out$num_mediumrisk_outliers,
         "): ",
-        paste(med_names, collapse = ", ")
+        toString(med_names)
       )
     }
-    
+
     if (out$num_lowrisk_outliers > 0) {
       distance_outlier_summary <- paste0(
         distance_outlier_summary,
@@ -1005,231 +1095,252 @@
         " Low-risk (",
         out$num_lowrisk_outliers,
         "): ",
-        paste(low_names, collapse = ", ")
+        toString(low_names)
       )
     }
-    
+
     if (!nzchar(distance_outlier_summary)) {
       distance_outlier_summary <- paste0(g, " No spatial outliers detected")
     }
   }
-  
+
   #---------------- 6. sea vs land ----------------
-  
+
   wrld <- terra::readRDS(
     system.file("external/world.map", package = "camtrapReport")
   )
-  
+
   if (out$total_unique_locations > 0) {
-    
     loc <- terra::vect(
       total_unique_locations_df,
       geom = c("longitude", "latitude"),
       crs = "epsg:4326"
     )
-    
+
     land_extract <- terra::extract(wrld[, "name"], loc)
     loc$on_land <- !is.na(land_extract[["name"]])
-    
+
     num_sea_outliers <- sum(!loc$on_land)
     out$num_sea_outliers <- as.integer(num_sea_outliers)
-    
+
     sea_outlier_status <- if (num_sea_outliers > 0) {
       paste0(sea, " ", num_sea_outliers, " location(s) fall in the sea.")
     } else {
       paste0(g, " All locations are on land.")
     }
-    
   } else {
-    
     loc <- NULL
     land_extract <- data.frame(
       name = character(),
       stringsAsFactors = FALSE
     )
-    sea_outlier_status <- paste0(w, " No valid locations available for land/sea check.")
+    sea_outlier_status <- paste0(
+      w,
+      " No valid locations available for land/sea check."
+    )
   }
-  
+
   out$outliers_status <- paste(
     distance_outlier_summary,
     sea_outlier_status,
     sep = " | "
   )
-  
+
   #---------------- 7. study-area estimate ----------------
-  
+
   buffer_m <- 1000
-  
+
   if (nrow(total_unique_locations_df) > 0) {
     keep_area <- .valid_coord_rows(total_unique_locations_df)
-    unique_locations_area <- total_unique_locations_df[keep_area, , drop = FALSE]
-    
+    unique_locations_area <- total_unique_locations_df[
+      keep_area,
+      ,
+      drop = FALSE
+    ]
+
     area_key <- .coord_key(
       unique_locations_area[["longitude"]],
       unique_locations_area[["latitude"]]
     )
-    
-    unique_locations_area <- unique_locations_area[!duplicated(area_key), , drop = FALSE]
+
+    unique_locations_area <- unique_locations_area[
+      !duplicated(area_key),
+      ,
+      drop = FALSE
+    ]
   } else {
     unique_locations_area <- total_unique_locations_df[0, , drop = FALSE]
   }
-  
+
   n_area_locations <- nrow(unique_locations_area)
-  
+
   out$MCArea <- NA_real_
   out$MCArea_text <- "not estimated"
   out$MCArea_method <- "Not estimated"
   out$status_MCArea <- "Study-area size was not estimated."
-  
+
   if (n_area_locations > 0) {
     loc_area <- terra::vect(
       unique_locations_area,
       geom = c("longitude", "latitude"),
       crs = "EPSG:4326"
     )
-    
+
     loc_area_projected <- .get_projected_vect(loc_area)
   }
-  
+
   if (n_area_locations == 0) {
-    
     out$MCArea <- NA_real_
     out$MCArea_text <- "not estimated"
     out$MCArea_method <- "Not estimated"
-    
+
     out$status_MCArea <- paste0(
       "No valid camera-location coordinates were available, ",
       "so study-area size could not be estimated."
     )
   }
-  
+
   if (n_area_locations == 1) {
-    
     buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
-    
+
     area_km2 <- as.numeric(
       sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
     )
-    
+
     out$MCArea <- area_km2
-    out$MCArea_method <- paste0(buffer_m / 1000, " km buffer around one camera location")
-    
+    out$MCArea_method <- paste0(
+      buffer_m / 1000,
+      " km buffer around one camera location"
+    )
+
     out$MCArea_text <- paste0(
       .format_area(area_km2),
       " (estimated from a ",
       buffer_m / 1000,
       " km buffer around one camera location)"
     )
-    
+
     out$status_MCArea <- paste0(
       "The dataset contains one distinct camera location. ",
-      "Because a minimum convex polygon cannot be calculated from a single point, ",
+      "Because a minimum convex polygon cannot be calculated from a single ",
+      "point, ",
       "study-area size was estimated using a ",
       buffer_m / 1000,
-      " km buffer around the camera location, resulting in an estimated area of ",
+      " km buffer around the camera location, resulting in an estimated ",
+      "area of ",
       .format_area(area_km2),
       "."
     )
   }
-  
+
   if (n_area_locations == 2) {
-    
     buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
     buffer_poly <- terra::aggregate(buffer_poly)
-    
+
     area_km2 <- as.numeric(
       sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
     )
-    
+
     out$MCArea <- area_km2
-    out$MCArea_method <- paste0(buffer_m / 1000, " km buffers around two camera locations")
-    
+    out$MCArea_method <- paste0(
+      buffer_m / 1000,
+      " km buffers around two camera locations"
+    )
+
     out$MCArea_text <- paste0(
       .format_area(area_km2),
       " (estimated from ",
       buffer_m / 1000,
       " km buffers around two camera locations)"
     )
-    
+
     out$status_MCArea <- paste0(
       "The dataset contains two distinct camera locations. ",
       "Because a minimum convex polygon cannot be calculated from two points, ",
       "study-area size was estimated using ",
       buffer_m / 1000,
-      " km buffers around the two camera locations, resulting in an estimated area of ",
+      " km buffers around the two camera locations, resulting in an ",
+      "estimated area of ",
       .format_area(area_km2),
       "."
     )
   }
-  
+
   if (n_area_locations >= 3) {
-    
-    area_km2 <- tryCatch({
-      mcp_poly <- terra::hull(loc_area_projected)
-      as.numeric(sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE))
-    }, error = function(e) {
-      NA_real_
-    })
-    
+    area_km2 <- tryCatch(
+      {
+        mcp_poly <- terra::hull(loc_area_projected)
+        as.numeric(sum(terra::expanse(mcp_poly, unit = "km"), na.rm = TRUE))
+      },
+      error = function(e) {
+        NA_real_
+      }
+    )
+
     if (is.na(area_km2) || !is.finite(area_km2) || area_km2 <= 0) {
-      
       buffer_poly <- terra::buffer(loc_area_projected, width = buffer_m)
       buffer_poly <- terra::aggregate(buffer_poly)
-      
+
       area_km2 <- as.numeric(
         sum(terra::expanse(buffer_poly, unit = "km"), na.rm = TRUE)
       )
-      
+
       out$MCArea <- area_km2
-      out$MCArea_method <- paste0(buffer_m / 1000, " km buffered camera-location area")
-      
+      out$MCArea_method <- paste0(
+        buffer_m / 1000,
+        " km buffered camera-location area"
+      )
+
       out$MCArea_text <- paste0(
         .format_area(area_km2),
         " (estimated from ",
         buffer_m / 1000,
         " km buffers around camera locations)"
       )
-      
+
       out$status_MCArea <- paste0(
         "The ",
         n_area_locations,
-        " distinct camera locations did not produce a valid minimum convex polygon area, ",
+        " distinct camera locations did not produce a valid minimum convex ",
+        "polygon area, ",
         "for example because locations were overlapping or nearly collinear. ",
         "Study-area size was therefore estimated using ",
         buffer_m / 1000,
-        " km buffers around the camera locations, resulting in an estimated area of ",
+        " km buffers around the camera locations, resulting in an estimated ",
+        "area of ",
         .format_area(area_km2),
         "."
       )
-      
     } else {
-      
       out$MCArea <- area_km2
       out$MCArea_method <- "Minimum convex polygon"
       out$MCArea_text <- .format_area(area_km2)
-      
+
       out$status_MCArea <- paste0(
         "The ",
         n_area_locations,
-        " distinct camera locations are distributed within a minimum convex polygon (MCP) of ",
+        " distinct camera locations are distributed within a minimum convex ",
+        "polygon (MCP) of ",
         out$MCArea_text,
         "."
       )
     }
   }
-  
+
   #---------------- 8. country / timezone summary ----------------
-  
+
   if (!is.null(loc)) {
     country_values <- unique(terra::extract(wrld, loc)[["name"]])
-    country_values <- country_values[!is.na(country_values) & country_values != ""]
+    country_values <- country_values[
+      !is.na(country_values) & country_values != ""
+    ]
     out$country <- .paste_comma_and(country_values)
   } else {
     out$country <- NA_character_
   }
-  
+
   tzs <- character(0)
-  
+
   if (nrow(total_unique_locations_df) > 0 && .require("lutz")) {
     tzs <- .eval(
       "lutz::tz_lookup_coords(
@@ -1247,19 +1358,19 @@
       tzs <- tzs[!is.na(tzs) & nzchar(tzs)]
     }
   }
-  
+
   if (length(tzs) > 0) {
     tz <- names(sort(table(tzs), decreasing = TRUE))[1]
     mid <- Sys.time()
     z <- format(as.POSIXct(mid, tz = tz), "%z")
-    
+
     out$TimeZone <- paste0(
       "UTC",
       substr(z, 1, 1),
       as.integer(substr(z, 2, 3)),
       ifelse(substr(z, 4, 5) == "00", "", paste0(":", substr(z, 4, 5)))
     )
-    
+
     tz_label <- paste0(
       tz,
       " (",
@@ -1268,21 +1379,23 @@
       out$TimeZone,
       ")"
     )
-    
   } else {
     tz_label <- NA_character_
   }
-  
+
   out$summary_country_timezone <- glue::glue(
     "Dataset spans <b>{out$country}</b> with time zone <b>{tz_label}</b>."
   )
-  
+
   #---------------- 9. spatial pattern detection ----------------
-  
+
   if (nrow(total_unique_locations_df) > 0) {
-    coords_xy <- total_unique_locations_df[, c("longitude", "latitude"), drop = FALSE]
+    coords_xy <- total_unique_locations_df[,
+      c("longitude", "latitude"),
+      drop = FALSE
+    ]
     coords_xy <- coords_xy[stats::complete.cases(coords_xy), , drop = FALSE]
-    
+
     xy_key <- .coord_key(coords_xy[["longitude"]], coords_xy[["latitude"]])
     coords_xy <- coords_xy[!duplicated(xy_key), , drop = FALSE]
   } else {
@@ -1292,22 +1405,20 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   if (nrow(coords_xy) >= 9) {
-    
     buffer_ratio <- 0.01
     xr <- range(coords_xy[["longitude"]])
     yr <- range(coords_xy[["latitude"]])
     xr <- xr + diff(xr) * c(-buffer_ratio, buffer_ratio)
     yr <- yr + diff(yr) * c(-buffer_ratio, buffer_ratio)
-    
+
     if (.require("spatstat")) {
-      
       win <- .eval(
         "owin(xrange = xr, yrange = yr)",
         env = environment()
       )
-      
+
       ppp_obj <- .eval(
         "ppp(
           x = coords_xy[['longitude']],
@@ -1316,21 +1427,21 @@
         )",
         env = environment()
       )
-      
+
       qtest <- .eval(
         "quadrat.test(ppp_obj, nx = 3, ny = 3)",
         env = environment()
       )
-      
+
       kres <- .eval(
         "Kest(ppp_obj, correction = 'iso')",
         env = environment()
       )
-      
+
       is_clustered <- is.finite(qtest$p.value) && qtest$p.value < 0.05
       is_regular <- any(kres$iso < kres$theo, na.rm = TRUE)
       is_random <- !is_clustered && !is_regular
-      
+
       out$status_spatial <- if (is_clustered && is_regular && is_random) {
         "Mixed: Clustered + Regular + Random (using point-pattern analysis)"
       } else if (is_clustered && is_regular) {
@@ -1348,21 +1459,22 @@
       } else {
         "Ambiguous / Inconclusive (using point-pattern analysis)"
       }
-      
     } else {
       out$status_spatial <- paste0(
         w,
         " spatstat is not installed; spatial pattern detection skipped."
       )
     }
-    
   } else {
-    out$status_spatial <- paste0(w, " Too few locations to detect a spatial pattern")
+    out$status_spatial <- paste0(
+      w,
+      " Too few locations to detect a spatial pattern"
+    )
   }
-  
+
   # Keep original behavior: assignment returns out
   cm$data_status$Spatial <- out
-  
+
   out
 }
 
@@ -1371,75 +1483,92 @@
 #       *********Data_status : Temporal*********
 #####################*************############################
 .Temporal <- function(cm) {
-  
-  
   ic <- .ct_icons()
   cm$data_status$Temporal <- list()
   #-------------------
   # Helpers
-  
+
   .year4 <- function(x) {
     y <- substr(.trim_chr(x), 1, 4)
     y[!grepl("^[0-9]{4}$", y)] <- NA_character_
     y
   }
-  
+
   .is_iso_prefix <- function(x) {
     grepl("^\\d{4}-\\d{2}-\\d{2}(\\s|T)", .trim_chr(x))
   }
-  
+
   .as_date <- function(x) {
     x <- .trim_chr(x)
     x[!grepl("^\\d{4}-\\d{2}-\\d{2}", x)] <- NA_character_
     as.Date(substr(x, 1, 10))
   }
-  
+
   .as_posix_utc <- function(x) {
     suppressWarnings(as.POSIXct(.trim_chr(x), tz = "UTC"))
   }
-  
+
   # Parse deployment_interval -> start/end Date + deploymentID
   .parse_deployments <- function(deployments_df) {
     di <- .trim_chr(deployments_df$deployment_interval)
     parts <- strsplit(ifelse(is.na(di), "", di), "--", fixed = TRUE)
-    
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
-    
+
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
+
     start_d <- .as_date(start_raw)
-    end_d   <- .as_date(end_raw)
-    
+    end_d <- .as_date(end_raw)
+
     ok <- !is.na(start_d) & !is.na(end_d)
     start_d <- start_d[ok]
-    end_d   <- end_d[ok]
-    depid   <- as.character(deployments_df$deploymentID[ok])
-    
+    end_d <- end_d[ok]
+    depid <- as.character(deployments_df$deploymentID[ok])
+
     swap <- which(end_d < start_d)
     if (length(swap)) {
-      tmp <- start_d[swap]; start_d[swap] <- end_d[swap]; end_d[swap] <- tmp
+      tmp <- start_d[swap]
+      start_d[swap] <- end_d[swap]
+      end_d[swap] <- tmp
     }
-    
-    data.frame(deploymentID = depid, start_d = start_d, end_d = end_d, stringsAsFactors = FALSE)
+
+    data.frame(
+      deploymentID = depid,
+      start_d = start_d,
+      end_d = end_d,
+      stringsAsFactors = FALSE
+    )
   }
-  
+
   .covered_days <- function(ints) {
-    if (!nrow(ints)) return(as.Date(character(0)))
+    if (!nrow(ints)) {
+      return(as.Date(character(0)))
+    }
     days <- as.Date(character(0))
     for (i in seq_len(nrow(ints))) {
       days <- c(days, seq(ints$start_d[i], ints$end_d[i], by = "day"))
     }
     unique(days)
   }
-  
+
   .calendar_coverage <- function(days) {
     days <- unique(days[!is.na(days)])
-    if (!length(days)) return(paste0("- ", ic$red))
+    if (!length(days)) {
+      return(paste0("- ", ic$red))
+    }
     span_days <- as.integer(max(days) - min(days)) + 1L
     covered <- length(days)
     pct <- round(covered / span_days * 100, 1)
     sprintf("%d of %d days (%.1f%%)", covered, span_days, pct)
   }
-  
+
   .gap_stats <- function(ints_simple) {
     if (nrow(ints_simple) < 2) {
       return(list(
@@ -1448,13 +1577,13 @@
         n_gaps = 0L
       ))
     }
-    
+
     ints_simple <- ints_simple[order(ints_simple$end_d, ints_simple$start_d), ]
-    
+
     next_start <- ints_simple$start_d[-1]
-    this_end   <- ints_simple$end_d[-nrow(ints_simple)]
-    gap_days   <- as.integer(next_start - this_end) - 1L
-    
+    this_end <- ints_simple$end_d[-nrow(ints_simple)]
+    gap_days <- as.integer(next_start - this_end) - 1L
+
     pos <- which(!is.na(gap_days) & gap_days > 0)
     if (!length(pos)) {
       return(list(
@@ -1463,114 +1592,179 @@
         n_gaps = 0L
       ))
     }
-    
+
     i_max <- pos[which.max(gap_days[pos])]
-    max_gap <- sprintf("%d days (from %s to %s)", gap_days[i_max], this_end[i_max] + 1, next_start[i_max] - 1)
-    
+    max_gap <- sprintf(
+      "%d days (from %s to %s)",
+      gap_days[i_max],
+      this_end[i_max] + 1,
+      next_start[i_max] - 1
+    )
+
     if (length(pos) == 1) {
       min_gap <- paste0("Same as max gap (only one gap detected) ", ic$green)
       return(list(max_gap = max_gap, min_gap = min_gap, n_gaps = 1L))
     }
-    
+
     i_min <- pos[which.min(gap_days[pos])]
-    min_gap <- sprintf("%d days (from %s to %s)", gap_days[i_min], this_end[i_min] + 1, next_start[i_min] - 1)
-    
+    min_gap <- sprintf(
+      "%d days (from %s to %s)",
+      gap_days[i_min],
+      this_end[i_min] + 1,
+      next_start[i_min] - 1
+    )
+
     list(max_gap = max_gap, min_gap = min_gap, n_gaps = length(pos))
   }
-  
+
   .missing_intervals <- function(deployment_interval) {
     x <- .trim_chr(deployment_interval)
     is_blank <- is.na(x) | !nzchar(x)
-    
+
     parts <- strsplit(ifelse(is_blank, "", x), "--", fixed = TRUE)
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
-    
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
+
     start_d <- .as_date(start_raw)
-    end_d   <- .as_date(end_raw)
-    
+    end_d <- .as_date(end_raw)
+
     valid <- !is_blank & !is.na(start_d) & !is.na(end_d) & (end_d >= start_d)
     n_bad <- sum(!valid)
-    
-    if (n_bad == 0) paste("None", ic$green) else sprintf("%d invalid/empty interval(s) %s", n_bad, ic$red)
+
+    if (n_bad == 0) {
+      paste("None", ic$green)
+    } else {
+      sprintf("%d invalid/empty interval(s) %s", n_bad, ic$red)
+    }
   }
-  
+
   .temporal_outliers <- function(years_raw, max_gap = 10) {
     y <- .trim_chr(years_raw)
     y <- y[grepl("^[0-9]{4}$", y)]
     y <- sort(unique(as.integer(y)))
     y <- y[!is.na(y)]
-    
-    if (length(y) <= 1) return(paste("None", ic$green))
-    
+
+    if (length(y) <= 1) {
+      return(paste("None", ic$green))
+    }
+
     jumps <- diff(y)
     cluster_id <- c(1L, 1L + cumsum(jumps > max_gap))
     clusters <- split(y, cluster_id)
-    
+
     lens <- lengths(clusters)
     cand <- which(lens == max(lens))
     if (length(cand) > 1) {
       meds <- vapply(clusters[cand], stats::median, numeric(1))
       cand <- cand[which.max(meds)]
-    } else cand <- cand[1]
-    
+    } else {
+      cand <- cand[1]
+    }
+
     out_years <- setdiff(y, clusters[[cand]])
-    if (!length(out_years)) paste("None", ic$green)
-    else paste0("Years: ", paste(out_years, collapse = ", "), " ", ic$yellow)
+    if (length(out_years)) {
+      paste0("Years: ", toString(out_years), " ", ic$yellow)
+    } else {
+      paste("None", ic$green)
+    }
   }
-  
+
   .dep_zero_length <- function(ints) {
-    if (!nrow(ints)) return(paste("None", ic$green))
+    if (!nrow(ints)) {
+      return(paste("None", ic$green))
+    }
     n_zero <- sum(ints$start_d == ints$end_d, na.rm = TRUE)
-    if (n_zero == 0) paste("None", ic$green) else paste0(n_zero, " zero-length interval(s) ", ic$yellow)
+    if (n_zero == 0) {
+      paste("None", ic$green)
+    } else {
+      paste0(n_zero, " zero-length interval(s) ", ic$yellow)
+    }
   }
-  
+
   # ---- missing years label compressor: "2000-2021, 2023, 2025"
   .missing_years_label <- function(miss_years_int) {
     y <- sort(unique(as.integer(miss_years_int)))
     y <- y[!is.na(y)]
-    if (!length(y)) return("")
+    if (!length(y)) {
+      return("")
+    }
     runs <- split(y, cumsum(c(1, diff(y) != 1)))
-    parts <- vapply(runs, function(r) {
-      if (length(r) == 1) as.character(r[1]) else paste0(r[1], "-", r[length(r)])
-    }, character(1))
-    paste(parts, collapse = ", ")
+    parts <- vapply(
+      runs,
+      function(r) {
+        if (length(r) == 1) {
+          as.character(r[1])
+        } else {
+          paste0(r[1], "-", r[length(r)])
+        }
+      },
+      character(1)
+    )
+    toString(parts)
   }
-  
+
   .years_message <- function(years_chr) {
     years_chr <- sort(unique(grep("^[0-9]{4}$", years_chr, value = TRUE)))
-    if (!length(years_chr)) return(paste0("- ", ic$red))
-    
+    if (!length(years_chr)) {
+      return(paste0("- ", ic$red))
+    }
+
     yrs <- sort(unique(as.integer(years_chr)))
     rng <- seq(min(yrs), max(yrs), by = 1L)
     missing <- setdiff(rng, yrs)
-    
+
     range_label <- paste0(min(yrs), " - ", max(yrs))
-    
-    if (!length(missing)) {
-      paste0(range_label, " (", ic$green, " complete)")
+
+    if (length(missing)) {
+      paste0(
+        range_label,
+        " (",
+        ic$red,
+        " missing: ",
+        .missing_years_label(missing),
+        ")"
+      )
     } else {
-      paste0(range_label, " (", ic$red, " missing: ", .missing_years_label(missing), ")")
+      paste0(range_label, " (", ic$green, " complete)")
     }
   }
-  
+
   # Month coverage helpers
   .month_abb <- function(m) month.abb[m]
-  
+
   .months_to_label <- function(months_int) {
     months_int <- sort(unique(months_int))
-    months_int <- months_int[!is.na(months_int) & months_int >= 1 & months_int <= 12]
-    if (!length(months_int)) return("-")
-    
+    months_int <- months_int[
+      !is.na(months_int) & months_int >= 1 & months_int <= 12
+    ]
+    if (!length(months_int)) {
+      return("-")
+    }
+
     runs <- split(months_int, cumsum(c(1, diff(months_int) != 1)))
-    parts <- vapply(runs, function(r) {
-      if (length(r) == 1) .month_abb(r[1])
-      else paste0(.month_abb(r[1]), "-", .month_abb(r[length(r)]))
-    }, character(1))
-    
-    paste(parts, collapse = ", ")
+    parts <- vapply(
+      runs,
+      function(r) {
+        if (length(r) == 1) {
+          .month_abb(r[1])
+        } else {
+          paste0(.month_abb(r[1]), "-", .month_abb(r[length(r)]))
+        }
+      },
+      character(1)
+    )
+
+    toString(parts)
   }
-  
+
   .dep_month_coverage <- function(dep_ints, years_keep_chr) {
     years_keep_chr <- sort(unique(grep(
       "^[0-9]{4}$",
@@ -1578,159 +1772,268 @@
       value = TRUE
     )))
     if (!nrow(dep_ints) || !length(years_keep_chr)) {
-      return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
+      return(data.frame(
+        Year = character(0),
+        MonthSpan = character(0),
+        stringsAsFactors = FALSE
+      ))
     }
-    
+
     all_year <- character(0)
-    all_mon  <- integer(0)
-    
+    all_mon <- integer(0)
+
     for (i in seq_len(nrow(dep_ints))) {
       s <- as.Date(format(dep_ints$start_d[i], "%Y-%m-01"))
-      e <- as.Date(format(dep_ints$end_d[i],   "%Y-%m-01"))
+      e <- as.Date(format(dep_ints$end_d[i], "%Y-%m-01"))
       seq_m <- seq(s, e, by = "month")
-      
+
       yy <- format(seq_m, "%Y")
       mm <- as.integer(format(seq_m, "%m"))
-      
+
       keep <- yy %in% years_keep_chr
       all_year <- c(all_year, yy[keep])
-      all_mon  <- c(all_mon,  mm[keep])
+      all_mon <- c(all_mon, mm[keep])
     }
-    
+
     if (!length(all_year)) {
-      return(data.frame(Year = character(0), MonthSpan = character(0), stringsAsFactors = FALSE))
+      return(data.frame(
+        Year = character(0),
+        MonthSpan = character(0),
+        stringsAsFactors = FALSE
+      ))
     }
-    
-    out <- data.frame(Year = years_keep_chr, MonthSpan = "-", stringsAsFactors = FALSE)
+
+    out <- data.frame(
+      Year = years_keep_chr,
+      MonthSpan = "-",
+      stringsAsFactors = FALSE
+    )
     for (yy in years_keep_chr) {
       m <- all_mon[all_year == yy]
       if (length(m)) out$MonthSpan[out$Year == yy] <- .months_to_label(m)
     }
-    
+
     out[out$MonthSpan != "-", , drop = FALSE]
   }
-  
-  
+
   # A) Years covered (use BOTH start & end years)
-  
+
   di <- .trim_chr(cm$data$deployments$deployment_interval)
   parts <- strsplit(ifelse(is.na(di), "", di), "--", fixed = TRUE)
-  
-  dep_start_year <- vapply(parts, function(z) if (length(z) >= 1) substr(trimws(z[1]), 1, 4) else NA_character_, character(1))
-  dep_end_year   <- vapply(parts, function(z) if (length(z) >= 2) substr(trimws(z[2]), 1, 4) else NA_character_, character(1))
-  
-  cm$data_status$Temporal$dep_years <- sort(unique(c(dep_start_year, dep_end_year)))
-  cm$data_status$Temporal$dep_years <- cm$data_status$Temporal$dep_years[grepl("^[0-9]{4}$", cm$data_status$Temporal$dep_years)]
-  
-  cm$data_status$Temporal$obs_years <- sort(unique(.year4(cm$data$observations$timestamp)))
-  cm$data_status$Temporal$obs_years <- cm$data_status$Temporal$obs_years[!is.na(cm$data_status$Temporal$obs_years)]
-  
-  cm$data_status$Temporal$dep_years_message <- .years_message(cm$data_status$Temporal$dep_years)
-  cm$data_status$Temporal$obs_years_message <- .years_message(cm$data_status$Temporal$obs_years)
-  
-  cm$data_status$Temporal$years_in_dep_not_obs <- sort(setdiff(cm$data_status$Temporal$dep_years, cm$data_status$Temporal$obs_years))
-  cm$data_status$Temporal$years_in_obs_not_dep <- sort(setdiff(cm$data_status$Temporal$obs_years, cm$data_status$Temporal$dep_years))
-  
+
+  dep_start_year <- vapply(
+    parts,
+    function(z) {
+      if (length(z) >= 1) substr(trimws(z[1]), 1, 4) else NA_character_
+    },
+    character(1)
+  )
+  dep_end_year <- vapply(
+    parts,
+    function(z) {
+      if (length(z) >= 2) substr(trimws(z[2]), 1, 4) else NA_character_
+    },
+    character(1)
+  )
+
+  cm$data_status$Temporal$dep_years <- sort(unique(c(
+    dep_start_year,
+    dep_end_year
+  )))
+  cm$data_status$Temporal$dep_years <- cm$data_status$Temporal$dep_years[grepl(
+    "^[0-9]{4}$",
+    cm$data_status$Temporal$dep_years
+  )]
+
+  cm$data_status$Temporal$obs_years <- sort(unique(.year4(
+    cm$data$observations$timestamp
+  )))
+  cm$data_status$Temporal$obs_years <- cm$data_status$Temporal$obs_years[
+    !is.na(cm$data_status$Temporal$obs_years)
+  ]
+
+  cm$data_status$Temporal$dep_years_message <- .years_message(
+    cm$data_status$Temporal$dep_years
+  )
+  cm$data_status$Temporal$obs_years_message <- .years_message(
+    cm$data_status$Temporal$obs_years
+  )
+
+  cm$data_status$Temporal$years_in_dep_not_obs <- sort(setdiff(
+    cm$data_status$Temporal$dep_years,
+    cm$data_status$Temporal$obs_years
+  ))
+  cm$data_status$Temporal$years_in_obs_not_dep <- sort(setdiff(
+    cm$data_status$Temporal$obs_years,
+    cm$data_status$Temporal$dep_years
+  ))
+
   cm$data_status$Temporal$temporal_inconsistency <- {
     dep_not_obs <- cm$data_status$Temporal$years_in_dep_not_obs
     obs_not_dep <- cm$data_status$Temporal$years_in_obs_not_dep
-    
+
     if (length(dep_not_obs) == 0 && length(obs_not_dep) == 0) {
       paste0(ic$green, " Years in observations and deployments are the same")
     } else {
       parts2 <- character(0)
-      if (length(dep_not_obs)) parts2 <- c(parts2, paste0("Deployments exist, but observations are missing for: ", paste(dep_not_obs, collapse = ", ")))
-      if (length(obs_not_dep)) parts2 <- c(parts2, paste0("Observations exist, but deployments are missing for: ", paste(obs_not_dep, collapse = ", ")))
-      paste0(ic$red, " Temporal inconsistency (", paste(parts2, collapse = " | "), ")")
+      if (length(dep_not_obs)) {
+        parts2 <- c(
+          parts2,
+          paste0(
+            "Deployments exist, but observations are missing for: ",
+            toString(dep_not_obs)
+          )
+        )
+      }
+      if (length(obs_not_dep)) {
+        parts2 <- c(
+          parts2,
+          paste0(
+            "Observations exist, but deployments are missing for: ",
+            toString(obs_not_dep)
+          )
+        )
+      }
+      paste0(
+        ic$red,
+        " Temporal inconsistency (",
+        paste(parts2, collapse = " | "),
+        ")"
+      )
     }
   }
-  
-  # B) First/Last deployments & observations + last day of last deployment + message
-  
-  dep_start_posix <- suppressWarnings(as.POSIXct(cm$data$deployments$deploymentStart, tz = "UTC"))
-  dep_end_posix   <- suppressWarnings(as.POSIXct(cm$data$deployments$deploymentEnd,   tz = "UTC"))
-  obs_time_posix  <- .as_posix_utc(cm$data$observations$timestamp)
-  
-  dep_min      <- suppressWarnings(min(dep_start_posix, na.rm = TRUE))
-  dep_max      <- suppressWarnings(max(dep_start_posix, na.rm = TRUE))   # latest setup/start
-  dep_end_last <- suppressWarnings(max(dep_end_posix,   na.rm = TRUE))   # latest end
-  
+
+  # B) First/last deployments and observations, last deployment day, and
+  # status message
+
+  dep_start_posix <- suppressWarnings(as.POSIXct(
+    cm$data$deployments$deploymentStart,
+    tz = "UTC"
+  ))
+  dep_end_posix <- suppressWarnings(as.POSIXct(
+    cm$data$deployments$deploymentEnd,
+    tz = "UTC"
+  ))
+  obs_time_posix <- .as_posix_utc(cm$data$observations$timestamp)
+
+  dep_min <- suppressWarnings(min(dep_start_posix, na.rm = TRUE))
+  # Latest setup/start and latest end.
+  dep_max <- suppressWarnings(max(dep_start_posix, na.rm = TRUE))
+  dep_end_last <- suppressWarnings(max(dep_end_posix, na.rm = TRUE))
+
   obs_min <- suppressWarnings(min(obs_time_posix, na.rm = TRUE))
   obs_max <- suppressWarnings(max(obs_time_posix, na.rm = TRUE))
-  
+
   # guard against all-NA cases (min/max -> Inf/-Inf)
-  fix_inf <- function(x) if (!is.finite(x)) NA else x
+  fix_inf <- function(x) if (is.finite(x)) x else NA
   dep_min <- fix_inf(dep_min)
   dep_max <- fix_inf(dep_max)
   dep_end_last <- fix_inf(dep_end_last)
   obs_min <- fix_inf(obs_min)
   obs_max <- fix_inf(obs_max)
-  
+
   cm$data_status$Temporal$dep_end_last <- dep_end_last
-  cm$data_status$Temporal$dep_first_last_setup <- paste(dep_min, dep_max, sep = " - ")
+  cm$data_status$Temporal$dep_first_last_setup <- paste(
+    dep_min,
+    dep_max,
+    sep = " - "
+  )
   cm$data_status$Temporal$obs_first_last <- paste(obs_min, obs_max, sep = " - ")
-  
-  
+
   if (is.finite(dep_min) && is.finite(obs_min) && obs_min < dep_min) {
     cm$data_status$Temporal$message_first_last <- paste0(
-      ic$red, " Earliest observation is earlier than the first deployment start date (check timestamps or timezone). ", ic$alarm
+      ic$red,
+      " Earliest observation is earlier than the first deployment start date ",
+      "(check timestamps or timezone). ",
+      ic$alarm
     )
   } else if (is.finite(dep_min) && is.finite(obs_min)) {
-    cm$data_status$Temporal$message_first_last <- paste0(ic$green, " All observations are on/after the first deployment start.")
+    cm$data_status$Temporal$message_first_last <- paste0(
+      ic$green,
+      " All observations are on/after the first deployment start."
+    )
   } else {
-    cm$data_status$Temporal$message_first_last <- paste0(ic$yellow, " Cannot compare first/last dates (missing/invalid timestamps).")
+    cm$data_status$Temporal$message_first_last <- paste0(
+      ic$yellow,
+      " Cannot compare first/last dates (missing/invalid timestamps)."
+    )
   }
-  
-  # C) Deployments: calendar coverage, gaps, missing intervals, outliers, zero-length
-  
+
+  # C) Deployment calendar coverage, gaps, missing intervals, outliers, and
+  # zero-length deployments
+
   dep_ints <- .parse_deployments(cm$data$deployments)
   dep_days <- .covered_days(dep_ints)
-  
+
   cm$data_status$Temporal$dep_calendar_coverage <- .calendar_coverage(dep_days)
-  
+
   gap <- .gap_stats(dep_ints[, c("start_d", "end_d")])
   cm$data_status$Temporal$dep_max_gap <- gap$max_gap
   cm$data_status$Temporal$dep_min_gap <- gap$min_gap
-  
-  cm$data_status$Temporal$dep_missing_intervals <- .missing_intervals(cm$data$deployments$deployment_interval)
-  cm$data_status$Temporal$temporal_outliers <- .temporal_outliers(cm$data_status$Temporal$dep_years, max_gap = 10)
+
+  cm$data_status$Temporal$dep_missing_intervals <- .missing_intervals(
+    cm$data$deployments$deployment_interval
+  )
+  cm$data_status$Temporal$temporal_outliers <- .temporal_outliers(
+    cm$data_status$Temporal$dep_years,
+    max_gap = 10
+  )
   cm$data_status$Temporal$dep_zero_length <- .dep_zero_length(dep_ints)
-  
+
   cm$data_status$Temporal$dep_month_coverage <- .dep_month_coverage(
     dep_ints = dep_ints,
     years_keep_chr = cm$data_status$Temporal$dep_years
   )
-  
-  cm$data_status$Temporal$dep_month_coverage_lines <- if (nrow(cm$data_status$Temporal$dep_month_coverage) == 0) {
+
+  cm$data_status$Temporal$dep_month_coverage_lines <- if (
+    nrow(cm$data_status$Temporal$dep_month_coverage) == 0
+  ) {
     character(0)
   } else {
-    paste0(cm$data_status$Temporal$dep_month_coverage$Year, ": ", cm$data_status$Temporal$dep_month_coverage$MonthSpan)
+    paste0(
+      cm$data_status$Temporal$dep_month_coverage$Year,
+      ": ",
+      cm$data_status$Temporal$dep_month_coverage$MonthSpan
+    )
   }
-  
+
   # D) Observations QA: invalid format + future timestamps
-  
+
   ts_raw <- cm$data$observations$timestamp
-  bad_fmt_idx <- which(!is.na(ts_raw) & nzchar(.trim_chr(ts_raw)) & !.is_iso_prefix(ts_raw))
-  
-  cm$data_status$Temporal$invalid_timestamp_format <- if (!length(bad_fmt_idx)) {
-    paste("None", ic$green)
+  bad_fmt_idx <- which(
+    !is.na(ts_raw) & nzchar(.trim_chr(ts_raw)) & !.is_iso_prefix(ts_raw)
+  )
+
+  cm$data_status$Temporal$invalid_timestamp_format <- if (length(bad_fmt_idx)) {
+    paste0(
+      length(bad_fmt_idx),
+      " timestamp(s) have invalid format ",
+      ic$red,
+      " (rows: ",
+      toString(head(bad_fmt_idx, 10)),
+      if (length(bad_fmt_idx) > 10) ", ..." else "",
+      ")"
+    )
   } else {
-    paste0(length(bad_fmt_idx), " timestamp(s) have invalid format ", ic$red,
-           " (rows: ", paste(head(bad_fmt_idx, 10), collapse = ", "),
-           if (length(bad_fmt_idx) > 10) ", ..." else "", ")")
+    paste("None", ic$green)
   }
-  
+
   now_utc <- as.POSIXct(Sys.time(), tz = "UTC")
   fut_idx <- which(!is.na(obs_time_posix) & obs_time_posix > now_utc)
-  
-  cm$data_status$Temporal$obs_future_timestamps <- if (!length(fut_idx)) {
-    paste("None", ic$green)
+
+  cm$data_status$Temporal$obs_future_timestamps <- if (length(fut_idx)) {
+    paste0(
+      length(fut_idx),
+      " observation(s) have future timestamps ",
+      ic$red,
+      " (rows: ",
+      toString(head(fut_idx, 10)),
+      if (length(fut_idx) > 10) ", ..." else "",
+      ")"
+    )
   } else {
-    paste0(length(fut_idx), " observation(s) have future timestamps ", ic$red,
-           " (rows: ", paste(head(fut_idx, 10), collapse = ", "),
-           if (length(fut_idx) > 10) ", ..." else "", ")")
+    paste("None", ic$green)
   }
-  
 }
 
 # Run:
@@ -1738,35 +2041,40 @@
 #       *********Data_status : Essential*********
 #####################*************############################
 .Essentials <- function(cm) {
-  
-  
   ic <- .ct_icons()
-  g <- ic$green; y <- ic$yellow; r <- ic$red
-  
+  g <- ic$green
+  y <- ic$yellow
+  r <- ic$red
+
   # reset
   cm$data_status$Essentials <- list(
-    loc   = list(),
-    obs   = list(),
-    dep   = list(),
+    loc = list(),
+    obs = list(),
+    dep = list(),
     media = list(),
-    seq   = list(),
-    tax   = list()
+    seq = list(),
+    tax = list()
   )
-  
-  
+
   # helpers
-  
+
   .row_list <- function(idx, max_show = 20) {
     idx <- sort(unique(idx))
-    if (!length(idx)) return("")
+    if (!length(idx)) {
+      return("")
+    }
     shown <- head(idx, max_show)
-    s <- paste(shown, collapse = ", ")
-    if (length(idx) > max_show) s <- paste0(s, ", ...")
+    s <- toString(shown)
+    if (length(idx) > max_show) {
+      s <- paste0(s, ", ...")
+    }
     s
   }
-  
+
   .status_counts <- function(missing_n, total) {
-    if (is.na(total) || total <= 0) return(paste0(y, " No data"))
+    if (is.na(total) || total <= 0) {
+      return(paste0(y, " No data"))
+    }
     pct <- 100 * missing_n / total
     if (missing_n <= 0) {
       paste0(g, " Complete")
@@ -1776,102 +2084,151 @@
       sprintf("%s Partial (%d of %d missing; %.2f%%)", y, missing_n, total, pct)
     }
   }
-  
+
   .summ_status_counts <- function(x, treat_blank = TRUE) {
     x <- .trim_chr(x)
     total <- length(x)
     missing_n <- sum(is.na(x) | (treat_blank & x == ""))
     .status_counts(missing_n, total)
   }
-  
+
   .status_rows <- function(bad_idx, total, all_empty = FALSE) {
-    if (is.na(total) || total <= 0) return(paste0(y, " No data"))
-    if (!length(bad_idx)) return(paste0(g, " Complete"))
-    if (length(bad_idx) == total && all_empty) return(paste0(r, " Incomplete (all rows empty)"))
-    if (length(bad_idx) == total) return(paste0(r, " Incomplete (all rows missing/invalid)"))
+    if (is.na(total) || total <= 0) {
+      return(paste0(y, " No data"))
+    }
+    if (!length(bad_idx)) {
+      return(paste0(g, " Complete"))
+    }
+    if (length(bad_idx) == total && all_empty) {
+      return(paste0(r, " Incomplete (all rows empty)"))
+    }
+    if (length(bad_idx) == total) {
+      return(paste0(r, " Incomplete (all rows missing/invalid)"))
+    }
     paste0(y, " Partial (row: ", .row_list(bad_idx), ")")
   }
-  
+
   .loc_chr_status <- function(x) {
     x <- .trim_chr(x)
     miss <- which(is.na(x) | x == "")
     .status_rows(miss, length(x), all_empty = (length(miss) == length(x)))
   }
-  
+
   .loc_num_status <- function(x, minv, maxv) {
     x_chr <- .trim_chr(x)
     total <- length(x_chr)
-    
-    empty_idx  <- which(is.na(x_chr) | x_chr == "")
-    x_num      <- suppressWarnings(as.numeric(x_chr))
+
+    empty_idx <- which(is.na(x_chr) | x_chr == "")
+    x_num <- suppressWarnings(as.numeric(x_chr))
     nonnum_idx <- which(!is.na(x_chr) & x_chr != "" & is.na(x_num))
-    range_idx  <- which(!is.na(x_num) & (x_num < minv | x_num > maxv))
-    bad_idx    <- sort(unique(c(empty_idx, nonnum_idx, range_idx)))
-    
+    range_idx <- which(!is.na(x_num) & (x_num < minv | x_num > maxv))
+    bad_idx <- sort(unique(c(empty_idx, nonnum_idx, range_idx)))
+
     list(
-      status = .status_rows(bad_idx, total, all_empty = (length(empty_idx) == total)),
-      num    = x_num
+      status = .status_rows(
+        bad_idx,
+        total,
+        all_empty = (length(empty_idx) == total)
+      ),
+      num = x_num
     )
   }
-  
+
   .crs_note <- function(lon_num, lat_num) {
     pair_idx <- which(!is.na(lon_num) & !is.na(lat_num))
-    if (!length(pair_idx)) return("")
+    if (!length(pair_idx)) {
+      return("")
+    }
     deg_like <- abs(lon_num[pair_idx]) <= 180 & abs(lat_num[pair_idx]) <= 90
-    if (all(deg_like) || !any(deg_like)) return("")
-    idx_deg    <- pair_idx[deg_like]
+    if (all(deg_like) || !any(deg_like)) {
+      return("")
+    }
+    idx_deg <- pair_idx[deg_like]
     idx_nondeg <- pair_idx[!deg_like]
-    diff_rows  <- if (length(idx_deg) < length(idx_nondeg)) idx_deg else idx_nondeg
+    diff_rows <- if (length(idx_deg) < length(idx_nondeg)) {
+      idx_deg
+    } else {
+      idx_nondeg
+    }
     plural <- if (length(diff_rows) == 1) "row" else "rows"
-    paste0(" | ", plural, " ", .row_list(diff_rows), " use a different coordinate system")
+    paste0(
+      " | ",
+      plural,
+      " ",
+      .row_list(diff_rows),
+      " use a different coordinate system"
+    )
   }
-  
-  .is_iso_prefix <- function(x) grepl("^\\d{4}-\\d{2}-\\d{2}(\\s|T)", .trim_chr(x))
-  
+
+  .is_iso_prefix <- function(x) {
+    grepl("^\\d{4}-\\d{2}-\\d{2}(\\s|T)", .trim_chr(x))
+  }
+
   .timestamp_status <- function(x) {
     x_chr <- .trim_chr(x)
     total <- length(x_chr)
-    
+
     missing_n <- sum(is.na(x_chr) | x_chr == "")
     non_missing <- !is.na(x_chr) & x_chr != ""
     invalid_fmt_n <- sum(non_missing & !.is_iso_prefix(x_chr))
-    
+
     x_posix <- suppressWarnings(as.POSIXct(x_chr, tz = "UTC"))
-    future_n <- sum(!is.na(x_posix) & x_posix > as.POSIXct(Sys.time(), tz = "UTC"))
-    
+    future_n <- sum(
+      !is.na(x_posix) & x_posix > as.POSIXct(Sys.time(), tz = "UTC")
+    )
+
     status <- .status_counts(missing_n + invalid_fmt_n, total)
-    
+
     note <- character(0)
-    if (invalid_fmt_n > 0) note <- c(note, paste0("invalid format: ", invalid_fmt_n))
-    if (future_n > 0)      note <- c(note, paste0("future: ", future_n))
-    if (length(note)) status <- paste0(status, " | ", paste(note, collapse = "; "))
-    
+    if (invalid_fmt_n > 0) {
+      note <- c(note, paste0("invalid format: ", invalid_fmt_n))
+    }
+    if (future_n > 0) {
+      note <- c(note, paste0("future: ", future_n))
+    }
+    if (length(note)) {
+      status <- paste0(status, " | ", paste(note, collapse = "; "))
+    }
+
     status
   }
-  
+
   .dep_interval_status <- function(x) {
     x <- .trim_chr(x)
     total <- length(x)
     missing_n <- sum(is.na(x) | x == "")
-    
+
     parts <- strsplit(ifelse(is.na(x), "", x), "--", fixed = TRUE)
-    start_raw <- vapply(parts, function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_, character(1))
-    end_raw   <- vapply(parts, function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_, character(1))
-    
+    start_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 1) trimws(z[1]) else NA_character_,
+      character(1)
+    )
+    end_raw <- vapply(
+      parts,
+      function(z) if (length(z) >= 2) trimws(z[2]) else NA_character_,
+      character(1)
+    )
+
     start_ok <- grepl("^\\d{4}-\\d{2}-\\d{2}", start_raw)
-    end_ok   <- grepl("^\\d{4}-\\d{2}-\\d{2}", end_raw)
-    
+    end_ok <- grepl("^\\d{4}-\\d{2}-\\d{2}", end_raw)
+
     start_d <- suppressWarnings(as.Date(substr(start_raw, 1, 10)))
-    end_d   <- suppressWarnings(as.Date(substr(end_raw,   1, 10)))
-    
-    valid <- !is.na(x) & x != "" & start_ok & end_ok &
-      !is.na(start_d) & !is.na(end_d) & (end_d >= start_d)
-    
+    end_d <- suppressWarnings(as.Date(substr(end_raw, 1, 10)))
+
+    valid <- !is.na(x) &
+      x != "" &
+      start_ok &
+      end_ok &
+      !is.na(start_d) &
+      !is.na(end_d) &
+      (end_d >= start_d)
+
     invalid_n <- sum(!valid & !(is.na(x) | x == ""))
-    
+
     .status_counts(missing_n + invalid_n, total)
   }
-  
+
   .present_chr <- function(x) {
     x <- .trim_chr(x)
     sum(!is.na(x) & x != "")
@@ -1880,163 +2237,301 @@
     x_num <- suppressWarnings(as.numeric(.trim_chr(x)))
     sum(!is.na(x_num))
   }
-  
+
   .animal_field_status <- function(present_n, total_animals, label) {
-    if (total_animals <= 0) return(paste0(y, " No animal observations"))
+    if (total_animals <= 0) {
+      return(paste0(y, " No animal observations"))
+    }
     pct <- 100 * present_n / total_animals
     if (present_n == 0) {
-      sprintf("%s Incomplete (%s recorded for 0 of %d animals; 0%%)", r, label, total_animals)
+      sprintf(
+        "%s Incomplete (%s recorded for 0 of %d animals; 0%%)",
+        r,
+        label,
+        total_animals
+      )
     } else if (present_n == total_animals) {
-      sprintf("%s Complete (%s recorded for %d of %d animals; 100%%)", g, label, total_animals, total_animals)
+      sprintf(
+        "%s Complete (%s recorded for %d of %d animals; 100%%)",
+        g,
+        label,
+        total_animals,
+        total_animals
+      )
     } else {
-      sprintf("%s Partial (%s recorded for %d of %d animals; %.2f%%)", y, label, present_n, total_animals, pct)
+      sprintf(
+        "%s Partial (%s recorded for %d of %d animals; %.2f%%)",
+        y,
+        label,
+        present_n,
+        total_animals,
+        pct
+      )
     }
   }
-  
-  
-  # LOCATIONS 
-  
+
+  # LOCATIONS
+
   if (!("locations" %in% names(cm$data)) || !is.data.frame(cm$data$locations)) {
-    cm$data_status$Essentials$loc$long     <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$lat      <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$locID    <- paste0(r, " Incomplete (missing cm$data$locations)")
-    cm$data_status$Essentials$loc$locnName <- paste0(r, " Incomplete (missing cm$data$locations)")
+    cm$data_status$Essentials$loc$long <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$lat <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$locID <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
+    cm$data_status$Essentials$loc$locnName <- paste0(
+      r,
+      " Incomplete (missing cm$data$locations)"
+    )
   } else {
-    col_lon <- .pick_col(cm$data$locations, c("longitude","long","lon"))
-    col_lat <- .pick_col(cm$data$locations, c("latitude","lat"))
-    col_id  <- .pick_col(cm$data$locations, c("locationID","locID"))
-    col_nm  <- .pick_col(cm$data$locations, c("locationName","locnName","locationnName"))
-    
+    col_lon <- .pick_col(cm$data$locations, c("longitude", "long", "lon"))
+    col_lat <- .pick_col(cm$data$locations, c("latitude", "lat"))
+    col_id <- .pick_col(cm$data$locations, c("locationID", "locID"))
+    col_nm <- .pick_col(
+      cm$data$locations,
+      c("locationName", "locnName", "locationnName")
+    )
+
     cm$data_status$Essentials$loc$locID <-
-      if (is.na(col_id)) paste0(r, " Incomplete (missing locationID/locID column)")
-    else .loc_chr_status(cm$data$locations[[col_id]])
-    
+      if (is.na(col_id)) {
+        paste0(r, " Incomplete (missing locationID/locID column)")
+      } else {
+        .loc_chr_status(cm$data$locations[[col_id]])
+      }
+
     cm$data_status$Essentials$loc$locnName <-
-      if (is.na(col_nm)) paste0(r, " Incomplete (missing locationName column)")
-    else .loc_chr_status(cm$data$locations[[col_nm]])
-    
+      if (is.na(col_nm)) {
+        paste0(r, " Incomplete (missing locationName column)")
+      } else {
+        .loc_chr_status(cm$data$locations[[col_nm]])
+      }
+
     if (!is.na(col_lon) && !is.na(col_lat)) {
       lon_stat <- .loc_num_status(cm$data$locations[[col_lon]], -180, 180)
-      lat_stat <- .loc_num_status(cm$data$locations[[col_lat]],  -90,  90)
+      lat_stat <- .loc_num_status(cm$data$locations[[col_lat]], -90, 90)
       note <- .crs_note(lon_stat$num, lat_stat$num)
       cm$data_status$Essentials$loc$long <- paste0(lon_stat$status, note)
-      cm$data_status$Essentials$loc$lat  <- paste0(lat_stat$status,  note)
+      cm$data_status$Essentials$loc$lat <- paste0(lat_stat$status, note)
     } else {
       cm$data_status$Essentials$loc$long <-
-        if (is.na(col_lon)) paste0(r, " Incomplete (missing longitude column)")
-      else .loc_num_status(cm$data$locations[[col_lon]], -180, 180)$status
-      
+        if (is.na(col_lon)) {
+          paste0(r, " Incomplete (missing longitude column)")
+        } else {
+          .loc_num_status(cm$data$locations[[col_lon]], -180, 180)$status
+        }
+
       cm$data_status$Essentials$loc$lat <-
-        if (is.na(col_lat)) paste0(r, " Incomplete (missing latitude column)")
-      else .loc_num_status(cm$data$locations[[col_lat]],  -90,  90)$status
+        if (is.na(col_lat)) {
+          paste0(r, " Incomplete (missing latitude column)")
+        } else {
+          .loc_num_status(cm$data$locations[[col_lat]], -90, 90)$status
+        }
     }
   }
-  
-  
+
   # OBSERVATIONS
-  
-  if (!("observations" %in% names(cm$data)) || !is.data.frame(cm$data$observations)) {
-    cm$data_status$Essentials$obs$status <- paste0(r, " Missing table: cm$data$observations")
+
+  if (
+    !("observations" %in% names(cm$data)) ||
+      !is.data.frame(cm$data$observations)
+  ) {
+    cm$data_status$Essentials$obs$status <- paste0(
+      r,
+      " Missing table: cm$data$observations"
+    )
   } else {
-    
-    col_ts <- .pick_col(cm$data$observations, c("timestamp","observation_timestamp","eventStart"))
+    col_ts <- .pick_col(
+      cm$data$observations,
+      c("timestamp", "observation_timestamp", "eventStart")
+    )
     cm$data_status$Essentials$obs$timestamp <-
-      if (is.na(col_ts)) paste0(r, " Missing column: timestamp")
-    else .timestamp_status(cm$data$observations[[col_ts]])
-    
-    col_ot <- .pick_col(cm$data$observations, c("observationType","obsType"))
+      if (is.na(col_ts)) {
+        paste0(r, " Missing column: timestamp")
+      } else {
+        .timestamp_status(cm$data$observations[[col_ts]])
+      }
+
+    col_ot <- .pick_col(cm$data$observations, c("observationType", "obsType"))
     if (is.na(col_ot)) {
-      cm$data_status$Essentials$obs$obsType_status <- paste0(r, " Missing column: observationType/obsType")
+      cm$data_status$Essentials$obs$obsType_status <- paste0(
+        r,
+        " Missing column: observationType/obsType"
+      )
     } else {
       x <- cm$data$observations[[col_ot]]
-      cm$data_status$Essentials$obs$obsType_table  <- table(x, useNA = "ifany")
+      cm$data_status$Essentials$obs$obsType_table <- table(x, useNA = "ifany")
       total <- length(x)
-      n_unclassified <- sum(tolower(.trim_chr(x)) == "unclassified", na.rm = TRUE)
-      n_unknown      <- sum(tolower(.trim_chr(x)) == "unknown",      na.rm = TRUE)
-      cm$data_status$Essentials$obs$obsType_status <- .status_counts(n_unclassified + n_unknown, total)
+      n_unclassified <- sum(
+        tolower(.trim_chr(x)) == "unclassified",
+        na.rm = TRUE
+      )
+      n_unknown <- sum(tolower(.trim_chr(x)) == "unknown", na.rm = TRUE)
+      cm$data_status$Essentials$obs$obsType_status <- .status_counts(
+        n_unclassified + n_unknown,
+        total
+      )
     }
-    
-    col_count <- .pick_col(cm$data$observations, c("count","observationCount"))
+
+    col_count <- .pick_col(cm$data$observations, c("count", "observationCount"))
     cm$data_status$Essentials$obs$count <-
-      if (is.na(col_count)) paste0(r, " Missing column: count")
-    else .summ_status_counts(cm$data$observations[[col_count]], treat_blank = FALSE)
-    
+      if (is.na(col_count)) {
+        paste0(r, " Missing column: count")
+      } else {
+        .summ_status_counts(
+          cm$data$observations[[col_count]],
+          treat_blank = FALSE
+        )
+      }
+
     col_cb <- .pick_col(cm$data$observations, "classifiedBy")
     if (is.na(col_cb)) {
-      cm$data_status$Essentials$obs$classifiedBy_status <- paste0(r, " Missing column: classifiedBy")
+      cm$data_status$Essentials$obs$classifiedBy_status <- paste0(
+        r,
+        " Missing column: classifiedBy"
+      )
     } else {
       x_all <- cm$data$observations[[col_cb]]
-      cm$data_status$Essentials$obs$classifiedBy_table <- table(x_all, useNA = "ifany")
-      
+      cm$data_status$Essentials$obs$classifiedBy_table <- table(
+        x_all,
+        useNA = "ifany"
+      )
+
       x_use <- x_all
       if ("classificationMethod" %in% names(cm$data$observations)) {
-        filt <- cm$data$observations$classificationMethod %in% c("human","machine")
+        filt <- cm$data$observations$classificationMethod %in%
+          c("human", "machine")
         filt[is.na(filt)] <- FALSE
         x_use <- x_all[filt]
       }
-      cm$data_status$Essentials$obs$classifiedBy_status <- .summ_status_counts(x_use, treat_blank = TRUE)
+      cm$data_status$Essentials$obs$classifiedBy_status <- .summ_status_counts(
+        x_use,
+        treat_blank = TRUE
+      )
     }
-    
+
     # Animal-only benchmark fields
     if (is.na(col_ot)) {
-      msg <- paste0(r, " Missing column: observationType (cannot filter animals)")
-      for (k in c("taxonID","behavior","sex","lifeStage","angle","radius","speed","individualID")) {
+      msg <- paste0(
+        r,
+        " Missing column: observationType (cannot filter animals)"
+      )
+      for (k in c(
+        "taxonID",
+        "behavior",
+        "sex",
+        "lifeStage",
+        "angle",
+        "radius",
+        "speed",
+        "individualID"
+      )) {
         cm$data_status$Essentials$obs[[k]] <- msg
       }
     } else {
-      idx_animal <- tolower(.trim_chr(cm$data$observations[[col_ot]])) == "animal"
+      idx_animal <- tolower(.trim_chr(cm$data$observations[[col_ot]])) ==
+        "animal"
       idx_animal[is.na(idx_animal)] <- FALSE
       n_animal <- sum(idx_animal)
-      
+
       # taxonID: animals + unique
       col_tax <- .pick_col(cm$data$observations, "taxonID")
       if (is.na(col_tax)) {
-        cm$data_status$Essentials$obs$taxonID <- paste0(r, " Missing column: taxonID")
+        cm$data_status$Essentials$obs$taxonID <- paste0(
+          r,
+          " Missing column: taxonID"
+        )
       } else {
         x_tax <- .trim_chr(cm$data$observations[[col_tax]][idx_animal])
         present_n <- sum(!is.na(x_tax) & x_tax != "")
         uniq <- length(unique(x_tax[!is.na(x_tax) & x_tax != ""]))
         cm$data_status$Essentials$obs$taxonID <- paste0(
           .animal_field_status(present_n, n_animal, "taxonID"),
-          " | ", uniq, " unique"
+          " | ",
+          uniq,
+          " unique"
         )
       }
-      
-      obs_state <- new.env(parent = emptyenv()); obs_state$value <- cm$data_status$Essentials$obs
-      .set_animal_field <- function(key, candidates, label, type = c("chr","num")) {
+
+      obs_state <- new.env(parent = emptyenv())
+      obs_state$value <- cm$data_status$Essentials$obs
+      .set_animal_field <- function(
+        key,
+        candidates,
+        label,
+        type = c("chr", "num")
+      ) {
         type <- match.arg(type)
         col <- .pick_col(cm$data$observations, candidates)
         if (is.na(col)) {
-          obs_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse = " / "))
+          obs_state$value[[key]] <- paste0(
+            r,
+            " Missing column: ",
+            paste(candidates, collapse = " / ")
+          )
           return()
         }
         x <- cm$data$observations[[col]][idx_animal]
         present_n <- if (type == "num") .present_num(x) else .present_chr(x)
-        obs_state$value[[key]] <- .animal_field_status(present_n, n_animal, label)
+        obs_state$value[[key]] <- .animal_field_status(
+          present_n,
+          n_animal,
+          label
+        )
       }
-      
+
       .set_animal_field("behavior", "behavior", "behavior", "chr")
       .set_animal_field("sex", "sex", "sex", "chr")
       .set_animal_field("lifeStage", "lifeStage", "lifeStage", "chr")
-      .set_animal_field("angle", c("individualPositionAngle","angle"), "angle", "num")
-      .set_animal_field("radius", c("individualPositionRadius","radius"), "radius", "num")
-      .set_animal_field("speed", c("individualSpeed","speed"), "speed", "num")
+      .set_animal_field(
+        "angle",
+        c("individualPositionAngle", "angle"),
+        "angle",
+        "num"
+      )
+      .set_animal_field(
+        "radius",
+        c("individualPositionRadius", "radius"),
+        "radius",
+        "num"
+      )
+      .set_animal_field("speed", c("individualSpeed", "speed"), "speed", "num")
       .set_animal_field("individualID", "individualID", "individualID", "chr")
       cm$data_status$Essentials$obs <- obs_state$value
     }
   }
   #------
-  # DEPLOYMENTS 
-  
-  if (!("deployments" %in% names(cm$data)) || !is.data.frame(cm$data$deployments)) {
-    cm$data_status$Essentials$dep$status <- paste0(r, " Missing table: cm$data$deployments")
+  # DEPLOYMENTS
+
+  if (
+    !("deployments" %in% names(cm$data)) || !is.data.frame(cm$data$deployments)
+  ) {
+    cm$data_status$Essentials$dep$status <- paste0(
+      r,
+      " Missing table: cm$data$deployments"
+    )
   } else {
-    dep_state <- new.env(parent = emptyenv()); dep_state$value <- cm$data_status$Essentials$dep
-    add_dep <- function(key, candidates, kind = c("counts","timestamp","dep_interval"), treat_blank = TRUE) {
+    dep_state <- new.env(parent = emptyenv())
+    dep_state$value <- cm$data_status$Essentials$dep
+    add_dep <- function(
+      key,
+      candidates,
+      kind = c("counts", "timestamp", "dep_interval"),
+      treat_blank = TRUE
+    ) {
       kind <- match.arg(kind)
       col <- .pick_col(cm$data$deployments, candidates)
       if (is.na(col)) {
-        dep_state$value[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        dep_state$value[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
         return()
       }
       dep_state$value[[key]] <- if (kind == "timestamp") {
@@ -2044,37 +2539,62 @@
       } else if (kind == "dep_interval") {
         .dep_interval_status(cm$data$deployments[[col]])
       } else {
-        .summ_status_counts(cm$data$deployments[[col]], treat_blank = treat_blank)
+        .summ_status_counts(
+          cm$data$deployments[[col]],
+          treat_blank = treat_blank
+        )
       }
     }
-    
-    add_dep("depID", c("deploymentID","depID"), "counts", TRUE)
-    add_dep("locID", c("locationID","locID"), "counts", TRUE)
+
+    add_dep("depID", c("deploymentID", "depID"), "counts", TRUE)
+    add_dep("locID", c("locationID", "locID"), "counts", TRUE)
     add_dep("baitUse", "baitUse", "counts", TRUE)
     add_dep("cameraHeight", "cameraHeight", "counts", FALSE)
     add_dep("habitat", "habitat", "counts", TRUE)
-    add_dep("dep_interval", c("deployment_interval","dep_interval"), "dep_interval")
-    add_dep("depStart", c("deploymentStart","depStart"), "timestamp")
-    add_dep("depEnd", c("deploymentEnd","depEnd"),"timestamp")
+    add_dep(
+      "dep_interval",
+      c("deployment_interval", "dep_interval"),
+      "dep_interval"
+    )
+    add_dep("depStart", c("deploymentStart", "depStart"), "timestamp")
+    add_dep("depEnd", c("deploymentEnd", "depEnd"), "timestamp")
     cm$data_status$Essentials$dep <- dep_state$value
-    
+
     col_sb <- .pick_col(cm$data$deployments, "setupBy")
     if (is.na(col_sb)) {
-      cm$data_status$Essentials$dep$setupBy_status <- paste0(r, " Missing column: setupBy")
+      cm$data_status$Essentials$dep$setupBy_status <- paste0(
+        r,
+        " Missing column: setupBy"
+      )
     } else {
-      cm$data_status$Essentials$dep$setupBy_table  <- table(cm$data$deployments[[col_sb]], useNA = "ifany")
-      cm$data_status$Essentials$dep$setupBy_status <- .summ_status_counts(cm$data$deployments[[col_sb]], treat_blank = TRUE)
+      cm$data_status$Essentials$dep$setupBy_table <- table(
+        cm$data$deployments[[col_sb]],
+        useNA = "ifany"
+      )
+      cm$data_status$Essentials$dep$setupBy_status <- .summ_status_counts(
+        cm$data$deployments[[col_sb]],
+        treat_blank = TRUE
+      )
     }
   }
   #----
-  
-  # MEDIA 
+
+  # MEDIA
   if ("media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
-    add_media <- function(key, candidates, kind = c("counts","timestamp"), treat_blank = TRUE) {
+    add_media <- function(
+      key,
+      candidates,
+      kind = c("counts", "timestamp"),
+      treat_blank = TRUE
+    ) {
       kind <- match.arg(kind)
       col <- .pick_col(cm$data$media, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$media[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$media[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
         return()
       }
       cm$data_status$Essentials$media[[key]] <- if (kind == "timestamp") {
@@ -2083,51 +2603,75 @@
         .summ_status_counts(cm$data$media[[col]], treat_blank = treat_blank)
       }
     }
-    
+
     add_media("comments", "comments", "counts", TRUE)
-    add_media("favourite", c("favourite","favorite"), "counts", FALSE)
-    add_media("file.path", c("filePath","file.path","file_path"), "counts", TRUE)
+    add_media("favourite", c("favourite", "favorite"), "counts", FALSE)
+    add_media(
+      "file.path",
+      c("filePath", "file.path", "file_path"),
+      "counts",
+      TRUE
+    )
     add_media("timestamp", "timestamp", "timestamp", TRUE)
   }
   #--------
-  # SEQUENCES 
-  
+  # SEQUENCES
+
   if ("sequences" %in% names(cm$data) && is.data.frame(cm$data$sequences)) {
     add_seq <- function(key, candidates, treat_blank = TRUE) {
       col <- .pick_col(cm$data$sequences, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$seq[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$seq[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
       } else {
-        cm$data_status$Essentials$seq[[key]] <- .summ_status_counts(cm$data$sequences[[col]], treat_blank = treat_blank)
+        cm$data_status$Essentials$seq[[key]] <- .summ_status_counts(
+          cm$data$sequences[[col]],
+          treat_blank = treat_blank
+        )
       }
     }
     add_seq("captureMethod", "captureMethod", TRUE)
     add_seq("nrphotos", "nrphotos", FALSE)
   }
   #-----
-  # TAXONOMY 
-  
+  # TAXONOMY
+
   if ("taxonomy" %in% names(cm$data) && is.data.frame(cm$data$taxonomy)) {
-    
     col_tid <- .pick_col(cm$data$taxonomy, "taxonID")
     if (is.na(col_tid)) {
-      cm$data_status$Essentials$tax$taxonID <- paste0(r, " Missing column: taxonID")
+      cm$data_status$Essentials$tax$taxonID <- paste0(
+        r,
+        " Missing column: taxonID"
+      )
     } else {
       x <- .trim_chr(cm$data$taxonomy[[col_tid]])
       keep <- !is.na(x) & x != ""
       uniq <- length(unique(x[keep]))
-      cm$data_status$Essentials$tax$taxonID <- paste0(uniq, " unique taxonID identified")
+      cm$data_status$Essentials$tax$taxonID <- paste0(
+        uniq,
+        " unique taxonID identified"
+      )
     }
-    
+
     add_tax <- function(key, candidates) {
       col <- .pick_col(cm$data$taxonomy, candidates)
       if (is.na(col)) {
-        cm$data_status$Essentials$tax[[key]] <- paste0(r, " Missing column: ", paste(candidates, collapse=" / "))
+        cm$data_status$Essentials$tax[[key]] <- paste0(
+          r,
+          " Missing column: ",
+          paste(candidates, collapse = " / ")
+        )
       } else {
-        cm$data_status$Essentials$tax[[key]] <- .summ_status_counts(cm$data$taxonomy[[col]], treat_blank = TRUE)
+        cm$data_status$Essentials$tax[[key]] <- .summ_status_counts(
+          cm$data$taxonomy[[col]],
+          treat_blank = TRUE
+        )
       }
     }
-    
+
     add_tax("scientificName", "scientificName")
     add_tax("eng", c("eng", "vernacularNames.eng"))
     add_tax("nld", c("nld", "vernacularNames.nld"))
@@ -2138,35 +2682,43 @@
 #       *********Data_status : Annotation *********
 #####################*************############################
 .Annotation <- function(cm, machine_q = 0.10, human_q = 0.10) {
-  
   # reset
   cm$data_status$Annotation <- list(
-    Machine_q         = machine_q,
+    Machine_q = machine_q,
     Machine_Threshold = NA_real_,
-    Machine_Summary   = NULL,
-    Human_q           = human_q,
-    Human_Threshold   = NA_real_,
-    Human_Summary     = NULL,
-    Status            = paste0(.ct_icons()$green, " OK")
+    Machine_Summary = NULL,
+    Human_q = human_q,
+    Human_Threshold = NA_real_,
+    Human_Summary = NULL,
+    Status = paste0(.ct_icons()$green, " OK")
   )
-  
+
   # required columns
   req <- c("classificationMethod", "classificationConfidence")
   if (!all(req %in% names(cm$data$observations))) {
     cm$data_status$Annotation$Status <- paste0(
-      .ct_icons()$red, " Missing required columns: ",
-      paste(req[!(req %in% names(cm$data$observations))], collapse = ", ")
+      .ct_icons()$red,
+      " Missing required columns: ",
+      toString(req[!(req %in% names(cm$data$observations))])
     )
     return(NULL)
   }
-  
+
   # helper: safe quantile
   .safe_quantile <- function(x, q) {
     x <- x[!is.na(x)]
-    if (!length(x)) return(NA_real_)
-    as.numeric(stats::quantile(x, probs = q, na.rm = TRUE, names = FALSE, type = 7))
+    if (!length(x)) {
+      return(NA_real_)
+    }
+    as.numeric(stats::quantile(
+      x,
+      probs = q,
+      na.rm = TRUE,
+      names = FALSE,
+      type = 7
+    ))
   }
-  
+
   # helper: summary table
   .make_summary <- function(confs, thr) {
     confs <- confs[!is.na(confs)]
@@ -2177,11 +2729,15 @@
         stringsAsFactors = FALSE
       ))
     }
-    
+
     data.frame(
-      Statistic = c("Minimum", "Maximum", "Mean",
-                    paste0("BelowThreshold(<", round(thr, 2), ")"),
-                    "Total"),
+      Statistic = c(
+        "Minimum",
+        "Maximum",
+        "Mean",
+        paste0("BelowThreshold(<", round(thr, 2), ")"),
+        "Total"
+      ),
       Value = c(
         round(min(confs), 2),
         round(max(confs), 2),
@@ -2192,7 +2748,7 @@
       stringsAsFactors = FALSE
     )
   }
-  
+
   # split by method (only rows with non-missing confidence)
   conf_m <- cm$data$observations$classificationConfidence[
     cm$data$observations$classificationMethod == "machine" &
@@ -2202,66 +2758,86 @@
     cm$data$observations$classificationMethod == "human" &
       !is.na(cm$data$observations$classificationConfidence)
   ]
-  
+
   thr_m <- .safe_quantile(conf_m, machine_q)
   thr_h <- .safe_quantile(conf_h, human_q)
-  
+
   cm$data_status$Annotation$Machine_Threshold <- thr_m
-  cm$data_status$Annotation$Machine_Summary   <- .make_summary(conf_m, thr_m)
-  
+  cm$data_status$Annotation$Machine_Summary <- .make_summary(conf_m, thr_m)
+
   cm$data_status$Annotation$Human_Threshold <- thr_h
-  cm$data_status$Annotation$Human_Summary   <- .make_summary(conf_h, thr_h)
+  cm$data_status$Annotation$Human_Summary <- .make_summary(conf_h, thr_h)
 }
 
 #####################*************############################
 #       *********Data_status : Validation *********
 #####################*************############################
 .Validation <- function(cm, prob_tol = 1e-8) {
-  
   cm$data_status$Validation <- list()
-  
+
   # required columns (observations)
   col_method <- .pick_col(cm$data$observations, "classificationMethod")
-  col_type   <- .pick_col(cm$data$observations, c("observationType", "obsType"))
-  col_prob   <- .pick_col(cm$data$observations, c("classificationProbability", "classificationConfidence"))
-  col_seq    <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
-  
+  col_type <- .pick_col(cm$data$observations, c("observationType", "obsType"))
+  col_prob <- .pick_col(
+    cm$data$observations,
+    c("classificationProbability", "classificationConfidence")
+  )
+  col_seq <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
+
   miss <- character(0)
-  if (is.na(col_method)) miss <- c(miss, "classificationMethod")
-  if (is.na(col_type)) miss <- c(miss, "observationType/obsType")
-  if (is.na(col_prob)) miss <- c(miss, "classificationProbability/classificationConfidence")
-  
+  if (is.na(col_method)) {
+    miss <- c(miss, "classificationMethod")
+  }
+  if (is.na(col_type)) {
+    miss <- c(miss, "observationType/obsType")
+  }
+  if (is.na(col_prob)) {
+    miss <- c(miss, "classificationProbability/classificationConfidence")
+  }
+
   if (length(miss)) {
     cm$data_status$Validation$status <- paste0(
-      "Missing required columns in observations: ", paste(miss, collapse = ", ")
+      "Missing required columns in observations: ",
+      toString(miss)
     )
     cm$data_status$Validation$ClassificationSummary <- NULL
     cm$data_status$Validation$ValidationSummary <- NULL
     cm$data_status$Validation$FinalTableFormatted <- NULL
     return(NULL)
   }
-  
-  
+
   # captureMethod
-  
+
   captureMethod <- rep(NA_character_, nrow(cm$data$observations))
-  
+
   col_cap_obs <- .pick_col(cm$data$observations, "captureMethod")
   if (!is.na(col_cap_obs)) {
     captureMethod <- .trim_chr(cm$data$observations[[col_cap_obs]])
   } else {
     # sequences join
-    if (!is.na(col_seq) && "sequences" %in% names(cm$data) && is.data.frame(cm$data$sequences)) {
+    if (
+      !is.na(col_seq) &&
+        "sequences" %in% names(cm$data) &&
+        is.data.frame(cm$data$sequences)
+    ) {
       col_seq_seq <- .pick_col(cm$data$sequences, c("sequenceID", "sequID"))
       col_cap_seq <- .pick_col(cm$data$sequences, "captureMethod")
       if (!is.na(col_seq_seq) && !is.na(col_cap_seq)) {
-        m <- match(.trim_chr(cm$data$observations[[col_seq]]), .trim_chr(cm$data$sequences[[col_seq_seq]]))
+        m <- match(
+          .trim_chr(cm$data$observations[[col_seq]]),
+          .trim_chr(cm$data$sequences[[col_seq_seq]])
+        )
         captureMethod <- .trim_chr(cm$data$sequences[[col_cap_seq]][m])
       }
     }
-    
+
     # media fallback
-    if (all(is.na(captureMethod)) && !is.na(col_seq) && "media" %in% names(cm$data) && is.data.frame(cm$data$media)) {
+    if (
+      all(is.na(captureMethod)) &&
+        !is.na(col_seq) &&
+        "media" %in% names(cm$data) &&
+        is.data.frame(cm$data$media)
+    ) {
       col_seq_med <- .pick_col(cm$data$media, c("sequenceID", "sequID"))
       col_cap_med <- .pick_col(cm$data$media, "captureMethod")
       if (!is.na(col_seq_med) && !is.na(col_cap_med)) {
@@ -2272,27 +2848,29 @@
       }
     }
   }
-  
+
   captureMethod[is.na(captureMethod) | captureMethod == ""] <- "UNKNOWN"
-  
+
   # derived fields
   method <- .trim_chr(cm$data$observations[[col_method]])
   method[method == ""] <- NA_character_
-  
+
   type_raw <- tolower(.trim_chr(cm$data$observations[[col_type]]))
-  is_animal <- !is.na(type_raw) & (type_raw == "animal" | grepl("\\banimal\\b", type_raw))
-  
-  prob <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[col_prob]])))
-  
+  is_animal <- !is.na(type_raw) &
+    (type_raw == "animal" | grepl("\\banimal\\b", type_raw))
+
+  prob <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[
+    col_prob
+  ]])))
+
   # VALIDATION RULE:
   # currently: validated == (prob == 1)
   is_validated <- function(p) !is.na(p) & abs(p - 1) <= prob_tol
-  
-  
+
   # Classification summary
-  
+
   cm_levels <- sort(unique(captureMethod))
-  
+
   classification_summary <- data.frame(
     captureMethod = cm_levels,
     Human = 0L,
@@ -2301,16 +2879,19 @@
     Total = 0L,
     stringsAsFactors = FALSE
   )
-  
+
   for (i in seq_along(cm_levels)) {
     cm_i <- cm_levels[i]
     idx <- captureMethod == cm_i
-    classification_summary$Human[i] <- sum(method[idx] == "human",   na.rm = TRUE)
-    classification_summary$Machine[i] <- sum(method[idx] == "machine", na.rm = TRUE)
+    classification_summary$Human[i] <- sum(method[idx] == "human", na.rm = TRUE)
+    classification_summary$Machine[i] <- sum(
+      method[idx] == "machine",
+      na.rm = TRUE
+    )
     classification_summary$NA_Classification[i] <- sum(is.na(method[idx]))
     classification_summary$Total[i] <- sum(idx)
   }
-  
+
   classification_summary <- rbind(
     classification_summary,
     data.frame(
@@ -2322,85 +2903,123 @@
       stringsAsFactors = FALSE
     )
   )
-  
-  
+
   # Validation summary (machine only)
-  
+
   validation_summary <- data.frame(
     captureMethod = cm_levels,
     Machine_Animal = 0L,
     Validated_Animal = 0L,
     Machine_Animal_pr = NA_real_,
     Validated_Animal_pr = NA_real_,
-    stringsAsFactors  = FALSE
+    stringsAsFactors = FALSE
   )
-  
+
   for (i in seq_along(cm_levels)) {
     cm_i <- cm_levels[i]
     idx_cm <- captureMethod == cm_i
     idx_m <- idx_cm & (method == "machine")
-    
+
     m_animal <- sum(idx_m & is_animal, na.rm = TRUE)
     v_animal <- sum(idx_m & is_animal & is_validated(prob), na.rm = TRUE)
-    
+
     validation_summary$Machine_Animal[i] <- m_animal
     validation_summary$Validated_Animal[i] <- v_animal
-    
-    machine_n <- classification_summary$Machine[classification_summary$captureMethod == cm_i]
+
+    machine_n <- classification_summary$Machine[
+      classification_summary$captureMethod == cm_i
+    ]
     machine_n <- if (length(machine_n)) machine_n else 0L
-    
-    validation_summary$Machine_Animal_pr[i] <- round(100 * m_animal / pmax(machine_n, 1), 1)
-    validation_summary$Validated_Animal_pr[i] <- if (m_animal > 0) round(100 * v_animal / m_animal, 1) else NA_real_
+
+    validation_summary$Machine_Animal_pr[i] <- round(
+      100 * m_animal / pmax(machine_n, 1),
+      1
+    )
+    validation_summary$Validated_Animal_pr[i] <- if (m_animal > 0) {
+      round(100 * v_animal / m_animal, 1)
+    } else {
+      NA_real_
+    }
   }
-  
+
   total_m_animal <- sum(validation_summary$Machine_Animal)
   total_v_animal <- sum(validation_summary$Validated_Animal)
-  total_machine  <- classification_summary$Machine[classification_summary$captureMethod == "TOTAL"]
-  
+  total_machine <- classification_summary$Machine[
+    classification_summary$captureMethod == "TOTAL"
+  ]
+
   validation_summary <- rbind(
     validation_summary,
     data.frame(
-      captureMethod  = "TOTAL",
+      captureMethod = "TOTAL",
       Machine_Animal = total_m_animal,
       Validated_Animal = total_v_animal,
-      Machine_Animal_pr = round(100 * total_m_animal / pmax(total_machine, 1), 1),
-      Validated_Animal_pr = if (total_m_animal > 0) round(100 * total_v_animal / total_m_animal, 1) else NA_real_,
+      Machine_Animal_pr = round(
+        100 * total_m_animal / pmax(total_machine, 1),
+        1
+      ),
+      Validated_Animal_pr = if (total_m_animal > 0) {
+        round(100 * total_v_animal / total_m_animal, 1)
+      } else {
+        NA_real_
+      },
       stringsAsFactors = FALSE
     )
   )
-  
-  # Final formatted table 
-  
-  final_table <- merge(classification_summary, validation_summary,
-                       by = "captureMethod", all.x = TRUE, sort = FALSE)
-  
+
+  # Final formatted table
+
+  final_table <- merge(
+    classification_summary,
+    validation_summary,
+    by = "captureMethod",
+    all.x = TRUE,
+    sort = FALSE
+  )
+
   # enforce same order as classification_summary
-  final_table <- final_table[match(classification_summary$captureMethod, final_table$captureMethod), , drop = FALSE]
-  
+  final_table <- final_table[
+    match(classification_summary$captureMethod, final_table$captureMethod),
+    ,
+    drop = FALSE
+  ]
+
   fmt_pct <- function(n, total) {
     p <- ifelse(total > 0, round(100 * n / total, 1), NA_real_)
     ifelse(is.na(p), paste0(n, " (NA%)"), paste0(n, " (", p, "%)"))
   }
-  
+
   final_table_formatted <- within(final_table, {
-    Human  <- fmt_pct(Human, Total)
-    Machine  <- fmt_pct(Machine, Total)
+    Human <- fmt_pct(Human, Total)
+    Machine <- fmt_pct(Machine, Total)
     NA_Classification <- fmt_pct(NA_Classification, Total)
     Machine_Animal <- paste0(Machine_Animal, " (", Machine_Animal_pr, "%)")
-    Validated_Animal <- paste0(Validated_Animal, " (", Validated_Animal_pr, "%)")
+    Validated_Animal <- paste0(
+      Validated_Animal,
+      " (",
+      Validated_Animal_pr,
+      "%)"
+    )
     Total <- as.character(Total)
   })
-  
-  final_table_formatted <- final_table_formatted[
-    , c("captureMethod", "Human", "Machine", "NA_Classification", "Total", "Machine_Animal", "Validated_Animal"),
+
+  final_table_formatted <- final_table_formatted[,
+    c(
+      "captureMethod",
+      "Human",
+      "Machine",
+      "NA_Classification",
+      "Total",
+      "Machine_Animal",
+      "Validated_Animal"
+    ),
     drop = FALSE
   ]
-  
+
   #
   cm$data_status$Validation$ClassificationSummary <- classification_summary
-  cm$data_status$Validation$ValidationSummary  <- validation_summary
+  cm$data_status$Validation$ValidationSummary <- validation_summary
   cm$data_status$Validation$FinalTableFormatted <- final_table_formatted
-  
 }
 
 
@@ -2408,132 +3027,157 @@
 #       *********Data_status : species *********
 #####################*************############################
 .Species <- function(cm) {
-  
   # reset
   cm$data_status$Species <- list()
-  
+
   # A) Build Keep_sp (must be in species-level + exclude Homo sapiens)
-  
+
   idx_species <- tolower(.trim_chr(cm$data$taxonomy$taxonRank)) == "species"
   idx_species[is.na(idx_species)] <- FALSE
-  
-  idx_human <- tolower(.trim_chr(cm$data$taxonomy$scientificName)) == "homo sapiens"
+
+  idx_human <- tolower(.trim_chr(cm$data$taxonomy$scientificName)) ==
+    "homo sapiens"
   idx_human[is.na(idx_human)] <- FALSE
-  
+
   Keep_sp <- cm$data$taxonomy[idx_species & !idx_human, , drop = FALSE]
-  
+
   cm$data_status$Species$Keep_sp_n <- nrow(Keep_sp)
   if (nrow(Keep_sp) == 0) {
     cm$data_status$Species$status <- "No species found at species level."
-    cm$data_status$Species$Table  <- data.frame()
+    cm$data_status$Species$Table <- data.frame()
     return(NULL)
   }
-  
+
   # B) Required columns in observations/sequences
   col_tax_obs <- .pick_col(cm$data$observations, "taxonID")
   col_cnt <- .pick_col(cm$data$observations, "count")
   col_seq_obs <- .pick_col(cm$data$observations, c("sequenceID", "sequID"))
   col_ot <- .pick_col(cm$data$observations, c("observationType", "obsType"))
-  
+
   col_seq_seq <- .pick_col(cm$data$sequences, c("sequenceID", "sequID"))
   col_nrp <- .pick_col(cm$data$sequences, "nrphotos")
-  
+
   miss <- character(0)
-  if (is.na(col_tax_obs)) miss <- c(miss, "cm$data$observations$taxonID")
-  if (is.na(col_cnt)) miss <- c(miss, "cm$data$observations$count")
-  if (is.na(col_seq_obs)) miss <- c(miss, "cm$data$observations$sequenceID")
-  if (is.na(col_seq_seq)) miss <- c(miss, "cm$data$sequences$sequenceID")
-  if (is.na(col_nrp)) miss <- c(miss, "cm$data$sequences$nrphotos")
-  
+  if (is.na(col_tax_obs)) {
+    miss <- c(miss, "cm$data$observations$taxonID")
+  }
+  if (is.na(col_cnt)) {
+    miss <- c(miss, "cm$data$observations$count")
+  }
+  if (is.na(col_seq_obs)) {
+    miss <- c(miss, "cm$data$observations$sequenceID")
+  }
+  if (is.na(col_seq_seq)) {
+    miss <- c(miss, "cm$data$sequences$sequenceID")
+  }
+  if (is.na(col_nrp)) {
+    miss <- c(miss, "cm$data$sequences$nrphotos")
+  }
+
   if (length(miss)) {
-    cm$data_status$Species$status <- paste0("Missing required columns: ", paste(miss, collapse = ", "))
+    cm$data_status$Species$status <- paste0(
+      "Missing required columns: ",
+      toString(miss)
+    )
     cm$data_status$Species$Table <- data.frame()
     return(NULL)
   }
-  
-  
+
   # C) Filter observations to animals
-  
+
   idx_animal <- rep(TRUE, nrow(cm$data$observations))
   if (!is.na(col_ot)) {
     idx_animal <- tolower(.trim_chr(cm$data$observations[[col_ot]])) == "animal"
     idx_animal[is.na(idx_animal)] <- FALSE
   }
-  
+
   obs_tax <- .trim_chr(cm$data$observations[[col_tax_obs]])[idx_animal]
   obs_seq <- .trim_chr(cm$data$observations[[col_seq_obs]])[idx_animal]
-  obs_cnt <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[col_cnt]])))[idx_animal]
+  obs_cnt <- suppressWarnings(as.numeric(.trim_chr(cm$data$observations[[
+    col_cnt
+  ]])))[idx_animal]
   obs_cnt[is.na(obs_cnt)] <- 0
-  
+
   seq_id_all <- .trim_chr(cm$data$sequences[[col_seq_seq]])
-  nrphotos <- suppressWarnings(as.numeric(.trim_chr(cm$data$sequences[[col_nrp]])))
+  nrphotos <- suppressWarnings(as.numeric(.trim_chr(cm$data$sequences[[
+    col_nrp
+  ]])))
   nrphotos[is.na(nrphotos)] <- 0
-  
+
   # D) Output table
   out <- data.frame(
     scientificName = .trim_chr(Keep_sp$scientificName),
-    family  = if ("family" %in% names(Keep_sp)) .trim_chr(Keep_sp$family) else NA_character_,
-    order = if ("order"  %in% names(Keep_sp)) .trim_chr(Keep_sp$order)  else NA_character_,
-    class = if ("class"  %in% names(Keep_sp)) .trim_chr(Keep_sp$class)  else NA_character_,
+    family = if ("family" %in% names(Keep_sp)) {
+      .trim_chr(Keep_sp$family)
+    } else {
+      NA_character_
+    },
+    order = if ("order" %in% names(Keep_sp)) {
+      .trim_chr(Keep_sp$order)
+    } else {
+      NA_character_
+    },
+    class = if ("class" %in% names(Keep_sp)) {
+      .trim_chr(Keep_sp$class)
+    } else {
+      NA_character_
+    },
     obs_records_count = 0,
-    n_sequences  = 0L,
+    n_sequences = 0L,
     stringsAsFactors = FALSE
   )
-  
+
   taxon_ids <- .trim_chr(Keep_sp$taxonID)
-  
+
   for (i in seq_len(nrow(out))) {
     id <- taxon_ids[i]
     rows <- which(obs_tax == id)
-    
+
     out$obs_records_count[i] <- sum(obs_cnt[rows], na.rm = TRUE)
-    
+
     seq_ids <- unique(obs_seq[rows])
     seq_ids <- seq_ids[!is.na(seq_ids) & seq_ids != ""]
     out$n_sequences[i] <- length(seq_ids)
-    
   }
-  
+
   # Sort species by number of event-level captures
   out <- out[order(out$n_sequences, decreasing = TRUE), , drop = FALSE]
-  
+
   # Remove internal count column from the final displayed table
   out$obs_records_count <- NULL
-  
+
   # Rename n_sequences to captures
   names(out)[names(out) == "n_sequences"] <- "captures"
-  
+
   # Save final table
   cm$data_status$Species$Table <- out
-  
 }
 
 #####################*************############################
 #       *********Data_status :  Observation Types by Capture Method *********
 #####################*************############################
 .Visuals_capture_method <- function(cm) {
-  
   # ensure Visuals exists
   if (is.null(cm$data_status$Visuals) || !is.list(cm$data_status$Visuals)) {
     cm$data_status$Visuals <- list()
   }
-  
+
   # reset this section
   cm$data_status$Visuals$capt_method <- list()
-  
+
   obs <- cm$data$observations
-  
+
   # columns
   col_seq_obs <- .pick_col(obs, c("sequenceID", "sequID"))
-  col_ot      <- .pick_col(obs, c("observationType", "obsType"))
+  col_ot <- .pick_col(obs, c("observationType", "obsType"))
   col_cap_obs <- .pick_col(obs, "captureMethod")
-  
+
   if (is.na(col_ot)) {
     cm$data_status$Visuals$capt_method$status <-
       "Missing observationType/obsType in cm$data$observations."
     return(cm)
   }
-  
+
   # working table
   joined_data <- data.frame(
     observationType = .trim_chr(obs[[col_ot]]),
@@ -2544,60 +3188,63 @@
     },
     stringsAsFactors = FALSE
   )
-  
+
   # helper: are all captureMethod values missing/empty?
   all_missing_capture_method <- function(x) {
     all(is.na(x) | x == "")
   }
-  
+
   # helper: fill captureMethod using sequenceID from another table
-  fill_capture_method_from_table <- function(joined_data, obs, source_df,
-                                             col_seq_obs,
-                                             source_seq_candidates,
-                                             source_cap_candidates) {
-    
+  fill_capture_method_from_table <- function(
+    joined_data,
+    obs,
+    source_df,
+    col_seq_obs,
+    source_seq_candidates,
+    source_cap_candidates
+  ) {
     col_seq_source <- .pick_col(source_df, source_seq_candidates)
     col_cap_source <- .pick_col(source_df, source_cap_candidates)
-    
+
     if (is.na(col_seq_source) || is.na(col_cap_source)) {
       return(joined_data)
     }
-    
+
     obs_key <- .trim_chr(obs[[col_seq_obs]])
     src_key <- .trim_chr(source_df[[col_seq_source]])
     src_cap <- .trim_chr(source_df[[col_cap_source]])
-    
+
     keep <- !is.na(src_key) & src_key != "" & !duplicated(src_key)
-    
+
     if (!any(keep)) {
       return(joined_data)
     }
-    
+
     cap_map <- src_cap[keep]
     names(cap_map) <- src_key[keep]
-    
+
     matched_cap <- unname(cap_map[obs_key])
-    
+
     replace_idx <- is.na(joined_data$captureMethod) |
       joined_data$captureMethod == ""
-    
+
     replace_idx <- replace_idx &
       !is.na(matched_cap) &
       matched_cap != ""
-    
+
     joined_data$captureMethod[replace_idx] <- matched_cap[replace_idx]
-    
+
     joined_data
   }
-  
+
   # If captureMethod not in observations, try sequences then media
   if (all_missing_capture_method(joined_data$captureMethod)) {
-    
     # sequences fallback
-    if (!is.na(col_seq_obs) &&
+    if (
+      !is.na(col_seq_obs) &&
         "sequences" %in% names(cm$data) &&
-        is.data.frame(cm$data$sequences)) {
-      
+        is.data.frame(cm$data$sequences)
+    ) {
       joined_data <- fill_capture_method_from_table(
         joined_data = joined_data,
         obs = obs,
@@ -2607,13 +3254,14 @@
         source_cap_candidates = "captureMethod"
       )
     }
-    
+
     # media fallback
-    if (all_missing_capture_method(joined_data$captureMethod) &&
+    if (
+      all_missing_capture_method(joined_data$captureMethod) &&
         !is.na(col_seq_obs) &&
         "media" %in% names(cm$data) &&
-        is.data.frame(cm$data$media)) {
-      
+        is.data.frame(cm$data$media)
+    ) {
       joined_data <- fill_capture_method_from_table(
         joined_data = joined_data,
         obs = obs,
@@ -2624,34 +3272,33 @@
       )
     }
   }
-  
+
   joined_data$captureMethod[
     is.na(joined_data$captureMethod) | joined_data$captureMethod == ""
   ] <- "UNKNOWN"
-  
+
   # Summary per captureMethod + TOTAL
   capture_methods <- sort(unique(as.character(joined_data$captureMethod)))
   capture_methods_all <- c(capture_methods, "TOTAL")
-  
+
   observation_type_summary <- lapply(capture_methods_all, function(method) {
-    
     subset_df <- if (method == "TOTAL") {
       joined_data
     } else {
       joined_data[joined_data$captureMethod == method, , drop = FALSE]
     }
-    
+
     tab <- table(subset_df$observationType, useNA = "ifany")
-    
+
     data.frame(
       ObservationType = names(tab),
       n = as.integer(tab),
       stringsAsFactors = FALSE
     )
   })
-  
+
   names(observation_type_summary) <- capture_methods_all
-  
+
   observation_type_df <- do.call(
     rbind,
     lapply(names(observation_type_summary), function(method) {
@@ -2660,9 +3307,9 @@
       df
     })
   )
-  
+
   rownames(observation_type_df) <- NULL
-  
+
   cm$data_status$Visuals$capt_method <- list(
     Tables = observation_type_summary,
     Combined = observation_type_df
@@ -2673,11 +3320,30 @@
 .project_info <- function(cm) {
   txt <- unlist(c(cm$info$json$project$title, cm$info$json$name))
   txt <- txt[!is.na(txt) & nzchar(txt)]
-  
+
   if (length(txt) > 0 && any(grepl("\\beow\\b", txt, ignore.case = TRUE))) {
     cm$reportTextElements$name <- "EOW"
-    cm$reportTextElements$message <- "This survey is part of the [European Observatory of Wildlife](https://wildlifeobservatory.org/), an international project in which institutions monitor protected areas across European countries."
-    cm$reportTextElements$Intro_text <- "The [European Observatory of Wildlife (EOW)](https://wildlifeobservatory.org/) is a standardized camera-trapping network operating across more than 100 study areas in Europe. It is coordinated by the [ENETWILD](https://enetwild.com/) consortium and funded by the [European Food Safety Authority (EFSA)](https://www.efsa.europa.eu/en). Images collected by camera traps within this network are processed and archived in Agouti, exported in the [Camtrap DP](https://camtrap-dp.tdwg.org/) standard format, and included in annual monitoring reports submitted to EFSA. A key feature of the EOW protocol is the use of the [Random Encounter Model (REM)](https://github.com/MarcusRowcliffe/camtrapDensity) to estimate population density from camera-trap detections (*Rowcliffe et al., 2014*). As a result, the entire workflow follows an established and standardized framework."
+    cm$reportTextElements$message <- paste0(
+      "This survey is part of the [European Observatory of Wildlife]",
+      "(https://wildlifeobservatory.org/), an international project in which ",
+      "institutions monitor protected areas across European countries."
+    )
+    cm$reportTextElements$Intro_text <- paste0(
+      "The [European Observatory of Wildlife (EOW)]",
+      "(https://wildlifeobservatory.org/) is a standardized camera-trapping ",
+      "network operating across more than 100 study areas in Europe. It is ",
+      "coordinated by the [ENETWILD](https://enetwild.com/) consortium and ",
+      "funded by the [European Food Safety Authority (EFSA)]",
+      "(https://www.efsa.europa.eu/en). Images collected by camera traps ",
+      "within this network are processed and archived in Agouti, exported in ",
+      "the [Camtrap DP](https://camtrap-dp.tdwg.org/) standard format, and ",
+      "included in annual monitoring reports submitted to EFSA. A key ",
+      "feature of the EOW protocol is the use of the [Random Encounter Model ",
+      "(REM)](https://github.com/MarcusRowcliffe/camtrapDensity) to estimate ",
+      "population density from camera-trap detections (*Rowcliffe et al., ",
+      "2014*). As a result, the entire workflow follows an established and ",
+      "standardized framework."
+    )
     cm$info[["is.EOW"]] <- TRUE
   } else {
     cm$reportTextElements$name <- "Non-EOW"
@@ -2685,50 +3351,55 @@
     cm$reportTextElements$Intro_text <- ""
     cm$info[["is.EOW"]] <- FALSE
   }
-  
+
   #-------- Extract habitat values
   hab_vals <- character(0)
-  
+
   if ("habitat" %in% names(cm$data$deployments)) {
     hab_vals <- c(hab_vals, cm$data$deployments$habitat)
   }
-  
+
   if (nrow(cm$habitat) > 0 && "habitat" %in% names(cm$habitat)) {
     hab_vals <- c(hab_vals, cm$habitat$habitat)
   }
-  
+
   hab_vals <- trimws(as.character(hab_vals))
   hab_vals <- hab_vals[!is.na(hab_vals) & hab_vals != ""]
   hab_vals <- sort(unique(hab_vals))
-  
+
   if (length(hab_vals) == 0) {
     cm$reportTextElements$habitat_values <- ""
     cm$reportTextElements$habitat_text <- ""
   } else {
     cm$reportTextElements$habitat_values <- hab_vals
-    
+
     if (length(hab_vals) == 1) {
       cm$reportTextElements$habitat_text <- paste0(
-        "The habitat type in this area is mostly ", hab_vals, "."
+        "The habitat type in this area is mostly ",
+        hab_vals,
+        "."
       )
     } else {
       cm$reportTextElements$habitat_text <- paste0(
-        "The area is a mosaic of ", .paste_comma_and(hab_vals), " habitat types."
+        "The area is a mosaic of ",
+        .paste_comma_and(hab_vals),
+        " habitat types."
       )
     }
   }
-  
+
   #-------- Extract 5 most observed species
-  
+
   if (is.null(cm$data_status$Species$Table)) {
     .Species(cm)
   }
-  
+
   sp_table <- cm$data_status$Species$Table
-  
-  if (is.data.frame(sp_table) &&
-      all(c("scientificName", "captures") %in% names(sp_table))) {
-    
+
+  if (
+    is.data.frame(sp_table) &&
+      all(c("scientificName", "captures") %in% names(sp_table))
+  ) {
     sp_table <- sp_table[
       !is.na(sp_table$scientificName) &
         trimws(sp_table$scientificName) != "" &
@@ -2736,23 +3407,31 @@
       ,
       drop = FALSE
     ]
-    
-    sp_table <- sp_table[order(sp_table$captures, decreasing = TRUE), , drop = FALSE]
-    
+
+    sp_table <- sp_table[
+      order(sp_table$captures, decreasing = TRUE),
+      ,
+      drop = FALSE
+    ]
+
     top5_names <- head(sp_table$scientificName, 5)
-    
+
     cm$data_status$Species$most_observed_sp <- top5_names
-    
+
     top5_names_italic <- paste0("*", top5_names, "*")
-    cm$reportTextElements$most_observed_sp_text <- .paste_comma_and(top5_names_italic)
-    
+    cm$reportTextElements$most_observed_sp_text <- .paste_comma_and(
+      top5_names_italic
+    )
   } else {
     cm$data_status$Species$most_observed_sp <- character(0)
     cm$reportTextElements$most_observed_sp_text <- ""
   }
   #-------- Image processing source
-  if (!is.null(cm$info$json$sources) &&
-      length(cm$info$json$sources) > 0 && !is.null(cm$info$json$sources[[1]]$title)) {
+  if (
+    !is.null(cm$info$json$sources) &&
+      length(cm$info$json$sources) > 0 &&
+      !is.null(cm$info$json$sources[[1]]$title)
+  ) {
     cm$reportTextElements$data_source <- cm$info$json$sources[[1]]$title
   } else {
     cm$reportTextElements$data_source <- ""
@@ -2764,22 +3443,36 @@
   p1 <- p2 <- p3 <- ""
   if (!is.null(cm$info$is.EOW) && cm$info$is.EOW) {
     p1 <- paste(
-      "Based on the [EOW camera-trap protocol](https://enetwild.com/ct-protocol-for-wild-boar),",
-      "at least 40 unbaited camera traps were deployed per survey on a 1 km grid for a minimum of one month.",
-      "This design ensures unbiased sampling of natural wildlife movements and provides representative ecological data",
-      "for the study area, enabling trend analyses and spatiotemporal comparisons.",
-      "The EOW protocol also includes camera calibration procedures, allowing researchers to georeference image pixels",
+      paste0(
+        "Based on the [EOW camera-trap protocol]",
+        "(https://enetwild.com/ct-protocol-for-wild-boar),"
+      ),
+      "at least 40 unbaited",
+      "camera traps were deployed per survey on a 1 km grid for a minimum of",
+      "one month. This design ensures unbiased sampling of natural wildlife",
+      "movements and provides representative ecological data",
+      "for the study area, enabling trend analyses and spatiotemporal",
+      "comparisons.",
+      "The EOW protocol also includes camera calibration procedures, allowing",
+      "researchers to georeference image pixels",
       "for precise spatial analyses."
     )
   }
   #-----
   # p2:
-  if (!is.null(cm$info$json) && !is.null(cm$info$json$project$samplingDesign) && length(cm$info$json$project$samplingDesign) > 0) {
-    sampling_design <- unique(trimws(as.character(cm$info$json$project$samplingDesign)))
-    sampling_design <- sampling_design[!is.na(sampling_design) & sampling_design != ""]
+  if (
+    !is.null(cm$info$json) &&
+      !is.null(cm$info$json$project$samplingDesign) &&
+      length(cm$info$json$project$samplingDesign) > 0
+  ) {
+    sampling_design <- unique(trimws(as.character(
+      cm$info$json$project$samplingDesign
+    )))
+    sampling_design <- sampling_design[
+      !is.na(sampling_design) & sampling_design != ""
+    ]
     #-----
     if (length(sampling_design) > 0) {
-      
       pretty_label_for <- function(x) {
         switch(
           x,
@@ -2792,63 +3485,89 @@
           x
         )
       }
-      
-      pretty_labels <- vapply(sampling_design, pretty_label_for, FUN.VALUE = character(1))
-      
+
+      pretty_labels <- vapply(
+        sampling_design,
+        pretty_label_for,
+        FUN.VALUE = character(1)
+      )
+
       format_nice_list <- function(x) {
         n <- length(x)
-        if (n == 1) return(x)
-        if (n == 2) return(paste(x, collapse = " and "))
-        paste0(paste(x[1:(n - 1)], collapse = ", "), ", and ", x[n])
+        if (n == 1) {
+          return(x)
+        }
+        if (n == 2) {
+          return(paste(x, collapse = " and "))
+        }
+        paste0(toString(x[1:(n - 1)]), ", and ", x[n])
       }
-      
+
       descriptions <- list(
         simpleRandom = paste(
-          "In a simple random design, camera locations are placed purely at random within the study area,",
-          "which minimizes spatial bias but can lead to uneven coverage in some regions."
+          "In a simple random design, camera locations are placed purely at",
+          "random within the study area,",
+          "which minimizes spatial bias but can lead to uneven coverage in",
+          "some regions."
         ),
         systematicRandom = paste(
-          "In a systematic random design, camera locations are initially chosen at random but then arranged in a regular pattern, such as a grid,",
-          "providing more even spatial coverage while retaining a random starting point."
+          "In a systematic random design, camera locations are initially",
+          "chosen at random but then arranged in a regular pattern, such as",
+          "a grid,",
+          "providing more even spatial coverage while retaining a random",
+          "starting point."
         ),
         clusteredRandom = paste(
-          "In a clustered random design, cameras are grouped into clusters or arrays, and the positions of these clusters",
-          "and/or cameras within them are chosen at random, which is useful when logistical efficiency or local-scale questions require grouped sampling."
+          "In a clustered random design, cameras are grouped into clusters or",
+          "arrays, and the positions of these clusters and/or cameras within",
+          "them are chosen at random, which is useful when logistical",
+          "efficiency or local-scale questions require grouped sampling."
         ),
         experimental = paste(
-          "In an experimental design, camera placement is non-random and specifically structured to test hypotheses or treatment effects,",
+          "In an experimental design, camera placement is non-random and",
+          "specifically structured to test hypotheses or treatment effects,",
           "such as before-after or control-impact comparisons."
         ),
         targeted = paste(
-          "In a targeted design, cameras are placed non-randomly at locations expected to maximize detections of particular species,",
+          "In a targeted design, cameras are placed non-randomly at locations",
+          "expected to maximize detections of particular species,",
           "such as trails or water sources."
         ),
         opportunistic = paste(
-          "In an opportunistic design, cameras are deployed in an ad hoc way, often without a predefined sampling frame,",
-          "which can yield useful records but is generally not suitable for rigorous population- or community-level inference."
+          "In an opportunistic design, cameras are deployed in an ad hoc way,",
+          "often without a predefined sampling frame, which can yield useful",
+          "records but is generally not suitable for rigorous population- or",
+          "community-level inference."
         )
       )
-      
-      desc_vec   <- descriptions[sampling_design]
+
+      desc_vec <- descriptions[sampling_design]
       known_desc <- desc_vec[!vapply(desc_vec, is.null, logical(1))]
-      
+
       if (length(pretty_labels) == 1) {
-        intro <- sprintf("The sampling design at this site is %s.", pretty_labels)
+        intro <- sprintf(
+          "The sampling design at this site is %s.",
+          pretty_labels
+        )
       } else {
         intro <- sprintf(
-          "The sampling design at this site combines the following approaches: %s.",
+          paste0(
+            "The sampling design at this site combines the following ",
+            "approaches: %s."
+          ),
           format_nice_list(pretty_labels)
         )
       }
-      
+
       if (length(known_desc) == 0) {
         p2 <- intro
-      } else p2 <- paste(intro, paste(unlist(known_desc), collapse = " "))
+      } else {
+        p2 <- paste(intro, paste(unlist(known_desc), collapse = " "))
+      }
     }
-    
   }
   #---------
-  
+
   # Helper: clean unique values
   clean_unique_vals <- function(x) {
     x <- as.character(x)
@@ -2856,7 +3575,7 @@
     x <- x[!is.na(x) & x != "" & tolower(x) != "na"]
     unique(x)
   }
-  
+
   # Helper: normalize TRUE/FALSE-like values
   normalize_boolish <- function(x) {
     x <- as.character(x)
@@ -2866,7 +3585,7 @@
     x[x %in% c("false", "f", "0")] <- "FALSE"
     unique(x[x %in% c("TRUE", "FALSE")])
   }
-  
+
   # Helper: pretty labels for capture methods
   pretty_capture_method <- function(x) {
     x <- trimws(as.character(x))
@@ -2876,49 +3595,60 @@
     x <- gsub("audio", "audio recording", x, fixed = TRUE)
     x
   }
-  
+
   # Helper: camera model sentence
   camera_model_text_fun <- function(x) {
     vals <- clean_unique_vals(x)
-    
-    if (length(vals) == 0) return("")
-    
+
+    if (length(vals) == 0) {
+      return("")
+    }
+
     if (length(vals) <= 3) {
       paste0(
-        "Camera surveys at this site were conducted using the following camera model",
+        "Camera surveys at this site were conducted using the following ",
+        "camera model",
         ifelse(length(vals) > 1, "s: ", ": "),
-        .paste_comma_and(vals), "."
+        .paste_comma_and(vals),
+        "."
       )
     } else {
       "Multiple camera models were used at this site."
     }
   }
-  
+
   # Helper: bait sentence
   bait_text_fun <- function(x) {
     vals <- normalize_boolish(x)
-    
-    if (length(vals) == 0) return("")
-    
+
+    if (length(vals) == 0) {
+      return("")
+    }
+
     if (identical(sort(vals), "FALSE")) {
       "No bait was used during camera deployment."
     } else if (identical(sort(vals), "TRUE")) {
       "Bait was used in this survey."
     } else if (all(c("TRUE", "FALSE") %in% vals)) {
-      "A mixture of baited and unbaited camera deployments was used in this survey."
+      paste0(
+        "A mixture of baited and unbaited camera deployments was used in ",
+        "this survey."
+      )
     } else {
       ""
     }
   }
-  
+
   # Helper: camera height sentence
   camera_height_text_fun <- function(x) {
     x_num <- suppressWarnings(as.numeric(as.character(x)))
     x_num <- x_num[!is.na(x_num)]
     x_num <- sort(unique(x_num))
-    
-    if (length(x_num) == 0) return("")
-    
+
+    if (length(x_num) == 0) {
+      return("")
+    }
+
     if (length(x_num) <= 3) {
       paste0(
         "Cameras were mounted at approximately ",
@@ -2928,51 +3658,78 @@
     } else {
       paste0(
         "Multiple camera heights were used at this site, ranging from ",
-        round(min(x_num), 2), " to ", round(max(x_num), 2),
+        round(min(x_num), 2),
+        " to ",
+        round(max(x_num), 2),
         " m above the ground."
       )
     }
   }
-  
+
   # Helper: capture method sentence
   capture_method_text_fun <- function(x) {
     vals <- clean_unique_vals(x)
     vals <- pretty_capture_method(vals)
-    
-    if (length(vals) == 0) return("")
-    
+
+    if (length(vals) == 0) {
+      return("")
+    }
+
     paste0(
       "Media were captured using ",
       .paste_comma_and(vals),
       "."
     )
   }
-  
+
   # Helper: individual animals sentence
   individual_animals_text_fun <- function(x) {
     vals <- normalize_boolish(x)
-    
-    if (length(vals) == 0) return("")
-    
+
+    if (length(vals) == 0) {
+      return("")
+    }
+
     if (identical(sort(vals), "FALSE")) {
-      "This project was not specifically designed to identify individual animals, but rather to support broader wildlife monitoring."
+      paste0(
+        "This project was not specifically designed to identify individual ",
+        "animals, but rather to support broader wildlife monitoring."
+      )
     } else if (identical(sort(vals), "TRUE")) {
-      "This project was designed to support the identification and monitoring of individual animals."
+      paste0(
+        "This project was designed to support the identification and ",
+        "monitoring of individual animals."
+      )
     } else if (all(c("TRUE", "FALSE") %in% vals)) {
-      "This project supports both the identification of individual animals and broader wildlife monitoring."
+      paste0(
+        "This project supports both the identification of individual animals ",
+        "and broader wildlife monitoring."
+      )
     } else {
       ""
     }
   }
-  
+
   # Extract source values
-  cam_models <- if ("cameraModel" %in% names(cm$data$deployments)) cm$data$deployments$cameraModel else NULL
-  bait_vals  <- if ("baitUse" %in% names(cm$data$deployments)) cm$data$deployments$baitUse else NULL
-  height_vals <- if ("cameraHeight" %in% names(cm$data$deployments)) cm$data$deployments$cameraHeight else NULL
-  
+  cam_models <- if ("cameraModel" %in% names(cm$data$deployments)) {
+    cm$data$deployments$cameraModel
+  } else {
+    NULL
+  }
+  bait_vals <- if ("baitUse" %in% names(cm$data$deployments)) {
+    cm$data$deployments$baitUse
+  } else {
+    NULL
+  }
+  height_vals <- if ("cameraHeight" %in% names(cm$data$deployments)) {
+    cm$data$deployments$cameraHeight
+  } else {
+    NULL
+  }
+
   capture_methods <- cm$info$json$project$captureMethod
   individual_animals <- cm$info$json$project$individualAnimals
-  
+
   # Combine into one flexible paragraph
   p3 <- c(
     camera_model_text_fun(cam_models),
@@ -2981,49 +3738,51 @@
     capture_method_text_fun(capture_methods),
     individual_animals_text_fun(individual_animals)
   )
-  
+
   p3 <- p3[!is.na(p3) & nzchar(trimws(p3))]
-  
+
   p3 <- paste(p3, collapse = " ")
   #---------
-  cm$reportTextElements$sampling <- paste(list(p1=p1,p2=p2,p3=p3),collapse = '\n')
-  
+  cm$reportTextElements$sampling <- paste(
+    list(p1 = p1, p2 = p2, p3 = p3),
+    collapse = '\n'
+  )
 }
 #--------
 
 .get_authors_text <- function(cm) {
-  
   contributors <- cm$info$json$contributors
-  
+
   if (is.null(contributors) || length(contributors) == 0) {
     return("")
   }
-  
+
   # Base R replacement for dplyr::bind_rows()
   bind_rows_base <- function(x) {
-    
     if (is.data.frame(x)) {
       return(x)
     }
-    
+
     if (!is.list(x) || length(x) == 0) {
       return(data.frame(stringsAsFactors = FALSE))
     }
-    
+
     all_names <- unique(unlist(lapply(x, names), use.names = FALSE))
-    
+
     if (length(all_names) == 0) {
       return(data.frame(stringsAsFactors = FALSE))
     }
-    
+
     rows <- lapply(x, function(row) {
-      
-      out <- as.list(stats::setNames(rep(NA_character_, length(all_names)), all_names))
-      
+      out <- as.list(stats::setNames(
+        rep(NA_character_, length(all_names)),
+        all_names
+      ))
+
       if (!is.null(row) && length(row) > 0) {
         for (nm in intersect(names(row), all_names)) {
           value <- row[[nm]]
-          
+
           if (length(value) == 0) {
             out[[nm]] <- NA_character_
           } else {
@@ -3031,86 +3790,87 @@
           }
         }
       }
-      
+
       as.data.frame(out, stringsAsFactors = FALSE)
     })
-    
+
     do.call(rbind, rows)
   }
-  
+
   contributors_df <- bind_rows_base(contributors)
-  
+
   if (!"title" %in% names(contributors_df)) {
     return("")
   }
-  
+
   # Pattern for likely organizations / non-person entries
   org_pattern <- paste0(
-    "university|universiteit|institute|institution|center|centre|research|admin|",
+    "university|universiteit|institute|institution|center|centre|",
+    "research|admin|",
     "observatory|consortium|network|project|laboratory|lab|group|team"
   )
-  
+
   title_values <- as.character(contributors_df[["title"]])
-  
+
   keep <- !is.na(title_values) & nzchar(trimws(title_values))
   authors_tbl <- contributors_df[keep, , drop = FALSE]
-  
+
   if (nrow(authors_tbl) == 0) {
     return("")
   }
-  
+
   authors_tbl[["title_clean"]] <- vapply(
     as.character(authors_tbl[["title"]]),
     .trim,
     character(1)
   )
-  
+
   authors_tbl[["title_lower"]] <- tolower(authors_tbl[["title_clean"]])
-  
+
   authors_tbl[["n_words"]] <- vapply(
     authors_tbl[["title_clean"]],
     .wordN,
     integer(1)
   )
-  
+
   if ("role" %in% names(authors_tbl)) {
     authors_tbl[["is_contact"]] <- authors_tbl[["role"]] == "contact"
     authors_tbl[["is_contact"]][is.na(authors_tbl[["is_contact"]])] <- FALSE
   } else {
     authors_tbl[["is_contact"]] <- FALSE
   }
-  
+
   # Remove likely organizations and keep likely personal names only
   keep <- !grepl(org_pattern, authors_tbl[["title_lower"]]) &
     authors_tbl[["n_words"]] >= 2
-  
+
   authors_tbl <- authors_tbl[keep, , drop = FALSE]
-  
+
   if (nrow(authors_tbl) == 0) {
     return("")
   }
-  
+
   # If duplicate names exist, keep contact version first
   ord <- order(
     -as.integer(authors_tbl[["is_contact"]]),
     authors_tbl[["title_clean"]],
     na.last = TRUE
   )
-  
+
   authors_tbl <- authors_tbl[ord, , drop = FALSE]
   authors_tbl <- authors_tbl[
     !duplicated(authors_tbl[["title_clean"]]),
     ,
     drop = FALSE
   ]
-  
+
   authors_tbl[["family_name"]] <- vapply(
     authors_tbl[["title_clean"]],
     .word,
     character(1),
     start = -1
   )
-  
+
   # Order:
   # 1) all non-contacts by family name
   # 2) all contacts by family name, at the end
@@ -3120,30 +3880,30 @@
     authors_tbl[["title_clean"]],
     na.last = TRUE
   )
-  
+
   authors_tbl <- authors_tbl[ord, , drop = FALSE]
-  
+
   author_names <- authors_tbl[["title_clean"]]
-  
+
   # Mark the last contact author with *
   if (any(authors_tbl[["is_contact"]])) {
     last_contact_id <- max(which(authors_tbl[["is_contact"]]))
     author_names[last_contact_id] <- paste0(author_names[last_contact_id], "*")
   }
-  
+
   # Format author list
   n <- length(author_names)
-  
+
   if (n == 1) {
     return(author_names[1])
   }
-  
+
   if (n == 2) {
     return(paste(author_names[1], "and", author_names[2]))
   }
-  
+
   paste0(
-    paste(author_names[1:(n - 1)], collapse = ", "),
+    toString(author_names[1:(n - 1)]),
     ", and ",
     author_names[n]
   )
@@ -3154,19 +3914,19 @@
 .get_institute <- function(cm) {
   contributors <- cm$info$json$contributors
   x <- dplyr::bind_rows(contributors)
-  
+
   # make sure needed columns exist
   for (nm in c("title", "role", "organization")) {
     if (!nm %in% names(x)) x[[nm]] <- NA_character_
   }
-  
+
   x$title <- trimws(as.character(x$title))
   x$role <- trimws(as.character(x$role))
   x$organization <- trimws(as.character(x$organization))
-  
+
   # always remove Agouti Admins
   x <- x[tolower(x$title) != "agouti admins", , drop = FALSE]
-  # helper: get affiliation for a given person by searching all rows of that person
+  # Helper: find a person's affiliation across all of their rows.
   get_affiliation_for_person <- function(person_name) {
     aff <- x$organization[
       x$title == person_name &
@@ -3176,22 +3936,22 @@
     aff <- unique(aff)
     if (length(aff) == 0) NA_character_ else aff[1]
   }
-  
+
   # 1. contact affiliations first
   contact_names <- unique(x$title[x$role == "contact"])
   contact_names <- contact_names[!is.na(contact_names) & nzchar(contact_names)]
-  
+
   contact_aff <- vapply(contact_names, get_affiliation_for_person, character(1))
   contact_aff <- unique(contact_aff[!is.na(contact_aff) & nzchar(contact_aff)])
-  
+
   # 2. then PI affiliations (excluding contacts already handled)
   pi_names <- unique(x$title[x$role == "principalInvestigator"])
   pi_names <- pi_names[!is.na(pi_names) & nzchar(pi_names)]
   pi_names <- setdiff(pi_names, contact_names)
-  
+
   pi_aff <- vapply(pi_names, get_affiliation_for_person, character(1))
   pi_aff <- unique(pi_aff[!is.na(pi_aff) & nzchar(pi_aff)])
-  
+
   # 3. then other contributor affiliations
   other_aff <- x$organization[
     !x$role %in% c("contact", "principalInvestigator") &
@@ -3199,14 +3959,14 @@
       nzchar(x$organization)
   ]
   other_aff <- unique(other_aff)
-  
+
   # combine in priority order
   aff_all <- c(
     contact_aff,
     pi_aff[!pi_aff %in% contact_aff],
     other_aff[!other_aff %in% c(contact_aff, pi_aff)]
   )
-  
+
   .paste_comma_and(aff_all)
 }
 #-----------
@@ -3215,17 +3975,19 @@
 
 .round_capture_metric <- function(x) {
   dplyr::case_when(
-    is.na(x)    ~ NA_real_,
-    x >= 1      ~ round(x, 2),
-    x >= 0.1    ~ round(x, 3),
-    TRUE        ~ round(x, 4)
+    is.na(x) ~ NA_real_,
+    x >= 1 ~ round(x, 2),
+    x >= 0.1 ~ round(x, 3),
+    TRUE ~ round(x, 4)
   )
 }
 
 .pick_station_col <- function(data) {
   if (!is.null(data$locations) && "locationName" %in% names(data$locations)) {
     "locationName"
-  } else if (!is.null(data$deployments) && "locationID" %in% names(data$deployments)) {
+  } else if (
+    !is.null(data$deployments) && "locationID" %in% names(data$deployments)
+  ) {
     "locationID"
   } else {
     "deploymentID"
@@ -3234,7 +3996,7 @@
 
 .make_species_name <- function(df) {
   nm <- rep(NA_character_, nrow(df))
-  
+
   if ("vernacularNames.eng" %in% names(df)) {
     nm <- dplyr::coalesce(nm, as.character(df$vernacularNames.eng))
   }
@@ -3247,15 +4009,14 @@
   if ("taxonID" %in% names(df)) {
     nm <- dplyr::coalesce(nm, as.character(df$taxonID))
   }
-  
+
   nm
 }
 #--------
 .build_capture_table <- function(pkg, year_label, station_col) {
-  
   # Species-level summary across the package/year
   cap <- .captures(pkg)
-  
+
   if (is.null(cap) || nrow(cap) == 0) {
     return(
       data.frame(
@@ -3270,17 +4031,17 @@
       )
     )
   }
-  
+
   # Stable key for joins
   key_cols <- intersect(c("taxonID", "scientificName"), names(cap))
   if (length(key_cols) == 0) {
     stop("No stable taxonomic key found in capture summary.")
   }
-  
+
   if (!"scientificName" %in% names(cap)) {
     stop("Column 'scientificName' is required in capture summary.")
   }
-  
+
   # Helper to create stable row keys for matching/joining
   make_row_key <- function(x, cols) {
     vals <- lapply(cols, function(col) {
@@ -3288,75 +4049,72 @@
       y[is.na(y)] <- "<NA>"
       y
     })
-    
+
     do.call(paste, c(vals, sep = "\r"))
   }
-  
+
   # Count number of unique stations/locations with >=1 capture
   cap_by_station <- .captures(pkg, by = station_col)
-  
+
   if (
     is.null(cap_by_station) ||
-    nrow(cap_by_station) == 0 ||
-    !station_col %in% names(cap_by_station)
+      nrow(cap_by_station) == 0 ||
+      !station_col %in% names(cap_by_station)
   ) {
-    
     loc_count <- data.frame(
       cap[, key_cols, drop = FALSE][0, , drop = FALSE],
       Locations = integer(),
       stringsAsFactors = FALSE
     )
-    
   } else {
-    
     missing_key_cols <- setdiff(key_cols, names(cap_by_station))
-    
+
     if (length(missing_key_cols) > 0) {
       stop(
         "Missing key column(s) in station-level capture summary: ",
-        paste(missing_key_cols, collapse = ", ")
+        toString(missing_key_cols)
       )
     }
-    
+
     tmp <- cap_by_station[, c(key_cols, station_col), drop = FALSE]
     grp_key <- make_row_key(tmp, key_cols)
-    
+
     loc_values <- tapply(
       tmp[[station_col]],
       grp_key,
       function(x) length(unique(x))
     )
-    
+
     first_row <- match(names(loc_values), grp_key)
-    
+
     loc_count <- tmp[first_row, key_cols, drop = FALSE]
     loc_count$Locations <- as.integer(loc_values)
     rownames(loc_count) <- NULL
   }
-  
+
   # Left join loc_count onto cap using base R
   out <- cap
-  
+
   if (nrow(loc_count) > 0) {
     cap_key <- make_row_key(out, key_cols)
     loc_key <- make_row_key(loc_count, key_cols)
-    
+
     matched_idx <- match(cap_key, loc_key)
     out$Locations <- loc_count$Locations[matched_idx]
   } else {
     out$Locations <- NA_integer_
   }
-  
+
   out$Locations[is.na(out$Locations)] <- 0L
   out$Locations <- as.integer(out$Locations)
-  
+
   # Prefer vernacular name for display, but keep scientificName as key/output
   out$Species_Name <- .make_species_name(out)
-  
+
   out$Year <- as.character(year_label)
   out$Capture_Rate <- .round_capture_metric(out[["capture_rate"]])
   out$RAI <- .round_capture_metric(out[["rai"]])
-  
+
   # Final standardized output columns
   out <- data.frame(
     Species_Name = out[["Species_Name"]],
@@ -3368,31 +4126,31 @@
     Locations = out[["Locations"]],
     stringsAsFactors = FALSE
   )
-  
+
   # Equivalent of distinct(scientificName, Year, .keep_all = TRUE)
   keep <- !duplicated(
     out[, c("scientificName", "Year"), drop = FALSE]
   )
-  
+
   out <- out[
     keep,
     ,
     drop = FALSE
   ]
-  
+
   # Equivalent of arrange(Species_Name)
   ord <- order(
     out$Species_Name,
     na.last = TRUE
   )
-  
+
   out <- out[
     ord,
     ,
     drop = FALSE
   ]
-  
+
   rownames(out) <- NULL
-  
+
   out
 }

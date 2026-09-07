@@ -1,10 +1,10 @@
 make_test_output_directory <- function(prefix) {
   output_dir <- tempfile(prefix)
-  
+
   if (!dir.create(output_dir)) {
     stop("Could not create the temporary test directory.")
   }
-  
+
   output_dir
 }
 
@@ -20,20 +20,20 @@ normalise_test_path <- function(path) {
 
 test_that("report handles NULL and empty filenames", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-report-default-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$reportObjects <- list(
     path_test = reportSection(
       name = "path_test",
@@ -41,35 +41,35 @@ test_that("report handles NULL and empty filenames", {
       txt = "Testing the default ecological-report path."
     )
   )
-  
+
   output_null <- report(
     cm,
     filename = NULL,
     view = FALSE,
     test = FALSE
   )
-  
+
   expect_identical(
     basename(output_null),
     "report.html"
   )
-  
+
   expect_true(
     file.exists(output_null)
   )
-  
+
   output_empty <- report(
     cm,
     filename = "",
     view = FALSE,
     test = FALSE
   )
-  
+
   expect_identical(
     basename(output_empty),
     "report.html"
   )
-  
+
   expect_true(
     file.exists(output_empty)
   )
@@ -78,20 +78,20 @@ test_that("report handles NULL and empty filenames", {
 
 test_that("status handles NULL and empty filenames", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-status-default-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$statusReportObjects <- list(
     status_path_test = reportSection(
       name = "status_path_test",
@@ -99,33 +99,33 @@ test_that("status handles NULL and empty filenames", {
       txt = "Testing the default data-status-report path."
     )
   )
-  
+
   output_null <- status(
     cm,
     filename = NULL,
     view = FALSE
   )
-  
+
   expect_identical(
     basename(output_null),
     "data_status.html"
   )
-  
+
   expect_true(
     file.exists(output_null)
   )
-  
+
   output_empty <- status(
     cm,
     filename = "",
     view = FALSE
   )
-  
+
   expect_identical(
     basename(output_empty),
     "data_status.html"
   )
-  
+
   expect_true(
     file.exists(output_empty)
   )
@@ -134,20 +134,20 @@ test_that("status handles NULL and empty filenames", {
 
 test_that("report falls back from a nonexistent requested directory", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-report-fallback-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$reportObjects <- list(
     fallback_test = reportSection(
       name = "fallback_test",
@@ -155,13 +155,13 @@ test_that("report falls back from a nonexistent requested directory", {
       txt = "Testing fallback from a nonexistent output directory."
     )
   )
-  
+
   requested_file <- file.path(
     output_dir,
     "directory-that-does-not-exist",
     "custom-report"
   )
-  
+
   output <- capture_expected_warning(
     report(
       cm,
@@ -171,17 +171,17 @@ test_that("report falls back from a nonexistent requested directory", {
     ),
     "does not exist"
   )
-  
+
   expected_output <- file.path(
     output_dir,
     "custom-report.html"
   )
-  
+
   expect_identical(
     normalise_test_path(output),
     normalise_test_path(expected_output)
   )
-  
+
   expect_true(
     file.exists(output)
   )
@@ -190,20 +190,20 @@ test_that("report falls back from a nonexistent requested directory", {
 
 test_that("status falls back from a nonexistent requested directory", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-status-fallback-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$statusReportObjects <- list(
     status_fallback_test = reportSection(
       name = "status_fallback_test",
@@ -211,13 +211,13 @@ test_that("status falls back from a nonexistent requested directory", {
       txt = "Testing status-report output-directory fallback."
     )
   )
-  
+
   requested_file <- file.path(
     output_dir,
     "directory-that-does-not-exist",
     "custom-status"
   )
-  
+
   output <- capture_expected_warning(
     status(
       cm,
@@ -226,17 +226,17 @@ test_that("status falls back from a nonexistent requested directory", {
     ),
     "does not exist"
   )
-  
+
   expected_output <- file.path(
     output_dir,
     "custom-status.html"
   )
-  
+
   expect_identical(
     normalise_test_path(output),
     normalise_test_path(expected_output)
   )
-  
+
   expect_true(
     file.exists(output)
   )
@@ -245,20 +245,20 @@ test_that("status falls back from a nonexistent requested directory", {
 
 test_that("report sends the generated file to the configured viewer", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-report-viewer-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$reportObjects <- list(
     viewer_test = reportSection(
       name = "viewer_test",
@@ -266,21 +266,21 @@ test_that("report sends the generated file to the configured viewer", {
       txt = "Testing the report viewer."
     )
   )
-  
+
   viewer_state <- new.env(parent = emptyenv())
   viewer_state$file <- NULL
-  
+
   old_options <- options(
     viewer = function(path) {
       viewer_state$file <- path
     }
   )
-  
+
   on.exit(
     options(old_options),
     add = TRUE
   )
-  
+
   output <- capture_expected_message(
     report(
       cm,
@@ -290,12 +290,12 @@ test_that("report sends the generated file to the configured viewer", {
     ),
     "Report generated at:"
   )
-  
+
   expect_identical(
     normalise_test_path(viewer_state$file),
     normalise_test_path(output)
   )
-  
+
   expect_true(
     file.exists(output)
   )
@@ -304,20 +304,20 @@ test_that("report sends the generated file to the configured viewer", {
 
 test_that("status sends the generated file to the configured viewer", {
   skip_if_not(rmarkdown::pandoc_available())
-  
+
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  
+
   output_dir <- make_test_output_directory(
     "camtrapReport-status-viewer-"
   )
-  
+
   on.exit(
     unlink(output_dir, recursive = TRUE, force = TRUE),
     add = TRUE
   )
-  
+
   cm$info$directory <- output_dir
-  
+
   cm$statusReportObjects <- list(
     status_viewer_test = reportSection(
       name = "status_viewer_test",
@@ -325,21 +325,21 @@ test_that("status sends the generated file to the configured viewer", {
       txt = "Testing the status-report viewer."
     )
   )
-  
+
   viewer_state <- new.env(parent = emptyenv())
   viewer_state$file <- NULL
-  
+
   old_options <- options(
     viewer = function(path) {
       viewer_state$file <- path
     }
   )
-  
+
   on.exit(
     options(old_options),
     add = TRUE
   )
-  
+
   output <- capture_expected_message(
     status(
       cm,
@@ -348,12 +348,12 @@ test_that("status sends the generated file to the configured viewer", {
     ),
     "Report generated at:"
   )
-  
+
   expect_identical(
     normalise_test_path(viewer_state$file),
     normalise_test_path(output)
   )
-  
+
   expect_true(
     file.exists(output)
   )

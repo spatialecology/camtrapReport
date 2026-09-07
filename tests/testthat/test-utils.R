@@ -39,8 +39,10 @@ test_that("text parsing helpers preserve their documented contracts", {
 
   expect_identical(.rmChar("abcdef", c(1, 2), TRUE), "cde")
   expect_identical(.firstUpper(c("FOX", NA)), c("Fox", ""))
-  expect_identical(.pretty_label(c("wild_mammals", "birds")),
-                   "wild mammals and birds")
+  expect_identical(
+    .pretty_label(c("wild_mammals", "birds")),
+    "wild mammals and birds"
+  )
 })
 
 test_that("date, time, and filename helpers cover common input forms", {
@@ -60,11 +62,11 @@ test_that("date, time, and filename helpers cover common input forms", {
   )
   expect_true(is.na(get_hour("not-a-date")))
 
-  expect_equal(
+  expect_identical(
     time_length("2024-01-01 00:00:00--2024-01-03 00:00:00"),
     2
   )
-  expect_equal(
+  expect_identical(
     time_length("2024-01-03 00:00:00", "2024-01-01 00:00:00"),
     2
   )
@@ -74,8 +76,7 @@ test_that("date, time, and filename helpers cover common input forms", {
   expect_true(.isJson("data.Json"))
   expect_false(.isZip(NULL))
   expect_true(.is.POSIXct(as.POSIXct("2024-01-01", tz = "UTC")))
-  expect_identical(.getFormat("2024-01-01T13:30:00"),
-                   "%Y-%m-%dT%H:%M:%OS")
+  expect_identical(.getFormat("2024-01-01T13:30:00"), "%Y-%m-%dT%H:%M:%OS")
   expect_true(is.na(.getFormat("not a date")))
 })
 
@@ -123,8 +124,7 @@ test_that("file and size helpers inspect temporary data without side effects", {
   expect_identical(info$filename, "sample_data")
   expect_identical(info$extension, "csv")
   expect_identical(.file_info("README")$extension, NA_character_)
-  expect_identical(.estimate_camdata_size("missing")$size_class,
-                   "unknown")
+  expect_identical(.estimate_camdata_size("missing")$size_class, "unknown")
 })
 
 test_that("evaluation and package helpers are safe for core packages", {
@@ -137,10 +137,13 @@ test_that("evaluation and package helpers are safe for core packages", {
   expect_false(.require("a_package_that_does_not_exist_123"))
   expect_true(.loadPKG(c("methods", "stats")))
   expect_false(.loadPKG("a_package_that_does_not_exist_123"))
-  expect_identical(.suppress_startup({
-    message("suppressed message")
+  expect_identical(
+    .suppress_startup({
+      message("suppressed message")
+      7
+    }),
     7
-  }), 7)
+  )
   expect_identical(.make_safe_module_code(NULL), "")
   expect_identical(
     .make_safe_module_code(c("x <- 1", "x + 1")),
@@ -148,7 +151,9 @@ test_that("evaluation and package helpers are safe for core packages", {
   )
 })
 
-test_that("nested section and empty taxonomy helpers return stable structures", {
+test_that(
+  "nested section and empty taxonomy helpers return stable structures",
+  {
   section <- reportSection("child", parent = "parent", txt = "text")
   tree <- list(root = list(child = section))
   found <- .findParent(tree, "parent")
@@ -162,7 +167,8 @@ test_that("nested section and empty taxonomy helpers return stable structures", 
   expect_named(ncbi, c("scientificName", "class", "order"))
   expect_identical(nrow(ncbi), 0L)
   expect_identical(nrow(gbif), 0L)
-})
+  }
+)
 
 test_that("spatial helpers recognise geographic and projected terra objects", {
   geographic <- terra::vect(

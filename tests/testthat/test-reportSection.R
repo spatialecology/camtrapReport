@@ -17,7 +17,9 @@ test_that("reportSection captures code, settings, and package requirements", {
   section <- reportSection(
     name = "summary",
     title = "Summary",
-    code_setting = {c(echo = FALSE, results = "asis")},
+    code_setting = {
+      c(echo = FALSE, results = "asis")
+    },
     packages = "stats",
     code = {
       mean(1:3)
@@ -53,7 +55,9 @@ test_that("low-level report chunks and Pandoc attributes are preserved", {
   chunk <- .getRchunk(
     parent = "methods",
     name = "low_level",
-    setting = {c(echo = FALSE)},
+    setting = {
+      c(echo = FALSE)
+    },
     packages = "stats",
     code = {
       mean(1:3)

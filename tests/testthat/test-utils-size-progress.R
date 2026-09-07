@@ -1,51 +1,51 @@
 test_that("duration formatting covers invalid, seconds, minutes, and hours", {
   format_duration <- .format_duration
-  
+
   expect_identical(
     format_duration(NULL),
     "unknown time"
   )
-  
+
   expect_identical(
     format_duration(NA_real_),
     "unknown time"
   )
-  
+
   expect_identical(
     format_duration(Inf),
     "unknown time"
   )
-  
+
   expect_identical(
     format_duration(-1),
     "unknown time"
   )
-  
+
   expect_identical(
     format_duration(0),
     "0 sec"
   )
-  
+
   expect_identical(
     format_duration(59.6),
     "1 min 00 sec"
   )
-  
+
   expect_identical(
     format_duration(61),
     "1 min 01 sec"
   )
-  
+
   expect_identical(
     format_duration(3599),
     "59 min 59 sec"
   )
-  
+
   expect_identical(
     format_duration(3600),
     "1 h 0 min"
   )
-  
+
   expect_identical(
     format_duration(7380),
     "2 h 3 min"
@@ -55,47 +55,47 @@ test_that("duration formatting covers invalid, seconds, minutes, and hours", {
 
 test_that("file-size formatting covers all size units", {
   format_size <- .format_file_size
-  
+
   expect_identical(
     format_size(NULL),
     "unknown size"
   )
-  
+
   expect_identical(
     format_size(character()),
     "unknown size"
   )
-  
+
   expect_identical(
     format_size(NA_real_),
     "unknown size"
   )
-  
+
   expect_identical(
     format_size(Inf),
     "unknown size"
   )
-  
+
   expect_identical(
     format_size(-1),
     "unknown size"
   )
-  
+
   expect_identical(
     format_size(500),
     "500 B"
   )
-  
+
   expect_identical(
     format_size(1536),
     "1.5 KB"
   )
-  
+
   expect_identical(
     format_size(2.5 * 1024^2),
     "2.5 MB"
   )
-  
+
   expect_identical(
     format_size(1.25 * 1024^3),
     "1.25 GB"
@@ -105,17 +105,17 @@ test_that("file-size formatting covers all size units", {
 
 test_that("size estimation handles missing input safely", {
   estimate_size <- .estimate_camdata_size
-  
+
   inputs <- list(
     NULL,
     character(),
     NA_character_,
     tempfile("missing-camtrap-data-")
   )
-  
+
   for (input in inputs) {
     result <- estimate_size(input)
-    
+
     expect_named(
       result,
       c(
@@ -128,31 +128,31 @@ test_that("size estimation handles missing input safely", {
         "size_class"
       )
     )
-    
+
     expect_true(is.na(result$file_size))
     expect_identical(
       result$file_size_label,
       "unknown size"
     )
-    
+
     expect_true(
       is.na(result$zip_uncompressed_size)
     )
-    
+
     expect_identical(
       result$zip_uncompressed_label,
       "unknown size"
     )
-    
+
     expect_true(
       is.na(result$effective_size)
     )
-    
+
     expect_identical(
       result$effective_size_label,
       "unknown size"
     )
-    
+
     expect_identical(
       result$size_class,
       "unknown"
@@ -166,45 +166,45 @@ test_that("size estimation reads a regular file", {
     "camtrapReport-size-file-",
     fileext = ".txt"
   )
-  
+
   writeBin(
     as.raw(rep(1L, 2048L)),
     test_file
   )
-  
+
   on.exit(
     unlink(test_file, force = TRUE),
     add = TRUE
   )
-  
+
   result <- .estimate_camdata_size(
     test_file
   )
-  
-  expect_equal(
+
+  expect_identical(
     result$file_size,
     2048
   )
-  
+
   expect_identical(
     result$file_size_label,
     "2 KB"
   )
-  
+
   expect_true(
     is.na(result$zip_uncompressed_size)
   )
-  
-  expect_equal(
+
+  expect_identical(
     result$effective_size,
     2048
   )
-  
+
   expect_identical(
     result$effective_size_label,
     "2 KB"
   )
-  
+
   expect_identical(
     result$size_class,
     "small"
@@ -216,26 +216,26 @@ test_that("size estimation sums files in a directory", {
   test_dir <- tempfile(
     "camtrapReport-size-directory-"
   )
-  
+
   dir.create(test_dir)
-  
+
   nested_dir <- file.path(
     test_dir,
     "nested"
   )
-  
+
   dir.create(nested_dir)
-  
+
   writeBin(
     as.raw(rep(1L, 1000L)),
     file.path(test_dir, "first.bin")
   )
-  
+
   writeBin(
     as.raw(rep(2L, 2000L)),
     file.path(nested_dir, "second.bin")
   )
-  
+
   on.exit(
     unlink(
       test_dir,
@@ -244,21 +244,21 @@ test_that("size estimation sums files in a directory", {
     ),
     add = TRUE
   )
-  
+
   result <- .estimate_camdata_size(
     test_dir
   )
-  
-  expect_equal(
+
+  expect_identical(
     result$file_size,
     3000
   )
-  
-  expect_equal(
+
+  expect_identical(
     result$effective_size,
     3000
   )
-  
+
   expect_identical(
     result$size_class,
     "small"
@@ -270,9 +270,9 @@ test_that("size estimation handles an empty directory", {
   test_dir <- tempfile(
     "camtrapReport-empty-directory-"
   )
-  
+
   dir.create(test_dir)
-  
+
   on.exit(
     unlink(
       test_dir,
@@ -281,19 +281,19 @@ test_that("size estimation handles an empty directory", {
     ),
     add = TRUE
   )
-  
+
   result <- .estimate_camdata_size(
     test_dir
   )
-  
+
   expect_true(
     is.na(result$file_size)
   )
-  
+
   expect_true(
     is.na(result$effective_size)
   )
-  
+
   expect_identical(
     result$size_class,
     "unknown"
@@ -305,14 +305,14 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
   test_dir <- tempfile(
     "camtrapReport-zip-source-"
   )
-  
+
   dir.create(test_dir)
-  
+
   source_file <- file.path(
     test_dir,
     "camera-data.txt"
   )
-  
+
   writeLines(
     rep(
       "camera trap observation data",
@@ -320,12 +320,12 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     ),
     source_file
   )
-  
+
   zip_file <- tempfile(
     "camtrapReport-camera-data-",
     fileext = ".zip"
   )
-  
+
   on.exit(
     {
       unlink(
@@ -333,7 +333,7 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
         recursive = TRUE,
         force = TRUE
       )
-      
+
       unlink(
         zip_file,
         force = TRUE
@@ -341,38 +341,38 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
     },
     add = TRUE
   )
-  
+
   utils::zip(
     zipfile = zip_file,
     files = source_file
   )
-  
+
   expect_true(
     file.exists(zip_file)
   )
-  
+
   result <- .estimate_camdata_size(
     zip_file
   )
-  
+
   expect_false(
     is.na(result$file_size)
   )
-  
+
   expect_false(
     is.na(result$zip_uncompressed_size)
   )
-  
+
   expect_gt(result$zip_uncompressed_size, 0)
-  
-  expect_equal(
+
+  expect_identical(
     result$effective_size,
     max(
       result$file_size,
       result$zip_uncompressed_size
     )
   )
-  
+
   expect_identical(
     result$size_class,
     "small"
@@ -390,14 +390,14 @@ test_that("camdata start message reports small datasets", {
     effective_size_label = "1 KB",
     size_class = "small"
   )
-  
+
   testthat::local_mocked_bindings(
     .estimate_camdata_size = function(data) {
       size_info
     },
     .package = "camtrapReport"
   )
-  
+
   result <- capture_expected_message(
     .camdata_start_message(
       "dummy-data"
@@ -405,7 +405,7 @@ test_that("camdata start message reports small datasets", {
     "File size looks modest",
     fixed = TRUE
   )
-  
+
   expect_identical(
     result,
     size_info
@@ -423,14 +423,14 @@ test_that("camdata start message reports compressed ZIP size", {
     effective_size_label = "4 KB",
     size_class = "small"
   )
-  
+
   testthat::local_mocked_bindings(
     .estimate_camdata_size = function(data) {
       size_info
     },
     .package = "camtrapReport"
   )
-  
+
   messages <- capture_messages(
     .camdata_start_message(
       "dummy.zip"
@@ -442,7 +442,7 @@ test_that("camdata start message reports compressed ZIP size", {
       "dummy.zip"
     )
   )
-  
+
   expect_true(
     any(
       grepl(
@@ -452,7 +452,7 @@ test_that("camdata start message reports compressed ZIP size", {
       )
     )
   )
-  
+
   expect_identical(
     result,
     size_info
@@ -467,7 +467,7 @@ test_that("camdata start message covers all size classes", {
     very_large = "This is a very large dataset",
     unknown = "Creating the camReport object may take some time"
   )
-  
+
   for (size_class in names(cases)) {
     size_info <- list(
       file_size = NA_real_,
@@ -478,14 +478,14 @@ test_that("camdata start message covers all size classes", {
       effective_size_label = "unknown size",
       size_class = size_class
     )
-    
+
     testthat::local_mocked_bindings(
       .estimate_camdata_size = function(data) {
         size_info
       },
       .package = "camtrapReport"
     )
-    
+
     result <- capture_expected_message(
       .camdata_start_message(
         "dummy-data"
@@ -493,7 +493,7 @@ test_that("camdata start message covers all size classes", {
       cases[[size_class]],
       fixed = TRUE
     )
-    
+
     expect_identical(
       result,
       size_info

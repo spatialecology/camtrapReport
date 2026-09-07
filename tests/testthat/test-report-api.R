@@ -63,7 +63,9 @@ test_that("a minimal ecological report renders without optional packages", {
     name = "test_report",
     title = "Ecological-report rendering test",
     txt = "A minimal report section used by the package test suite.",
-    code_setting = {c(echo = FALSE, results = "asis")},
+    code_setting = {
+      c(echo = FALSE, results = "asis")
+    },
     code = {
       cat("Observations in the test dataset:", nrow(object$data$observations))
     }
@@ -97,7 +99,9 @@ test_that("a minimal data-status report renders from the Leuven subset", {
     name = "test_status",
     title = "Data-status rendering test",
     txt = "A minimal report section used by the package test suite.",
-    code_setting = {c(echo = FALSE, results = "asis")},
+    code_setting = {
+      c(echo = FALSE, results = "asis")
+    },
     code = {
       cat("Deployments in the test dataset:", nrow(object$data$deployments))
     }

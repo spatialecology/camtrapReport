@@ -106,14 +106,16 @@ copy_camtrap_test_dataset <- function() {
 }
 
 camtrap_test_report <- function() {
-  if (!exists(
-    "report",
-    envir = .camtrap_test_cache,
-    inherits = FALSE
-  )) {
+  if (
+    !exists(
+      "report",
+      envir = .camtrap_test_cache,
+      inherits = FALSE
+    )
+  ) {
     dataset <- copy_camtrap_test_dataset()
     object <- NULL
-    
+
     # Keep the shared fixture independent of optional module packages. These
     # packages are exercised through mocks in their own unit tests; routine
     # fixture creation must not change with the runner's installed packages or
@@ -152,20 +154,20 @@ camtrap_test_report <- function() {
       ".require",
       envir = asNamespace("camtrapReport")
     )
-    
+
     testthat::local_mocked_bindings(
       .require = function(x) {
         package <- as.character(x)[1]
-        
+
         if (!is.na(package) && package %in% optional_packages) {
           return(FALSE)
         }
-        
+
         original_require(x)
       },
       .package = "camtrapReport"
     )
-    
+
     object <- withCallingHandlers(
       suppressMessages(
         camData(
@@ -178,25 +180,26 @@ camtrap_test_report <- function() {
           "chi^2 approximation may be inaccurate",
           conditionMessage(w),
           fixed = TRUE
-        ) || grepl(
-          "package is not installed; it is required",
-          conditionMessage(w),
-          fixed = TRUE
-        )
+        ) ||
+          grepl(
+            "package is not installed; it is required",
+            conditionMessage(w),
+            fixed = TRUE
+          )
 
         if (expected_warning) {
           invokeRestart("muffleWarning")
         }
       }
     )
-    
+
     assign(
       "report",
       object,
       envir = .camtrap_test_cache
     )
   }
-  
+
   get(
     "report",
     envir = .camtrap_test_cache,
@@ -251,7 +254,9 @@ copy_camtrap_module_library <- function() {
 }
 
 write_test_module <- function(path, name, parent = ".root", title = name) {
-  parent_value <- if (identical(parent, ".root")) "null" else {
+  parent_value <- if (identical(parent, ".root")) {
+    "null"
+  } else {
     paste0('"', parent, '"')
   }
 

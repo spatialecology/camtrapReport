@@ -3,34 +3,36 @@
 #--------
 
 .QuickTestReportSection <- function(x, object = NULL, path = NULL) {
-  
   if (is.null(path)) {
     rmd_file <- tempfile(fileext = ".Rmd")
     output_file <- tempfile(fileext = ".html")
-    
-    on.exit({
-      unlink(rmd_file,recursive = TRUE,force = TRUE)
-      unlink(output_file,recursive = TRUE,force = TRUE)
-    },add=TRUE)
+
+    on.exit(
+      {
+        unlink(rmd_file, recursive = TRUE, force = TRUE)
+        unlink(output_file, recursive = TRUE, force = TRUE)
+      },
+      add = TRUE
+    )
   } else {
     rmd_file <- file.path(path, "test.Rmd")
     output_file <- file.path(path, "test.html")
   }
-  
+
   # Title environment for glue
   .env <- new.env(parent = emptyenv())
   .env$title <- "Quick Test"
-  
+
   # Collect packages only from this section/chunk tree.
   # Keep 'knitr' as a small core dependency for rendering.
   module_pkgs <- .collect_module_packages(x)
-  
+
   # Reuse the same package-loader helper used by generateReport()
   .env$pkg_chunk <- .make_package_loader_chunk(
     pkgs = module_pkgs,
     core = "knitr"
   )
-  
+
   rmd_template <- glue::glue(
     "---
 title: \"{title}\"
@@ -47,21 +49,21 @@ output:
 {pkg_chunk}",
     .envir = .env
   )
-  
+
   if (length(x@headLevel) == 0 || is.null(x@headLevel) || is.na(x@headLevel)) {
     x@headLevel <- 1
   }
-  
+
   rmd_template <- paste0(
     rmd_template,
     "\n\n",
     .glueTextSection(x, .envir = object)
   )
-  
+
   writeLines(rmd_template, con = rmd_file, useBytes = TRUE)
-  
+
   render_env <- .make_render_env(object)
-  
+
   out <- try(
     rmarkdown::render(
       input = rmd_file,
@@ -71,50 +73,51 @@ output:
     ),
     silent = TRUE
   )
-  
+
   if (inherits(out, "try-error")) {
     return(FALSE)
   }
-  
+
   TRUE
 }
 
 #---------
 
-
 .testReportSection <- function(x, object = NULL, view = TRUE) {
-  
   if (!inherits(x, ".textSection")) {
     stop("'x' should be a '.textSection' object.")
   }
-  
-  rmd_file <- tempfile("camtrapReport-section-",fileext = ".Rmd")
-  output_file <- tempfile("camtrapReport-section-",fileext = ".html")
-  
+
+  rmd_file <- tempfile("camtrapReport-section-", fileext = ".Rmd")
+  output_file <- tempfile("camtrapReport-section-", fileext = ".html")
+
   render_success <- FALSE
-  
-  on.exit({
-    unlink(rmd_file, force = TRUE)
-    
-    if (!render_success) {
-      unlink(output_file,recursive = TRUE,force = TRUE)
-    }
-  }, add = TRUE)
-  
+
+  on.exit(
+    {
+      unlink(rmd_file, force = TRUE)
+
+      if (!render_success) {
+        unlink(output_file, recursive = TRUE, force = TRUE)
+      }
+    },
+    add = TRUE
+  )
+
   # Title environment for glue
   .env <- new.env(parent = emptyenv())
   .env$title <- paste0("Testing the text section named: ", x@name)
-  
+
   # Collect packages only from this section/chunk tree.
   # Keep 'knitr' as a small core dependency for rendering.
   module_pkgs <- .collect_module_packages(x)
-  
+
   # Reuse the same package-loader helper used by generateReport()
   .env$pkg_chunk <- .make_package_loader_chunk(
     pkgs = module_pkgs,
     core = "knitr"
   )
-  
+
   rmd_template <- glue::glue(
     "---
 title: \"{title}\"
@@ -131,59 +134,57 @@ output:
 {pkg_chunk}",
     .envir = .env
   )
-  
+
   if (length(x@headLevel) == 0 || is.null(x@headLevel) || is.na(x@headLevel)) {
     x@headLevel <- 1
   }
-  
+
   rmd_template <- paste0(
     rmd_template,
     "\n\n",
     .glueTextSection(x, .envir = object)
   )
-  
+
   writeLines(rmd_template, con = rmd_file, useBytes = TRUE)
-  
+
   render_env <- .make_render_env(object)
-  
+
   if (isTRUE(view)) {
     message("Rendering R Markdown report ...")
   }
-  
+
   out <- rmarkdown::render(
     input = rmd_file,
     output_file = output_file,
     envir = render_env,
     quiet = !isTRUE(view)
   )
-  
+
   render_success <- TRUE
-  
+
   if (isTRUE(view)) {
     message(
       "Report generated at: ",
       normalizePath(out, winslash = "/", mustWork = FALSE)
     )
-    
+
     viewer <- getOption("viewer")
-    
+
     if (!is.null(viewer)) {
       viewer(out)
     } else {
       utils::browseURL(out)
     }
   }
-  
+
   invisible(out)
 }
 
 #---------
 
-setGeneric("testSection",
-  function(x, object, view) {
-    methods::standardGeneric("testSection")
-  }
-)
+setGeneric("testSection", function(x, object, view) {
+  methods::standardGeneric("testSection")
+})
 
 #' Test a report section
 #'
@@ -235,17 +236,18 @@ setGeneric("testSection",
 #'
 #' # Remove the generated HTML file
 #' unlink(test_file)
-setMethod("testSection",signature(x = ".textSection"),
+setMethod(
+  "testSection",
+  signature(x = ".textSection"),
   function(x, object, view) {
-    
     if (missing(object)) {
       object <- NULL
     }
-    
+
     if (missing(view)) {
       view <- TRUE
     }
-    
+
     .testReportSection(x, object, view)
   }
 )

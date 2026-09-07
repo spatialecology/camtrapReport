@@ -1,6 +1,6 @@
 test_that("norm_parent standardizes root parent values", {
   norm_parent <- .norm_parent
-  
+
   expect_identical(norm_parent(NULL), ".root")
   expect_identical(norm_parent(character()), ".root")
   expect_identical(norm_parent(NA_character_), ".root")
@@ -15,11 +15,11 @@ test_that("norm_parent standardizes root parent values", {
 
 test_that("empty_info returns the expected empty structure", {
   result <- .empty_info()
-  
+
   expect_s3_class(result, "data.frame")
-  
+
   expect_named(result, c("ID", "name", "parent"))
-  
+
   expect_identical(nrow(result), 0L)
   expect_type(result$ID, "integer")
   expect_type(result$name, "character")
@@ -29,9 +29,9 @@ test_that("empty_info returns the expected empty structure", {
 
 test_that("resequence_info handles NULL and empty inputs", {
   resequence_info <- .resequence_info
-  
+
   null_result <- resequence_info(NULL)
-  
+
   empty_result <- resequence_info(
     data.frame(
       name = character(),
@@ -39,12 +39,12 @@ test_that("resequence_info handles NULL and empty inputs", {
       stringsAsFactors = FALSE
     )
   )
-  
+
   expect_identical(
     null_result,
     .empty_info()
   )
-  
+
   expect_identical(
     empty_result,
     .empty_info()
@@ -63,7 +63,7 @@ test_that("resequence_info validates required columns", {
     "must contain columns",
     fixed = TRUE
   )
-  
+
   expect_error(
     .resequence_info(
       data.frame(
@@ -97,9 +97,9 @@ test_that("resequence_info trims, normalizes, removes blanks and duplicates", {
     extra = letters[1:5],
     stringsAsFactors = FALSE
   )
-  
+
   result <- .resequence_info(input)
-  
+
   expected <- data.frame(
     ID = 1:3,
     name = c(
@@ -114,10 +114,10 @@ test_that("resequence_info trims, normalizes, removes blanks and duplicates", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   rownames(result) <- NULL
   rownames(expected) <- NULL
-  
+
   expect_identical(result, expected)
 })
 
@@ -129,7 +129,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
     sampling = "methods",
     cameras = "sampling"
   )
-  
+
   expect_identical(
     .ancestor_chain(
       "cameras",
@@ -137,7 +137,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
     ),
     c("sampling", "methods")
   )
-  
+
   expect_identical(
     .ancestor_chain(
       "sampling",
@@ -145,7 +145,7 @@ test_that("ancestor_chain returns ancestors in nearest-first order", {
     ),
     "methods"
   )
-  
+
   expect_identical(
     .ancestor_chain(
       "methods",
@@ -177,7 +177,7 @@ test_that("subtree_end identifies complete nested subtrees", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   expect_identical(
     .subtree_end(
       info,
@@ -185,7 +185,7 @@ test_that("subtree_end identifies complete nested subtrees", {
     ),
     6L
   )
-  
+
   expect_identical(
     .subtree_end(
       info,
@@ -193,7 +193,7 @@ test_that("subtree_end identifies complete nested subtrees", {
     ),
     5L
   )
-  
+
   expect_identical(
     .subtree_end(
       info,
@@ -201,7 +201,7 @@ test_that("subtree_end identifies complete nested subtrees", {
     ),
     4L
   )
-  
+
   expect_identical(
     .subtree_end(
       info,
@@ -209,7 +209,7 @@ test_that("subtree_end identifies complete nested subtrees", {
     ),
     4L
   )
-  
+
   expect_error(
     .subtree_end(
       info,
@@ -238,41 +238,41 @@ test_that("insert_row supports beginning, middle, and end positions", {
     parent = c(".root", ".root"),
     stringsAsFactors = FALSE
   )
-  
+
   row_b <- data.frame(
     name = "b",
     parent = ".root",
     stringsAsFactors = FALSE
   )
-  
+
   at_start <- .insert_row(
     input,
     row_b,
     1L
   )
-  
+
   in_middle <- .insert_row(
     input,
     row_b,
     2L
   )
-  
+
   at_end <- .insert_row(
     input,
     row_b,
     99L
   )
-  
+
   expect_identical(
     at_start$name,
     c("b", "a", "c")
   )
-  
+
   expect_identical(
     in_middle$name,
     c("a", "b", "c")
   )
-  
+
   expect_identical(
     at_end$name,
     c("a", "c", "b")
@@ -286,13 +286,13 @@ test_that("insert_row handles empty data frames", {
     parent = character(),
     stringsAsFactors = FALSE
   )
-  
+
   row <- data.frame(
     name = "methods",
     parent = ".root",
     stringsAsFactors = FALSE
   )
-  
+
   expect_identical(
     .insert_row(
       empty,
@@ -312,7 +312,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
     "acknowledgements",
     "appendix"
   )
-  
+
   info <- data.frame(
     ID = 1:3,
     name = c(
@@ -323,7 +323,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
     parent = rep(".root", 3),
     stringsAsFactors = FALSE
   )
-  
+
   expect_identical(
     .guess_root_insert_pos(
       info,
@@ -332,7 +332,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
     ),
     2L
   )
-  
+
   expect_identical(
     .guess_root_insert_pos(
       info,
@@ -341,7 +341,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
     ),
     3L
   )
-  
+
   expect_identical(
     .guess_root_insert_pos(
       info,
@@ -350,7 +350,7 @@ test_that("guess_root_insert_pos follows canonical root order", {
     ),
     4L
   )
-  
+
   expect_identical(
     .guess_root_insert_pos(
       .empty_info(),
@@ -368,17 +368,17 @@ test_that("insert_module_info adds the first module", {
     name = "methods",
     parent = ".root"
   )
-  
+
   expected <- data.frame(
     ID = 1L,
     name = "methods",
     parent = ".root",
     stringsAsFactors = FALSE
   )
-  
+
   rownames(result) <- NULL
   rownames(expected) <- NULL
-  
+
   expect_identical(result, expected)
 })
 
@@ -394,13 +394,13 @@ test_that("insert_module_info inserts root modules in canonical order", {
     parent = rep(".root", 3),
     stringsAsFactors = FALSE
   )
-  
+
   result <- .insert_module_info(
     info = info,
     name = "methods",
     parent = ".root"
   )
-  
+
   expect_identical(
     result$name,
     c(
@@ -410,7 +410,7 @@ test_that("insert_module_info inserts root modules in canonical order", {
       "appendix"
     )
   )
-  
+
   expect_identical(
     result$ID,
     1:4
@@ -435,13 +435,13 @@ test_that("insert_module_info appends children after the parent subtree", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   result <- .insert_module_info(
     info = info,
     name = "modelling",
     parent = "methods"
   )
-  
+
   expect_identical(
     result$name,
     c(
@@ -452,7 +452,7 @@ test_that("insert_module_info appends children after the parent subtree", {
       "results"
     )
   )
-  
+
   expect_identical(
     result$parent[result$name == "modelling"],
     "methods"
@@ -477,21 +477,21 @@ test_that("insert_module_info supports before and after placement", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   before_result <- .insert_module_info(
     info = info,
     name = "camera_setup",
     parent = "methods",
     before = "analysis"
   )
-  
+
   after_result <- .insert_module_info(
     info = info,
     name = "camera_setup",
     parent = "methods",
     after = "sampling"
   )
-  
+
   expect_identical(
     before_result$name,
     c(
@@ -502,7 +502,7 @@ test_that("insert_module_info supports before and after placement", {
       "results"
     )
   )
-  
+
   expect_identical(
     after_result$name,
     c(
@@ -533,14 +533,14 @@ test_that("insert_module_info permits insertion at subtree boundary", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   result <- .insert_module_info(
     info = info,
     name = "analysis",
     parent = "methods",
     before = "results"
   )
-  
+
   expect_identical(
     result$name,
     c(
@@ -551,7 +551,7 @@ test_that("insert_module_info permits insertion at subtree boundary", {
       "appendix"
     )
   )
-  
+
   expect_identical(
     result$parent[result$name == "analysis"],
     "methods"
@@ -574,7 +574,7 @@ test_that("insert_module_info rejects invalid requests", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -584,7 +584,7 @@ test_that("insert_module_info rejects invalid requests", {
     "Module name is empty",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -594,7 +594,7 @@ test_that("insert_module_info rejects invalid requests", {
     "already exists",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -606,7 +606,7 @@ test_that("insert_module_info rejects invalid requests", {
     "Use only one",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -616,7 +616,7 @@ test_that("insert_module_info rejects invalid requests", {
     "Parent not found",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -627,7 +627,7 @@ test_that("insert_module_info rejects invalid requests", {
     "was not found",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info,
@@ -658,7 +658,7 @@ test_that("insert_module_info rejects placement beyond parent subtree", {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     .insert_module_info(
       info = info,
@@ -669,7 +669,7 @@ test_that("insert_module_info rejects placement beyond parent subtree", {
     "outside the subtree",
     fixed = TRUE
   )
-  
+
   expect_error(
     .insert_module_info(
       info = info,

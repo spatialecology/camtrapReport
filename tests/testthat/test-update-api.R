@@ -1,4 +1,6 @@
-test_that("report-section matching supports names, titles, and informative errors", {
+test_that(
+  "report-section matching supports names, titles, and informative errors",
+  {
   catalog <- data.frame(
     name = c("intro", "sampling", "sampling_effort"),
     title = c("Introduction", "Sampling", "Sampling effort"),
@@ -29,28 +31,45 @@ test_that("report-section matching supports names, titles, and informative error
     suppressWarnings(match_section(catalog, "amp", by = "title")),
     "More than one"
   )
-})
+  }
+)
 
-test_that("code and chunk settings are captured without evaluation side effects", {
+test_that(
+  "code and chunk settings are captured without evaluation side effects",
+  {
   capture_code <- .capture_code_text
   capture_setting <- .capture_setting_text
   env <- list2env(list(code_value = c("x <- 1", "x + 1")), parent = baseenv())
 
-  expect_match(capture_code(quote({x <- 1; x + 1})), "x <- 1", fixed = TRUE)
+  expect_match(
+    capture_code(quote({
+      x <- 1
+      x + 1
+    })),
+    "x <- 1",
+    fixed = TRUE
+  )
   expect_identical(capture_code(quote(code_value), env), "x <- 1\nx + 1")
   expect_identical(capture_code(quote(not_defined(1)), env), "not_defined(1)")
 
   expect_null(capture_setting(NULL))
   expect_identical(
-    capture_setting(quote({c(echo = FALSE, warning = TRUE)})),
+    capture_setting(quote({
+      c(echo = FALSE, warning = TRUE)
+    })),
     "echo = FALSE, warning = TRUE"
   )
-  expect_identical(capture_setting(quote(c("echo=FALSE", "results=asis"))),
-                   "echo=FALSE, results=asis")
-  expect_identical(capture_setting(quote(list(echo = FALSE, fig.width = 6))),
-                   "echo = FALSE, fig.width = 6")
+  expect_identical(
+    capture_setting(quote(c("echo=FALSE", "results=asis"))),
+    "echo=FALSE, results=asis"
+  )
+  expect_identical(
+    capture_setting(quote(list(echo = FALSE, fig.width = 6))),
+    "echo = FALSE, fig.width = 6"
+  )
   expect_identical(capture_setting(quote("echo=FALSE")), "echo=FALSE")
-})
+  }
+)
 
 test_that("section chunks can be created, patched, appended, and selected", {
   patch_section <- .update_section_chunk
@@ -134,11 +153,13 @@ test_that("section chunks can be created, patched, appended, and selected", {
 
 test_that("updateReportSection updates title, text, code, and packages", {
   cm <- camR$new()
-  cm$reportObjects <- list(custom = reportSection(
-    "custom",
-    title = "Original title",
-    txt = list("First paragraph", "Second paragraph")
-  ))
+  cm$reportObjects <- list(
+    custom = reportSection(
+      "custom",
+      title = "Original title",
+      txt = list("First paragraph", "Second paragraph")
+    )
+  )
 
   updated <- updateReportSection(
     cm,
@@ -147,7 +168,9 @@ test_that("updateReportSection updates title, text, code, and packages", {
     text = "Third paragraph",
     append_text = TRUE,
     code_name = "custom_code",
-    code_setting = {c(echo = FALSE, results = "asis")},
+    code_setting = {
+      c(echo = FALSE, results = "asis")
+    },
     packages = "stats",
     code = {
       mean(1:3)

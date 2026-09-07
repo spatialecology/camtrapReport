@@ -61,7 +61,11 @@ test_that("camData reads the Leuven subset into a complete camReport", {
   expect_named(
     cm$data,
     c(
-      "observations", "deployments", "media", "locations", "sequences",
+      "observations",
+      "deployments",
+      "media",
+      "locations",
+      "sequences",
       "taxonomy"
     )
   )

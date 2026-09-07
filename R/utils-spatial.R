@@ -4,9 +4,9 @@
 
 .basic_corrplot <- function(x, main = "Species Co-occurrence") {
   x[upper.tri(x, diag = TRUE)] <- NA
-  
+
   .colors <- grDevices::colorRampPalette(c("red", "white", "blue"))(100)
-  
+
   graphics::image(
     seq_len(ncol(x)),
     seq_len(nrow(x)),
@@ -17,10 +17,10 @@
     ylab = "",
     main = main
   )
-  
+
   labels <- colnames(x)
   n <- length(labels)
-  
+
   graphics::text(
     x = 1:n,
     y = graphics::par("usr")[3] - 0.5,
@@ -29,7 +29,7 @@
     adj = 1,
     xpd = TRUE
   )
-  
+
   graphics::text(
     x = graphics::par("usr")[1] - 0.5,
     y = 1:n,
@@ -38,7 +38,7 @@
     adj = 1,
     xpd = TRUE
   )
-  
+
   graphics::legend(
     x = n / 1.2,
     y = n,
@@ -53,18 +53,17 @@
 
 #--------
 
-
 .is.projected <- function(x) {
   if (!requireNamespace("terra", quietly = TRUE)) {
     return(FALSE)
   }
-  
+
   e <- try(as.vector(terra::ext(x)), silent = TRUE)
-  
+
   if (inherits(e, "try-error") || length(e) != 4) {
     return(FALSE)
   }
-  
+
   !all(e[1:2] >= -180 & e[1:2] <= 180 & e[3:4] >= -90 & e[3:4] <= 90)
 }
 
@@ -74,13 +73,15 @@
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The terra package is required for spatial projection.")
   }
-  
-  if (!.is.projected(x)) {
+
+  if (.is.projected(x)) {
+    x
+  } else {
     cen <- colMeans(terra::crds(x), na.rm = TRUE)
-    
+
     lon <- cen[1]
     lat <- cen[2]
-    
+
     if (abs(lat) <= 84) {
       .zone <- ((floor((lon + 180) / 6) %% 60) + 1)
       .epsg <- if (lat >= 0) 32600 + .zone else 32700 + .zone
@@ -91,11 +92,8 @@
         lat,
         lon
       )
-      
+
       terra::project(x, proj4)
     }
-  } else {
-    x
   }
 }
-

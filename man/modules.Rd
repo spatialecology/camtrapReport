@@ -94,11 +94,12 @@ is stored as a module. A module can contain section metadata, text,
 executable R code, required packages, and rendering settings.
 
 Because modules can execute arbitrary R code with the permissions of the
-current R process, only install modules from trusted sources and inspect their
-contents before running them.
+current R process, only install modules from trusted sources and inspect
+their contents before running them.
 
-\code{add_Module()} adds a new YAML-defined module to the package module directory.
-The module can optionally be inserted before or after an existing module.
+\code{add_Module()} adds a new YAML-defined module to the package module
+directory. The module can optionally be inserted before or after an existing
+module.
 
 \code{move_Module()} changes the position or parent of an existing module within
 the hierarchical report structure.

@@ -5,7 +5,7 @@ test_that("read_camdp reports a missing jsonlite dependency", {
     },
     .package = "camtrapReport"
   )
-  
+
   expect_error(
     .read_camdp(
       file = tempfile("camdp-input-")
@@ -23,7 +23,7 @@ test_that("read_camdp reports a missing data.table dependency", {
     },
     .package = "camtrapReport"
   )
-  
+
   expect_error(
     .read_camdp(
       file = tempfile("camdp-input-")
@@ -38,17 +38,17 @@ test_that("read_camdp rejects an input that is neither ZIP nor directory", {
   missing_path <- tempfile(
     "camtrapReport-missing-camdp-"
   )
-  
+
   testthat::local_mocked_bindings(
     .require = function(package) TRUE,
     .isZip = function(file) FALSE,
     .package = "camtrapReport"
   )
-  
+
   expect_false(
     file.exists(missing_path)
   )
-  
+
   expect_error(
     .read_camdp(
       file = missing_path
@@ -63,9 +63,9 @@ test_that("read_camdp rejects an empty directory", {
   test_dir <- tempfile(
     "camtrapReport-empty-camdp-"
   )
-  
+
   dir.create(test_dir)
-  
+
   on.exit(
     unlink(
       test_dir,
@@ -74,13 +74,13 @@ test_that("read_camdp rejects an empty directory", {
     ),
     add = TRUE
   )
-  
+
   testthat::local_mocked_bindings(
     .require = function(package) TRUE,
     .isZip = function(file) FALSE,
     .package = "camtrapReport"
   )
-  
+
   expect_error(
     .read_camdp(
       file = test_dir
@@ -95,9 +95,9 @@ test_that("read_camdp reports missing standard files", {
   test_dir <- tempfile(
     "camtrapReport-incomplete-camdp-"
   )
-  
+
   dir.create(test_dir)
-  
+
   on.exit(
     unlink(
       test_dir,
@@ -106,20 +106,20 @@ test_that("read_camdp reports missing standard files", {
     ),
     add = TRUE
   )
-  
+
   file.create(
     file.path(
       test_dir,
       "datapackage.json"
     )
   )
-  
+
   testthat::local_mocked_bindings(
     .require = function(package) TRUE,
     .isZip = function(file) FALSE,
     .package = "camtrapReport"
   )
-  
+
   expect_error(
     .read_camdp(
       file = test_dir
@@ -127,7 +127,7 @@ test_that("read_camdp reports missing standard files", {
     "standard data files",
     fixed = TRUE
   )
-  
+
   expect_error(
     .read_camdp(
       file = test_dir
@@ -135,7 +135,7 @@ test_that("read_camdp reports missing standard files", {
     "deployments.csv",
     fixed = TRUE
   )
-  
+
   expect_error(
     .read_camdp(
       file = test_dir
@@ -143,7 +143,7 @@ test_that("read_camdp reports missing standard files", {
     "observations.csv",
     fixed = TRUE
   )
-  
+
   expect_error(
     .read_camdp(
       file = test_dir
@@ -158,9 +158,9 @@ test_that("read_camdp uses UTC when timezone is empty", {
   test_dir <- tempfile(
     "camtrapReport-timezone-camdp-"
   )
-  
+
   dir.create(test_dir)
-  
+
   on.exit(
     unlink(
       test_dir,
@@ -169,20 +169,20 @@ test_that("read_camdp uses UTC when timezone is empty", {
     ),
     add = TRUE
   )
-  
+
   testthat::local_mocked_bindings(
     .require = function(package) TRUE,
     .isZip = function(file) FALSE,
     .package = "camtrapReport"
   )
-  
+
   empty_timezone_values <- list(
     NULL,
     character(),
     NA_character_,
     ""
   )
-  
+
   for (timezone in empty_timezone_values) {
     expect_error(
       .read_camdp(
@@ -215,41 +215,41 @@ test_that("get_Taxonomic_DF handles taxa without vernacular names", {
       vernacularNames = list()
     )
   )
-  
+
   result <- .get_Taxonomic_DF(
     taxa
   )
-  
+
   expect_s3_class(
     result,
     "data.frame"
   )
-  
+
   expect_identical(
     nrow(result),
     2L
   )
-  
+
   expect_identical(
     result$taxonID,
     c("5219404", "2435099")
   )
-  
+
   expect_identical(
     result$scientificName,
     c("Vulpes vulpes", "Meles meles")
   )
-  
+
   expect_identical(
     result$family,
     c("Canidae", "Mustelidae")
   )
-  
+
   expect_identical(
     result$order,
     c("Carnivora", "Carnivora")
   )
-  
+
   expect_true(
     all(is.na(result$vernacularNames))
   )
@@ -279,25 +279,25 @@ test_that("get_Taxonomic_DF handles one named vernacular language", {
       )
     )
   )
-  
+
   result <- .get_Taxonomic_DF(
     taxa
   )
-  
+
   expect_s3_class(
     result,
     "data.frame"
   )
-  
+
   expect_identical(
     nrow(result),
     2L
   )
-  
+
   expect_true(
     "vernacularNames.eng" %in% names(result)
   )
-  
+
   expect_identical(
     result$vernacularNames.eng,
     c(
@@ -332,25 +332,26 @@ test_that("get_Taxonomic_DF combines different vernacular languages", {
       )
     )
   )
-  
+
   result <- .get_Taxonomic_DF(
     taxa
   )
-  
+
   expect_identical(
     nrow(result),
     2L
   )
-  
+
   expect_true(
     all(
       c(
         "vernacularNames.eng",
         "vernacularNames.nld"
-      ) %in% names(result)
+      ) %in%
+        names(result)
     )
   )
-  
+
   expect_identical(
     result$vernacularNames.eng,
     c(
@@ -358,7 +359,7 @@ test_that("get_Taxonomic_DF combines different vernacular languages", {
       "European badger"
     )
   )
-  
+
   expect_identical(
     result$vernacularNames.nld[1],
     "Vos"
@@ -385,26 +386,26 @@ test_that("get_Taxonomic_DF handles unnamed vernacular values safely", {
       vernacularNames = "Common two"
     )
   )
-  
+
   result <- .get_Taxonomic_DF(
     taxa
   )
-  
+
   expect_s3_class(
     result,
     "data.frame"
   )
-  
+
   expect_identical(
     nrow(result),
     2L
   )
-  
+
   expect_identical(
     result$taxonID,
     c("1", "2")
   )
-  
+
   expect_identical(
     result$scientificName,
     c(
@@ -428,36 +429,36 @@ test_that("get_Taxonomic_DF preserves taxonomic ranks", {
       )
     )
   )
-  
+
   result <- .get_Taxonomic_DF(
     taxa
   )
-  
+
   expect_identical(
     result$taxonID,
     "100"
   )
-  
+
   expect_identical(
     result$scientificName,
     "Testus species"
   )
-  
+
   expect_identical(
     result$family,
     "Testidae"
   )
-  
+
   expect_identical(
     result$order,
     "Testiformes"
   )
-  
+
   expect_identical(
     result$taxonRank,
     "species"
   )
-  
+
   expect_true(
     is.na(result$class)
   )
