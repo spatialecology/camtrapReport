@@ -173,7 +173,7 @@ providing clear guidance to users and data owners on what should be corrected or
 improved before ecological analysis. The function returns the path to the generated
 HTML report; set `view = TRUE` to open it in a browser.
 
-[**View an example Data Status Check generated from the bundled Leuven camera-trap data subset**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
+
 
 ```{r generate-data-status, message=FALSE, warning=FALSE}
 status_file <- status(
@@ -181,6 +181,8 @@ status_file <- status(
   view = FALSE
 )
 ```
+
+[**View Data Status Check output**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
 
 ```{r validate-data-status, include=FALSE}
 stopifnot(
@@ -204,14 +206,14 @@ extend sections according to their data and reporting needs. The function
 returns the path to the generated HTML report; set `view = TRUE` to open it in
 a browser.
 
-[**View an example Ecological Report generated from the bundled Leuven camera-trap data subset**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
-
 ```{r generate-ecological-report, message=FALSE, warning=FALSE}
 report_file <- report(
   cm,
   view = FALSE
 )
 ```
+
+[**View Ecological Report output**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
 
 ```{r validate-ecological-report, include=FALSE}
 stopifnot(

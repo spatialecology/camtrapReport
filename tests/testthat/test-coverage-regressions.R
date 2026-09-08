@@ -1,11 +1,11 @@
 make_sampling_text_report <- function(
-  sampling_design = NULL,
-  camera_model = NULL,
-  bait_use = NULL,
-  camera_height = NULL,
-  capture_method = NULL,
-  individual_animals = NULL,
-  is_eow = FALSE
+    sampling_design = NULL,
+    camera_model = NULL,
+    bait_use = NULL,
+    camera_height = NULL,
+    capture_method = NULL,
+    individual_animals = NULL,
+    is_eow = FALSE
 ) {
   object <- camR$new()
   object$info <- list(
@@ -41,7 +41,7 @@ test_that("sampling text describes supported survey configurations", {
     individual_animals = c(TRUE, FALSE),
     is_eow = TRUE
   )
-
+  
   .get_sampling_text(mixed)
   expect_match(mixed$reportTextElements$sampling, "EOW camera-trap protocol")
   expect_match(mixed$reportTextElements$sampling, "combines")
@@ -50,7 +50,7 @@ test_that("sampling text describes supported survey configurations", {
   expect_match(mixed$reportTextElements$sampling, "ranging from 0.5 to 2")
   expect_match(mixed$reportTextElements$sampling, "motion detection")
   expect_match(mixed$reportTextElements$sampling, "both the identification")
-
+  
   single <- make_sampling_text_report(
     sampling_design = "simpleRandom",
     camera_model = "ToyCam",
@@ -59,7 +59,7 @@ test_that("sampling text describes supported survey configurations", {
     capture_method = "activityDetection",
     individual_animals = FALSE
   )
-
+  
   .get_sampling_text(single)
   expect_match(single$reportTextElements$sampling, "simple random")
   expect_match(single$reportTextElements$sampling, "ToyCam")
@@ -67,7 +67,7 @@ test_that("sampling text describes supported survey configurations", {
   expect_match(single$reportTextElements$sampling, "0.75 m")
   expect_match(single$reportTextElements$sampling, "activity detection")
   expect_match(single$reportTextElements$sampling, "not specifically")
-
+  
   paired <- make_sampling_text_report(
     sampling_design = c("experimental", "opportunistic"),
     camera_model = c("A", "B"),
@@ -76,18 +76,21 @@ test_that("sampling text describes supported survey configurations", {
     capture_method = "audio",
     individual_animals = TRUE
   )
-
+  
   .get_sampling_text(paired)
   expect_match(paired$reportTextElements$sampling, "experimental and")
   expect_match(paired$reportTextElements$sampling, "Bait was used")
   expect_match(paired$reportTextElements$sampling, "audio recording")
   expect_match(paired$reportTextElements$sampling, "designed to support")
-
+  
   unknown <- make_sampling_text_report(
     sampling_design = "customDesign"
   )
-  unknown$data$deployments <- data.frame(dummy = 1)
-
+  unknown$data$deployments <- data.frame(
+    dummy = 1,
+    stringsAsFactors = FALSE
+  )
+  
   .get_sampling_text(unknown)
   expect_match(unknown$reportTextElements$sampling, "customDesign")
 })
@@ -122,7 +125,7 @@ test_that("project text handles EOW, habitat, species, and source metadata", {
     )
   )
   object$reportTextElements <- list()
-
+  
   .project_info(object)
   expect_true(object$info$is.EOW)
   expect_identical(object$reportTextElements$name, "EOW")
@@ -136,15 +139,23 @@ test_that("project text handles EOW, habitat, species, and source metadata", {
     object$reportTextElements$data_source,
     "Toy annotation source"
   )
-
+  
   object$info$json <- list(
     name = "Toy survey",
     project = list(title = "Independent project")
   )
-  object$data$deployments <- data.frame(habitat = "forest")
-  object$habitat <- data.frame()
-  object$data_status$Species$Table <- data.frame(unrelated = 1)
-
+  object$data$deployments <- data.frame(
+    habitat = "forest",
+    stringsAsFactors = FALSE
+  )
+  object$habitat <- data.frame(
+    stringsAsFactors = FALSE
+  )
+  object$data_status$Species$Table <- data.frame(
+    unrelated = 1,
+    stringsAsFactors = FALSE
+  )
+  
   .project_info(object)
   expect_false(object$info$is.EOW)
   expect_match(object$reportTextElements$habitat_text, "mostly forest")
@@ -160,14 +171,14 @@ test_that("author text filters organizations and orders contact authors", {
   object <- camR$new()
   object$info <- list(json = list(contributors = NULL))
   expect_identical(.get_authors_text(object), "")
-
+  
   object$info$json$contributors <- data.frame(
     title = c("University Team", "Ada Alpha", "Ben Beta", "Ada Alpha"),
     role = c("contact", "author", "contact", "contact"),
     stringsAsFactors = FALSE
   )
   expect_identical(.get_authors_text(object), "Ada Alpha and Ben Beta*")
-
+  
   object$info$json$contributors <- list(
     list(title = "Cara Gamma", role = "author"),
     list(title = "Ada Alpha", role = "author"),
@@ -177,10 +188,10 @@ test_that("author text filters organizations and orders contact authors", {
     .get_authors_text(object),
     "Ada Alpha, Cara Gamma, and Ben Beta*"
   )
-
+  
   object$info$json$contributors <- list(list(role = "author"))
   expect_identical(.get_authors_text(object), "")
-
+  
   object$info$json$contributors <- list(list(title = character()))
   expect_identical(.get_authors_text(object), "")
 })
@@ -192,31 +203,39 @@ test_that("taxonomy helpers can be tested without remote services", {
       return(list(
         first = data.frame(
           rank = c("kingdom", "phylum", "class", "order"),
-          name = c("Animalia", "Chordata", "Mammalia", "Carnivora")
+          name = c("Animalia", "Chordata", "Mammalia", "Carnivora"),
+          stringsAsFactors = FALSE
         ),
         second = data.frame(
-          name = c("Animalia", "Chordata", "Aves", "Passeriformes")
+          name = c("Animalia", "Chordata", "Aves", "Passeriformes"),
+          stringsAsFactors = FALSE
         )
       ))
     }
-
+    
     list(
       first = data.frame(
         rank = c("class", "order"),
-        name = c("Mammalia", "Carnivora")
+        name = c("Mammalia", "Carnivora"),
+        stringsAsFactors = FALSE
       ),
       second = data.frame(
         rank = "species",
-        name = "Toy species"
+        name = "Toy species",
+        stringsAsFactors = FALSE
       )
     )
   }
-
   local_mocked_bindings(
     .require = function(...) TRUE,
     .eval = function(code, env) {
       if (grepl("get_gbifid|get_uid", code)) {
-        return(data.frame(ids = c("1", "2")))
+        return(
+          data.frame(
+            ids = c("1", "2"),
+            stringsAsFactors = FALSE
+          )
+        )
       }
       if (grepl('db = "gbif"', code, fixed = TRUE)) {
         return(classification("gbif"))
@@ -225,10 +244,10 @@ test_that("taxonomy helpers can be tested without remote services", {
     },
     .package = "camtrapReport"
   )
-
+  
   gbif <- .getMissingTaxon_GBIF(c("Species one", "Species two"))
   ncbi <- .getMissingTaxon_NCBI(c("Species one", "Species two"))
-
+  
   expect_identical(gbif$class, c("Mammalia", "Aves"))
   expect_identical(gbif$order, c("Carnivora", "Passeriformes"))
   expect_identical(ncbi$class, c("Mammalia", NA_character_))
@@ -243,10 +262,15 @@ test_that("taxonomy helpers return safe failures from mocked lookups", {
   )
   expect_error(.getMissingTaxon_GBIF("Toy species"), "taxize")
   expect_error(.getMissingTaxon_NCBI("Toy species"), "taxize")
-
+  
   local_mocked_bindings(
     .require = function(...) TRUE,
-    .eval = function(...) data.frame(not_ids = "missing"),
+    .eval = function(...) {
+      data.frame(
+        not_ids = "missing",
+        stringsAsFactors = FALSE
+      )
+    },
     .package = "camtrapReport"
   )
   gbif <- .getMissingTaxon_GBIF("Toy species")
@@ -270,7 +294,7 @@ test_that("public module wrappers dispatch without changing package files", {
   )
   info_path <- tempfile("camtrapReport-modules-info-", fileext = ".csv")
   on.exit(unlink(info_path, force = TRUE), add = TRUE)
-
+  
   local_mocked_bindings(
     .section_dir = function(...) tempdir(),
     .modules_info_path = function(...) info_path,
@@ -304,7 +328,7 @@ test_that("public module wrappers dispatch without changing package files", {
     },
     .package = "camtrapReport"
   )
-
+  
   expect_identical(add_Module("toy.yml"), "added")
   expect_identical(
     add_Module("toy.yml", test = "default", object = camR$new()),
@@ -313,12 +337,12 @@ test_that("public module wrappers dispatch without changing package files", {
   expect_length(calls$added, 2L)
   expect_false(calls$added[[1]]$test)
   expect_true(calls$added[[2]]$test)
-
+  
   expect_silent(move_Module("results", parent = ".root"))
   expect_identical(remove_Module("results", recursive = FALSE), "deleted")
   expect_identical(restore_Module("results", test = FALSE), "restored")
   expect_identical(empty_trash(name = "results", id = "batch"), "purged")
-
+  
   expect_false(calls$deleted$recursive)
   expect_false(calls$restored$test)
   expect_identical(calls$purged$batch_id, "batch")
@@ -335,20 +359,28 @@ test_that("module listing wrappers cover tree, table, and trash results", {
   )
   module_table[1, ] <- as.list(rep("value", 13))
   trash <- data.frame(name = "deleted", stringsAsFactors = FALSE)
-
+  
   local_mocked_bindings(
     .section_dir = function(...) tempdir(),
     .read_modules_info = function(...) {
-      data.frame(name = "root", parent = ".root")
+      data.frame(
+        name = "root",
+        parent = ".root",
+        stringsAsFactors = FALSE
+      )
     },
     .module_tree_df = function(info) {
-      data.frame(name = info$name, level = 1L)
+      data.frame(
+        name = info$name,
+        level = 1L,
+        stringsAsFactors = FALSE
+      )
     },
     .list_Modules = function(...) module_table,
     .list_Trash = function(...) trash,
     .package = "camtrapReport"
   )
-
+  
   tree <- list_Modules()
   brief <- list_Modules(tree = FALSE)
   full <- list_Modules(
@@ -357,7 +389,7 @@ test_that("module listing wrappers cover tree, table, and trash results", {
     include_trash = TRUE,
     validate = TRUE
   )
-
+  
   expect_identical(tree$name, "root")
   expect_identical(ncol(brief), 5L)
   expect_named(full, c("modules", "trash"))
@@ -384,7 +416,7 @@ new_coverage_report_api <- function(status = FALSE) {
   } else {
     object$reportObjects <- list()
   }
-
+  
   list(
     cm = object,
     add = if (status) {
@@ -404,18 +436,18 @@ exercise_duplicate_chunks <- function(status = FALSE) {
   add <- api$add
   root_a <- reportSection("root", "Root A", txt = "A")
   root_b <- reportSection("root", "Root B", txt = "B")
-
+  
   if (status) {
     api$cm$statusReportObjects <- list(root = list(root_a, root_b))
   } else {
     api$cm$reportObjects <- list(root = list(root_a, root_b))
   }
-
+  
   add(make_coverage_test_chunk("first", "root", "first"))
   add(make_coverage_test_chunk("first", "root", "replacement"))
   add(make_coverage_test_chunk("second", "root", "second"))
   add(make_coverage_test_chunk("third", "root", "third"))
-
+  
   chunks <- api$objects()$root[[1]]@Rchunk
   expect_type(chunks, "list")
   expect_identical(chunks$first@code, "replacement")
@@ -433,7 +465,7 @@ exercise_nested_chunks <- function(status = FALSE, deep = FALSE) {
   api <- new_coverage_report_api(status)
   root <- reportSection("root", "Root", txt = "root")
   child <- reportSection("child", "Child", parent = "root", txt = "child")
-
+  
   if (deep) {
     grandchild_a <- reportSection(
       "grandchild",
@@ -472,23 +504,23 @@ exercise_nested_chunks <- function(status = FALSE, deep = FALSE) {
     )
     parent <- "child"
   }
-
+  
   if (status) {
     api$cm$statusReportObjects <- tree
   } else {
     api$cm$reportObjects <- tree
   }
-
+  
   api$add(make_coverage_test_chunk("first", parent, "first"))
   api$add(make_coverage_test_chunk("first", parent, "replacement"))
-
+  
   result <- api$objects()
   chunks <- if (deep) {
     result$root$child$grandchild[[1]]@Rchunk
   } else {
     result$root$child[[1]]@Rchunk
   }
-
+  
   expect_s4_class(chunks, ".Rchunk")
   expect_identical(chunks@code, "replacement")
 }

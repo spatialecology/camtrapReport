@@ -128,40 +128,40 @@ test_that("pak installation helper gives a clear missing-package error", {
 })
 
 
-test_that("install_All rejects invalid primary arguments", {
+test_that("install_all rejects invalid primary arguments", {
   expect_error(
-    install_All(update = NA),
+    install_all(update = NA),
     "'update' must be TRUE or FALSE",
     fixed = TRUE
   )
 
   expect_error(
-    install_All(update = 1),
+    install_all(update = 1),
     "'update' must be TRUE or FALSE",
     fixed = TRUE
   )
 
   expect_error(
-    install_All(update = c(TRUE, FALSE)),
+    install_all(update = c(TRUE, FALSE)),
     "'update' must be TRUE or FALSE",
     fixed = TRUE
   )
 
   expect_error(
-    install_All(pkgs = 1),
+    install_all(pkgs = 1),
     "'pkgs' must be NULL or a character vector",
     fixed = TRUE
   )
 
   expect_error(
-    install_All(pkgs = c("methods", NA_character_)),
+    install_all(pkgs = c("methods", NA_character_)),
     "'pkgs' must be NULL or a character vector",
     fixed = TRUE
   )
 })
 
 
-test_that("install_All reports an empty optional inventory", {
+test_that("install_all reports an empty optional inventory", {
   local_mocked_bindings(
     .getPackageList = function() character(),
     .getPackageGitHubList = function() character(),
@@ -169,7 +169,7 @@ test_that("install_All reports an empty optional inventory", {
   )
 
   result <- expect_output(
-    install_All(gitlab = FALSE),
+    install_all(gitlab = FALSE),
     "No optional packages are configured for installation",
     fixed = TRUE
   )
@@ -178,7 +178,7 @@ test_that("install_All reports an empty optional inventory", {
 })
 
 
-test_that("install_All does nothing when requested packages are installed", {
+test_that("install_all does nothing when requested packages are installed", {
   capture <- new.env(parent = emptyenv())
   capture$checked_packages <- character()
 
@@ -196,7 +196,7 @@ test_that("install_All does nothing when requested packages are installed", {
   )
 
   result <- expect_output(
-    install_All(
+    install_all(
       pkgs = c(" methods ", "", "stats"),
       update = FALSE,
       gitlab = FALSE
@@ -210,7 +210,7 @@ test_that("install_All does nothing when requested packages are installed", {
 })
 
 
-test_that("install_All sends only missing CRAN packages to pak", {
+test_that("install_all sends only missing CRAN packages to pak", {
   calls <- new.env(parent = emptyenv())
 
   local_mocked_bindings(
@@ -228,7 +228,7 @@ test_that("install_All sends only missing CRAN packages to pak", {
   )
 
   expect_null(
-    install_All(
+    install_all(
       update = FALSE,
       gitlab = FALSE,
       upgrade = TRUE
@@ -240,7 +240,7 @@ test_that("install_All sends only missing CRAN packages to pak", {
 })
 
 
-test_that("install_All sends named GitHub and GitLab references to pak", {
+test_that("install_all sends named GitHub and GitLab references to pak", {
   calls <- new.env(parent = emptyenv())
 
   local_mocked_bindings(
@@ -264,7 +264,7 @@ test_that("install_All sends named GitHub and GitLab references to pak", {
   )
 
   expect_null(
-    install_All(
+    install_all(
       update = FALSE,
       github = TRUE,
       gitlab = TRUE
@@ -301,7 +301,7 @@ test_that("remote package configuration takes precedence over CRAN", {
     .package = "camtrapReport"
   )
 
-  expect_null(install_All(update = FALSE, gitlab = FALSE))
+  expect_null(install_all(update = FALSE, gitlab = FALSE))
 
   expect_identical(
     capture$references,
@@ -313,7 +313,7 @@ test_that("remote package configuration takes precedence over CRAN", {
 })
 
 
-test_that("install_All rejects packages configured for two remotes", {
+test_that("install_all rejects packages configured for two remotes", {
   local_mocked_bindings(
     .getPackageList = function() character(),
     .getPackageGitHubList = function() {
@@ -326,14 +326,14 @@ test_that("install_All rejects packages configured for two remotes", {
   )
 
   expect_error(
-    install_All(github = TRUE, gitlab = TRUE),
+    install_all(github = TRUE, gitlab = TRUE),
     "configured for both GitHub and GitLab",
     fixed = TRUE
   )
 })
 
 
-test_that("install_All omits disabled remote inventories", {
+test_that("install_all omits disabled remote inventories", {
   capture <- new.env(parent = emptyenv())
   capture$installed_references <- NULL
 
@@ -356,7 +356,7 @@ test_that("install_All omits disabled remote inventories", {
   )
 
   expect_null(
-    install_All(
+    install_all(
       github = FALSE,
       gitlab = FALSE
     )
@@ -366,7 +366,7 @@ test_that("install_All omits disabled remote inventories", {
 })
 
 
-test_that("install_All update mode sends reinstall references to pak", {
+test_that("install_all update mode sends reinstall references to pak", {
   calls <- new.env(parent = emptyenv())
 
   local_mocked_bindings(
@@ -387,7 +387,7 @@ test_that("install_All update mode sends reinstall references to pak", {
   )
 
   expect_null(
-    install_All(
+    install_all(
       update = TRUE,
       gitlab = FALSE,
       dependencies = TRUE
@@ -414,7 +414,7 @@ test_that("install_All update mode sends reinstall references to pak", {
 })
 
 
-test_that("install_All update mode protects base and recommended packages", {
+test_that("install_all update mode protects base and recommended packages", {
   local_mocked_bindings(
     .getPackageList = function() c("methods", "stats"),
     .getPackageGitHubList = function() character(),
@@ -428,7 +428,7 @@ test_that("install_All update mode protects base and recommended packages", {
   )
 
   result <- expect_output(
-    install_All(
+    install_all(
       update = TRUE,
       gitlab = FALSE
     ),
@@ -437,4 +437,31 @@ test_that("install_All update mode protects base and recommended packages", {
   )
 
   expect_null(result)
+})
+
+
+test_that("install_All remains available as a deprecated alias", {
+  local_mocked_bindings(
+    .getPackageList = function() character(),
+    .getPackageGitHubList = function() character(),
+    .package = "camtrapReport"
+  )
+  
+  expect_warning(
+    install_All(
+      github = FALSE,
+      gitlab = FALSE
+    ),
+    "deprecated",
+    fixed = TRUE
+  )
+  
+  expect_null(
+    suppressWarnings(
+      install_All(
+        github = FALSE,
+        gitlab = FALSE
+      )
+    )
+  )
 })
