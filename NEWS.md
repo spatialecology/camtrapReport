@@ -1,4 +1,15 @@
-# camtrapReport 1.0.57 (development version)
+# camtrapReport 1.0.58 (development version)
+
+- Expanded deterministic unit coverage for sampling and project metadata,
+  taxonomy lookup fallbacks, module-management dispatch, and nested report
+  object insertion.
+- The new tests use in-memory fixtures and mocked external lookups. They do not
+  contact remote services, install packages, or require optional module
+  dependencies.
+- Increased locally measured `covr::package_coverage()` from 73.50% to 77.76%
+  without changing package functionality, dependencies, or the public API.
+
+# camtrapReport 1.0.57
 
 - Addressed the remaining behavior-preserving `goodpractice` recommendations:
   type-stable iteration, non-nested pipes and conditionals, direct condition
