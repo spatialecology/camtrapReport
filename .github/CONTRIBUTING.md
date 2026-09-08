@@ -60,7 +60,9 @@ without a clear user-facing benefit.
 The term **module** is used here in the general sense of an independently
 defined report component, rather than in the specific sense of a Shiny module.
 Shiny is used separately for the optional graphical interface and is not part
-of the report-module execution mechanism.
+of the report-module execution mechanism. The module system was developed
+specifically for the `camtrapReport` reporting workflow and was not derived
+from Shiny modules.
 
 A fixed R Markdown template would have been simpler internally, but modifying
 or adding analyses would then require changes to the central template. The
@@ -72,6 +74,14 @@ R code, rendering options, and declarations of optional package dependencies.
 During report generation, the module code is inserted into the generated
 R Markdown document and evaluated by `knitr`/`rmarkdown` in a dedicated
 rendering environment created by `.make_render_env()`.
+
+Separately, `.eval()` is a small internal wrapper around base R `parse()` and
+`eval()` used in some dynamic code paths where an R expression is intentionally
+represented as character text and must be evaluated in a specified environment.
+It is not the mechanism by which YAML module code is rendered. These uses do
+not require quosures, data masks, or other tidy-evaluation semantics, so adding
+`rlang` would not simplify the evaluation model. Where dynamic evaluation is
+not needed, direct function calls are preferred.
 
 For guidance on creating and managing modules, including a worked example, see
 the [Module Management guide](../vignettes/articles/modules.Rmd).

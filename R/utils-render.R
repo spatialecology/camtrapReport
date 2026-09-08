@@ -2,19 +2,18 @@
 # Licence: MIT
 #--------
 
-# Evaluate code stored in report-module YAML files. Module code is intentionally
-# represented as text so optional packages can remain module-specific; callers
-# must supply the environment containing the camReport data and settings. Only
-# modules from trusted sources should be evaluated.
+# Evaluate R expressions intentionally stored as character text in a specified
+# environment. This is a small wrapper around base parse() and eval(); no
+# tidy-evaluation or data-mask semantics are required.
 .eval <- function(x, env) {
   if (missing(x) || is.null(x) || length(x) == 0) {
     return(NULL)
   }
-
+  
   if (missing(env) || is.null(env)) {
     env <- parent.frame()
   }
-
+  
   eval(parse(text = x), envir = env)
 }
 

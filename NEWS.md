@@ -1,25 +1,21 @@
 # camtrapReport 1.0.58 (development version)
 
+- Renamed `install_All()` to `install_all()` for consistency with R naming
+  conventions. `install_All()` remains available as a deprecated compatibility
+  alias for existing code.
+- Clarified the report-module architecture and contributor documentation,
+  including the distinction from Shiny modules, the rationale for the
+  Reference Class implementation, and the role of `.eval()` relative to
+  `rlang`-style evaluation.
+- Improved the README and package website with clearer descriptions and direct
+  example outputs for the Data Status Check and Ecological Report.
 - Expanded deterministic unit coverage for sampling and project metadata,
   taxonomy lookup fallbacks, module-management dispatch, and nested report
   object insertion.
 - The new tests use in-memory fixtures and mocked external lookups. They do not
   contact remote services, install packages, or require optional module
   dependencies.
-- Increased locally measured `covr::package_coverage()` from 73.50% to 77.76%
-  without changing package functionality, dependencies, or the public API.
-
-# camtrapReport 1.0.57
-
-- Addressed the remaining behavior-preserving `goodpractice` recommendations:
-  type-stable iteration, non-nested pipes and conditionals, direct condition
-  messages, clearer character-vector formatting, and stricter exact unit-test
-  expectations.
-- Documented the intentional, narrowly scoped uses of `require()`, `detach()`,
-  and `setwd()` that support dynamic report modules, package updates, and GUI
-  report generation. Their runtime behavior is unchanged.
-- Retained the existing public API, dependency policy, dynamic `.eval()`
-  architecture, and report behavior.
+- Increased locally measured `covr::package_coverage()` from 73.50% to 77.76%.
 
 # camtrapReport 1.0.56
 
