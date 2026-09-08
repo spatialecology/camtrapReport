@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.56</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,8 +120,8 @@ camtrapReport
 <span><span class="op">)</span></span></code></pre></div>
 <p>To automatically check and install packages required by available, newly added, or updated report modules:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">camtrapReport</span><span class="fu">::</span><span class="fu"><a href="reference/install_all.html">install_All</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="reference/install_all.html">install_All()</a></code> scans the bundled and registered user modules and installs any missing dependencies automatically.</p>
+<code class="sourceCode R"><span><span class="fu">camtrapReport</span><span class="fu">::</span><span class="fu"><a href="reference/install_all.html">install_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="reference/install_all.html">install_all()</a></code> scans the bundled and registered user modules and installs any missing dependencies automatically.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -188,23 +188,23 @@ camtrapReport
 <h3 id="generate-a-data-status-check">Generate a Data Status Check<a class="anchor" aria-label="anchor" href="#generate-a-data-status-check"></a>
 </h3>
 <p><code><a href="reference/report.html">status()</a></code> generates a Data Status Check report that provides a structured assessment of whether the camera-trap dataset is ready for ecological reporting. It summarises five core areas: spatial quality, temporal coverage, essential data availability, classification and validation, and annotation quality. The report also summarises observation types by capture method and concludes with an overall data-quality classification, highlighting issues that require attention and providing clear guidance to users and data owners on what should be corrected or improved before ecological analysis. The function returns the path to the generated HTML report; set <code>view = TRUE</code> to open it in a browser.</p>
-<p><a href="https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html"><strong>View an example Data Status Check generated from the bundled Leuven camera-trap data subset</strong></a></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">status</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p><a href="https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html"><strong>View Data Status Check output</strong></a></p>
 </div>
 <div class="section level3">
 <h3 id="generate-an-ecological-report">Generate an Ecological Report<a class="anchor" aria-label="anchor" href="#generate-an-ecological-report"></a>
 </h3>
 <p><code><a href="reference/report.html">report()</a></code> generates a structured Ecological Report that brings together the selected analytical modules in a single, reproducible document. Depending on the available data and selected report sections, it can include information on sampling effort, species richness and occurrence, co-occurrence, activity patterns, habitat use, abundance and density, species accumulation, and spatial patterns. Analytical results are integrated with tables, figures, maps, and automatically generated narrative text that adapts to the underlying data and metadata, providing an interpretable overview of the camera-trap monitoring dataset. Because the report is modular, users can select, omit, reorder, or extend sections according to their data and reporting needs. The function returns the path to the generated HTML report; set <code>view = TRUE</code> to open it in a browser.</p>
-<p><a href="https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html"><strong>View an example Ecological Report generated from the bundled Leuven camera-trap data subset</strong></a></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p><a href="https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html"><strong>View Ecological Report output</strong></a></p>
 </div>
 </div>
 <div class="section level2">

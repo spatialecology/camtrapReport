@@ -130,26 +130,12 @@ You can change `before = "richness"` to another section name if you want the new
 
 ### 4. Install module dependencies
 
-The module registry is registered automatically when `add_Module()` is called.
-`install_All()` then scans the `#| packages:` options of all bundled and
-user-managed modules and delegates installation to `pak`.
+When a module is added with add_Module(), its package requirements are registered automatically. Use install_all() to install any missing packages required by the bundled and user-added modules.
 
 ```{r install-module-dependencies, eval=FALSE}
 # Discover and install all dependencies declared by all modules
-install_All()
+install_all()
 ```
-
-Additional CRAN packages can be included explicitly. Known GitHub dependencies
-configured by `camtrapReport` are included by default, and configured GitLab
-dependencies can be included with `gitlab = TRUE`:
-
-```{r install-module-github-dependency, eval=FALSE}
-install_All(pkgs = "readr")
-install_All(gitlab = TRUE)
-```
-
-If a user module depends on an unconfigured non-CRAN repository, install that
-repository explicitly with `pak::pkg_install()` before rendering the module.
 
 ### 5. Add the module to the current camReport object
 

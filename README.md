@@ -86,10 +86,10 @@ To automatically check and install packages required by available, newly
 added, or updated report modules:
 
 ``` r
-camtrapReport::install_All()
+camtrapReport::install_all()
 ```
 
-`install_All()` scans the bundled and registered user modules and
+`install_all()` scans the bundled and registered user modules and
 installs any missing dependencies automatically.
 
 ## Quick start
@@ -179,16 +179,15 @@ corrected or improved before ecological analysis. The function returns
 the path to the generated HTML report; set `view = TRUE` to open it in a
 browser.
 
-[**View an example Data Status Check generated from the bundled Leuven
-camera-trap data
-subset**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
-
 ``` r
 status_file <- status(
   cm,
   view = FALSE
 )
 ```
+
+[**View Data Status Check
+output**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
 
 ### Generate an Ecological Report
 
@@ -206,16 +205,15 @@ or extend sections according to their data and reporting needs. The
 function returns the path to the generated HTML report; set
 `view = TRUE` to open it in a browser.
 
-[**View an example Ecological Report generated from the bundled Leuven
-camera-trap data
-subset**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
-
 ``` r
 report_file <- report(
   cm,
   view = FALSE
 )
 ```
+
+[**View Ecological Report
+output**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
 
 ## Configure a report
 

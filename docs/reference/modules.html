@@ -11,7 +11,7 @@ remove modules, restore deleted modules, and empty the module trash."></head><bo
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.56</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -174,10 +174,11 @@ information about the performed operation invisibly.</p>
 is stored as a module. A module can contain section metadata, text,
 executable R code, required packages, and rendering settings.</p>
 <p>Because modules can execute arbitrary R code with the permissions of the
-current R process, only install modules from trusted sources and inspect their
-contents before running them.</p>
-<p><code>add_Module()</code> adds a new YAML-defined module to the package module directory.
-The module can optionally be inserted before or after an existing module.</p>
+current R process, only install modules from trusted sources and inspect
+their contents before running them.</p>
+<p><code>add_Module()</code> adds a new YAML-defined module to the package module
+directory. The module can optionally be inserted before or after an existing
+module.</p>
 <p><code>move_Module()</code> changes the position or parent of an existing module within
 the hierarchical report structure.</p>
 <p><code>remove_Module()</code> moves a module to the module trash. If <code>recursive = TRUE</code>,

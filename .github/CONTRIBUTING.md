@@ -86,7 +86,7 @@ used throughout the data-preparation and summary workflow.
 
 Packages needed only for particular analytical or visual report sections should
 remain optional and must be declared within the module using `#| packages:`.
-`install_All()` discovers these declarations from the available YAML modules
+`install_all()` discovers these declarations from the available YAML modules
 and passes the resulting package references to `pak`. It is an explicit opt-in
 operation and is never called at package load or report-render time. When adding
 or changing a module dependency, update its documentation and tests, and verify

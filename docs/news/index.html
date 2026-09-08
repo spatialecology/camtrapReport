@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.56</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.56" id="camtrapreport-1056-development-version">camtrapReport 1.0.56 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1056-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.58" id="camtrapreport-1058-development-version">camtrapReport 1.0.58 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1058-development-version"></a></h2>
+<ul><li>Expanded deterministic unit coverage for sampling and project metadata, taxonomy lookup fallbacks, module-management dispatch, and nested report object insertion.</li>
+<li>The new tests use in-memory fixtures and mocked external lookups. They do not contact remote services, install packages, or require optional module dependencies.</li>
+<li>Increased locally measured <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code> from 73.50% to 77.76% without changing package functionality, dependencies, or the public API.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.57" id="camtrapreport-1057">camtrapReport 1.0.57<a class="anchor" aria-label="anchor" href="#camtrapreport-1057"></a></h2>
+<ul><li>Addressed the remaining behavior-preserving <code>goodpractice</code> recommendations: type-stable iteration, non-nested pipes and conditionals, direct condition messages, clearer character-vector formatting, and stricter exact unit-test expectations.</li>
+<li>Documented the intentional, narrowly scoped uses of <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require()</a></code>, <code><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach()</a></code>, and <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd()</a></code> that support dynamic report modules, package updates, and GUI report generation. Their runtime behavior is unchanged.</li>
+<li>Retained the existing public API, dependency policy, dynamic <code>.eval()</code> architecture, and report behavior.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.56" id="camtrapreport-1056">camtrapReport 1.0.56<a class="anchor" aria-label="anchor" href="#camtrapreport-1056"></a></h2>
 <div class="section level3">
 <h3 id="internal-improvements-1-0-56">Internal improvements<a class="anchor" aria-label="anchor" href="#internal-improvements-1-0-56"></a></h3>
 <ul><li>Addressed selected static-analysis and good-practice findings in package code without changing the public API or intended outputs.</li>

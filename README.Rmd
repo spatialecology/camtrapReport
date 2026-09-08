@@ -85,10 +85,10 @@ pak::pkg_install(
 To automatically check and install packages required by available, newly added, or updated report modules:
 
 ```{r module-dependencies, eval=FALSE}
-camtrapReport::install_All()
+camtrapReport::install_all()
 ```
 
-`install_All()` scans the bundled and registered user modules and installs any
+`install_all()` scans the bundled and registered user modules and installs any
 missing dependencies automatically.
 
 ## Quick start
