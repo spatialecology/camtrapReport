@@ -50,41 +50,45 @@ Please make sure that all checks pass before submitting the pull request.
 
 ## Architecture and report-module execution
 
-The central `camReport` object is implemented as a Reference Class because
-report generation is stateful: the same object stores imported data, metadata,
-settings, selected sections, intermediate results, and report configuration as
-the workflow progresses. R6 could provide similar reference semantics, but
-changing the established implementation would require substantial refactoring
-without a clear user-facing benefit.
+`camtrapReport` uses a modular, stateful architecture. The central `camReport`
+object is implemented as a Reference Class and acts as a mutable container for
+the imported data, metadata, settings, selected report sections, intermediate
+results, and report configuration used throughout the workflow. Reference
+semantics are useful here because the same object is progressively updated as
+the analysis and reporting workflow proceeds. R6 could provide similar
+semantics, but the current Reference Class implementation is already integrated
+throughout the package.
 
-The term **module** is used here in the general sense of an independently
-defined report component, rather than in the specific sense of a Shiny module.
-Shiny is used separately for the optional graphical interface and is not part
-of the report-module execution mechanism. The module system was developed
-specifically for the `camtrapReport` reporting workflow and was not derived
-from Shiny modules.
+The term **module** is used in the general sense of an independently defined
+report component. It does not refer to a Shiny module. Shiny is used separately
+for the optional graphical interface and was not part of the original
+report-module design.
 
-A fixed R Markdown template would have been simpler internally, but modifying
-or adding analyses would then require changes to the central template. The
-module-based design instead keeps analytical and reporting components
-independently configurable and extensible without changing the package core.
+A fixed R Markdown template would provide a simpler internal structure, but it
+would make the report less flexible: adding or modifying an analysis would
+require changes to the central template. Instead, `camtrapReport` keeps
+analytical and reporting components as separate modules that can be selected,
+reordered, modified, or extended without changing the package core. This also
+allows contributors to develop additional analytical components for different
+camera-trap datasets and reporting needs.
 
-Report modules are defined in YAML files and may include explanatory text,
-R code, rendering options, and declarations of optional package dependencies.
-During report generation, the module code is inserted into the generated
-R Markdown document and evaluated by `knitr`/`rmarkdown` in a dedicated
-rendering environment created by `.make_render_env()`.
+Report modules are defined in YAML files and can contain metadata, explanatory
+text, R code, rendering options, and declarations of optional package
+dependencies. During report generation, the selected module content is
+assembled into the generated R Markdown document and evaluated by
+`knitr`/`rmarkdown` in a dedicated rendering environment created by
+`.make_render_env()`.
 
-Separately, `.eval()` is a small internal wrapper around base R `parse()` and
-`eval()` used in some dynamic code paths where an R expression is intentionally
-represented as character text and must be evaluated in a specified environment.
-It is not the mechanism by which YAML module code is rendered. These uses do
-not require quosures, data masks, or other tidy-evaluation semantics, so adding
-`rlang` would not simplify the evaluation model. Where dynamic evaluation is
-not needed, direct function calls are preferred.
+The internal `.eval()` helper serves a separate purpose. It is a small wrapper
+around base R `parse()` and `eval()` used in a few dynamic code paths where an R
+expression is intentionally stored as character text and must be evaluated in a
+specified environment. It is not used to render YAML module code. These uses do
+not require quosures, data masks, or other tidy-evaluation semantics. Where
+dynamic evaluation is unnecessary, direct function calls should be preferred.
 
-For guidance on creating and managing modules, including a worked example, see
-the [Module Management guide](../vignettes/articles/modules.Rmd).
+For guidance on creating, registering, testing, and managing report modules,
+including a worked YAML example, see the
+[Module Management guide](../vignettes/articles/modules.Rmd).
 
 ## Dependency policy
 
