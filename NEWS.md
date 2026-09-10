@@ -9,6 +9,8 @@
   `rlang`-style evaluation.
 - Improved the README and package website with clearer descriptions and direct
   example outputs for the Data Status Check and Ecological Report.
+- Added the rOpenSci Software Peer Review status badge to the README and
+  package website.
 - Expanded deterministic unit coverage for sampling and project metadata,
   taxonomy lookup fallbacks, module-management dispatch, and nested report
   object insertion.
