@@ -1,0 +1,9 @@
+---
+name: "model_parameters_eow"
+title: "### REM Model Parameters {.tabset}"
+parent: "population_density"
+text: |
+  The REM relies on three key parameters: movement speed, activity level, and day range. Movement speed represents the average distance travelled by an individual over time, whereas activity level reflects the proportion of time individuals are active and therefore available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is derived from movement speed and activity level (Rowcliffe et al., 2008; Rowcliffe et al., 2016). Together, these parameters underpin the REM density estimates presented in section 3.3.2.
+
+code: null
+---

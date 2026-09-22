@@ -1,0 +1,501 @@
+---
+name: "abundance_trends_eow"
+title: "## Capture-Based and Abundance Trends {.tabset}"
+parent: "results"
+text: "Camera-trap capture data do not directly measure true population size, but they can provide useful indicators of temporal variation in relative abundance and species detectability, provided that survey effort and detection conditions remain reasonably comparable among years."
+code: |
+  #| name: abundance
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
+  #| packages: ggplot2, dplyr, patchwork, scales
+  
+  library(ggplot2)
+  library(dplyr)
+  library(patchwork)
+  library(scales)
+  
+  group_label <- .pretty_label(object$setting$focus_groups)
+  
+  cat(paste0(
+    "The figures below summarize capture-based trends for frequently detected ", group_label,
+    " recorded in at least ", object$filterCount,
+    " capture events during the study period in ", object$siteName, ". ",
+    "The panel presents complementary metrics, including the number of captures, RAI ",
+    "(relative abundance index), the number of capture locations, and naive occupancy ",
+    "(percentage of locations with species detections). ",
+    "Together, these metrics support comparison of temporal patterns in species records across survey years.\n\n"
+  ))
+  
+  # -------------------------
+  # Helper functions
+  # -------------------------
+  
+  .safe_mean <- function(x) {
+    x <- suppressWarnings(as.numeric(x))
+    if (all(is.na(x))) NA_real_ else mean(x, na.rm = TRUE)
+  }
+  
+  .safe_sum <- function(x) {
+    x <- suppressWarnings(as.numeric(x))
+    if (all(is.na(x))) NA_real_ else sum(x, na.rm = TRUE)
+  }
+  
+  .safe_max <- function(x) {
+    x <- suppressWarnings(as.numeric(x))
+    if (all(is.na(x))) NA_real_ else max(x, na.rm = TRUE)
+  }
+  
+  .make_species_colors <- function(species) {
+    species <- unique(as.character(species))
+    species <- species[!is.na(species) & nzchar(species)]
+    
+    n <- length(species)
+    if (n == 0) return(stats::setNames(character(0), character(0)))
+    
+    if (n <= 6 && length(object$reportObjectElements$color_palette) >= n) {
+      cols <- object$reportObjectElements$color_palette[seq_len(n)]
+    } else {
+      cols <- grDevices::hcl.colors(n, palette = "Dark 3")
+    }
+    
+    stats::setNames(cols, species)
+  }
+  
+  # -------------------------
+  # Survey-year axis helpers
+  # -------------------------
+  
+  .make_year_axis <- function(years_all) {
+    years_all <- sort(unique(suppressWarnings(as.numeric(years_all))))
+    years_all <- years_all[is.finite(years_all)]
+    gap_before <- c(FALSE, diff(years_all) > 1)
+    
+    data.frame(
+      Year_numeric = years_all,
+      Year_plot = seq_along(years_all),
+      Year_label = as.character(years_all),
+      gap_before = gap_before,
+      Year_label_expr = ifelse(
+        gap_before,
+        paste0("bold('", years_all, "')"),
+        paste0("'", years_all, "'")
+      ),
+      stringsAsFactors = FALSE
+    )
+  }
+  
+  .x_year_scale <- function(year_axis, expand_right = 0.05) {
+    ggplot2::scale_x_continuous(
+      breaks = year_axis$Year_plot,
+      labels = parse(text = year_axis$Year_label_expr),
+      expand = ggplot2::expansion(mult = c(0.02, expand_right))
+    )
+  }
+  
+  .gap_caption_text <- function(year_axis) {
+    if (any(year_axis$gap_before, na.rm = TRUE)) {
+      " Bold year labels indicate a gap of more than one year since the previous available survey year."
+    } else {
+      ""
+    }
+  }
+  
+  .complete_species_years <- function(df, species_list, year_axis) {
+    grid <- expand.grid(
+      scientificName = species_list,
+      Year_numeric = year_axis$Year_numeric,
+      KEEP.OUT.ATTRS = FALSE,
+      stringsAsFactors = FALSE
+    )
+    
+    grid |>
+      dplyr::left_join(df, by = c("scientificName", "Year_numeric")) |>
+      dplyr::left_join(year_axis, by = "Year_numeric") |>
+      dplyr::mutate(
+        Year = factor(.data$Year_label, levels = year_axis$Year_label)
+      ) |>
+      dplyr::arrange(.data$scientificName, .data$Year_plot)
+  }
+  
+  .add_line_segments <- function(df, value_col) {
+    df |>
+      dplyr::arrange(.data$scientificName, .data$Year_plot) |>
+      dplyr::group_by(.data$scientificName) |>
+      dplyr::mutate(
+        has_value_tmp = !is.na(.data[[value_col]]),
+        previous_has_value_tmp = dplyr::lag(.data$has_value_tmp, default = FALSE),
+        new_segment_tmp = .data$has_value_tmp & !.data$previous_has_value_tmp,
+        segment_tmp = cumsum(.data$new_segment_tmp),
+        line_group = ifelse(
+          .data$has_value_tmp,
+          paste(.data$scientificName, .data$segment_tmp, sep = "__"),
+          NA_character_
+        )
+      ) |>
+      dplyr::ungroup()
+  }
+  
+  .log10_labels <- function(x) {
+    vapply(x, function(z) {
+      if (!is.finite(z)) return("")
+      if (z == 0) return("0")
+      if (z >= 1) return(formatC(z, format = "f", digits = 0))
+      digits <- max(1, ceiling(-log10(z)))
+      out <- formatC(z, format = "f", digits = digits)
+      out <- sub("0+$", "", out)
+      sub("\\.$", "", out)
+    }, character(1))
+  }
+  
+  .caption_html <- function(fig_no, text) {
+    cat(paste0(
+      '\n\n<p style="font-size:16px; color:black; font-weight:normal; margin-top:10px;">',
+      '<b>Figure ', fig_no, '.</b> ',
+      '<i>', text, '</i></p>\n\n'
+    ))
+  }
+  
+  .main_plot_theme <- function() {
+    ggplot2::theme_minimal(base_family = "", base_size = 13) +
+      ggplot2::theme(
+        title = ggplot2::element_text(size = 14, face = "bold"),
+        axis.title.x = ggplot2::element_text(size = 13, face = "bold", color = "black"),
+        axis.title.y = ggplot2::element_text(size = 13, face = "bold", color = "black"),
+        axis.text.x  = ggplot2::element_text(size = 11, angle = 0, hjust = 0.5),
+        axis.text.y  = ggplot2::element_text(size = 11),
+        panel.grid.minor = ggplot2::element_blank(),
+        plot.margin = ggplot2::margin(4, 4, 4, 4)
+      )
+  }
+  
+  .facet_plot_theme <- function() {
+    ggplot2::theme_minimal(base_family = "", base_size = 12) +
+      ggplot2::theme(
+        title = ggplot2::element_text(size = 13, face = "bold"),
+        strip.text = ggplot2::element_text(face = "bold", size = 10),
+        axis.title.x = ggplot2::element_text(size = 12, face = "bold", color = "black"),
+        axis.title.y = ggplot2::element_text(size = 12, face = "bold", color = "black"),
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 8),
+        axis.text.y = ggplot2::element_text(size = 8),
+        panel.grid.minor = ggplot2::element_blank(),
+        plot.margin = ggplot2::margin(4, 4, 4, 4)
+      )
+  }
+  
+  # -------------------------
+  # Species included in focus groups
+  # -------------------------
+  
+  .w <- character()
+  
+  if (!is.null(object$setting$focus_groups)) {
+    .idx <- which(names(object$species_summary) %in% object$setting$focus_groups)
+    if (length(.idx) > 0) {
+      .w <- unlist(lapply(.idx, function(i) {
+        object$species_summary[[i]]$site_list$scientificName
+      }))
+    }
+  }
+  
+  if (length(.w) == 0) {
+    if (any(c("wild_mammals", "large_mammals", "birds", "amphibians", "reptiles") %in% object$species_summary$count$Group)) {
+      .idx <- which(names(object$species_summary) %in% c("wild_mammals", "large_mammals", "birds", "amphibians", "reptiles"))
+      .w <- unlist(lapply(.idx, function(i) {
+        object$species_summary[[i]]$site_list$scientificName
+      }))
+    } else {
+      .w <- unique(object$capture$scientificName)
+    }
+  }
+  
+  .w <- unique(.w[!is.na(.w) & nzchar(.w)])
+  
+  capture_base <- object$capture |>
+    dplyr::filter(
+      .data$scientificName %in% .w,
+      .data$Year != "total",
+      as.character(.data$Year) != "9999"
+    ) |>
+    dplyr::mutate(
+      Year_numeric = suppressWarnings(as.numeric(as.character(.data$Year)))
+    ) |>
+    dplyr::filter(!is.na(.data$Year_numeric)) |>
+    dplyr::group_by(.data$scientificName, .data$Year_numeric) |>
+    dplyr::summarise(
+      Captures = .safe_sum(.data$Captures),
+      Capture_Rate = .safe_mean(.data$Capture_Rate),
+      Locations = .safe_max(.data$Locations),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(.data$scientificName, .data$Year_numeric)
+  
+  if (nrow(capture_base) == 0) {
+    cat("\n\nNo capture data are available for the selected focus group.\n\n")
+  } else {
+    species_list <- sort(unique(as.character(capture_base$scientificName)))
+    years_all <- sort(unique(capture_base$Year_numeric))
+    year_axis <- .make_year_axis(years_all)
+    
+    n_species <- length(species_list)
+    many_species <- n_species > 100
+    species_colors <- .make_species_colors(species_list)
+    
+    capture_plot_base <- .complete_species_years(
+      capture_base,
+      species_list = species_list,
+      year_axis = year_axis
+    ) |>
+      dplyr::mutate(
+        scientificName = factor(.data$scientificName, levels = species_list)
+      )
+    
+    # -------------------------
+    # 1. Number of captures plot
+    # -------------------------
+    capture_plot <- .add_line_segments(capture_plot_base, "Captures")
+    
+    if (many_species) {
+      p_captures <- ggplot2::ggplot(
+        capture_plot,
+        ggplot2::aes(x = .data$Year_plot, y = .data$Captures, group = .data$line_group, color = .data$scientificName)
+      ) +
+        ggplot2::geom_line(linewidth = 1.1, na.rm = TRUE, show.legend = FALSE) +
+        ggplot2::geom_point(size = 2.8, shape = 21, fill = "white", stroke = 0.9, na.rm = TRUE, show.legend = FALSE) +
+        ggplot2::facet_wrap(~ scientificName, scales = "free_y", ncol = 3) +
+        .x_year_scale(year_axis, expand_right = 0.05) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+        ggplot2::labs(title = "Number of Captures", x = "Survey Year", y = "Captures") +
+        .facet_plot_theme()
+    } else {
+      p_captures <- ggplot2::ggplot(
+        capture_plot,
+        ggplot2::aes(x = .data$Year_plot, y = .data$Captures, group = .data$line_group, color = .data$scientificName)
+      ) +
+        ggplot2::geom_line(linewidth = 1.2, na.rm = TRUE, show.legend = TRUE) +
+        ggplot2::geom_point(size = 3.0, shape = 21, fill = "white", stroke = 1, na.rm = TRUE, show.legend = TRUE) +
+        .x_year_scale(year_axis, expand_right = 0.05) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+        ggplot2::labs(title = "Number of Captures", x = "Survey Year", y = "Captures") +
+        .main_plot_theme()
+    }
+    
+    # -------------------------
+    # 2. RAI (Relative Abundance Index) plot
+    # -------------------------
+    df_capture_rate <- capture_plot_base |>
+      dplyr::mutate(
+        CaptureRate_100 = 100 * .data$Capture_Rate,
+        CaptureRate_100 = dplyr::if_else(
+          is.finite(.data$CaptureRate_100) & .data$CaptureRate_100 >= 0,
+          .data$CaptureRate_100,
+          NA_real_
+        )
+      ) |>
+      .add_line_segments("CaptureRate_100")
+    
+    p_rate <- NULL
+    if (!all(is.na(df_capture_rate$CaptureRate_100))) {
+      max_rate <- max(df_capture_rate$CaptureRate_100, na.rm = TRUE)
+      
+      y_upper <- if (is.finite(max_rate) && max_rate > 100) {
+        10 ^ ceiling(log10(max_rate))
+      } else if (is.finite(max_rate) && max_rate > 0) {
+        max_rate * 1.15
+      } else {
+        100
+      }
+      
+      y_breaks <- 10 ^ seq(-1, ceiling(log10(max(1, max_rate))), by = 1)
+      y_breaks <- y_breaks[y_breaks >= 0.1 & y_breaks <= y_upper]
+      
+      if (many_species) {
+        p_rate <- ggplot2::ggplot(
+          df_capture_rate,
+          ggplot2::aes(x = .data$Year_plot, y = .data$CaptureRate_100, group = .data$line_group, color = .data$scientificName)
+        ) +
+          ggplot2::geom_line(linewidth = 1.1, na.rm = TRUE, show.legend = FALSE) +
+          ggplot2::geom_point(shape = 21, size = 2.8, fill = "white", stroke = 0.9, na.rm = TRUE, show.legend = FALSE) +
+          ggplot2::facet_wrap(~ scientificName, ncol = 3) +
+          .x_year_scale(year_axis, expand_right = 0.05) +
+          ggplot2::scale_y_continuous(
+            trans = scales::pseudo_log_trans(base = 10),
+            breaks = y_breaks,
+            labels = .log10_labels,
+            limits = c(0, y_upper)
+          ) +
+          ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+          ggplot2::labs(title = "RAI", x = "Survey Year", y = "Relative abundance index") +
+          .facet_plot_theme()
+      } else {
+        p_rate <- ggplot2::ggplot(
+          df_capture_rate,
+          ggplot2::aes(x = .data$Year_plot, y = .data$CaptureRate_100, group = .data$line_group, color = .data$scientificName)
+        ) +
+          ggplot2::geom_line(linewidth = 1.2, na.rm = TRUE, show.legend = TRUE) +
+          ggplot2::geom_point(shape = 21, size = 3.0, fill = "white", stroke = 1, na.rm = TRUE, show.legend = TRUE) +
+          .x_year_scale(year_axis, expand_right = 0.05) +
+          ggplot2::scale_y_continuous(
+            trans = scales::pseudo_log_trans(base = 10),
+            breaks = y_breaks,
+            labels = .log10_labels,
+            limits = c(0, y_upper)
+          ) +
+          ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+          ggplot2::labs(title = "RAI", x = "Survey Year", y = "Relative abundance index") +
+          .main_plot_theme()
+      }
+    }
+    
+    # -------------------------
+    # 3. Number of locations plot
+    # -------------------------
+    location_plot <- .add_line_segments(capture_plot_base, "Locations")
+    
+    if (many_species) {
+      species_order <- capture_base |>
+        dplyr::group_by(.data$scientificName) |>
+        dplyr::summarise(total_locations = sum(.data$Locations, na.rm = TRUE), .groups = "drop") |>
+        dplyr::arrange(.data$total_locations) |>
+        dplyr::pull(.data$scientificName)
+      
+      heat_data <- capture_plot_base |>
+        dplyr::mutate(
+          scientificName = factor(.data$scientificName, levels = species_order),
+          Year = factor(.data$Year_label, levels = year_axis$Year_label)
+        )
+      
+      p_locations <- ggplot2::ggplot(
+        heat_data,
+        ggplot2::aes(x = .data$Year, y = .data$scientificName, fill = .data$Locations)
+      ) +
+        ggplot2::geom_tile(color = "white", linewidth = 0.4) +
+        ggplot2::geom_text(ggplot2::aes(label = ifelse(is.na(.data$Locations), "", .data$Locations)), size = 3.2) +
+        ggplot2::scale_fill_gradient(low = "#F1F5F9", high = "#2C3E50", na.value = "#F7F7F7") +
+        ggplot2::labs(title = "Number of Locations", x = "Survey Year", y = "Species", fill = "Locations") +
+        ggplot2::theme_minimal(base_size = 12) +
+        ggplot2::theme(
+          title = ggplot2::element_text(size = 13, face = "bold"),
+          axis.title.x = ggplot2::element_text(size = 12, face = "bold", color = "black"),
+          axis.title.y = ggplot2::element_text(size = 12, face = "bold", color = "black"),
+          panel.grid = ggplot2::element_blank(),
+          legend.position = "right"
+        )
+    } else {
+      max_locations <- max(location_plot$Locations, na.rm = TRUE)
+      y_breaks <- pretty(c(0, max_locations))
+      
+      p_locations <- ggplot2::ggplot(
+        location_plot,
+        ggplot2::aes(x = .data$Year_plot, y = .data$Locations, group = .data$line_group, color = .data$scientificName)
+      ) +
+        ggplot2::geom_line(linewidth = 1.2, na.rm = TRUE, show.legend = TRUE) +
+        ggplot2::geom_point(shape = 21, size = 3.0, fill = "white", stroke = 1, na.rm = TRUE, show.legend = TRUE) +
+        .x_year_scale(year_axis, expand_right = 0.05) +
+        ggplot2::scale_y_continuous(
+          breaks = y_breaks,
+          limits = c(0, max(y_breaks, na.rm = TRUE)),
+          expand = ggplot2::expansion(mult = c(0, 0.05))
+        ) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+        ggplot2::labs(title = "Number of Locations", x = "Survey Year", y = "Locations") +
+        .main_plot_theme()
+    }
+    
+    # -------------------------
+    # 4. Naive occupancy plot
+    # -------------------------
+    total_locs_by_year <- object$capture |>
+      dplyr::filter(
+        .data$Year != "total",
+        as.character(.data$Year) != "9999"
+      ) |>
+      dplyr::mutate(
+        Year_numeric = suppressWarnings(as.numeric(as.character(.data$Year)))
+      ) |>
+      dplyr::filter(!is.na(.data$Year_numeric)) |>
+      dplyr::group_by(.data$Year_numeric) |>
+      dplyr::summarise(
+        Total_Locations = .safe_max(.data$Locations),
+        .groups = "drop"
+      )
+    
+    df_occupancy <- capture_plot_base |>
+      dplyr::left_join(total_locs_by_year, by = "Year_numeric") |>
+      dplyr::mutate(
+        Total_Locations = dplyr::if_else(
+          is.na(.data$Total_Locations) | .data$Total_Locations < .data$Locations,
+          .data$Locations,
+          .data$Total_Locations
+        ),
+        Naive_Occupancy = dplyr::if_else(
+          !is.na(.data$Locations) & !is.na(.data$Total_Locations) & .data$Total_Locations > 0,
+          100 * (.data$Locations / .data$Total_Locations),
+          NA_real_
+        )
+      ) |>
+      .add_line_segments("Naive_Occupancy")
+    
+    if (many_species) {
+      p_occupancy <- ggplot2::ggplot(
+        df_occupancy,
+        ggplot2::aes(x = .data$Year_plot, y = .data$Naive_Occupancy, group = .data$line_group, color = .data$scientificName)
+      ) +
+        ggplot2::geom_line(linewidth = 1.1, na.rm = TRUE, show.legend = FALSE) +
+        ggplot2::geom_point(shape = 21, size = 2.8, fill = "white", stroke = 0.9, na.rm = TRUE, show.legend = FALSE) +
+        ggplot2::facet_wrap(~ scientificName, ncol = 3) +
+        .x_year_scale(year_axis, expand_right = 0.05) +
+        ggplot2::scale_y_continuous(limits = c(0, 100)) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+        ggplot2::labs(title = "Naive Occupancy", x = "Survey Year", y = "Naive occupancy (%)") +
+        .facet_plot_theme()
+    } else {
+      max_occ <- max(df_occupancy$Naive_Occupancy, na.rm = TRUE)
+      y_occ_upper <- if (is.finite(max_occ) && max_occ > 0) min(100, max(pretty(c(0, max_occ)))) else 100
+      
+      p_occupancy <- ggplot2::ggplot(
+        df_occupancy,
+        ggplot2::aes(x = .data$Year_plot, y = .data$Naive_Occupancy, group = .data$line_group, color = .data$scientificName)
+      ) +
+        ggplot2::geom_line(linewidth = 1.2, na.rm = TRUE, show.legend = TRUE) +
+        ggplot2::geom_point(shape = 21, size = 3.0, fill = "white", stroke = 1, na.rm = TRUE, show.legend = TRUE) +
+        .x_year_scale(year_axis, expand_right = 0.05) +
+        ggplot2::scale_y_continuous(
+          limits = c(0, y_occ_upper),
+          expand = ggplot2::expansion(mult = c(0, 0.05))
+        ) +
+        ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+        ggplot2::labs(title = "Naive Occupancy", x = "Survey Year", y = "Naive occupancy (%)") +
+        .main_plot_theme()
+    }
+    
+    # -------------------------
+    # Combine & output 2x2 grid
+    # -------------------------
+    plot_list <- list(p_captures, p_rate, p_locations, p_occupancy)
+    plot_list <- plot_list[!vapply(plot_list, is.null, logical(1))]
+    
+    if (length(plot_list) > 0) {
+      grid_plot <- patchwork::wrap_plots(plot_list, ncol = 2) +
+        patchwork::plot_layout(guides = "collect") &
+        ggplot2::theme(
+          legend.position = "right",
+          legend.title = ggplot2::element_text(face = "bold", size = 11),
+          legend.text = ggplot2::element_text(face = "italic", size = 10),
+          legend.key.size = ggplot2::unit(0.8, "lines"),
+          legend.margin = ggplot2::margin(0, 0, 0, 0),
+          legend.box.margin = ggplot2::margin(0, 0, 0, 5)
+        )
+      
+      print(grid_plot)
+      
+      .caption_html(
+        object$getFigureNumber(text = FALSE),
+        paste0(
+          "Trends in camera-trap detections, RAI (relative abundance index), recorded locations, and naive occupancy over survey years for study species in the ",
+          group_label,
+          " group.",
+          .gap_caption_text(year_axis)
+        )
+      )
+    }
+  }
+---

@@ -7,52 +7,55 @@
 \alias{sections,camReport-method}
 \title{Select report sections}
 \usage{
-section_names(keep, exclude)
+section_names(keep, exclude, object, profile, report_type)
 
-sections(x, n)
+sections(x, n, profile, report_type)
 }
 \arguments{
-\item{keep}{An optional character vector of section names to keep. When
-omitted, all available sections are returned.}
+\item{keep}{An optional character vector of section names to keep.}
 
-\item{exclude}{An optional character vector of section names to exclude. The
-default is \code{NULL}.}
+\item{exclude}{An optional character vector of section names to exclude.}
+
+\item{object}{An optional \code{\link[=camReport-classes]{camReport}} object. It is
+needed to inspect user-defined profiles registered in that object.}
+
+\item{profile}{An optional profile name or \code{reportProfile} object.}
+
+\item{report_type}{Which output selection to use: \code{"report"}, \code{"status"},
+or, for \code{section_names()}, \code{"all"}.}
 
 \item{x}{A \code{\link[=camReport-classes]{camReport}} object created by \code{\link[=camData]{camData()}}.}
 
-\item{n}{An optional character vector giving the names of report sections to
-include. When omitted, the current section names are returned.}
+\item{n}{An optional character vector of modules to include. Qualified names
+such as \code{"status::spatial"} can select from the other module pool when a
+profile is being edited.}
 }
 \value{
-\code{section_names()} returns a character vector of section names.
-\code{sections()} returns a character vector when \code{n} is omitted; otherwise, it
-updates the supplied \code{camReport} object and returns it invisibly.
+\code{section_names()} and \code{sections(x)} return character vectors.
+\code{sections(x, n)} updates \code{x} and returns it invisibly.
 }
 \description{
-Get the names of available report sections or update which sections are
-included in a \code{\link[=camReport-classes]{camReport}} report.
+Get module names or update which sections are used by an ecological or
+data-status report. Profiles provide named, reusable selections without
+moving or duplicating the YAML module files.
 }
 \details{
-\code{section_names()} returns the names of available report sections. It can be
-used to identify valid section names before selecting sections with
-\code{sections()}.
+\code{section_names()} lists modules in a pool or in a profile. Set
+\code{report_type = "all"} to list both pools. Names from both pools, and names
+returned for a profile, use the unambiguous \code{"source::module"} notation.
 
-\code{sections()} updates the report-section selection stored in a \code{camReport}
-object. Only the selected sections are included when the report is generated.
-When \code{n} is omitted, it returns the names of the object's currently available
-sections without changing the object.
+\code{sections()} updates the transient module tree used for the next render.
+When \code{profile} is supplied, it can also inspect or update that registered
+profile. Set \code{report_type = "status"} to manage the data-status selection.
 }
 \examples{
-# List all available report-section names
-available_sections <- section_names()
-head(available_sections)
+section_names()
+section_names(profile = "default")
+section_names(report_type = "all")
 
 \donttest{
-# Load the packaged example dataset
 source_dataset <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport"
+  "external", "dataset", package = "camtrapReport"
 )
 example_dataset <- tempfile("camtrapReport-example-")
 dir.create(example_dataset)
@@ -61,26 +64,14 @@ invisible(file.copy(
   example_dataset,
   recursive = TRUE
 ))
-
 cm <- camData(example_dataset)
-
-# Inspect the sections currently available for this object
-current_sections <- sections(cm)
-head(current_sections)
-
-# Select a small subset of available sections
-selected_sections <- head(current_sections, 4)
-cm <- sections(cm, selected_sections)
-
-# Show the selected section names
-selected_sections
-
+sections(cm, profile = "default")
+cm <- sections(cm, c("introduction", "methods"))
 unlink(example_dataset, recursive = TRUE, force = TRUE)
 }
 }
 \seealso{
-\code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=updateReportSection]{updateReportSection()}},
-\code{\link[=listReportSections]{listReportSections()}}
+\code{\link[=reportProfile]{reportProfile()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=listReportSections]{listReportSections()}}
 
 Other report sections:
 \code{\link{reportSection,character-method}},

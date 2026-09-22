@@ -1,0 +1,129 @@
+---
+name: "location_eow"
+title: "Camera Locations (Latest Sampling Year)"
+parent: "methods"
+text: |
+  The map below displays the camera trap locations deployed during the most recent sampling year present in the data. Locations are shown within the study area boundaries.
+code: |
+  #| name: camera_research_area
+  #| setting: echo = FALSE, results = "asis", message = FALSE, warning = FALSE
+  #| packages: leaflet, dplyr, terra, htmltools
+  
+  # High-contrast categorical colours for habitat classes
+  .nice_habitat_palette <- function(n) {
+    base_cols <- c(
+      "#0072B2", "#D55E00", "#009E73", "#CC79A7",
+      "#E69F00", "#56B4E9", "#882255", "#117733",
+      "#332288", "#AA4499", "#44AA99", "#999933",
+      "#661100", "#6699CC", "#AA4466", "#DDCC77",
+      "#88CCEE", "#000000"
+    )
+    
+    if (n <= length(base_cols)) {
+      base_cols[seq_len(n)]
+    } else {
+      grDevices::hcl.colors(n, palette = "Dark 3")
+    }
+  }
+  
+  # Clean popup values: removes leading/trailing commas, repeated commas, and empty values
+  .popup_value <- function(x, missing = "No Data") {
+    x <- as.character(x)
+    x[is.na(x)] <- ""
+    x <- gsub("^\\s*,+\\s*", "", x)
+    x <- gsub("\\s*,+\\s*$", "", x)
+    x <- gsub("\\s*,\\s*,+", ", ", x)
+    x <- gsub("\\s+", " ", x)
+    x <- trimws(x)
+    ifelse(nzchar(x), htmltools::htmlEscape(x), missing)
+  }
+  
+  .dat_year <- object$data_merged[
+    ,
+    c(
+      "locationName", "cameraHeight", "longitude", "latitude",
+      "Year", "Year_List", "Habitat_Type", "BaitUse_List",
+      "Species_List", "CaptureMethod_List", "Total_Photos",
+      "Classify_By_List", "Setup_By_List"
+    )
+  ]
+  
+  .dat_year <- .dat_year[
+    .dat_year$Year == max(.dat_year$Year, na.rm = TRUE) &
+    !is.na(.dat_year$longitude) & !is.na(.dat_year$latitude),
+  ]
+  
+  .dat_year$Habitat_Type <- as.character(.dat_year$Habitat_Type)
+  
+  unique_habitats <- unique(.dat_year$Habitat_Type)
+  unique_habitats <- sort(unique_habitats[!is.na(unique_habitats) & unique_habitats != ""])
+  
+  habitat_colors <- leaflet::colorFactor(
+    palette = .nice_habitat_palette(length(unique_habitats)),
+    domain = unique_habitats,
+    na.color = "#1C1C1C"
+  )
+  
+  .dat_year <- .dat_year |>
+    dplyr::mutate(
+      label = paste0(
+        "<b>Location:</b> ", .popup_value(locationName, "N/A"), "<br>",
+        "<b>List of Years:</b> ", .popup_value(Year_List, "N/A"), "<br>",
+        "<b>Habitat Type:</b> ", .popup_value(Habitat_Type, "N/A"), "<br>",
+        "<b>Bait Use:</b> ", .popup_value(BaitUse_List), "<br>",
+        "<b>Species Observed:</b> ", .popup_value(Species_List), "<br>",
+        "<b>Capture Method:</b> ", .popup_value(CaptureMethod_List), "<br>",
+        "<b>Number of Photos:</b> ", .popup_value(Total_Photos), "<br>",
+        "<b>Classified By:</b> ", .popup_value(Classify_By_List), "<br>",
+        "<b>Setup By:</b> ", .popup_value(Setup_By_List)
+      )
+    )
+  
+  map <- leaflet::leaflet(.dat_year, width = "100%", height = "400px") |>
+    leaflet::addTiles()
+  
+  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
+    object$study_area$object <- terra::readRDS(object$study_area$path)
+    .tmpStudyArea <- terra::project(object$study_area$object, "epsg:4326")
+    
+    map <- map |>
+      leaflet::addPolygons(
+        data = .tmpStudyArea,
+        fillColor = "transparent",
+        fillOpacity = 0.3,
+        color = "black",
+        weight = 2
+      )
+  }
+  
+  map <- map |>
+    leaflet::addCircleMarkers(
+      lng = ~longitude,
+      lat = ~latitude,
+      radius = 6,
+      color = ~habitat_colors(Habitat_Type),
+      fillOpacity = 0.85,
+      stroke = TRUE,
+      weight = 1,
+      popup = ~label
+    ) |>
+    leaflet::fitBounds(
+      lng1 = min(.dat_year$longitude, na.rm = TRUE),
+      lat1 = min(.dat_year$latitude, na.rm = TRUE),
+      lng2 = max(.dat_year$longitude, na.rm = TRUE),
+      lat2 = max(.dat_year$latitude, na.rm = TRUE)
+    )
+  
+  if (isTRUE(object$setting$locationLegend)) {
+    map <- map |>
+      leaflet::addLegend(
+        position = "bottomright",
+        pal = habitat_colors,
+        values = unique_habitats,
+        title = "Habitat Type",
+        opacity = 1
+      )
+  }
+  
+  map
+---

@@ -1,0 +1,248 @@
+---
+name: "activity_patterns_eow"
+title: "## Activity Patterns {.tabset}"
+parent: "results"
+text: "Activity patterns describe the temporal distribution of animal activity across the 24-hour day and are typically inferred from the timing of camera-trap detections. These patterns help identify whether species are primarily diurnal, nocturnal, or crepuscular, and can provide insight into daily behavior, ecological roles, and potential responses to environmental factors or human disturbance. The figures below present estimated daily activity curves for each study species, based on camera-trap detections collected across the monitoring period and derived using functionality from the [activity](https://cran.r-project.org/package=activity) R package (*Rowcliffe, 2016*)."
+code: |
+  #| name: activity_pattern
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
+  #| packages: ggplot2, dplyr, activity, patchwork, overlap
+  
+  library(ggplot2)
+  library(dplyr)
+  library(patchwork)
+  
+  if (!requireNamespace("activity", quietly = TRUE)) {
+    
+    cat("\n\nThe activity package is not installed; activity patterns cannot be estimated.\n")
+    
+  } else if (!is.null(object$sun_times) && nrow(object$sun_times) > 0) {
+    
+    frequent_species_scientific <- object$get_speciesNames(object$setting$focus_groups)
+    frequent_species_scientific <- unique(frequent_species_scientific)
+    frequent_species_scientific <- frequent_species_scientific[!is.na(frequent_species_scientific)]
+    
+    # Color palette
+    species_colors <- setNames(
+      rep(object$reportObjectElements$color_palette, length.out = length(frequent_species_scientific)),
+      frequent_species_scientific
+    )
+    
+    # Helper: create activity model directly from timestamps using solar time
+    .fit_activity_direct <- function(object, species, reps = 10, min_records = 20) {
+      
+      dat <- object$data$observations
+      
+      if (is.null(dat) || !is.data.frame(dat) || nrow(dat) == 0) {
+        stop("no observation data are available")
+      }
+      
+      if (!all(c("scientificName", "timestamp") %in% names(dat))) {
+        stop("scientificName or timestamp column is missing")
+      }
+      
+      dat_sp <- dat |>
+        dplyr::filter(
+          !is.na(scientificName),
+          scientificName == species,
+          !is.na(timestamp)
+        )
+      
+      if (nrow(dat_sp) == 0) {
+        stop("no timestamped detections are available")
+      }
+      
+      if ("sequenceID" %in% names(dat_sp) && any(!is.na(dat_sp$sequenceID))) {
+        dat_sp <- dat_sp |>
+          dplyr::filter(!is.na(sequenceID)) |>
+          dplyr::distinct(sequenceID, .keep_all = TRUE)
+      } else if ("observationID" %in% names(dat_sp) && any(!is.na(dat_sp$observationID))) {
+        dat_sp <- dat_sp |>
+          dplyr::filter(!is.na(observationID)) |>
+          dplyr::distinct(observationID, .keep_all = TRUE)
+      } else if ("deploymentID" %in% names(dat_sp)) {
+        dat_sp <- dat_sp |>
+          dplyr::distinct(deploymentID, timestamp, .keep_all = TRUE)
+      } else {
+        dat_sp <- dat_sp |>
+          dplyr::distinct(timestamp, .keep_all = TRUE)
+      }
+      
+      # Ensure latitude and longitude are attached from deployments if missing
+      if (!all(c("latitude", "longitude") %in% names(dat_sp))) {
+        if (!is.null(object$data$deployments) && all(c("deploymentID", "latitude", "longitude") %in% names(object$data$deployments))) {
+          dat_sp <- dat_sp |>
+            dplyr::left_join(
+              object$data$deployments |> dplyr::select("deploymentID", "latitude", "longitude"),
+              by = "deploymentID"
+            )
+        }
+      }
+      
+      if (!inherits(dat_sp$timestamp, "POSIXct")) {
+        tz_use <- "UTC"
+        if (!is.null(object$setting$tz) && length(object$setting$tz) > 0 &&
+            !is.na(object$setting$tz[1]) && nzchar(object$setting$tz[1])) {
+          tz_use <- object$setting$tz[1]
+        }
+        dat_sp$timestamp <- as.POSIXct(dat_sp$timestamp, tz = tz_use)
+      }
+      
+      dat_sp <- dat_sp[!is.na(dat_sp$timestamp), , drop = FALSE]
+      
+      # Derive clock time in radians
+      tt <- as.POSIXlt(dat_sp$timestamp)
+      time_decimal <- tt$hour + tt$min / 60 + tt$sec / 3600
+      clock_rad <- (time_decimal / 24) * 2 * pi
+      
+      # Calculate solar time in radians using overlap::sunTime
+      if (requireNamespace("overlap", quietly = TRUE) &&
+          all(c("latitude", "longitude") %in% names(dat_sp)) &&
+          any(!is.na(dat_sp$latitude)) && any(!is.na(dat_sp$longitude))) {
+        
+        matrix_coords <- matrix(c(dat_sp$longitude, dat_sp$latitude), ncol = 2)
+        
+        time_solar <- try(
+          overlap::sunTime(
+            clockTime = clock_rad,
+            Dates = dat_sp$timestamp,
+            Coords = matrix_coords
+          ),
+          silent = TRUE
+        )
+        
+        if (!inherits(time_solar, "try-error") && length(time_solar) == length(clock_rad)) {
+          time_rad <- time_solar
+        } else {
+          time_rad <- clock_rad
+        }
+      } else {
+        time_rad <- clock_rad
+      }
+      
+      time_rad <- time_rad[is.finite(time_rad)]
+      
+      if (length(time_rad) < min_records) {
+        stop(paste0("too few independent detections; n = ", length(time_rad)))
+      }
+      
+      if (length(unique(round(time_rad, 6))) < 5) {
+        stop("too few unique detection times")
+      }
+      
+      activity::fitact(
+        dat = time_rad,
+        sample = "data",
+        reps = reps,
+        show = FALSE
+      )
+    }
+    
+    plot_list <- list()
+    failed_species <- list()
+    
+    for (species in frequent_species_scientific) {
+      
+      activity_model <- tryCatch(
+        .fit_activity_direct(object, species = species, reps = 10, min_records = 20),
+        error = function(e) e
+      )
+      
+      if (inherits(activity_model, "error")) {
+        failed_species[[species]] <- activity_model$message
+      } else {
+        
+        pdf_obj <- activity_model@pdf
+        
+        if (is.null(colnames(pdf_obj))) {
+          colnames(pdf_obj) <- c("x", "y", "se", "lcl", "ucl")[seq_len(ncol(pdf_obj))]
+        }
+        
+        activity_pred <- data.frame(
+          time = pdf_obj[, "x"],
+          estimate = pdf_obj[, "y"],
+          lcl = if ("lcl" %in% colnames(pdf_obj)) pdf_obj[, "lcl"] else NA_real_,
+          ucl = if ("ucl" %in% colnames(pdf_obj)) pdf_obj[, "ucl"] else NA_real_,
+          scientificName = factor(species, levels = frequent_species_scientific)
+        )
+        
+        activity_pred <- activity_pred[order(activity_pred$time), ]
+        
+        p <- ggplot2::ggplot(
+          activity_pred,
+          ggplot2::aes(x = time, y = estimate, color = scientificName, fill = scientificName)
+        ) +
+          ggplot2::geom_line(linewidth = 1.2, show.legend = TRUE)
+        
+        if (any(is.finite(activity_pred$lcl)) && any(is.finite(activity_pred$ucl))) {
+          p <- p +
+            ggplot2::geom_ribbon(
+              ggplot2::aes(ymin = lcl, ymax = ucl),
+              alpha = 0.3,
+              color = NA,
+              show.legend = FALSE
+            )
+        }
+        
+        p <- p +
+          ggplot2::geom_vline(xintercept = pi / 2, color = "gold", linetype = "dashed", linewidth = 0.8) +
+          ggplot2::geom_vline(xintercept = 3 * pi / 2, color = "gray", linetype = "dashed", linewidth = 0.8) +
+          ggplot2::scale_x_continuous(
+            limits = c(0, 2 * pi),
+            breaks = c(0, pi / 2, pi, 3 * pi / 2, 2 * pi),
+            labels = c(0, "", expression(pi), "", expression(2*pi))
+          ) +
+          ggplot2::scale_color_manual(values = species_colors, drop = FALSE, name = "Species") +
+          ggplot2::scale_fill_manual(values = species_colors, drop = FALSE, name = "Species") +
+          ggplot2::labs(
+            x = "Time of Day (rad)",
+            y = "Estimated Activity Density"
+          ) +
+          ggplot2::theme_minimal(base_size = 12) +
+          ggplot2::theme(
+            axis.title.x = ggplot2::element_text(face = "bold", color = "black", size = 11),
+            axis.title.y = ggplot2::element_text(face = "bold", color = "black", size = 11),
+            axis.text.x = ggplot2::element_text(size = 10),
+            axis.text.y = ggplot2::element_text(size = 10),
+            panel.grid = ggplot2::element_blank(),
+            legend.position = "right"
+          )
+        
+        plot_list[[species]] <- p
+      }
+    }
+    
+    n_plots <- length(plot_list)
+    
+    if (n_plots > 0) {
+      
+      grid_plot <- patchwork::wrap_plots(plot_list) +
+        patchwork::plot_layout(guides = "collect", axis_titles = "collect") &
+        ggplot2::theme(
+          legend.position = "right",
+          legend.title = ggplot2::element_text(face = "bold", size = 11),
+          legend.text = ggplot2::element_text(face = "italic", size = 10),
+          legend.key.size = ggplot2::unit(0.8, "lines"),
+          legend.margin = ggplot2::margin(0, 0, 0, 0),
+          legend.box.margin = ggplot2::margin(0, 0, 0, 5)
+        )
+      
+      print(grid_plot)
+      
+      if (length(failed_species) > 0) {
+        cat("\n\n*Note: Activity patterns could not be estimated for the following species:*\n")
+        for (sp in names(failed_species)) {
+          cat(paste0("- **", sp, "**: ", failed_species[[sp]], "\n"))
+        }
+      }
+      
+      cat(paste0(
+        "\n\n", object$getFigureNumber(),
+        " *Estimated daily activity patterns in solar radians for study species, aggregated across all sampling rounds. Dashed lines indicate average sunrise (\u03c0/2, yellow) and sunset (3\u03c0/2, gray) times. Solid lines represent fitted activity models, and shaded regions represent 95% confidence intervals where available.*\n\n"
+      ))
+    }
+    
+  } else {
+    cat('\n\nThe sun times have not been calculated; it requires the suncalc package. Please run setup first.\n')
+  }
+---

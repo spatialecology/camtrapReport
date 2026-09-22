@@ -2,9 +2,12 @@
 # Licence: MIT
 #--------
 
-setGeneric("report", function(object, filename, view, test) {
-  methods::standardGeneric("report")
-})
+setGeneric(
+  "report",
+  function(object, filename, view, test, profile, format) {
+    methods::standardGeneric("report")
+  }
+)
 
 .generate_report <- function(object, output_file, rmd_file) {
   object$generateReport(
@@ -13,48 +16,170 @@ setGeneric("report", function(object, filename, view, test) {
   )
 }
 
+.resolve_report_output <- function(
+  object,
+  filename,
+  default_name,
+  format,
+  format_missing
+) {
+  if (is.null(filename) || length(filename) == 0L || is.na(filename[1]) ||
+      !nzchar(filename[1])) {
+    filename <- default_name
+  }
+  filename <- as.character(filename)[1]
+
+  extension <- if (grepl("\\.[^.]+$", basename(filename))) {
+    tolower(sub("^.*\\.", "", basename(filename)))
+  } else {
+    ""
+  }
+  extension_format <- if (extension %in% c("html", "htm")) {
+    "html"
+  } else if (identical(extension, "pdf")) {
+    "pdf"
+  } else {
+    NULL
+  }
+
+  if (isTRUE(format_missing)) {
+    format <- extension_format %||% "html"
+  } else {
+    format <- match.arg(tolower(as.character(format)[1]), c("html", "pdf"))
+    if (!is.null(extension_format) && !identical(format, extension_format)) {
+      stop(
+        "The filename extension and 'format' disagree: .", extension,
+        " versus format = '", format, "'."
+      )
+    }
+  }
+
+  supplied_dir <- dirname(filename)
+  supplied_stem <- basename(filename)
+  if (!is.null(extension_format)) {
+    supplied_stem <- sub("\\.[^.]+$", "", supplied_stem)
+  }
+
+  base_dir <- tryCatch(
+    normalizePath(object$info$directory, winslash = "/", mustWork = TRUE),
+    error = function(e) getwd()
+  )
+
+  if (identical(supplied_dir, ".")) {
+    out_dir <- base_dir
+  } else {
+    out_dir <- tryCatch(
+      normalizePath(supplied_dir, winslash = "/", mustWork = TRUE),
+      error = function(e) {
+        warning(
+          'The directory specified in "filename" ("', supplied_dir,
+          '") does not exist; the default path is used instead.'
+        )
+        base_dir
+      }
+    )
+  }
+
+  list(
+    stem = file.path(out_dir, supplied_stem),
+    format = format,
+    output = paste0(file.path(out_dir, supplied_stem), ".", format)
+  )
+}
+
+.convert_html_to_pdf <- function(html_file, pdf_file) {
+  if (!requireNamespace("pagedown", quietly = TRUE)) {
+    stop(
+      "PDF output requires the optional 'pagedown' package and a supported ",
+      "Chrome or Edge browser. Install 'pagedown' and try again.",
+      call. = FALSE
+    )
+  }
+
+  tryCatch(
+    pagedown::chrome_print(input = html_file, output = pdf_file),
+    error = function(e) {
+      stop(
+        "The HTML report was created, but conversion to PDF failed. ",
+        "Ensure that Chrome or Edge is installed. Original error: ",
+        conditionMessage(e),
+        call. = FALSE
+      )
+    }
+  )
+  normalizePath(pdf_file, winslash = "/", mustWork = TRUE)
+}
+
+.open_generated_report <- function(path, format) {
+  if (identical(format, "html")) {
+    viewer <- getOption("viewer")
+    if (!is.null(viewer)) {
+      viewer(path)
+      return(invisible(path))
+    }
+  }
+  utils::browseURL(path)
+  invisible(path)
+}
+
+.test_profile_report_modules <- function(object, profile, path) {
+  entries <- profile@report
+  passed <- logical(nrow(entries))
+
+  for (i in seq_len(nrow(entries))) {
+    pool <- .module_pool(object, entries$source[i])
+    module <- pool[[entries$module[i]]]
+    passed[i] <- isTRUE(.QuickTestReportSection(module, object, path = path))
+
+    info_name <- if (identical(entries$source[i], "report")) {
+      "Modules_info"
+    } else {
+      "Status_modules_info"
+    }
+    info <- object$reportObjectElements[[info_name]]
+    info$tested[info$name == entries$module[i]] <- passed[i]
+    object$reportObjectElements[[info_name]] <- info
+  }
+
+  entries[passed, , drop = FALSE]
+}
+
 #' Generate ecological and data-status reports
 #'
-#' Generate automated HTML reports from a [`camReport`][camReport-classes]
-#' object. `report()` creates an ecological report, while [status()] creates a
-#' data-status report summarising data completeness, structure, and quality.
+#' Generate reports from a [`camReport`][camReport-classes] object. `report()`
+#' creates an ecological report, while [status()] creates a data-status report.
+#' A named `profile` can select an ordered set of modules immediately before
+#' rendering.
 #'
-#' Both functions create an intermediate R Markdown file and render it to HTML.
-#' By default, `report()` creates `report.html` and `report.Rmd`, while
-#' `status()` creates `data_status.html` and `data_status.Rmd`.
-#'
-#' The ecological report is generated from the report modules attached to the
-#' `camReport` object. The data-status report is generated from status modules
-#' that summarise key aspects of the dataset, including spatial, temporal,
-#' annotation, validation, and species-level information.
-#'
-#' If `test = TRUE` is used with `report()`, the package attempts to test report
-#' modules when rendering fails. This can help identify modules that cause
-#' errors during report generation.
+#' HTML is the default output. PDF output first renders the existing HTML report
+#' and then prints it through a headless Chrome or Edge browser using the
+#' optional `pagedown` package. This route preserves modules that contain HTML
+#' widgets or HTML-formatted tables. Interactive controls are naturally static
+#' in the resulting PDF.
 #'
 #' @param object A [`camReport`][camReport-classes] object created by
 #'   [camData()].
-#' @param filename An optional character string giving the output filename or
-#'   file path without an extension. The default is `"report"` for `report()`
-#'   and `"data_status"` for `status()`. Relative default filenames are written
-#'   to the camera-trap data directory.
-#' @param view A logical value (default `FALSE`) specifying whether the
-#' generated
-#'   HTML report is opened after rendering.
-#' @param test A logical value (default `FALSE`). If `TRUE`, report modules are
-#'   tested when ecological report generation fails, helping identify
-#'   problematic modules.
+#' @param filename An optional output filename or path. A `.html` or `.pdf`
+#'   extension selects the format when `format` is omitted. Without an
+#'   extension, the defaults are `"report"` and `"data_status"`.
+#' @param view A logical value (default `FALSE`) specifying whether to open the
+#'   generated report.
+#' @param test A logical value (default `FALSE`). If `TRUE`, ecological report
+#'   modules are tested when HTML rendering fails.
+#' @param profile An optional profile name or `reportProfile` object. When
+#'   omitted, the sections currently attached to `object` are rendered.
+#' @param format Output format, either `"html"` or `"pdf"`. The default is
+#'   inferred from `filename`, falling back to `"html"`.
 #'
-#' @return Invisibly returns the path to the generated HTML report.
+#' @return Invisibly returns the generated report path.
 #'
-#' @seealso [camData()], [reportSection()], [updateReportSection()],
-#'   [section_names()]
+#' @seealso [reportProfile()], [sections()], [section_names()], [camData()]
 #' @family report generation
 #'
 #' @usage
-#' report(object, filename, view, test)
+#' report(object, filename, view, test, profile, format)
 #'
-#' status(object, filename, view)
+#' status(object, filename, view, profile, format)
 #' @name report
 #' @aliases report status report,camReport-method status,camReport-method
 #'
@@ -62,9 +187,7 @@ setGeneric("report", function(object, filename, view, test) {
 #' \donttest{
 #' if (rmarkdown::pandoc_available()) {
 #' source_dataset <- system.file(
-#'   "external",
-#'   "dataset",
-#'   package = "camtrapReport"
+#'   "external", "dataset", package = "camtrapReport"
 #' )
 #' example_dataset <- tempfile("camtrapReport-example-")
 #' dir.create(example_dataset)
@@ -73,185 +196,147 @@ setGeneric("report", function(object, filename, view, test) {
 #'   example_dataset,
 #'   recursive = TRUE
 #' ))
-#'
 #' cm <- camData(example_dataset)
-#'
-#' # Use one lightweight section for the ecological report
 #' cm <- sections(cm, "introduction")
-#'
-#' # Generate an ecological report in a temporary directory
-#' report_stem <- tempfile("camtrapReport-report-")
 #' report_file <- report(
 #'   cm,
-#'   filename = report_stem,
+#'   filename = tempfile("camtrapReport-report-"),
 #'   view = FALSE
 #' )
-#'
 #' file.exists(report_file)
-#'
-#' # Remove files generated by the examples
-#' unlink(c(
-#'   report_file,
-#'   paste0(report_stem, ".Rmd"),
-#'   example_dataset
-#' ), recursive = TRUE, force = TRUE)
+#' unlink(c(report_file, sub("\\.html$", ".Rmd", report_file)), force = TRUE)
+#' unlink(example_dataset, recursive = TRUE, force = TRUE)
 #' }
 #' }
 setMethod(
   "report",
   signature(object = "camReport"),
-  function(object, filename = "report", view, test) {
-    if (missing(view)) {
-      view <- FALSE
-    }
-    if (missing(test)) {
-      test <- FALSE
-    }
-
-    # Resolve requested filename
-    if (missing(filename) || is.null(filename) || !nzchar(filename)) {
-      filename <- "report"
-      fi <- NULL
-    } else {
-      fi <- .file_info(filename)
-      filename <- fi$filename
-      if (identical(fi$path, ".")) fi <- NULL
-    }
-
-    # Resolve base output directory
-    base_dir <- object$info$directory
-
-    base_dir <- tryCatch(
-      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
-      error = function(e) {
-        getwd()
-      }
+  function(
+    object,
+    filename = "report",
+    view = FALSE,
+    test = FALSE,
+    profile = NULL,
+    format = c("html", "pdf")
+  ) {
+    if (missing(filename)) filename <- "report"
+    if (missing(view)) view <- FALSE
+    if (missing(test)) test <- FALSE
+    if (missing(profile)) profile <- NULL
+    format_missing <- missing(format)
+    destination <- .resolve_report_output(
+      object = object,
+      filename = filename,
+      default_name = "report",
+      format = format,
+      format_missing = format_missing
     )
 
-    # Decide final output stem
-    if (is.null(fi)) {
-      out_stem <- file.path(base_dir, filename)
-    } else {
-      out_dir <- tryCatch(
-        normalizePath(fi$path, winslash = "/", mustWork = TRUE),
-        error = function(e) {
-          warning(
-            'The directory specified in "filename" ("',
-            fi$path,
-            '") does not exist; the default path is used instead.'
-          )
-          base_dir
-        }
-      )
-      out_stem <- file.path(out_dir, filename)
+    profile_value <- NULL
+    if (!is.null(profile)) {
+      profile_value <- .resolve_profile(profile, object)
+      .apply_profile(object, profile_value, report_type = "report")
     }
 
-    # Generate report
-    w <- try(
+    html_file <- if (identical(destination$format, "html")) {
+      destination$output
+    } else {
+      tempfile("camtrapReport-pdf-source-", fileext = ".html")
+    }
+    if (identical(destination$format, "pdf")) {
+      on.exit(unlink(html_file, force = TRUE), add = TRUE)
+    }
+
+    rendered <- try(
       .generate_report(
         object = object,
-        output_file = paste0(out_stem, ".html"),
-        rmd_file = paste0(out_stem, ".Rmd")
+        output_file = html_file,
+        rmd_file = paste0(destination$stem, ".Rmd")
       ),
       silent = TRUE
     )
 
-    if (inherits(w, "try-error")) {
-      if (test) {
-        message("\nTesting of modules is started....")
+    if (inherits(rendered, "try-error")) {
+      if (!isTRUE(test)) {
+        message(
+          "Report generation is stopped because of an error; add ",
+          "`test = TRUE` ",
+          "to identify and exclude modules that cause an error."
+        )
+        return(rendered)
+      }
 
-        ww <- which(is.na(object$reportObjectElements$Modules_info$tested))
+      message("\nTesting of modules is started....")
+      temp_path <- tempfile("camtrapReport-module-test-")
+      if (!dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)) {
+        stop("Could not create a temporary directory for module testing.")
+      }
+      on.exit(unlink(temp_path, recursive = TRUE, force = TRUE), add = TRUE)
 
-        if (length(ww) > 0) {
-          temp_path <- tempfile("camtrapReport-module-test-")
-
-          if (!dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)) {
-            stop("Could not create a temporary directory for module testing.")
-          }
-
-          on.exit(
-            unlink(temp_path, recursive = TRUE, force = TRUE),
-            add = TRUE
-          )
-
-          .path <- temp_path
-
-          n <- object$reportObjectElements$Modules_info$name[ww]
-
-          for (nn in n) {
-            .w <- .QuickTestReportSection(
-              object$reportObjectElements$Modules[[nn]],
+      if (!is.null(profile_value)) {
+        passed <- .test_profile_report_modules(
+          object,
+          profile_value,
+          path = temp_path
+        )
+        if (nrow(passed) == 0L) {
+          stop("No modules in the selected profile passed module testing.")
+        }
+        .attach_profile_entries(object, passed, report_type = "report")
+      } else {
+        unknown <- which(is.na(
+          object$reportObjectElements$Modules_info$tested
+        ))
+        if (length(unknown) > 0L) {
+          names_to_test <-
+            object$reportObjectElements$Modules_info$name[unknown]
+          for (module_name in names_to_test) {
+            result <- .QuickTestReportSection(
+              object$reportObjectElements$Modules[[module_name]],
               object,
-              path = .path
+              path = temp_path
             )
-
             object$reportObjectElements$Modules_info$tested[
-              object$reportObjectElements$Modules_info$name == nn
-            ] <- .w
-          }
-
-          .attach_modules(
-            object,
-            n = object$reportObjectElements$Modules_info$name[
-              which(object$reportObjectElements$Modules_info$tested)
-            ]
-          )
-
-          message(
-            "\nTesting is done; the modules are attached, and the report ",
-            "generation is started...!"
-          )
-
-          return(report(object, filename = filename, view = view, test = FALSE))
-        } else {
-          if (all(object$reportObjectElements$Modules_info$tested)) {
-            stop(
-              "Although all sections are tested, the report cannot be ",
-              "generated...!"
-            )
-          } else {
-            .attach_modules(
-              object,
-              n = object$reportObjectElements$Modules_info$name[
-                which(object$reportObjectElements$Modules_info$tested)
-              ]
-            )
-
-            return(report(
-              object,
-              filename = filename,
-              view = view,
-              test = FALSE
-            ))
+              object$reportObjectElements$Modules_info$name == module_name
+            ] <- result
           }
         }
-      } else {
-        message(
-          "Report generation is stopped because of an error; add `test = ",
-          "TRUE` to exclude the modules that cause error!"
-        )
-
-        return(w)
+        tested <- object$reportObjectElements$Modules_info$tested
+        passing <- object$reportObjectElements$Modules_info$name[
+          which(!is.na(tested) & tested)
+        ]
+        if (length(passing) == 0L) {
+          stop("No ecological report modules passed module testing.")
+        }
+        .attach_modules(object, n = passing)
       }
+
+      message(
+        "\nTesting is done; passing modules are attached and report ",
+        "generation is restarted."
+      )
+      return(report(
+        object,
+        filename = destination$stem,
+        view = view,
+        test = FALSE,
+        profile = NULL,
+        format = destination$format
+      ))
+    }
+
+    if (identical(destination$format, "pdf")) {
+      .convert_html_to_pdf(html_file, destination$output)
     }
 
     if (isTRUE(view)) {
-      out <- paste0(out_stem, ".html")
-
       message(
         "Report generated at: ",
-        normalizePath(out, winslash = "/", mustWork = FALSE)
+        normalizePath(destination$output, winslash = "/", mustWork = FALSE)
       )
-
-      viewer <- getOption("viewer")
-
-      if (!is.null(viewer)) {
-        viewer(out)
-      } else {
-        utils::browseURL(out)
-      }
+      .open_generated_report(destination$output, destination$format)
     }
 
-    invisible(paste0(out_stem, ".html"))
+    invisible(destination$output)
   }
 )

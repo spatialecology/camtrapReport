@@ -1,4 +1,23 @@
-# camtrapReport 1.0.58 (development version)
+# camtrapReport 1.0.59 (development version)
+
+- Added reusable `reportProfile` objects and bundled `default` and `EOW`
+  profiles for selecting ordered ecological and data-status module sets.
+- Added qualified `report::module` and `status::module` references, including
+  profile-level parent overrides that allow selected status modules to appear
+  below the ecological report appendix without modifying module YAML files.
+- Extended `section_names()` and `sections()` to inspect and edit profile and
+  data-status selections while retaining their previous default behaviour.
+- Added `read_profile()`, `write_profile()`, `add_profile()`, and
+  `profile_names()` for sharing and registering profile YAML files.
+- Added optional static PDF output to `report()` and `status()`. PDF generation
+  prints the existing HTML output with `pagedown` and Chrome or Edge, preserving
+  compatibility with HTML-oriented report modules.
+- Added the EOW module variants to the module registry and corrected the
+  malformed text scalar in `location_EOW.yml`.
+- Expanded profile, cross-pool selection, and PDF-routing tests and updated the
+  README, vignettes, reference documentation, and pkgdown configuration.
+
+# camtrapReport 1.0.58
 
 - Renamed `install_All()` to `install_all()` for consistency with R naming
   conventions. `install_All()` remains available as a deprecated compatibility

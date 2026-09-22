@@ -1,7 +1,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.58
+Version: 1.0.59
 Authors@R: c(
     person(
       given = "Elham",
@@ -13,7 +13,8 @@ Authors@R: c(
   )
 Description: Provides an extensible workflow for processing camera-trap data
     in the 'Camtrap DP' format and automatically generating reproducible
-    data-status and ecological reports. The package supports data-quality
+    data-status and ecological reports in HTML or PDF format. The package
+    supports data-quality
     checks, ecological summaries, visualisations, maps, tables and modular
     report sections for wildlife-monitoring applications. Optional taxonomic
     enrichment queries the Global Biodiversity Information Facility Species API
@@ -38,9 +39,11 @@ Imports:
 Suggests:
     roxygen2,
     pak,
+    pagedown,
     testthat (>= 3.1.7),
     xml2
 VignetteBuilder: knitr
+SystemRequirements: Google Chrome or Microsoft Edge (optional, for PDF output)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

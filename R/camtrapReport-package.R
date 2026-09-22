@@ -1,15 +1,17 @@
 #' camtrapReport: Automated reports for camera-trap data
 #'
 #' Tools for reading Camtrap DP datasets, summarising camera-trap data, checking
-#' data status, and generating automated HTML reports for camera-trap monitoring
-#' projects.
+#' data status, and generating automated HTML or PDF reports for camera-trap
+#' monitoring projects.
 #'
 #' The package provides functions to create a [`camReport`][camReport-classes]
 #' object from camera-trap data, inspect and update report metadata, manage
-#' modular report sections, and generate ecological and data-status reports.
+#' modular report sections, define reusable report profiles, and generate
+#' ecological and data-status reports.
 #'
 #' Main user-facing functions include [camData()], [report()], [status()],
-#' [info()], [reportSection()], [updateReportSection()], and [gui()].
+#' [reportProfile()], [info()], [reportSection()], [updateReportSection()], and
+#' [gui()].
 #'
 #' @seealso
 #' Useful links:

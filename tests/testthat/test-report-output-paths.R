@@ -1,6 +1,3 @@
-library(testthat)
-
-
 test_that("report returns rendering errors without crashing", {
   original <- camtrap_test_report()
   report_object <- original$copy(shallow = FALSE)

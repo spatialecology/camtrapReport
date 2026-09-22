@@ -7,16 +7,18 @@
 \title{camtrapReport: Automated reports for camera-trap data}
 \description{
 Tools for reading Camtrap DP datasets, summarising camera-trap data, checking
-data status, and generating automated HTML reports for camera-trap monitoring
-projects.
+data status, and generating automated HTML or PDF reports for camera-trap
+monitoring projects.
 }
 \details{
 The package provides functions to create a \code{\link[=camReport-classes]{camReport}}
 object from camera-trap data, inspect and update report metadata, manage
-modular report sections, and generate ecological and data-status reports.
+modular report sections, define reusable report profiles, and generate
+ecological and data-status reports.
 
 Main user-facing functions include \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}},
-\code{\link[=info]{info()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, and \code{\link[=gui]{gui()}}.
+\code{\link[=reportProfile]{reportProfile()}}, \code{\link[=info]{info()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=updateReportSection]{updateReportSection()}}, and
+\code{\link[=gui]{gui()}}.
 }
 \seealso{
 Useful links:

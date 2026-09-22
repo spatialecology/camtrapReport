@@ -1867,6 +1867,10 @@ camR <- setRefClass(
       .self$reportObjectElements$Status_modules_info <- attributes(mods)$info
       .self$reportObjectElements$Status_modules_info$tested <- NA
 
+      # Profiles only select from the two immutable module pools above. The
+      # reportObjects fields remain transient trees assembled for rendering.
+      .self$reportObjectElements$Profiles <- .read_profiles()
+
       message('Setup is done!')
     },
     show = function() {

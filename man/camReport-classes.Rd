@@ -14,6 +14,7 @@
 \alias{data.frameORnull-class}
 \alias{.Rchunk-class}
 \alias{.textSection-class}
+\alias{reportProfile-class}
 \alias{show,camReport-method}
 \alias{show,camInfo-method}
 \title{camReport classes}

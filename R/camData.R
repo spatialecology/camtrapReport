@@ -787,6 +787,9 @@ setMethod(
         .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
         if (any(.w)) {
           cm <- readRDS(file[.w][1])
+          if (is.null(cm$reportObjectElements$Profiles)) {
+            cm$reportObjectElements$Profiles <- .read_profiles()
+          }
           return(cm)
         }
       }
@@ -964,8 +967,13 @@ setMethod(
       "."
     )
 
-    .attach_modules(cm, n = "all")
-    .attach_status_modules(cm, n = "all")
+    if ("default" %in% profile_names(cm)) {
+      .apply_profile(cm, "default", report_type = "report")
+      .apply_profile(cm, "default", report_type = "status")
+    } else {
+      .attach_modules(cm, n = "all")
+      .attach_status_modules(cm, n = "all")
+    }
 
     .camdata_done_message(.camdata_start_time, cm$siteName)
 

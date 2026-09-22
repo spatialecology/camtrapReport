@@ -4,83 +4,64 @@
 
 setGeneric(
   "status",
-  function(object, filename, view) {
+  function(object, filename, view, profile, format) {
     methods::standardGeneric("status")
   }
 )
 
-
 setMethod(
   "status",
   signature(object = "camReport"),
-  function(object, filename = "data_status", view) {
-    if (missing(view)) {
-      view <- FALSE
-    }
-
-    # Resolve requested filename
-    if (missing(filename) || is.null(filename) || !nzchar(filename)) {
-      filename <- "data_status"
-      fi <- NULL
-    } else {
-      fi <- .file_info(filename)
-      filename <- fi$filename
-      if (identical(fi$path, ".")) fi <- NULL
-    }
-
-    # Resolve base output directory
-    base_dir <- object$info$directory
-
-    base_dir <- tryCatch(
-      normalizePath(base_dir, winslash = "/", mustWork = TRUE),
-      error = function(e) {
-        getwd()
-      }
+  function(
+    object,
+    filename = "data_status",
+    view = FALSE,
+    profile = NULL,
+    format = c("html", "pdf")
+  ) {
+    if (missing(filename)) filename <- "data_status"
+    if (missing(view)) view <- FALSE
+    if (missing(profile)) profile <- NULL
+    format_missing <- missing(format)
+    destination <- .resolve_report_output(
+      object = object,
+      filename = filename,
+      default_name = "data_status",
+      format = format,
+      format_missing = format_missing
     )
 
-    # Decide final output stem
-    if (is.null(fi)) {
-      out_stem <- file.path(base_dir, filename)
-    } else {
-      out_dir <- tryCatch(
-        normalizePath(fi$path, winslash = "/", mustWork = TRUE),
-        error = function(e) {
-          warning(
-            'The directory specified in "filename" ("',
-            fi$path,
-            '") does not exist; the default path is used instead.'
-          )
-          base_dir
-        }
-      )
-
-      out_stem <- file.path(out_dir, filename)
+    if (!is.null(profile)) {
+      .apply_profile(object, profile, report_type = "status")
     }
 
-    # Generate report
+    html_file <- if (identical(destination$format, "html")) {
+      destination$output
+    } else {
+      tempfile("camtrapStatus-pdf-source-", fileext = ".html")
+    }
+    if (identical(destination$format, "pdf")) {
+      on.exit(unlink(html_file, force = TRUE), add = TRUE)
+    }
+
     object$generateStatusReport(
-      output_file = paste0(out_stem, ".html"),
-      rmd_file = paste0(out_stem, ".Rmd")
+      output_file = html_file,
+      rmd_file = paste0(destination$stem, ".Rmd")
     )
+
+    if (identical(destination$format, "pdf")) {
+      .convert_html_to_pdf(html_file, destination$output)
+    }
 
     if (isTRUE(view)) {
-      out <- paste0(out_stem, ".html")
-
       message(
         "Report generated at: ",
-        normalizePath(out, winslash = "/", mustWork = FALSE)
+        normalizePath(destination$output, winslash = "/", mustWork = FALSE)
       )
-
-      viewer <- getOption("viewer")
-
-      if (!is.null(viewer)) {
-        viewer(out)
-      } else {
-        utils::browseURL(out)
-      }
+      .open_generated_report(destination$output, destination$format)
     }
 
-    invisible(paste0(out_stem, ".html"))
+    invisible(destination$output)
   }
 )
 

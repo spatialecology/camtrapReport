@@ -1,0 +1,56 @@
+---
+name: "effort_eow"
+title: "## Sampling Efforts"
+parent: "methods"
+text: "Sampling effort refers to the total number of camera trap operational days, accounting for both the number of active cameras and their duration of deployment. It provides critical context for interpreting species detection rates and comparing data across years. The figure below provides detailed information on sampling effort over time."
+code: |
+  #| name: camera_locations_leaflet
+  #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
+  #| packages: dygraphs, xts, dplyr, htmlwidgets, ggplot2
+  
+  .main_plot_theme <- function() {
+    ggplot2::theme_minimal(base_family = "", base_size = 13) +
+      ggplot2::theme(
+        title = ggplot2::element_text(size = 14, face = "bold"),
+        axis.title.x = ggplot2::element_text(size = 13, face = "bold", color = "black"),
+        axis.title.y = ggplot2::element_text(size = 13, face = "bold", color = "black"),
+        axis.text.x  = ggplot2::element_text(size = 11, angle = 0, hjust = 0.5),
+        axis.text.y  = ggplot2::element_text(size = 11),
+        panel.grid.minor = ggplot2::element_blank(),
+        plot.margin = ggplot2::margin(4, 4, 4, 4)
+      )
+  }
+
+  .plot_effort <- function(
+          x,
+          dynamic = TRUE,
+          main = "Effort",
+          xlab = "Time",
+          ylab = "Number of active cameras",
+          ...
+  ) {
+      z <- .effort_table(x, startend = TRUE)
+      z <- na.omit(z)
+      
+      if (dynamic) {
+          series <- .eval(
+              'xts(z$nrCams, order.by = z$time, tz = "GMT")',
+              env = environment()
+          )
+          .eval(
+              "dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |>
+        dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
+        dyRangeSelector()",
+              env = environment()
+          )
+      } else {
+          ggplot2::ggplot(z, ggplot2::aes(x = time, y = nrCams)) +
+            # position = "identity" prevents double-stacking at transition timestamps
+            ggplot2::geom_area(position = "identity", fill = "grey70", alpha = 0.6) +
+            ggplot2::geom_line(color = "black") +
+            ggplot2::labs(title = main, x = xlab, y = ylab) +
+            .main_plot_theme()
+      }
+  }
+  .plot_effort(cm, dynamic = FALSE)
+---
