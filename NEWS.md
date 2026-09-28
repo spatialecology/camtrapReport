@@ -1,4 +1,21 @@
-# camtrapReport 1.0.59 (development version)
+# camtrapReport 1.0.60 (development version)
+
+- Added `html`, `pdf`, and `both` compatibility metadata to the report and
+  data-status module registries. Module management now preserves this metadata,
+  and `add_Module()` and `move_Module()` can set it explicitly. Module-management
+  functions now also accept the documented `dir` argument for writable
+  project-level registries.
+- Report generation now excludes format-incompatible modules and their orphaned
+  children while leaving the user's attached section selection unchanged.
+- Added a non-tabbed `appendix_eow` module so the EOW profile's data-status
+  sections render as ordinary appendix subsections in HTML and PDF output.
+- PDF reports no longer include a table of contents. Print styling also
+  suppresses Bootstrap's appended hyperlink URLs and expands printable tabset
+  content so that non-interactive PDF readers can access every panel.
+- Expanded tests and documentation for module-format metadata, EOW appendix
+  structure, PDF routing, print styling, and selection restoration.
+
+# camtrapReport 1.0.59
 
 - Added reusable `reportProfile` objects and bundled `default` and `EOW`
   profiles for selecting ordered ecological and data-status module sets.

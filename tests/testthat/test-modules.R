@@ -43,7 +43,9 @@ test_that("the public module listing supports tree and table views", {
   full <- list_Modules(tree = FALSE, brief = FALSE, include_trash = TRUE)
 
   expect_true(all(c("name", "parent", "level", "label") %in% names(tree)))
-  expect_identical(ncol(brief), 5L)
+  expect_true("formats" %in% names(tree))
+  expect_identical(ncol(brief), 6L)
+  expect_true(all(brief$formats %in% c("html", "pdf", "both")))
   expect_true(is.data.frame(full) || is.list(full))
 })
 
@@ -66,23 +68,39 @@ test_that(
     parent = "test_parent"
   )
 
-  parent_added <- .add_Module(
+  parent_added <- add_Module(
     parent_file,
     after = "captures",
     dir = module_dir,
-    test = FALSE
+    test = FALSE,
+    formats = "html"
   )
-  child_added <- .add_Module(
+  child_added <- add_Module(
     child_file,
     dir = module_dir,
     test = FALSE
+  )
+  moved <- move_Module(
+    "test_child",
+    formats = "pdf",
+    dir = module_dir
   )
 
   expect_true(file.exists(parent_added$file))
   expect_true(file.exists(child_added$file))
   expect_identical(child_added$module@parent, "test_parent")
+  expect_identical(
+    parent_added$info$formats[parent_added$info$name == "test_parent"],
+    "html"
+  )
+  expect_identical(moved$formats[moved$name == "test_child"], "pdf")
 
-  listed <- .list_Modules(dir = module_dir, validate = TRUE)
+  listed <- list_Modules(
+    tree = FALSE,
+    brief = FALSE,
+    dir = module_dir,
+    validate = TRUE
+  )
   located <- .locate_Module(
     c("test_parent", basename(child_added$file)),
     dir = module_dir
@@ -113,6 +131,13 @@ test_that(
   )
   expect_setequal(restored$recovered, c("test_parent", "test_child"))
   expect_true(all(c("test_parent", "test_child") %in% restored$info$name))
+  expect_identical(
+    restored$info$formats[match(
+      c("test_parent", "test_child"),
+      restored$info$name
+    )],
+    c("html", "pdf")
+  )
   expect_identical(nrow(.list_Trash(dir = module_dir)), 0L)
 
   remaining_index <- .purge_Trash(

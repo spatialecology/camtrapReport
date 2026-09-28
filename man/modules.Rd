@@ -16,17 +16,17 @@
 \alias{list_Modules,ANY-method}
 \title{Manage report modules}
 \usage{
-add_Module(x, before, after, test, object)
+add_Module(x, before, after, test, object, formats, dir)
 
-move_Module(name, before, after, parent, level0)
+move_Module(name, before, after, parent, level0, formats, dir)
 
-remove_Module(name, recursive)
+remove_Module(name, recursive, dir)
 
-restore_Module(name, batch_id, test)
+restore_Module(name, batch_id, test, dir)
 
-empty_trash(name, id)
+empty_trash(name, id, dir)
 
-list_Modules(tree, brief, include_trash, validate)
+list_Modules(tree, brief, include_trash, validate, dir)
 }
 \arguments{
 \item{x}{A character string giving the path to a module YAML file to add to
@@ -46,6 +46,15 @@ For \code{restore_Module()}, the default is \code{TRUE}.}
 \item{object}{An optional \code{\link[=camReport-classes]{camReport}} object used when
 testing a module that requires access to report data. The default is
 \code{NULL}.}
+
+\item{formats}{Output compatibility for the module: \code{"html"}, \code{"pdf"}, or
+\code{"both"}. For \code{add_Module()}, an omitted value is read from an optional
+\code{formats} field in the YAML file and otherwise defaults to \code{"both"}. For
+\code{move_Module()}, an omitted value retains the current setting.}
+
+\item{dir}{An optional path to a writable module registry containing
+\verb{__modulesList.csv}. When omitted, the package's bundled report-module
+registry is used.}
 
 \item{name}{A character string naming the module to move, remove, restore, or
 permanently delete from the trash. For \code{empty_trash()}, the default is

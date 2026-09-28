@@ -28,7 +28,7 @@ test_that("bundled profiles select ordered modules from both pools", {
                   ".textSection")
   expect_identical(
     find_test_report_section(cm$reportObjects, "spatial")@parent,
-    "appendix"
+    "appendix_eow"
   )
 })
 
@@ -43,12 +43,7 @@ test_that("profiles can be written, read, registered, and edited", {
 
   file <- tempfile(fileext = ".yml")
   on.exit(unlink(file, force = TRUE), add = TRUE)
-  
-  expect_identical(
-    write_profile(brief, file),
-    normalizePath(file, winslash = "/", mustWork = TRUE)
-  )
-  
+  expect_identical(write_profile(brief, file), normalizePath(file))
   expect_identical(read_profile(file), brief)
 
   add_profile(cm, file)
@@ -126,7 +121,9 @@ test_that("PDF output is inferred and uses the HTML conversion route", {
 
   result <- testthat::with_mocked_bindings(
     report(cm, filename = output, view = FALSE, test = FALSE),
-    .generate_report = function(object, output_file, rmd_file) {
+    .generate_report = function(object, output_file, rmd_file, toc) {
+      expect_false(toc)
+      expect_null(find_test_report_section(object$reportObjects, "appendix"))
       writeLines("<html><body>test</body></html>", output_file)
       writeLines("---", rmd_file)
       output_file
@@ -142,8 +139,58 @@ test_that("PDF output is inferred and uses the HTML conversion route", {
   expect_identical(normalizePath(result), normalizePath(output))
   expect_true(file.exists(output))
   expect_true(file.exists(rmd))
+  expect_s4_class(
+    find_test_report_section(cm$reportObjects, "appendix"),
+    ".textSection"
+  )
   expect_error(
     report(cm, filename = output, format = "html"),
     "disagree"
   )
+})
+
+test_that("module formats filter render trees without losing user state", {
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  cm$reportObjectElements$Modules_info <- data.frame(
+    ID = 1:3,
+    name = c("portable", "html_only", "html_child"),
+    parent = c(".root", ".root", "html_only"),
+    formats = c("both", "html", "both"),
+    tested = NA,
+    stringsAsFactors = FALSE
+  )
+  cm$reportObjects <- list()
+  cm$addReportObject(reportSection(name = "portable", title = "Portable"))
+  cm$addReportObject(reportSection(name = "html_only", title = "HTML"))
+  cm$addReportObject(reportSection(
+    name = "html_child",
+    title = "HTML child",
+    parent = "html_only"
+  ))
+
+  excluded <- suppressMessages(
+    .prepare_attached_modules_for_format(cm, format = "pdf")
+  )
+
+  expect_setequal(excluded, c("html_only", "html_child"))
+  expect_s4_class(
+    find_test_report_section(cm$reportObjects, "portable"),
+    ".textSection"
+  )
+  expect_null(find_test_report_section(cm$reportObjects, "html_only"))
+})
+
+test_that("bundled EOW appendix and print CSS are PDF-safe", {
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  sections(cm, n = sections(cm, profile = "EOW"), profile = "EOW")
+
+  appendix <- find_test_report_section(cm$reportObjects, "appendix_eow")
+  spatial <- find_test_report_section(cm$reportObjects, "spatial")
+  css <- .report_css_block()
+
+  expect_s4_class(appendix, ".textSection")
+  expect_false(grepl("tabset", appendix@title, fixed = TRUE))
+  expect_identical(spatial@parent, "appendix_eow")
+  expect_match(css, "a[href]::after", fixed = TRUE)
+  expect_match(css, ".tab-content > .tab-pane", fixed = TRUE)
 })

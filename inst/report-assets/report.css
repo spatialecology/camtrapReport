@@ -379,3 +379,38 @@ p.caption {
     max-width: 4cm !important;
   }
 }
+
+/* Browser-printed PDF output */
+@media print {
+
+  /* Bootstrap's print rules otherwise append every link target in brackets. */
+  a[href]::after,
+  a[href]:after {
+    content: none !important;
+  }
+
+  /* PDF reports are generated without a TOC; hide any residual TOC markup. */
+  #TOC,
+  .tocify,
+  .tocify-wrapper,
+  .toc-content > .tocify {
+    display: none !important;
+  }
+
+  /* Print every tab panel instead of only the active HTML tab. */
+  .nav-tabs,
+  .nav-pills {
+    display: none !important;
+  }
+
+  .tab-content > .tab-pane {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .main-container {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}

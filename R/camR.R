@@ -3185,7 +3185,8 @@ camR <- setRefClass(
     },
     generateReport = function(
       output_file = "cam_report.html",
-      rmd_file = "cam_report.Rmd"
+      rmd_file = "cam_report.Rmd",
+      toc = TRUE
     ) {
       .self$recetFigTabNumber()
       render_env <- .make_render_env(.self)
@@ -3195,6 +3196,7 @@ camR <- setRefClass(
 
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
+      toc_value <- tolower(as.character(isTRUE(toc)))
 
       rmd_template <- glue::glue(
         "
@@ -3207,8 +3209,8 @@ author:
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: {toc_value}
+    toc_float: {toc_value}
     theme: flatly
     highlight: tango
     df_print: paged
@@ -3276,7 +3278,8 @@ output:
     },
     generateStatusReport = function(
       output_file = "data_status_report.html",
-      rmd_file = "data_status_report.Rmd"
+      rmd_file = "data_status_report.Rmd",
+      toc = TRUE
     ) {
       render_env <- .make_render_env(.self)
 
@@ -3286,6 +3289,7 @@ output:
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
       status_title <- paste0("Data Status Report for ", .self$siteName)
+      toc_value <- tolower(as.character(isTRUE(toc)))
       #if (length(.self$institute) > 0) sub_title <- .self$institute
 
       rmd_template <- glue::glue(
@@ -3297,8 +3301,8 @@ author: \"{.self$authors}\"
 date: \"`r format(Sys.Date(), '%B %d, %Y')`\"
 output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: {toc_value}
+    toc_float: {toc_value}
     toc_depth: 3
     theme: flatly
     highlight: tango

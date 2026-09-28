@@ -350,14 +350,23 @@ test_that("public module wrappers dispatch without changing package files", {
 
 
 test_that("module listing wrappers cover tree, table, and trash results", {
-  module_table <- as.data.frame(
-    stats::setNames(
-      replicate(13, character(), simplify = FALSE),
-      paste0("column", seq_len(13))
-    ),
+  module_table <- data.frame(
+    ID = 1L,
+    name = "root",
+    parent = ".root",
+    formats = "both",
+    filename = "root.yml",
+    path = "root.yml",
+    yml_parent = ".root",
+    title = "Root",
+    exists = TRUE,
+    parse_ok = TRUE,
+    valid = TRUE,
+    file_matches_name = TRUE,
+    duplicate_module_name = FALSE,
+    status = "ok",
     stringsAsFactors = FALSE
   )
-  module_table[1, ] <- as.list(rep("value", 13))
   trash <- data.frame(name = "deleted", stringsAsFactors = FALSE)
   
   local_mocked_bindings(
@@ -391,7 +400,8 @@ test_that("module listing wrappers cover tree, table, and trash results", {
   )
   
   expect_identical(tree$name, "root")
-  expect_identical(ncol(brief), 5L)
+  expect_identical(ncol(brief), 6L)
+  expect_identical(brief$formats, "both")
   expect_named(full, c("modules", "trash"))
   expect_identical(full$trash$name, "deleted")
 })

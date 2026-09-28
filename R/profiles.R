@@ -406,6 +406,105 @@ add_profile <- function(object, profile, overwrite = FALSE) {
   info$name[is.na(info$tested) | info$tested]
 }
 
+.module_format_for_name <- function(object, name, report_type = "report") {
+  report_type <- match.arg(report_type, c("report", "status"))
+  sources <- if (identical(report_type, "report")) {
+    c("report", "status")
+  } else {
+    c("status", "report")
+  }
+
+  for (source in sources) {
+    info <- .module_pool_info(object, source)
+    i <- match(name, info$name)
+    if (!is.na(i)) {
+      if (!"formats" %in% names(info)) {
+        return("both")
+      }
+      return(.normalize_module_formats(info$formats[i]))
+    }
+  }
+
+  # Runtime reportSection objects do not have registry metadata. Retaining
+  # them for both formats preserves the behaviour of user-created sections.
+  "both"
+}
+
+.flatten_attached_sections <- function(x) {
+  if (methods::is(x, ".textSection")) {
+    return(list(x))
+  }
+  if (!is.list(x) || length(x) == 0L) {
+    return(list())
+  }
+  unlist(lapply(x, .flatten_attached_sections), recursive = FALSE)
+}
+
+.prepare_attached_modules_for_format <- function(
+  object,
+  report_type = "report",
+  format = "html"
+) {
+  report_type <- match.arg(report_type, c("report", "status"))
+  format <- match.arg(tolower(as.character(format)[1]), c("html", "pdf"))
+  field <- if (identical(report_type, "report")) {
+    "reportObjects"
+  } else {
+    "statusReportObjects"
+  }
+  add <- if (identical(report_type, "report")) {
+    function(x) object$addReportObject(x)
+  } else {
+    function(x) object$addStatusReportObject(x)
+  }
+
+  modules <- .flatten_attached_sections(object[[field]])
+  if (length(modules) == 0L) {
+    stop("No report modules are attached.")
+  }
+
+  keep <- logical(length(modules))
+  kept_names <- character()
+  excluded <- character()
+
+  for (i in seq_along(modules)) {
+    module <- modules[[i]]
+    formats <- .module_format_for_name(
+      object,
+      module@name,
+      report_type = report_type
+    )
+    parent <- .norm_parent(module@parent)
+    parent_available <- identical(parent, ".root") || parent %in% kept_names
+
+    if (.module_supports_format(formats, format) && parent_available) {
+      keep[i] <- TRUE
+      kept_names <- c(kept_names, module@name)
+    } else {
+      excluded <- c(excluded, module@name)
+    }
+  }
+
+  if (!any(keep)) {
+    stop("No attached modules support ", toupper(format), " output.")
+  }
+
+  object[[field]] <- list()
+  for (module in modules[keep]) {
+    add(module)
+  }
+
+  if (length(excluded) > 0L) {
+    message(
+      "Excluded module(s) from ", toupper(format),
+      " output because of format compatibility or an unavailable parent: ",
+      toString(unique(excluded)), "."
+    )
+  }
+
+  invisible(unique(excluded))
+}
+
 .copy_profile_module <- function(module, parent = NA_character_) {
   out <- unserialize(serialize(module, NULL))
   if (!is.na(parent)) {

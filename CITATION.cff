@@ -7,14 +7,14 @@ message: 'To cite package "camtrapReport" in publications, please use:'
 type: software
 license: MIT
 title: 'camtrapReport: Camera-Trap Report Generator'
-version: '1.0.59'
+version: '1.0.60'
 
 abstract: >-
   Provides an extensible workflow for processing camera-trap data in the
   'Camtrap DP' format and automatically generating reproducible data-status
   and ecological reports in HTML or PDF format. The package supports
-  data-quality checks,
-  ecological summaries, visualisations, maps, tables and modular report
+  data-quality checks, ecological summaries, visualisations, maps, tables and
+  modular report
   sections for wildlife-monitoring applications.
 
 authors:

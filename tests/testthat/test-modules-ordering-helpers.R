@@ -18,12 +18,13 @@ test_that("empty_info returns the expected empty structure", {
 
   expect_s3_class(result, "data.frame")
 
-  expect_named(result, c("ID", "name", "parent"))
+  expect_named(result, c("ID", "name", "parent", "formats"))
 
   expect_identical(nrow(result), 0L)
   expect_type(result$ID, "integer")
   expect_type(result$name, "character")
   expect_type(result$parent, "character")
+  expect_type(result$formats, "character")
 })
 
 
@@ -112,6 +113,7 @@ test_that("resequence_info trims, normalizes, removes blanks and duplicates", {
       ".root",
       "methods"
     ),
+    formats = rep("both", 3),
     stringsAsFactors = FALSE
   )
 
@@ -373,6 +375,7 @@ test_that("insert_module_info adds the first module", {
     ID = 1L,
     name = "methods",
     parent = ".root",
+    formats = "both",
     stringsAsFactors = FALSE
   )
 

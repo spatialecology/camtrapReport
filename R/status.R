@@ -35,6 +35,14 @@ setMethod(
       .apply_profile(object, profile, report_type = "status")
     }
 
+    selected_objects <- object$statusReportObjects
+    on.exit(object$statusReportObjects <- selected_objects, add = TRUE)
+    .prepare_attached_modules_for_format(
+      object,
+      report_type = "status",
+      format = destination$format
+    )
+
     html_file <- if (identical(destination$format, "html")) {
       destination$output
     } else {
@@ -46,7 +54,8 @@ setMethod(
 
     object$generateStatusReport(
       output_file = html_file,
-      rmd_file = paste0(destination$stem, ".Rmd")
+      rmd_file = paste0(destination$stem, ".Rmd"),
+      toc = identical(destination$format, "html")
     )
 
     if (identical(destination$format, "pdf")) {

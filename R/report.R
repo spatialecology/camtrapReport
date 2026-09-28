@@ -9,10 +9,11 @@ setGeneric(
   }
 )
 
-.generate_report <- function(object, output_file, rmd_file) {
+.generate_report <- function(object, output_file, rmd_file, toc = TRUE) {
   object$generateReport(
     output_file = output_file,
-    rmd_file = rmd_file
+    rmd_file = rmd_file,
+    toc = toc
   )
 }
 
@@ -124,6 +125,12 @@ setGeneric(
 
 .test_profile_report_modules <- function(object, profile, path) {
   entries <- profile@report
+  attached_names <- vapply(
+    .flatten_attached_sections(object$reportObjects),
+    function(x) x@name,
+    character(1)
+  )
+  entries <- entries[entries$module %in% attached_names, , drop = FALSE]
   passed <- logical(nrow(entries))
 
   for (i in seq_len(nrow(entries))) {
@@ -155,7 +162,9 @@ setGeneric(
 #' and then prints it through a headless Chrome or Edge browser using the
 #' optional `pagedown` package. This route preserves modules that contain HTML
 #' widgets or HTML-formatted tables. Interactive controls are naturally static
-#' in the resulting PDF.
+#' in the resulting PDF. PDF output omits the table of contents and excludes
+#' modules whose registry entry does not support PDF. The `formats` column
+#' shown by [list_Modules()] records module compatibility.
 #'
 #' @param object A [`camReport`][camReport-classes] object created by
 #'   [camData()].
@@ -238,6 +247,14 @@ setMethod(
       .apply_profile(object, profile_value, report_type = "report")
     }
 
+    selected_objects <- object$reportObjects
+    on.exit(object$reportObjects <- selected_objects, add = TRUE)
+    .prepare_attached_modules_for_format(
+      object,
+      report_type = "report",
+      format = destination$format
+    )
+
     html_file <- if (identical(destination$format, "html")) {
       destination$output
     } else {
@@ -251,7 +268,8 @@ setMethod(
       .generate_report(
         object = object,
         output_file = html_file,
-        rmd_file = paste0(destination$stem, ".Rmd")
+        rmd_file = paste0(destination$stem, ".Rmd"),
+        toc = identical(destination$format, "html")
       ),
       silent = TRUE
     )

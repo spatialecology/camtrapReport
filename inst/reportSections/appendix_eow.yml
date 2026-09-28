@@ -1,0 +1,10 @@
+---
+name: "appendix_eow"
+title: "Appendix {.unnumbered}"
+parent: null
+formats: "both"
+text: |
+  The following sections provide complementary summaries of data quality,
+  spatial coverage, temporal coverage, and data availability.
+code: null
+---

@@ -187,6 +187,7 @@ test_that("read_modules_info creates metadata from root sections", {
     ID = seq_along(level0),
     name = level0,
     parent = rep(".root", length(level0)),
+    formats = rep("both", length(level0)),
     stringsAsFactors = FALSE
   )
 

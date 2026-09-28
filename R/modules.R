@@ -35,11 +35,57 @@
   }
 }
 
+.normalize_module_formats <- function(x = "both") {
+  if (is.null(x) || length(x) == 0L || all(is.na(x))) {
+    return("both")
+  }
+
+  values <- unlist(
+    strsplit(
+      tolower(paste(as.character(x), collapse = ",")),
+      "[[:space:],|;/]+",
+      perl = TRUE
+    ),
+    use.names = FALSE
+  )
+  values <- unique(values[nzchar(values)])
+
+  if (length(values) == 0L) {
+    return("both")
+  }
+  if (any(values %in% c("all", "both"))) {
+    return("both")
+  }
+  if (!all(values %in% c("html", "pdf"))) {
+    stop("'formats' must be 'html', 'pdf', or 'both'.")
+  }
+  if (all(c("html", "pdf") %in% values)) {
+    return("both")
+  }
+
+  values[1]
+}
+
+.module_supports_format <- function(formats, format) {
+  format <- match.arg(tolower(as.character(format)[1]), c("html", "pdf"))
+  formats <- .normalize_module_formats(formats)
+  identical(formats, "both") || identical(formats, format)
+}
+
+.module_formats_from_file <- function(path, default = "both") {
+  metadata <- try(.read_section_module(path), silent = TRUE)
+  if (inherits(metadata, "try-error") || is.null(metadata$formats)) {
+    return(.normalize_module_formats(default))
+  }
+  .normalize_module_formats(metadata$formats)
+}
+
 .empty_info <- function() {
   data.frame(
     ID = integer(),
     name = character(),
     parent = character(),
+    formats = character(),
     stringsAsFactors = FALSE
   )
 }
@@ -57,12 +103,24 @@
 
   info$name <- trimws(as.character(info$name))
   info$parent <- vapply(info$parent, .norm_parent, character(1))
+  if (!"formats" %in% names(info)) {
+    info$formats <- "both"
+  }
+  info$formats <- vapply(
+    info$formats,
+    .normalize_module_formats,
+    character(1)
+  )
 
-  info <- info[nzchar(info$name), c("name", "parent"), drop = FALSE]
+  info <- info[
+    nzchar(info$name),
+    c("name", "parent", "formats"),
+    drop = FALSE
+  ]
   info <- info[!duplicated(info$name), , drop = FALSE]
 
   info$ID <- seq_len(nrow(info))
-  info[, c("ID", "name", "parent"), drop = FALSE]
+  info[, c("ID", "name", "parent", "formats"), drop = FALSE]
 }
 
 .read_modules_info <- function(dir, level0 = NULL, create_if_missing = FALSE) {
@@ -77,6 +135,7 @@
       ID = seq_along(level0),
       name = level0,
       parent = ".root",
+      formats = "both",
       stringsAsFactors = FALSE
     )
     utils::write.csv(info, path, row.names = FALSE)
@@ -197,6 +256,7 @@
   info,
   name,
   parent = ".root",
+  formats = "both",
   before = NULL,
   after = NULL,
   level0 = c(
@@ -210,6 +270,7 @@
   info <- .resequence_info(info)
   name <- trimws(as.character(name)[1])
   parent <- .norm_parent(parent)
+  formats <- .normalize_module_formats(formats)
 
   if (!nzchar(name)) {
     stop("Module name is empty.")
@@ -226,7 +287,12 @@
   }
 
   if (nrow(info) == 0L) {
-    out <- data.frame(name = name, parent = parent, stringsAsFactors = FALSE)
+    out <- data.frame(
+      name = name,
+      parent = parent,
+      formats = formats,
+      stringsAsFactors = FALSE
+    )
     return(.resequence_info(out))
   }
 
@@ -278,8 +344,13 @@
   }
 
   out <- .insert_row(
-    df = info[, c("name", "parent"), drop = FALSE],
-    row = data.frame(name = name, parent = parent, stringsAsFactors = FALSE),
+    df = info[, c("name", "parent", "formats"), drop = FALSE],
+    row = data.frame(
+      name = name,
+      parent = parent,
+      formats = formats,
+      stringsAsFactors = FALSE
+    ),
     pos = insert_pos
   )
 
@@ -333,7 +404,8 @@
     modules_by_name[[m@name]] <- m
     meta_by_name[[m@name]] <- list(
       name = m@name,
-      parent = .norm_parent(m@parent)
+      parent = .norm_parent(m@parent),
+      formats = .module_formats_from_file(f)
     )
   }
 
@@ -353,6 +425,7 @@
           info = info,
           name = nm,
           parent = p,
+          formats = meta_by_name[[nm]]$formats,
           level0 = level0
         )
         added_to_info <- c(added_to_info, nm)
@@ -404,7 +477,8 @@
   ),
   package = "camtrapReport",
   dir = NULL,
-  object = NULL
+  object = NULL,
+  formats = NULL
 ) {
   module_dir <- .section_dir(package = package, dir = dir)
   .trash_dir(module_dir, create = TRUE)
@@ -445,6 +519,11 @@
   }
 
   parent <- .norm_parent(m@parent)
+  if (is.null(formats)) {
+    formats <- .module_formats_from_file(x)
+  } else {
+    formats <- .normalize_module_formats(formats)
+  }
   if (!(identical(parent, ".root") || parent %in% info$name)) {
     stop("Parent module not found in .info: ", parent)
   }
@@ -453,6 +532,7 @@
     info = info,
     name = m@name,
     parent = parent,
+    formats = formats,
     before = before,
     after = after,
     level0 = level0
@@ -501,6 +581,7 @@
     batch_id = character(),
     name = character(),
     parent = character(),
+    formats = character(),
     original_id = integer(),
     before_anchor = character(),
     after_anchor = character(),
@@ -524,6 +605,14 @@
   }
 
   out <- utils::read.csv(p, stringsAsFactors = FALSE)
+  if (!"formats" %in% names(out)) {
+    out$formats <- rep("both", nrow(out))
+  }
+  out$formats <- vapply(
+    out$formats,
+    .normalize_module_formats,
+    character(1)
+  )
   needed <- names(.empty_trash_index())
   for (nm in setdiff(needed, names(out))) {
     out[[nm]] <- .empty_trash_index()[[nm]]
@@ -714,6 +803,7 @@
       batch_id = batch_id,
       name = nm,
       parent = info$parent[match(nm, info$name)],
+      formats = info$formats[match(nm, info$name)],
       original_id = info$ID[match(nm, info$name)],
       before_anchor = ifelse(
         is.na(anchors$before_anchor),
@@ -737,7 +827,11 @@
   trash_idx <- rbind(trash_idx, do.call(rbind, rows))
   .write_trash_index(module_dir, trash_idx)
 
-  info2 <- info[!(info$name %in% to_delete), c("name", "parent"), drop = FALSE]
+  info2 <- info[
+    !(info$name %in% to_delete),
+    c("name", "parent", "formats"),
+    drop = FALSE
+  ]
   info2 <- .resequence_info(info2)
   utils::write.csv(info2, .modules_info_path(module_dir), row.names = FALSE)
 
@@ -876,6 +970,7 @@
           info = info,
           name = nm,
           parent = parent,
+          formats = row$formats,
           after = after_anchor,
           level0 = level0
         ),
@@ -891,6 +986,7 @@
             info = info,
             name = nm,
             parent = parent,
+            formats = row$formats,
             before = before_anchor,
             level0 = level0
           ),
@@ -905,6 +1001,7 @@
         info = info,
         name = nm,
         parent = parent,
+        formats = row$formats,
         level0 = level0
       )
     }
@@ -960,6 +1057,7 @@
     ID = info$ID,
     name = info$name,
     parent = info$parent,
+    formats = info$formats,
     filename = "",
     path = "",
     yml_parent = "",
@@ -1003,6 +1101,7 @@
         ID = NA_integer_,
         name = extra$module_name,
         parent = extra$parent,
+        formats = extra$formats,
         filename = extra$filename,
         path = extra$path,
         yml_parent = extra$parent,
@@ -1037,6 +1136,7 @@
         ID = NA_integer_,
         name = NA_character_,
         parent = NA_character_,
+        formats = NA_character_,
         filename = bad$filename,
         path = bad$path,
         yml_parent = NA_character_,
@@ -1197,6 +1297,7 @@
     file_stem = character(),
     module_name = character(),
     parent = character(),
+    formats = character(),
     title = character(),
     parse_ok = logical(),
     valid = logical(),
@@ -1217,12 +1318,14 @@
     valid <- FALSE
     module_name <- NA_character_
     parent <- NA_character_
+    formats <- NA_character_
     title <- NA_character_
     err <- ""
 
     if (parse_ok) {
       module_name <- trimws(as.character(m@name))
       parent <- .norm_parent(m@parent)
+      formats <- .module_formats_from_file(p)
       title <- as.character(m@title)
       valid <- nzchar(module_name)
 
@@ -1247,6 +1350,7 @@
       file_stem = tools::file_path_sans_ext(basename(p)),
       module_name = module_name,
       parent = parent,
+      formats = formats,
       title = title,
       parse_ok = parse_ok,
       valid = valid,
@@ -1371,6 +1475,7 @@
     ID = info$ID,
     name = info$name,
     parent = info$parent,
+    formats = info$formats,
     level = vapply(info$name, level_of, integer(1), info = info),
     label = vapply(
       info$name,
@@ -1458,7 +1563,7 @@
 #################################
 setGeneric(
   "add_Module",
-  function(x, before, after, test, object) {
+  function(x, before, after, test, object, formats, dir) {
     methods::standardGeneric("add_Module")
   }
 )
@@ -1507,6 +1612,13 @@ setGeneric(
 #' @param object An optional [`camReport`][camReport-classes] object used when
 #'   testing a module that requires access to report data. The default is
 #'   `NULL`.
+#' @param formats Output compatibility for the module: `"html"`, `"pdf"`, or
+#'   `"both"`. For `add_Module()`, an omitted value is read from an optional
+#'   `formats` field in the YAML file and otherwise defaults to `"both"`. For
+#'   `move_Module()`, an omitted value retains the current setting.
+#' @param dir An optional path to a writable module registry containing
+#'   `__modulesList.csv`. When omitted, the package's bundled report-module
+#'   registry is used.
 #' @param name A character string naming the module to move, remove, restore, or
 #'   permanently delete from the trash. For `empty_trash()`, the default is
 #'   `NULL`.
@@ -1539,17 +1651,17 @@ setGeneric(
 #' @family report modules
 #'
 #' @usage
-#' add_Module(x, before, after, test, object)
+#' add_Module(x, before, after, test, object, formats, dir)
 #'
-#' move_Module(name, before, after, parent, level0)
+#' move_Module(name, before, after, parent, level0, formats, dir)
 #'
-#' remove_Module(name, recursive)
+#' remove_Module(name, recursive, dir)
 #'
-#' restore_Module(name, batch_id, test)
+#' restore_Module(name, batch_id, test, dir)
 #'
-#' empty_trash(name, id)
+#' empty_trash(name, id, dir)
 #'
-#' list_Modules(tree, brief, include_trash, validate)
+#' list_Modules(tree, brief, include_trash, validate, dir)
 #' @name modules
 #' @aliases add_Module move_Module remove_Module empty_trash restore_Module
 #' @aliases list_Modules add_Module,character-method
@@ -1568,7 +1680,7 @@ setGeneric(
 setMethod(
   "add_Module",
   signature(x = "character"),
-  function(x, before, after, test, object) {
+  function(x, before, after, test, object, formats, dir) {
     if (missing(before)) {
       before <- NULL
     }
@@ -1579,6 +1691,12 @@ setMethod(
     if (missing(object) || !inherits(object, "camReport")) {
       object <- NULL
     }
+    if (missing(formats)) {
+      formats <- NULL
+    }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
     if (missing(test) || !is.logical(test)) {
       if (is.null(object)) {
@@ -1588,7 +1706,7 @@ setMethod(
       }
     }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
 
     if (isTRUE(test)) {
       v <- .validate_module(path = x, render = "parse", view = FALSE)
@@ -1608,20 +1726,24 @@ setMethod(
       test = test,
       package = "camtrapReport",
       dir = .module_dir,
-      object = object
+      object = object,
+      formats = formats
     )
   }
 )
 
 #--------
-setGeneric("move_Module", function(name, before, after, parent, level0) {
-  methods::standardGeneric("move_Module")
-})
+setGeneric(
+  "move_Module",
+  function(name, before, after, parent, level0, formats, dir) {
+    methods::standardGeneric("move_Module")
+  }
+)
 
 setMethod(
   "move_Module",
   signature(name = "character"),
-  function(name, before, after, parent, level0) {
+  function(name, before, after, parent, level0, formats, dir) {
     if (missing(before)) {
       before <- NULL
     }
@@ -1640,28 +1762,46 @@ setMethod(
         "appendix"
       )
     }
+    if (missing(formats)) {
+      formats <- NULL
+    }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
     info_path <- .modules_info_path(.module_dir)
     info <- .read_modules_info(.module_dir, level0 = level0)
+    info <- .resequence_info(info)
 
     if (!name %in% info$name) {
       stop("Unknown module: ", name)
     }
 
     current_parent <- info$parent[match(name, info$name)]
+    current_formats <- info$formats[match(name, info$name)]
     if (is.null(parent)) {
       parent <- current_parent
     }
     parent <- .norm_parent(parent)
+    if (is.null(formats)) {
+      formats <- current_formats
+    } else {
+      formats <- .normalize_module_formats(formats)
+    }
 
-    info2 <- info[info$name != name, c("name", "parent"), drop = FALSE]
+    info2 <- info[
+      info$name != name,
+      c("name", "parent", "formats"),
+      drop = FALSE
+    ]
     info2 <- .resequence_info(info2)
 
     info2 <- .insert_module_info(
       info = info2,
       name = name,
       parent = parent,
+      formats = formats,
       before = before,
       after = after,
       level0 = level0
@@ -1676,7 +1816,7 @@ setMethod(
 
 setGeneric(
   "remove_Module",
-  function(name, recursive) {
+  function(name, recursive, dir) {
     methods::standardGeneric("remove_Module")
   }
 )
@@ -1685,12 +1825,15 @@ setGeneric(
 setMethod(
   "remove_Module",
   signature(name = "character"),
-  function(name, recursive) {
+  function(name, recursive, dir) {
     if (missing(recursive)) {
       recursive <- TRUE
     }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
 
     .delete_Module(
       x = name,
@@ -1705,7 +1848,7 @@ setMethod(
 
 setGeneric(
   "empty_trash",
-  function(name, id) {
+  function(name, id, dir) {
     methods::standardGeneric("empty_trash")
   }
 )
@@ -1714,15 +1857,18 @@ setGeneric(
 setMethod(
   "empty_trash",
   signature(name = "ANY", id = "ANY"),
-  function(name, id) {
+  function(name, id, dir) {
     if (missing(name)) {
       name <- NULL
     }
     if (missing(id)) {
       id <- NULL
     }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
 
     .purge_Trash(
       x = name,
@@ -1737,7 +1883,7 @@ setMethod(
 #--------
 setGeneric(
   "list_Modules",
-  function(tree, brief, include_trash, validate) {
+  function(tree, brief, include_trash, validate, dir) {
     methods::standardGeneric("list_Modules")
   }
 )
@@ -1750,7 +1896,7 @@ setMethod(
     include_trash = "ANY",
     validate = "ANY"
   ),
-  function(tree, brief, include_trash, validate) {
+  function(tree, brief, include_trash, validate, dir) {
     if (missing(tree)) {
       tree <- TRUE
     }
@@ -1763,8 +1909,11 @@ setMethod(
     if (missing(validate)) {
       validate <- FALSE
     }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
 
     if (isTRUE(tree)) {
       info <- .read_modules_info(.module_dir)
@@ -1790,7 +1939,14 @@ setMethod(
     }
 
     if (isTRUE(brief)) {
-      out <- out[, c(1, 2, 3, 10, 13)]
+      if (!"formats" %in% names(out)) {
+        out$formats <- "both"
+      }
+      out <- out[
+        ,
+        c("ID", "name", "parent", "formats", "valid", "status"),
+        drop = FALSE
+      ]
     }
 
     if (isTRUE(include_trash) && !is.null(.trash) && nrow(.trash) > 0) {
@@ -1804,7 +1960,7 @@ setMethod(
 #--------
 setGeneric(
   "restore_Module",
-  function(name, batch_id, test) {
+  function(name, batch_id, test, dir) {
     methods::standardGeneric("restore_Module")
   }
 )
@@ -1812,15 +1968,18 @@ setGeneric(
 setMethod(
   "restore_Module",
   signature(name = "character"),
-  function(name, batch_id, test) {
+  function(name, batch_id, test, dir) {
     if (missing(batch_id)) {
       batch_id <- NULL
     }
     if (missing(test)) {
       test <- TRUE
     }
+    if (missing(dir)) {
+      dir <- NULL
+    }
 
-    .module_dir <- .section_dir(package = "camtrapReport")
+    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
 
     .recover_Module(
       x = name,

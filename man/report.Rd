@@ -45,7 +45,9 @@ HTML is the default output. PDF output first renders the existing HTML report
 and then prints it through a headless Chrome or Edge browser using the
 optional \code{pagedown} package. This route preserves modules that contain HTML
 widgets or HTML-formatted tables. Interactive controls are naturally static
-in the resulting PDF.
+in the resulting PDF. PDF output omits the table of contents and excludes
+modules whose registry entry does not support PDF. The \code{formats} column
+shown by \code{\link[=list_Modules]{list_Modules()}} records module compatibility.
 }
 \examples{
 \donttest{
