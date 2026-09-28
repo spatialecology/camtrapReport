@@ -43,7 +43,12 @@ test_that("profiles can be written, read, registered, and edited", {
 
   file <- tempfile(fileext = ".yml")
   on.exit(unlink(file, force = TRUE), add = TRUE)
-  expect_identical(write_profile(brief, file), normalizePath(file))
+  
+  expect_identical(
+    write_profile(brief, file),
+    normalizePath(file, winslash = "/", mustWork = TRUE)
+  )
+  
   expect_identical(read_profile(file), brief)
 
   add_profile(cm, file)
