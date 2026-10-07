@@ -1288,7 +1288,7 @@ camR <- setRefClass(
       )
 
       bounds <- as.numeric(bounds)
-      if (length(bounds) != 4 || any(!is.finite(bounds))) {
+      if (length(bounds) != 4 || !all(is.finite(bounds))) {
         stop("'bounds' must contain finite lng1, lat1, lng2, and lat2 values.")
       }
 

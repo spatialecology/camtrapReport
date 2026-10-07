@@ -1,4 +1,12 @@
-# camtrapReport 1.0.61 (development version)
+# camtrapReport 1.0.62 (development version)
+
+- Resolved jarl diagnostics without changing package behaviour by moving
+  report-selection restoration assignments into cleanup callbacks and using
+  the equivalent `!all()` form for finite map-bound validation.
+- Restored platform-independent path normalization in the profile tests so
+  Windows and Unix-like runners compare the same path representation.
+
+# camtrapReport 1.0.61
 
 - Added separate pooled and annual REM report modules. The EOW profile now
   fits detection, movement-speed, activity, trap-rate, and density parameters
