@@ -212,6 +212,7 @@ test_that("bundled report maps default to self-contained backgrounds", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
   expect_identical(cm$setting$map_basemap, "offline")
+  expect_true(is.function(cm$add_report_basemap))
 
   report_modules <- system.file(
     "reportSections",
@@ -225,4 +226,52 @@ test_that("bundled report maps default to self-contained backgrounds", {
 
   expect_false(any(grepl("addTiles", module_text, fixed = TRUE)))
   expect_true(any(grepl("add_report_basemap", module_text, fixed = TRUE)))
+
+  calls <- new.env(parent = emptyenv())
+  calls$code <- character()
+  calls$providers <- character()
+
+  result <- testthat::with_mocked_bindings(
+    cm$add_report_basemap(
+      map = list(),
+      bounds = c(4, 50, 5, 51),
+      mode = "openstreetmap"
+    ),
+    .eval = function(code, envir) {
+      calls$code <- c(calls$code, code)
+      if (grepl("leaflet::providers", code, fixed = TRUE)) {
+        provider_name <- get(
+          "provider_name",
+          envir = envir,
+          inherits = FALSE
+        )
+        calls$providers <- c(calls$providers, provider_name)
+        return(provider_name)
+      }
+      get("map", envir = envir, inherits = FALSE)
+    },
+    .package = "camtrapReport"
+  )
+
+  expect_type(result, "list")
+  expect_identical(calls$providers, c("OpenTopoMap", "OpenStreetMap"))
+  expect_identical(
+    sum(grepl("addProviderTiles", calls$code, fixed = TRUE)),
+    2L
+  )
+  expect_true(any(grepl("errorTileUrl", calls$code, fixed = TRUE)))
+})
+
+
+test_that("legacy cached objects receive the current basemap method", {
+  legacy <- new.env(parent = emptyenv())
+  legacy$siteName <- "Legacy camera-trap project"
+  legacy$setting <- list(map_basemap = "offline")
+
+  upgraded <- .upgrade_camreport_class(legacy)
+
+  expect_s4_class(upgraded, "camReport")
+  expect_true(is.function(upgraded$add_report_basemap))
+  expect_identical(upgraded$siteName, legacy$siteName)
+  expect_identical(upgraded$setting, legacy$setting)
 })

@@ -33,8 +33,10 @@
 #' * `setting`: Report settings, including selected focus groups,
 #'   `rem_parameter_scope` (`"pooled"` or `"annual"`), `rem_reps`, `rem_seed`,
 #'   and `map_basemap` (`"offline"`, `"cartodb"`, `"esri"`, or
-#'   `"openstreetmap"`). Bundled report modules select their REM scope
-#'   explicitly; the standard profile is pooled and the EOW profile is annual.
+#'   `"openstreetmap"`). The offline mode is the default; the OpenStreetMap mode
+#'   includes an OpenTopoMap fallback for failed tiles. Bundled report modules
+#'   select their REM scope explicitly; the standard profile is pooled and the
+#'   EOW profile is annual.
 #' * `data_status`: Data-status summaries generated from the input dataset.
 #' * `reportObjectElements`: Report modules and related objects used to generate
 #'   the ecological report.

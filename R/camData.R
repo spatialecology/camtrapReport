@@ -715,7 +715,26 @@ setGeneric(
   }
 )
 
+.upgrade_camreport_class <- function(x) {
+  has_basemap_method <- tryCatch(
+    is.function(x$add_report_basemap),
+    error = function(e) FALSE
+  )
+  if (isTRUE(has_basemap_method)) {
+    return(x)
+  }
+
+  upgraded <- camR$new()
+  fields <- intersect(names(camR$fields()), names(x))
+  for (field in fields) {
+    upgraded[[field]] <- x[[field]]
+  }
+  upgraded
+}
+
 .upgrade_camreport_analysis <- function(x) {
+  x <- .upgrade_camreport_class(x)
+
   defaults <- list(
     rem_parameter_scope = "pooled",
     rem_reps = 10L,

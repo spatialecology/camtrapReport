@@ -1,4 +1,16 @@
-# camtrapReport 1.0.62 (development version)
+# camtrapReport 1.0.63 (development version)
+
+- Added an OpenTopoMap fallback beneath explicitly selected OpenStreetMap
+  backgrounds. Failed OpenStreetMap tiles are transparent so the fallback is
+  revealed, while the privacy-preserving offline background remains the
+  default.
+- Added a regression test for the `add_report_basemap` reference-class method
+  used by the bundled map modules.
+- Legacy cached `camReport` objects that predate the basemap method are upgraded
+  to the current reference-class definition while retaining their stored
+  fields.
+
+# camtrapReport 1.0.62
 
 - Resolved jarl diagnostics without changing package behaviour by moving
   report-selection restoration assignments into cleanup callbacks and using

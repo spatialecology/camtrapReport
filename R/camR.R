@@ -1338,12 +1338,52 @@ camR <- setRefClass(
             environment()
           )
         }
+      } else if (identical(mode, "openstreetmap")) {
+        provider_name <- "OpenTopoMap"
+        provider <- .eval(
+          "leaflet::providers[[provider_name]]",
+          environment()
+        )
+        options <- .eval(
+          "leaflet::providerTileOptions(zIndex = 1)",
+          environment()
+        )
+        map <- .eval(
+          paste0(
+            "leaflet::addProviderTiles(map, provider, group = group, ",
+            "options = options)"
+          ),
+          environment()
+        )
+
+        provider_name <- "OpenStreetMap"
+        provider <- .eval(
+          "leaflet::providers[[provider_name]]",
+          environment()
+        )
+        transparent_tile <- paste0(
+          "data:image/gif;base64,",
+          "R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+        )
+        options <- .eval(
+          paste0(
+            "leaflet::providerTileOptions(zIndex = 2, ",
+            "errorTileUrl = transparent_tile)"
+          ),
+          environment()
+        )
+        map <- .eval(
+          paste0(
+            "leaflet::addProviderTiles(map, provider, group = group, ",
+            "options = options)"
+          ),
+          environment()
+        )
       } else {
         provider_name <- switch(
           mode,
           cartodb = "CartoDB.Positron",
-          esri = "Esri.WorldGrayCanvas",
-          openstreetmap = "OpenStreetMap"
+          esri = "Esri.WorldGrayCanvas"
         )
         provider <- .eval(
           "leaflet::providers[[provider_name]]",
