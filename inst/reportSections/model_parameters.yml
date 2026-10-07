@@ -14,7 +14,12 @@ code: |
   # Get REM estimates
 
   
-  if (!exists("estimates_rem") || !is.data.frame(estimates_rem)) {
+  if (
+    !exists("estimates_rem") ||
+      !is.data.frame(estimates_rem) ||
+      !"parameterScope" %in% names(estimates_rem) ||
+      !all(estimates_rem$parameterScope == "pooled")
+  ) {
     
     spn <- object$get_speciesNames(object$setting$focus_groups)
     spn <- unique(as.character(spn))
@@ -24,7 +29,10 @@ code: |
     
     if (length(spn) > 0) {
       for (sp in spn) {
-        tmp <- try(object$get_REM(sp), silent = TRUE)
+        tmp <- try(
+          object$get_REM(sp, parameter_scope = "pooled"),
+          silent = TRUE
+        )
         
         if (!inherits(tmp, "try-error") && !is.null(tmp) && length(tmp) > 0) {
           tmp_df <- try(dplyr::bind_rows(tmp), silent = TRUE)

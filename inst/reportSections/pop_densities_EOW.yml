@@ -1,7 +1,7 @@
 ---
 name: "population_densities_eow"
 title: "### Population Density Estimates {.tabset}"
-parent: "population_density"
+parent: "population_density_annual"
 text: "The plots below show annual population density estimates for each study species, together with 95% confidence intervals. These estimates allow comparison of temporal variation in density across survey years.\n\n"
 code: |
   #| name: population_density
@@ -12,7 +12,12 @@ code: |
   library(dplyr)
   library(patchwork)
   
-  if (!exists("estimates_rem") || is.null(estimates_rem)) {
+  if (
+    !exists("estimates_rem") ||
+      is.null(estimates_rem) ||
+      !"parameterScope" %in% names(estimates_rem) ||
+      !all(estimates_rem$parameterScope == "annual")
+  ) {
     
     spn <- object$get_speciesNames(object$setting$focus_groups)
     spn <- unique(spn[!is.na(spn) & nzchar(spn)])
@@ -21,7 +26,15 @@ code: |
     
     if (length(spn) > 0) {
       for (sp in spn) {
-        tmp <- try(object$get_REM(sp), silent = TRUE)
+        tmp <- try(
+          object$get_REM(
+            sp,
+            parameter_scope = "annual",
+            reps = 999L,
+            seed = 42L
+          ),
+          silent = TRUE
+        )
         
         if (!inherits(tmp, "try-error") && !is.null(tmp) && length(tmp) > 0) {
           tmp_df <- try(dplyr::bind_rows(tmp), silent = TRUE)

@@ -79,8 +79,16 @@ code: |
       )
     )
   
-  map <- leaflet::leaflet(.dat_year, width = "100%", height = "400px") |>
-    leaflet::addTiles()
+  map <- leaflet::leaflet(.dat_year, width = "100%", height = "400px")
+  map <- object$add_report_basemap(
+    map,
+    bounds = c(
+      min(.dat_year$longitude, na.rm = TRUE),
+      min(.dat_year$latitude, na.rm = TRUE),
+      max(.dat_year$longitude, na.rm = TRUE),
+      max(.dat_year$latitude, na.rm = TRUE)
+    )
+  )
   
   if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
     object$study_area$object <- terra::readRDS(object$study_area$path)
@@ -89,8 +97,8 @@ code: |
     map <- map |>
       leaflet::addPolygons(
         data = .tmpStudyArea,
-        fillColor = "transparent",
-        fillOpacity = 0.3,
+        fillColor = "#DDE8D4",
+        fillOpacity = 0.25,
         color = "black",
         weight = 2
       )

@@ -1,0 +1,15 @@
+---
+name: "population_density_annual"
+title: "## Population Density Estimation"
+parent: "results"
+text: >-
+  Population density was estimated using the Random Encounter Model (REM) for
+  species with sufficient data to support parameter estimation (Palencia et
+  al., 2022). Radius, angle, movement speed, activity level, trap rate, and
+  density were estimated independently for each species and sampling year.
+  Event-level Camtrap DP counts were summed as numbers of observed individuals.
+  Calibration records flagged for exclusion were omitted from the detection
+  and speed models. Estimates should be interpreted with reference to REM
+  assumptions and to the uncertainty shown below.
+code: null
+---

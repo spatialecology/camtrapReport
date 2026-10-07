@@ -135,8 +135,16 @@ code: |
         
         cat("\n#### ", sp, " {.unnumbered}\n\n", sep = "")
         
-        m <- leaflet::leaflet(df_sp) |>
-          leaflet::addTiles(group = "OSM") |>
+        m <- leaflet::leaflet(df_sp)
+        m <- object$add_report_basemap(
+          m,
+          bounds = c(
+            min(df_sp$longitude, na.rm = TRUE),
+            min(df_sp$latitude, na.rm = TRUE),
+            max(df_sp$longitude, na.rm = TRUE),
+            max(df_sp$latitude, na.rm = TRUE)
+          )
+        ) |>
           leaflet::addRasterImage(
             r,
             opacity = 0.7,
@@ -188,8 +196,8 @@ code: |
           m <- m |>
             leaflet::addPolygons(
               data = terra::project(.crop, "epsg:4326"),
-              fillColor = "transparent",
-              fillOpacity = 0.3,
+              fillColor = "#DDE8D4",
+              fillOpacity = 0.15,
               color = "black",
               weight = 2,
               options = leaflet::pathOptions(interactive = FALSE)
@@ -198,7 +206,7 @@ code: |
         
         m <- m |>
           leaflet::addLayersControl(
-            baseGroups = "OSM",
+            baseGroups = "Background",
             overlayGroups = c("Density", "Points"),
             options = leaflet::layersControlOptions(collapsed = FALSE)
           ) |>

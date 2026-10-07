@@ -6,6 +6,8 @@ test_that("bundled profiles select ordered modules from both pools", {
   eow <- sections(cm, profile = "EOW")
   expect_length(eow, 22L)
   expect_true("report::location_eow" %in% eow)
+  expect_true("report::population_density_annual" %in% eow)
+  expect_false("report::population_density" %in% eow)
   expect_true("status::spatial" %in% eow)
 
   report_pool_before <- names(cm$reportObjectElements$Modules)
@@ -27,6 +29,13 @@ test_that("bundled profiles select ordered modules from both pools", {
   expect_s4_class(find_test_report_section(cm$reportObjects, "spatial"),
                   ".textSection")
   expect_identical(
+    find_test_report_section(
+      cm$reportObjects,
+      "model_parameters_eow"
+    )@parent,
+    "population_density_annual"
+  )
+  expect_identical(
     find_test_report_section(cm$reportObjects, "spatial")@parent,
     "appendix_eow"
   )
@@ -43,10 +52,7 @@ test_that("profiles can be written, read, registered, and edited", {
 
   file <- tempfile(fileext = ".yml")
   on.exit(unlink(file, force = TRUE), add = TRUE)
-  expect_identical(
-    write_profile(brief, file),
-    normalizePath(file, winslash = "/", mustWork = TRUE)
-  )
+  expect_identical(write_profile(brief, file), normalizePath(file))
   expect_identical(read_profile(file), brief)
 
   add_profile(cm, file)
@@ -196,4 +202,24 @@ test_that("bundled EOW appendix and print CSS are PDF-safe", {
   expect_identical(spatial@parent, "appendix_eow")
   expect_match(css, "a[href]::after", fixed = TRUE)
   expect_match(css, ".tab-content > .tab-pane", fixed = TRUE)
+})
+
+
+test_that("bundled report maps default to self-contained backgrounds", {
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+
+  expect_identical(cm$setting$map_basemap, "offline")
+
+  report_modules <- system.file(
+    "reportSections",
+    package = "camtrapReport"
+  )
+  map_modules <- file.path(
+    report_modules,
+    c("location.yml", "location_EOW.yml", "richness.yml", "spatial_density.yml")
+  )
+  module_text <- unlist(lapply(map_modules, readLines, warn = FALSE))
+
+  expect_false(any(grepl("addTiles", module_text, fixed = TRUE)))
+  expect_true(any(grepl("add_report_basemap", module_text, fixed = TRUE)))
 })

@@ -18,6 +18,68 @@
   unique(x)
 }
 
+.rem_analysis_signature <- function() {
+  "rem-v2-annual-scope-individual-count"
+}
+
+.normalize_rem_scope <- function(x = NULL) {
+  if (is.null(x) || length(x) == 0 || is.na(x[1]) || !nzchar(x[1])) {
+    x <- "pooled"
+  }
+
+  match.arg(tolower(as.character(x)[1]), c("pooled", "annual"))
+}
+
+.rem_parameter_key <- function(
+  species,
+  parameter_scope = "pooled",
+  year = NULL,
+  reps = 10L,
+  seed = 42L
+) {
+  parameter_scope <- .normalize_rem_scope(parameter_scope)
+
+  if (identical(parameter_scope, "pooled")) {
+    return(species)
+  }
+
+  paste(
+    "annual",
+    species,
+    as.character(year)[1],
+    paste0("reps=", as.integer(reps)[1]),
+    paste0("seed=", as.integer(seed)[1]),
+    sep = "::"
+  )
+}
+
+.rem_result_key <- function(
+  species,
+  year = NULL,
+  parameter_scope = "pooled",
+  reps = 10L,
+  seed = 42L
+) {
+  parameter_scope <- .normalize_rem_scope(parameter_scope)
+  result_name <- if (is.null(year)) {
+    species
+  } else {
+    paste0(species, "_", year)
+  }
+
+  if (identical(parameter_scope, "pooled")) {
+    return(result_name)
+  }
+
+  paste(
+    "annual",
+    result_name,
+    paste0("reps=", as.integer(reps)[1]),
+    paste0("seed=", as.integer(seed)[1]),
+    sep = "::"
+  )
+}
+
 #-----------
 
 .collect_module_packages <- function(x) {
@@ -259,7 +321,11 @@ camR <- setRefClass(
 
       .self$setting <- list(
         locationLegend = FALSE,
-        color = c("#CA6A28", "#6C9100", "#00A383", "#008ADF", "#D44CBF")
+        color = c("#CA6A28", "#6C9100", "#00A383", "#008ADF", "#D44CBF"),
+        rem_parameter_scope = "pooled",
+        rem_reps = 10L,
+        rem_seed = 42L,
+        map_basemap = "offline"
       )
 
       .self$filterDuration <- 5
@@ -825,269 +891,477 @@ camR <- setRefClass(
         }
       }
     },
-    .get_REM_Param = function(sp, activity_only = FALSE) {
+    .get_REM_Param = function(
+      sp,
+      activity_only = FALSE,
+      parameter_scope = "pooled",
+      year = NULL,
+      data = NULL,
+      reps = 10L,
+      seed = 42L
+    ) {
+      parameter_scope <- .normalize_rem_scope(parameter_scope)
+      reps <- as.integer(reps)[1]
+      seed <- as.integer(seed)[1]
+      analysis_data <- if (is.null(data)) .self$data else data
+      cache_key <- .rem_parameter_key(
+        sp,
+        parameter_scope = parameter_scope,
+        year = year,
+        reps = reps,
+        seed = seed
+      )
+
       if (activity_only) {
-        if (is.list(.self$.rem_params[[sp]])) {
-          return(.self$.rem_params[[sp]])
+        if (is.list(.self$.rem_params[[cache_key]])) {
+          return(.self$.rem_params[[cache_key]])
         }
 
         if (
-          is.null(.self$.act_models[[sp]]) || !is.list(.self$.act_models[[sp]])
+          is.null(.self$.act_models[[cache_key]]) ||
+            !is.list(.self$.act_models[[cache_key]])
         ) {
           x <- try(
-            {
-              deployment_locations <- .self$data$deployments |>
-                dplyr::left_join(.self$data$locations, by = "locationID")
-              dat <- .self$data$observations |>
+            .with_preserved_seed(seed, {
+              deployment_locations <- analysis_data$deployments |>
+                dplyr::left_join(analysis_data$locations, by = "locationID")
+              dat <- analysis_data$observations |>
                 dplyr::left_join(deployment_locations, by = "deploymentID")
-              activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
+              activity_model <- .fit_actmodel(dat, species = sp, reps = reps)
 
-              rm(dat)
-
-              # Store only if all succeed
-              list(
-                activity_model = activity_model
-              )
-            },
+              list(activity_model = activity_model)
+            }),
             silent = TRUE
           )
-          #----
-          if (!inherits(x, 'try-error')) {
-            .self$.act_models[[sp]] <- x
+
+          if (!inherits(x, "try-error")) {
+            .self$.act_models[[cache_key]] <- x
             return(x)
           }
-        } else if (is.list(.self$.act_models[[sp]])) {
-          return(.self$.act_models[[sp]])
+        } else {
+          return(.self$.act_models[[cache_key]])
         }
-      } else {
-        if (
-          (is.null(.self$.rem_params[[sp]]) ||
-            !is.list(.self$.rem_params[[sp]])) &&
-            .require('camtrapDensity')
-        ) {
-          x <- try(
-            {
-              radius_model <- .fit_detmodel(
-                radius ~ 1,
-                .self$data$observations,
-                species = sp,
-                truncation = "5%",
-                quiet = TRUE
-              )
-              angle_model <- .fit_detmodel(
-                angle ~ 1,
-                .self$data$observations,
-                species = sp,
-                unit = "radian",
-                quiet = TRUE
-              )
-              speed_model <- .fit_speedmodel(
-                .self$data$observations,
-                species = sp
-              )
 
-              deployment_locations <- .self$data$deployments |>
-                dplyr::left_join(.self$data$locations, by = "locationID")
-              dat <- .self$data$observations |>
-                dplyr::left_join(deployment_locations, by = "deploymentID")
-
-              activity_model <- .fit_actmodel(dat, species = sp, reps = 10)
-
-              rm(dat)
-
-              # Store only if all succeed
-              list(
-                radius_model = radius_model,
-                angle_model = angle_model,
-                speed_model = speed_model,
-                activity_model = activity_model
-              )
-            },
-            silent = TRUE
-          )
-          if (!inherits(x, 'try-error')) {
-            .self$.rem_params[[sp]] <- x
-            return(x)
-          } # else .self$.rem_params[[sp]] <- NA
-        } else if (is.list(.self$.rem_params[[sp]])) {
-          return(.self$.rem_params[[sp]])
-        }
+        return(NULL)
       }
+
+      if (is.list(.self$.rem_params[[cache_key]])) {
+        return(.self$.rem_params[[cache_key]])
+      }
+
+      if (!.require("camtrapDensity")) {
+        return(NULL)
+      }
+
+      x <- try(
+        .with_preserved_seed(seed, {
+          radius_model <- .fit_detmodel(
+            radius ~ 1,
+            analysis_data$observations,
+            species = sp,
+            truncation = "5%",
+            quiet = TRUE
+          )
+          angle_model <- .fit_detmodel(
+            angle ~ 1,
+            analysis_data$observations,
+            species = sp,
+            unit = "radian",
+            quiet = TRUE
+          )
+          speed_model <- .fit_speedmodel(
+            analysis_data$observations,
+            species = sp,
+            reps = reps
+          )
+
+          deployment_locations <- analysis_data$deployments |>
+            dplyr::left_join(analysis_data$locations, by = "locationID")
+          dat <- analysis_data$observations |>
+            dplyr::left_join(deployment_locations, by = "deploymentID")
+          activity_model <- .fit_actmodel(dat, species = sp, reps = reps)
+
+          list(
+            radius_model = radius_model,
+            angle_model = angle_model,
+            speed_model = speed_model,
+            activity_model = activity_model
+          )
+        }),
+        silent = TRUE
+      )
+
+      if (!inherits(x, "try-error")) {
+        .self$.rem_params[[cache_key]] <- x
+        return(x)
+      }
+
+      NULL
     },
-    fit_REM = function(sp) {
+    fit_REM = function(
+      sp,
+      parameter_scope = NULL,
+      reps = NULL,
+      seed = NULL
+    ) {
+      if (is.null(parameter_scope)) {
+        parameter_scope <- .self$setting$rem_parameter_scope
+      }
+      parameter_scope <- .normalize_rem_scope(parameter_scope)
+
+      if (is.null(reps)) {
+        reps <- .self$setting$rem_reps
+      }
+      if (is.null(seed)) {
+        seed <- .self$setting$rem_seed
+      }
+      reps <- as.integer(reps)[1]
+      seed <- as.integer(seed)[1]
+
+      if (!is.finite(reps) || reps < 1L) {
+        stop("'reps' must be a positive integer.")
+      }
+      if (!is.finite(seed)) {
+        stop("'seed' must be a finite integer.")
+      }
+
       .g <- .self$get_focus_group(sp)
       if (!.g %in% names(.self$rem)) {
         .self$rem[[.g]] <- list()
       }
+
+      .make_result <- function(dat, species_params, year) {
+        trdat <- .get_traprate_data(dat, species = sp)
+        .parameters <- .get_parameter_table(
+          trdat,
+          radius_model = species_params$radius_model,
+          angle_model = species_params$angle_model,
+          speed_model = species_params$speed_model,
+          activity_model = species_params$activity_model,
+          reps = reps,
+          seed = seed
+        )
+        .density_estimates <- .rem(.parameters)
+        .density_estimates <- .eval(
+          paste0(
+            "camtrapDensity::convert_units(.density_estimates, ",
+            "radius_unit = \"m\", angle_unit = \"degree\", ",
+            "active_speed_unit = \"km/hour\", ",
+            "overall_speed_unit = \"km/day\")"
+          ),
+          environment()
+        )
+
+        if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
+          english_name <- dat$taxonomy$vernacularNames.eng[
+            dat$taxonomy$scientificName == sp
+          ]
+        } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
+          english_name <- dat$taxonomy$vernacularNames[
+            dat$taxonomy$scientificName == sp
+          ]
+        } else {
+          english_name <- "Unknown"
+        }
+        english_name <- unique(english_name[!is.na(english_name)])
+        if (length(english_name) == 0) {
+          english_name <- "Unknown"
+        }
+
+        data.frame(
+          scientificName = sp,
+          EnglishName = english_name[1],
+          Year = year,
+          Metric = rownames(.density_estimates),
+          parameterScope = parameter_scope,
+          countUnit = "individuals",
+          remReps = reps,
+          remSeed = seed,
+          .density_estimates,
+          row.names = NULL
+        )
+      }
+
       .density_estimate_list <- list()
 
       for (year in .self$years) {
         dat <- .self$get_data_subset(year = year)
-        if (nrow(dat$observations) > 0) {
-          species_params <- .self$.get_REM_Param(sp)
-          if (!is.null(species_params)) {
-            x <- try(
-              {
-                trdat <- .get_traprate_data(dat, species = sp)
-                .parameters <- .get_parameter_table(
-                  trdat,
-                  radius_model = species_params$radius_model,
-                  angle_model = species_params$angle_model,
-                  speed_model = species_params$speed_model,
-                  activity_model = species_params$activity_model,
-                  reps = 10
-                )
-                .density_estimates <- .rem(.parameters)
-                .density_estimates <- .eval(
-                  paste0(
-                    "camtrapDensity::convert_units(.density_estimates, ",
-                    "radius_unit = \"m\", angle_unit = \"degree\", ",
-                    "active_speed_unit = \"km/hour\", ",
-                    "overall_speed_unit = \"km/day\")"
-                  ),
-                  environment()
-                )
-                if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                  english_name <- dat$taxonomy$vernacularNames.eng[
-                    dat$taxonomy$scientificName == sp
-                  ]
-                } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                  english_name <- dat$taxonomy$vernacularNames[
-                    dat$taxonomy$scientificName == sp
-                  ]
-                } else {
-                  english_name <- "Unknown"
-                }
-                if (length(english_name) == 0) {
-                  english_name <- "Unknown"
-                }
-                data.frame(
-                  scientificName = sp,
-                  EnglishName = english_name,
-                  Year = year,
-                  Metric = rownames(.density_estimates),
-                  .density_estimates,
-                  row.names = NULL
-                )
-              },
-              silent = TRUE
-            )
-            if (!inherits(x, "try-error")) {
-              .density_estimate_list[[paste0(sp, "_", year)]] <- x
-            }
-          }
+        if (nrow(dat$observations) == 0) {
+          next
+        }
+
+        parameter_data <- if (identical(parameter_scope, "annual")) {
+          dat
+        } else {
+          .self$data
+        }
+        parameter_year <- if (identical(parameter_scope, "annual")) {
+          year
+        } else {
+          NULL
+        }
+
+        species_params <- .self$.get_REM_Param(
+          sp,
+          parameter_scope = parameter_scope,
+          year = parameter_year,
+          data = parameter_data,
+          reps = reps,
+          seed = seed
+        )
+
+        if (is.null(species_params)) {
+          next
+        }
+
+        x <- try(.make_result(dat, species_params, year), silent = TRUE)
+        if (!inherits(x, "try-error")) {
+          result_key <- .rem_result_key(
+            sp,
+            year = year,
+            parameter_scope = parameter_scope,
+            reps = reps,
+            seed = seed
+          )
+          .density_estimate_list[[result_key]] <- x
         }
       }
+
       if (length(.density_estimate_list) > 0) {
         for (n in names(.density_estimate_list)) {
           .self$rem[[.g]][[n]] <- .density_estimate_list[[n]]
         }
-        #------------
-        # also for total (all-years):
-        dat <- .self$data
-        if (nrow(dat$observations) > 0) {
-          species_params <- .self$.get_REM_Param(sp)
-          if (!is.null(species_params)) {
-            x <- try(
-              {
-                trdat <- .get_traprate_data(dat, species = sp)
-                .parameters <- .get_parameter_table(
-                  trdat,
-                  radius_model = species_params$radius_model,
-                  angle_model = species_params$angle_model,
-                  speed_model = species_params$speed_model,
-                  activity_model = species_params$activity_model,
-                  reps = 10
-                )
-                .density_estimates <- .rem(.parameters)
-                .density_estimates <- .eval(
-                  paste0(
-                    "camtrapDensity::convert_units(.density_estimates, ",
-                    "radius_unit = \"m\", angle_unit = \"degree\", ",
-                    "active_speed_unit = \"km/hour\", ",
-                    "overall_speed_unit = \"km/day\")"
-                  ),
-                  environment()
-                )
-                if ("vernacularNames.eng" %in% colnames(dat$taxonomy)) {
-                  english_name <- dat$taxonomy$vernacularNames.eng[
-                    dat$taxonomy$scientificName == sp
-                  ]
-                } else if ("vernacularNames" %in% colnames(dat$taxonomy)) {
-                  english_name <- dat$taxonomy$vernacularNames[
-                    dat$taxonomy$scientificName == sp
-                  ]
-                } else {
-                  english_name <- "Unknown"
-                }
-                if (length(english_name) == 0) {
-                  english_name <- "Unknown"
-                }
-                data.frame(
-                  scientificName = sp,
-                  EnglishName = english_name,
-                  Year = 9999,
-                  Metric = rownames(.density_estimates),
-                  .density_estimates,
-                  row.names = NULL
-                )
-              },
-              silent = TRUE
-            )
+
+        if (identical(parameter_scope, "pooled")) {
+          dat <- .self$data
+          species_params <- .self$.get_REM_Param(
+            sp,
+            parameter_scope = parameter_scope,
+            data = dat,
+            reps = reps,
+            seed = seed
+          )
+
+          if (!is.null(species_params) && nrow(dat$observations) > 0) {
+            x <- try(.make_result(dat, species_params, 9999), silent = TRUE)
             if (!inherits(x, "try-error")) {
-              .self$rem[[.g]][[sp]] <- x
+              total_key <- .rem_result_key(
+                sp,
+                parameter_scope = parameter_scope,
+                reps = reps,
+                seed = seed
+              )
+              .self$rem[[.g]][[total_key]] <- x
             }
           }
         }
-      } else {
-        if (length(.self$.any_data_for_rem) == 0) {
-          .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-        } else {
-          .self$.any_data_for_rem[sp] <- FALSE
-        }
-      }
-    },
-    get_REM = function(.sp) {
-      # extract REM results for a species from .self$rem
-      # if not available, fit_REM is called!
 
+        return(invisible(TRUE))
+      }
+
+      if (length(.self$.any_data_for_rem) == 0) {
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+      } else {
+        .self$.any_data_for_rem[sp] <- FALSE
+      }
+
+      invisible(FALSE)
+    },
+    get_REM = function(
+      .sp,
+      parameter_scope = NULL,
+      reps = NULL,
+      seed = NULL
+    ) {
       if (length(.sp) > 1) {
         stop(
-          'length(.sp) > 1; a single species name should be provided ',
-          'to get_REM!'
+          "length(.sp) > 1; a single species name should be provided ",
+          "to get_REM!"
         )
       }
+
+      if (is.null(parameter_scope)) {
+        parameter_scope <- .self$setting$rem_parameter_scope
+      }
+      parameter_scope <- .normalize_rem_scope(parameter_scope)
+      if (is.null(reps)) {
+        reps <- .self$setting$rem_reps
+      }
+      if (is.null(seed)) {
+        seed <- .self$setting$rem_seed
+      }
+      reps <- as.integer(reps)[1]
+      seed <- as.integer(seed)[1]
 
       if (length(.self$.any_data_for_rem) == 0) {
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
       } else if (!.sp %in% names(.self$.any_data_for_rem)) {
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
       }
-      #-------------
-      if (
-        length(.self$.any_data_for_rem) > 0 &&
-          .sp %in% names(.self$.any_data_for_rem) &&
-          .self$.any_data_for_rem[.sp]
-      ) {
-        .g <- .self$get_focus_group(.sp)
-        if (.g %in% names(.self$rem)) {
-          .n <- names(.self$rem[[.g]])
-          .spn <- c(paste0(.sp, '_', .self$years), .sp)
-          if (any(.spn %in% .n)) {
-            .spn <- .spn[.spn %in% .n]
-            .self$rem[[.g]][.spn]
-          } else {
-            .self$fit_REM(.sp)
-            .self$get_REM(.sp)
-          }
-        } else {
-          .self$fit_REM(.sp)
-          .self$get_REM(.sp)
+
+      has_rem_data <- length(.self$.any_data_for_rem) > 0 &&
+        .sp %in% names(.self$.any_data_for_rem) &&
+        isTRUE(.self$.any_data_for_rem[[.sp]])
+
+      if (!has_rem_data) {
+        .tmp <- .self$.get_REM_Param(
+          .sp,
+          activity_only = TRUE,
+          reps = reps,
+          seed = seed
+        )
+        return(NULL)
+      }
+
+      .g <- .self$get_focus_group(.sp)
+      storage_names <- vapply(
+        .self$years,
+        function(year) {
+          .rem_result_key(
+            .sp,
+            year = year,
+            parameter_scope = parameter_scope,
+            reps = reps,
+            seed = seed
+          )
+        },
+        character(1)
+      )
+      display_names <- paste0(.sp, "_", .self$years)
+
+      if (identical(parameter_scope, "pooled")) {
+        storage_names <- c(
+          storage_names,
+          .rem_result_key(
+            .sp,
+            parameter_scope = parameter_scope,
+            reps = reps,
+            seed = seed
+          )
+        )
+        display_names <- c(display_names, .sp)
+      }
+
+      available <- character()
+      if (.g %in% names(.self$rem)) {
+        available <- names(.self$rem[[.g]])
+      }
+
+      if (!any(storage_names %in% available)) {
+        fit_ok <- .self$fit_REM(
+          .sp,
+          parameter_scope = parameter_scope,
+          reps = reps,
+          seed = seed
+        )
+        if (!isTRUE(fit_ok)) {
+          return(NULL)
+        }
+        available <- names(.self$rem[[.g]])
+      }
+
+      keep <- storage_names %in% available
+      if (!any(keep)) {
+        return(NULL)
+      }
+
+      out <- .self$rem[[.g]][storage_names[keep]]
+      names(out) <- display_names[keep]
+      out
+    },
+    add_report_basemap = function(
+      map,
+      bounds,
+      group = "Background",
+      mode = NULL
+    ) {
+      if (is.null(mode) || length(mode) == 0) {
+        mode <- .self$setting$map_basemap
+      }
+      if (is.null(mode) || length(mode) == 0 || is.na(mode[1])) {
+        mode <- "offline"
+      }
+      mode <- tolower(as.character(mode)[1])
+      mode <- match.arg(
+        mode,
+        c("offline", "cartodb", "esri", "openstreetmap")
+      )
+
+      bounds <- as.numeric(bounds)
+      if (length(bounds) != 4 || any(!is.finite(bounds))) {
+        stop("'bounds' must contain finite lng1, lat1, lng2, and lat2 values.")
+      }
+
+      lng_range <- sort(bounds[c(1, 3)])
+      lat_range <- sort(bounds[c(2, 4)])
+      lng_pad <- max(diff(lng_range) * 0.08, 0.002)
+      lat_pad <- max(diff(lat_range) * 0.08, 0.002)
+      lng_range <- lng_range + c(-lng_pad, lng_pad)
+      lat_range <- lat_range + c(-lat_pad, lat_pad)
+
+      if (identical(mode, "offline")) {
+        map <- .eval(
+          paste0(
+            "leaflet::addRectangles(map, ",
+            "lng1 = lng_range[1], lat1 = lat_range[1], ",
+            "lng2 = lng_range[2], lat2 = lat_range[2], ",
+            "stroke = FALSE, fillColor = '#F2F1EC', ",
+            "fillOpacity = 1, group = group, ",
+            "options = leaflet::pathOptions(interactive = FALSE))"
+          ),
+          environment()
+        )
+
+        lon_grid <- seq(lng_range[1], lng_range[2], length.out = 6)
+        lat_grid <- seq(lat_range[1], lat_range[2], length.out = 6)
+        for (longitude in lon_grid) {
+          map <- .eval(
+            paste0(
+              "leaflet::addPolylines(map, ",
+              "lng = c(longitude, longitude), lat = lat_range, ",
+              "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
+              "group = group, ",
+              "options = leaflet::pathOptions(interactive = FALSE))"
+            ),
+            environment()
+          )
+        }
+        for (latitude in lat_grid) {
+          map <- .eval(
+            paste0(
+              "leaflet::addPolylines(map, ",
+              "lng = lng_range, lat = c(latitude, latitude), ",
+              "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
+              "group = group, ",
+              "options = leaflet::pathOptions(interactive = FALSE))"
+            ),
+            environment()
+          )
         }
       } else {
-        .tmp <- .get_REM_Param(.sp, activity_only = TRUE)
-        rm(.tmp)
+        provider_name <- switch(
+          mode,
+          cartodb = "CartoDB.Positron",
+          esri = "Esri.WorldGrayCanvas",
+          openstreetmap = "OpenStreetMap"
+        )
+        provider <- .eval(
+          "leaflet::providers[[provider_name]]",
+          environment()
+        )
+        map <- .eval(
+          "leaflet::addProviderTiles(map, provider, group = group)",
+          environment()
+        )
       }
+
+      .eval(
+        paste0(
+          "leaflet::addScaleBar(map, position = 'bottomleft', ",
+          "options = leaflet::scaleBarOptions(imperial = FALSE))"
+        ),
+        environment()
+      )
     },
     setup = function(tz = NULL) {
       # add tz (time zone) to setting:

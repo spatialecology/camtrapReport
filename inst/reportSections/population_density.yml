@@ -2,6 +2,15 @@
 name: "population_density"
 title: "## Population Density Estimation"
 parent: "results"
-text:  "Population density was estimated using the Random Encounter Model (REM) for species with sufficient data to support reliable parameter estimation (*Palencia et al., 2022*). All REM analyses were conducted using the [camtrapDensity](https://github.com/MarcusRowcliffe/camtrapDensity) R package. Because detectability may vary among species, habitat types, and camera models, these estimates should be interpreted with reference to the assumptions of the model. The estimated model parameters and derived density values are presented in the following sections. For consistency, all density estimates were calculated using parameter values averaged across sampling rounds."
+text: >-
+  Population density was estimated using the Random Encounter Model (REM) for
+  species with sufficient data to support parameter estimation (Palencia et
+  al., 2022). The pooled analysis fits one set of radius, angle, movement-speed,
+  and activity parameters to all sampling years for each species, then combines
+  those parameters with the trap rate from each year. Event-level Camtrap DP
+  counts are summed as numbers of observed individuals. This pooled approach
+  assumes that the fitted parameters are sufficiently stable among years; it
+  should not be interpreted as an arithmetic average of annual parameter
+  estimates.
 code: null
 ---

@@ -1,7 +1,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.60
+Version: 1.0.61
 Authors@R: c(
     person(
       given = "Elham",

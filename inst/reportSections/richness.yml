@@ -106,8 +106,16 @@ code: |
       na.color = "#bdbdbd"
     )
     
-    map <- leaflet::leaflet(data) |>
-      leaflet::addTiles() |>
+    map <- leaflet::leaflet(data)
+    map <- object$add_report_basemap(
+      map,
+      bounds = c(
+        min(data$longitude, na.rm = TRUE),
+        min(data$latitude, na.rm = TRUE),
+        max(data$longitude, na.rm = TRUE),
+        max(data$latitude, na.rm = TRUE)
+      )
+    ) |>
       leaflet::addCircleMarkers(
         lng = ~longitude,
         lat = ~latitude,
@@ -131,8 +139,8 @@ code: |
           color = "#3A3F44",
           weight = 2,
           opacity = 0.9,
-          fillColor = "transparent",
-          fillOpacity = 0,
+          fillColor = "#DDE8D4",
+          fillOpacity = 0.25,
           options = leaflet::pathOptions(interactive = FALSE)
         )
     }

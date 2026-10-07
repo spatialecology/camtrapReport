@@ -698,6 +698,36 @@
 #---------
 # adjusted from the package camtrapDensity:
 # Adapted from fit_detmodel() in the camtrapDensity package.
+.with_preserved_seed <- function(seed, code) {
+  seed <- as.integer(seed)[1]
+  if (!is.finite(seed)) {
+    stop("'seed' must be a finite integer.")
+  }
+
+  seed_exists <- exists(
+    ".Random.seed",
+    envir = .GlobalEnv,
+    inherits = FALSE
+  )
+  if (seed_exists) {
+    old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  }
+
+  on.exit(
+    {
+      if (seed_exists) {
+        assign(".Random.seed", old_seed, envir = .GlobalEnv)
+      } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+        rm(".Random.seed", envir = .GlobalEnv)
+      }
+    },
+    add = TRUE
+  )
+
+  set.seed(seed)
+  force(code)
+}
+
 .fit_detmodel <- function(
   formula,
   dat,
@@ -804,11 +834,16 @@
   timeUnit <- match.arg(timeUnit)
   varnms <- 'speed'
 
-  dat <- dat[
-    dat$scientificName %in% species & dat$speed > 0.01 & dat$speed < 10,
-    varnms,
-    drop = FALSE
-  ]
+  keep <- dat$scientificName %in% species &
+    dat$speed > 0.01 &
+    dat$speed < 10
+  if ("useDeployment" %in% names(dat)) {
+    use_deployment <- as.logical(dat[["useDeployment"]])
+    use_deployment[is.na(use_deployment)] <- FALSE
+    keep <- keep & use_deployment
+  }
+
+  dat <- dat[keep, varnms, drop = FALSE]
   dat <- as.data.frame(na.omit(dat))
   if (nrow(dat) == 0) {
     stop("There are no usable speed data")
@@ -989,7 +1024,11 @@
 
   #---------------- count observations per deployment/species ----------------
 
-  obs <- dat$observations[, c("deploymentID", "scientificName"), drop = FALSE]
+  obs_columns <- c("deploymentID", "scientificName")
+  if ("count" %in% names(dat$observations)) {
+    obs_columns <- c(obs_columns, "count")
+  }
+  obs <- dat$observations[, obs_columns, drop = FALSE]
   obs[["scientificName"]] <- as.character(obs[["scientificName"]])
 
   if (!is.null(species)) {
@@ -1013,7 +1052,20 @@
     return(empty_out())
   }
 
-  obs[["n"]] <- 1L
+  if ("count" %in% names(obs)) {
+    individual_count <- suppressWarnings(as.numeric(obs[["count"]]))
+    if (any(is.finite(individual_count) & individual_count > 0)) {
+      individual_count[
+        !is.finite(individual_count) | individual_count < 0
+      ] <- 0
+      obs[["n"]] <- individual_count
+    } else {
+      obs[["n"]] <- 1L
+    }
+    obs[["count"]] <- NULL
+  } else {
+    obs[["n"]] <- 1L
+  }
 
   a <- stats::aggregate(
     x = list(n = obs[["n"]]),
@@ -1075,7 +1127,8 @@
   angle_model,
   speed_model,
   activity_model,
-  reps = 999
+  reps = 999,
+  seed = 42L
 ) {
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
@@ -1110,9 +1163,24 @@
     "activity_level",
     "overall_speed"
   )
-  traprate <- .eval(
-    'camtrapDensity::get_trap_rate(traprate_data, strata=NULL, reps)',
+  traprate_args <- list(
+    traprate_data,
+    strata = NULL,
+    reps = reps
+  )
+  traprate_formals <- .eval(
+    "names(formals(camtrapDensity::get_trap_rate))",
     environment()
+  )
+  if ("seed" %in% traprate_formals) {
+    traprate_args$seed <- seed
+  }
+  traprate <- .with_preserved_seed(
+    seed,
+    .eval(
+      "do.call(camtrapDensity::get_trap_rate, traprate_args)",
+      environment()
+    )
   )
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used

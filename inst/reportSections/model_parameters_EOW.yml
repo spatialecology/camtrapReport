@@ -1,9 +1,76 @@
 ---
 name: "model_parameters_eow"
-title: "### REM Model Parameters {.tabset}"
-parent: "population_density"
+title: "### Annual REM Model Parameters"
+parent: "population_density_annual"
 text: |
-  The REM relies on three key parameters: movement speed, activity level, and day range. Movement speed represents the average distance travelled by an individual over time, whereas activity level reflects the proportion of time individuals are active and therefore available for detection by camera traps. Day range refers to the total distance an animal typically moves within a 24-hour period and is derived from movement speed and activity level (Rowcliffe et al., 2008; Rowcliffe et al., 2016). Together, these parameters underpin the REM density estimates presented in section 3.3.2.
+  The REM relies on detection radius and angle, movement speed, activity level,
+  and trap rate. For this EOW profile, these parameters are estimated
+  independently for each species and sampling year. This avoids treating a
+  pooled multi-year fit as if it were an average of annual estimates and makes
+  annual differences in calibration and animal activity explicit.
 
-code: null
+code: |
+  #| name: annual_rem_parameters
+  #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE
+  #| packages: dplyr, knitr
+
+  spn <- object$get_speciesNames(object$setting$focus_groups)
+  spn <- unique(as.character(spn))
+  spn <- spn[!is.na(spn) & nzchar(spn)]
+  rem_list <- list()
+
+  if (length(spn) > 0) {
+    for (sp in spn) {
+      tmp <- try(
+        object$get_REM(
+          sp,
+          parameter_scope = "annual",
+          reps = 999L,
+          seed = 42L
+        ),
+        silent = TRUE
+      )
+
+      if (!inherits(tmp, "try-error") && !is.null(tmp) && length(tmp) > 0) {
+        tmp_df <- try(dplyr::bind_rows(tmp), silent = TRUE)
+        if (!inherits(tmp_df, "try-error") && nrow(tmp_df) > 0) {
+          rem_list[[sp]] <- tmp_df
+        }
+      }
+    }
+  }
+
+  estimates_rem <- dplyr::bind_rows(rem_list)
+
+  if (nrow(estimates_rem) == 0) {
+    cat("\nNo annual REM parameter estimates were available.\n\n")
+  } else {
+    parameter_table <- estimates_rem |>
+      dplyr::filter(
+        as.character(.data$Year) != "9999",
+        .data$Metric %in% c(
+          "radius", "angle", "active_speed", "activity_level",
+          "overall_speed", "trap_rate", "density"
+        )
+      ) |>
+      dplyr::transmute(
+        Species = .data$scientificName,
+        Year = .data$Year,
+        Parameter = .data$Metric,
+        Estimate = signif(.data$estimate, 4),
+        `Standard error` = signif(.data$se, 4),
+        Unit = .data$unit,
+        `Sample size` = .data$n
+      ) |>
+      dplyr::arrange(.data$Species, .data$Year, .data$Parameter)
+
+    print(knitr::kable(
+      parameter_table,
+      caption = paste0(
+        "Year-specific REM parameter and density estimates. ",
+        "Each species-year was fitted independently."
+      ),
+      row.names = FALSE
+    ))
+  }
 ---

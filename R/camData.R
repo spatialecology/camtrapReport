@@ -715,6 +715,35 @@ setGeneric(
   }
 )
 
+.upgrade_camreport_analysis <- function(x) {
+  defaults <- list(
+    rem_parameter_scope = "pooled",
+    rem_reps = 10L,
+    rem_seed = 42L,
+    map_basemap = "offline"
+  )
+
+  if (is.null(x$setting) || !is.list(x$setting)) {
+    x$setting <- list()
+  }
+  for (name in names(defaults)) {
+    if (is.null(x$setting[[name]])) {
+      x$setting[[name]] <- defaults[[name]]
+    }
+  }
+
+  current_signature <- .rem_analysis_signature()
+  stored_signature <- x$info$rem_analysis_signature
+  if (!identical(stored_signature, current_signature)) {
+    x$rem <- list()
+    x$.rem_params <- list()
+    x$.act_models <- list()
+    x$info$rem_analysis_signature <- current_signature
+  }
+
+  x
+}
+
 #' Read camera-trap data in Camtrap DP format
 #'
 #' Create a [`camReport`][camReport-classes] object from a Camtrap DP dataset.
@@ -787,6 +816,7 @@ setMethod(
         .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
         if (any(.w)) {
           cm <- readRDS(file[.w][1])
+          cm <- .upgrade_camreport_analysis(cm)
           if (is.null(cm$reportObjectElements$Profiles)) {
             cm$reportObjectElements$Profiles <- .read_profiles()
           }
@@ -809,6 +839,7 @@ setMethod(
     .d <- .read_camdp(data)
 
     cm <- camR$new()
+    cm <- .upgrade_camreport_analysis(cm)
     cm$setting$locationLegend <- TRUE
 
     cm$data <- .d$data

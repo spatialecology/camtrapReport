@@ -51,8 +51,11 @@ report.
 \item \code{years}: Years included in the report summaries.
 \item \code{group_definition}: Definitions of species or observation groups used in
 the report.
-\item \code{setting}: Report settings, including selected focus groups and other
-configuration options.
+\item \code{setting}: Report settings, including selected focus groups,
+\code{rem_parameter_scope} (\code{"pooled"} or \code{"annual"}), \code{rem_reps}, \code{rem_seed},
+and \code{map_basemap} (\code{"offline"}, \code{"cartodb"}, \code{"esri"}, or
+\code{"openstreetmap"}). Bundled report modules select their REM scope
+explicitly; the standard profile is pooled and the EOW profile is annual.
 \item \code{data_status}: Data-status summaries generated from the input dataset.
 \item \code{reportObjectElements}: Report modules and related objects used to generate
 the ecological report.

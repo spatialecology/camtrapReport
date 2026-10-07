@@ -131,6 +131,28 @@ test_that("trap-rate data are calculated for a selected species", {
 })
 
 
+test_that("trap-rate data sum Camtrap DP individual counts", {
+  dat <- make_traprate_test_data()
+  dat$observations$count <- c(2L, 3L, 4L, 1L, 1L, 1L)
+
+  result <- .get_traprate_data(
+    dat = dat,
+    species = "Vulpes vulpes",
+    unit = "day"
+  )
+
+  expect_identical(
+    result$n[result$locationName == "Site A"],
+    5
+  )
+  expect_identical(
+    result$n[result$locationName == "Site B"],
+    4
+  )
+  expect_identical(sum(result$n), 9)
+})
+
+
 test_that("trap-rate effort supports all available time units", {
   dat <- make_traprate_test_data()
 

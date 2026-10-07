@@ -51,7 +51,7 @@ code: |
     n <- length(species)
     if (n == 0) return(stats::setNames(character(0), character(0)))
     
-    if (n <= 6 && length(object$reportObjectElements$color_palette) >= n) {
+    if (length(object$reportObjectElements$color_palette) >= n) {
       cols <- object$reportObjectElements$color_palette[seq_len(n)]
     } else {
       cols <- grDevices::hcl.colors(n, palette = "Dark 3")

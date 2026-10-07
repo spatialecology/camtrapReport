@@ -248,12 +248,7 @@ setMethod(
     }
 
     selected_objects <- object$reportObjects
-    
-    restore_report_objects <- function() {
-      object$reportObjects <- selected_objects
-    }
-    
-    on.exit(restore_report_objects(), add = TRUE)
+    on.exit(object$reportObjects <- selected_objects, add = TRUE)
     .prepare_attached_modules_for_format(
       object,
       report_type = "report",

@@ -1,4 +1,24 @@
-# camtrapReport 1.0.60 (development version)
+# camtrapReport 1.0.61 (development version)
+
+- Added separate pooled and annual REM report modules. The EOW profile now
+  fits detection, movement-speed, activity, trap-rate, and density parameters
+  independently for each species and sampling year; the standard profile
+  retains the pooled multi-year method for backwards compatibility.
+- Corrected REM trap-rate input to sum the Camtrap DP event-level `count`
+  field as numbers of individuals, with a backwards-compatible row-count
+  fallback when no usable counts are supplied.
+- Applied deployment inclusion flags consistently to detection and speed
+  calibration data, added reproducible REM repetition and seed metadata, and
+  separated pooled and annual caches.
+- Added an REM analysis signature so obsolete cached REM estimates are cleared
+  when an existing `__camReport_Object.rds` is loaded.
+- Replaced live OpenStreetMap tiles in bundled report modules with a
+  self-contained offline background. Optional CartoDB, Esri, and OpenStreetMap
+  backgrounds remain available through `cm$setting$map_basemap`.
+- Restored the package species palette for multi-species trend figures instead
+  of switching palettes when more than six species are displayed.
+
+# camtrapReport 1.0.60
 
 - Added `html`, `pdf`, and `both` compatibility metadata to the report and
   data-status module registries. Module management now preserves this metadata,
