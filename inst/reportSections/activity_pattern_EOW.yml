@@ -6,15 +6,18 @@ text: "Activity patterns describe the temporal distribution of animal activity a
 code: |
   #| name: activity_pattern
   #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
-  #| packages: ggplot2, dplyr, activity, patchwork, overlap
+  #| packages: ggplot2, dplyr, activity, overlap
   
   library(ggplot2)
   library(dplyr)
-  library(patchwork)
   
   if (!requireNamespace("activity", quietly = TRUE)) {
     
-    cat("\n\nThe activity package is not installed; activity patterns cannot be estimated.\n")
+    cat(
+      "\n\n### Availability {.unnumbered}\n\n",
+      "The activity package is not installed; activity patterns cannot be estimated.\n",
+      sep = ""
+    )
     
   } else if (!is.null(object$sun_times) && nrow(object$sun_times) > 0) {
     
@@ -215,34 +218,50 @@ code: |
     n_plots <- length(plot_list)
     
     if (n_plots > 0) {
-      
-      grid_plot <- patchwork::wrap_plots(plot_list) +
-        patchwork::plot_layout(guides = "collect", axis_titles = "collect") &
-        ggplot2::theme(
-          legend.position = "right",
-          legend.title = ggplot2::element_text(face = "bold", size = 11),
-          legend.text = ggplot2::element_text(face = "italic", size = 10),
-          legend.key.size = ggplot2::unit(0.8, "lines"),
-          legend.margin = ggplot2::margin(0, 0, 0, 0),
-          legend.box.margin = ggplot2::margin(0, 0, 0, 5)
+      for (species in names(plot_list)) {
+        cat(
+          "\n\n### ",
+          species,
+          " {.unnumbered}\n\n",
+          sep = ""
         )
-      
-      print(grid_plot)
-      
-      if (length(failed_species) > 0) {
-        cat("\n\n*Note: Activity patterns could not be estimated for the following species:*\n")
-        for (sp in names(failed_species)) {
-          cat(paste0("- **", sp, "**: ", failed_species[[sp]], "\n"))
-        }
+        print(plot_list[[species]])
+        cat(paste0(
+          "\n\n", object$getFigureNumber(),
+          " *Estimated daily activity pattern in solar radians for ",
+          species,
+          ", aggregated across all sampling rounds. Dashed lines indicate average sunrise (\u03c0/2, yellow) and sunset (3\u03c0/2, gray) times. The solid line represents the fitted activity model, and the shaded region represents the 95% confidence interval where available.*\n\n"
+        ))
       }
-      
-      cat(paste0(
-        "\n\n", object$getFigureNumber(),
-        " *Estimated daily activity patterns in solar radians for study species, aggregated across all sampling rounds. Dashed lines indicate average sunrise (\u03c0/2, yellow) and sunset (3\u03c0/2, gray) times. Solid lines represent fitted activity models, and shaded regions represent 95% confidence intervals where available.*\n\n"
-      ))
+    }
+
+    if (length(failed_species) > 0) {
+      for (species in names(failed_species)) {
+        cat(
+          "\n\n### ",
+          species,
+          " {.unnumbered}\n\n",
+          "Activity pattern could not be estimated. Reason: ",
+          failed_species[[species]],
+          "\n\n",
+          sep = ""
+        )
+      }
+    }
+
+    if (n_plots == 0 && length(failed_species) == 0) {
+      cat(
+        "\n\n### Availability {.unnumbered}\n\n",
+        "No study species are available for activity-pattern estimation.\n\n",
+        sep = ""
+      )
     }
     
   } else {
-    cat('\n\nThe sun times have not been calculated; it requires the suncalc package. Please run setup first.\n')
+    cat(
+      "\n\n### Availability {.unnumbered}\n\n",
+      "The sun times have not been calculated; it requires the suncalc package. Please run setup first.\n",
+      sep = ""
+    )
   }
 ---

@@ -1,4 +1,15 @@
-# camtrapReport 1.0.63 (development version)
+# camtrapReport 1.0.64 (development version)
+
+- Corrected the EOW report tab structure. HTML output retains interactive tabs
+  for abundance metrics, annual density estimates by species, and activity
+  patterns by species, while the print stylesheet exposes every tab panel
+  sequentially in PDF output. References remain an ordinary non-tabbed section.
+  The three modules no longer declare the unused optional `patchwork`
+  dependency because their panels are rendered separately.
+- Added a regression test that verifies the bundled EOW tabsets have nested tab
+  headings and that the reference and appendix sections remain non-tabbed.
+
+# camtrapReport 1.0.63
 
 - Added an OpenTopoMap fallback beneath explicitly selected OpenStreetMap
   backgrounds. Failed OpenStreetMap tiles are transparent so the fallback is

@@ -6,11 +6,10 @@ text: "Camera-trap capture data do not directly measure true population size, bu
 code: |
   #| name: abundance
   #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
-  #| packages: ggplot2, dplyr, patchwork, scales
+  #| packages: ggplot2, dplyr, scales
   
   library(ggplot2)
   library(dplyr)
-  library(patchwork)
   library(scales)
   
   group_label <- .pretty_label(object$setting$focus_groups)
@@ -229,7 +228,11 @@ code: |
     dplyr::arrange(.data$scientificName, .data$Year_numeric)
   
   if (nrow(capture_base) == 0) {
-    cat("\n\nNo capture data are available for the selected focus group.\n\n")
+    cat(
+      "\n\n### Availability {.unnumbered}\n\n",
+      "No capture data are available for the selected focus group.\n\n",
+      sep = ""
+    )
   } else {
     species_list <- sort(unique(as.character(capture_base$scientificName)))
     years_all <- sort(unique(capture_base$Year_numeric))
@@ -468,34 +471,67 @@ code: |
     }
     
     # -------------------------
-    # Combine & output 2x2 grid
+    # Render one HTML tab per metric. The print stylesheet expands every tab
+    # panel so the same content is included sequentially in PDF output.
     # -------------------------
-    plot_list <- list(p_captures, p_rate, p_locations, p_occupancy)
-    plot_list <- plot_list[!vapply(plot_list, is.null, logical(1))]
-    
-    if (length(plot_list) > 0) {
-      grid_plot <- patchwork::wrap_plots(plot_list, ncol = 2) +
-        patchwork::plot_layout(guides = "collect") &
-        ggplot2::theme(
-          legend.position = "right",
-          legend.title = ggplot2::element_text(face = "bold", size = 11),
-          legend.text = ggplot2::element_text(face = "italic", size = 10),
-          legend.key.size = ggplot2::unit(0.8, "lines"),
-          legend.margin = ggplot2::margin(0, 0, 0, 0),
-          legend.box.margin = ggplot2::margin(0, 0, 0, 5)
+    plot_list <- list(
+      "Number of Captures" = list(
+        plot = p_captures,
+        caption = paste0(
+          "Trends in camera-trap detections over the survey years for study species in the ",
+          group_label,
+          " group, based on the number of captures.",
+          .gap_caption_text(year_axis)
         )
-      
-      print(grid_plot)
-      
-      .caption_html(
-        object$getFigureNumber(text = FALSE),
-        paste0(
-          "Trends in camera-trap detections, RAI (relative abundance index), recorded locations, and naive occupancy over survey years for study species in the ",
+      ),
+      "Relative Abundance Index" = list(
+        plot = p_rate,
+        caption = paste0(
+          "Relative abundance index (RAI) over the survey years for study species in the ",
           group_label,
           " group.",
           .gap_caption_text(year_axis)
         )
+      ),
+      "Number of Locations" = list(
+        plot = p_locations,
+        caption = paste0(
+          "Number of camera-trap locations where each study species in the ",
+          group_label,
+          " group was recorded across survey years.",
+          .gap_caption_text(year_axis)
+        )
+      ),
+      "Naive Occupancy" = list(
+        plot = p_occupancy,
+        caption = paste0(
+          "Naive occupancy, expressed as the percentage of sampled locations with detections, for study species in the ",
+          group_label,
+          " group across survey years.",
+          .gap_caption_text(year_axis)
+        )
       )
+    )
+    plot_list <- plot_list[!vapply(
+      plot_list,
+      function(x) is.null(x$plot),
+      logical(1)
+    )]
+    
+    if (length(plot_list) > 0) {
+      for (tab_name in names(plot_list)) {
+        cat(
+          "\n\n### ",
+          tab_name,
+          " {.unnumbered}\n\n",
+          sep = ""
+        )
+        print(plot_list[[tab_name]]$plot)
+        .caption_html(
+          object$getFigureNumber(text = FALSE),
+          plot_list[[tab_name]]$caption
+        )
+      }
     }
   }
 ---

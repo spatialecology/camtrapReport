@@ -6,11 +6,12 @@ text: "The plots below show annual population density estimates for each study s
 code: |
   #| name: population_density
   #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
-  #| packages: ggplot2, dplyr, patchwork
+  #| packages: ggplot2, dplyr
   
   library(ggplot2)
   library(dplyr)
-  library(patchwork)
+
+  density_tabs_rendered <- FALSE
   
   if (
     !exists("estimates_rem") ||
@@ -188,36 +189,43 @@ code: |
       n_plots <- length(plot_list)
       
       if (n_plots > 0) {
-        
-        grid_plot <- patchwork::wrap_plots(plot_list) +
-          patchwork::plot_layout(guides = "collect", axis_titles = "collect") &
-          ggplot2::theme(
-            legend.position = "right",
-            legend.title = ggplot2::element_text(face = "bold", size = 11),
-            legend.text = ggplot2::element_text(face = "italic", size = 10),
-            legend.key.size = ggplot2::unit(0.8, "lines"),
-            legend.margin = ggplot2::margin(0, 0, 0, 0),
-            legend.box.margin = ggplot2::margin(0, 0, 0, 5)
+        for (species in names(plot_list)) {
+          cat(
+            "\n\n#### ",
+            species,
+            " {.unnumbered}\n\n",
+            sep = ""
           )
-        
-        print(grid_plot)
+          print(plot_list[[species]])
 
-        if (length(unstable_species) > 0) {
-          cat(paste0(
-            "\n\n*Note: The confidence intervals for **", paste(unstable_species, collapse = ", "),
-            "** are extremely wide relative to the point estimates. ",
-            "The y-axis has been restricted for readability. ",
-            "This indicates high uncertainty in the REM estimates and should be interpreted cautiously.*\n"
-          ))
+          if (species %in% unstable_species) {
+            cat(paste0(
+              "\n\n*Note: The confidence intervals for **", species,
+              "** are extremely wide relative to the point estimates. ",
+              "The y-axis has been restricted for readability. ",
+              "This indicates high uncertainty in the REM estimates and should be interpreted cautiously.*\n"
+            ))
+          }
+
+          cat(
+            "\n\n",
+            object$getFigureNumber(),
+            " *Estimated population density per sampling year for ",
+            species,
+            ". Whiskers represent 95% confidence intervals.*\n\n",
+            sep = ""
+          )
+          density_tabs_rendered <- TRUE
         }
-        
-        cat(
-          "\n\n",
-          object$getFigureNumber(),
-          " *Estimated population density per sampling year for study species. Whiskers represent 95% confidence intervals.*\n\n",
-          sep = ""
-        )
       }
     }
+  }
+
+  if (!density_tabs_rendered) {
+    cat(
+      "\n\n#### Availability {.unnumbered}\n\n",
+      "Annual REM density estimates are not available for the selected species.\n\n",
+      sep = ""
+    )
   }
 ---

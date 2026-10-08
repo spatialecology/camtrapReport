@@ -207,6 +207,37 @@ test_that("bundled EOW appendix and print CSS are PDF-safe", {
   expect_match(css, ".tab-content > .tab-pane", fixed = TRUE)
 })
 
+test_that("bundled EOW tabsets have nested tabs and print sequentially", {
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  sections(cm, n = sections(cm, profile = "EOW"), profile = "EOW")
+
+  tab_sections <- c(
+    abundance_trends_eow = "### ",
+    population_densities_eow = "#### ",
+    activity_patterns_eow = "### "
+  )
+
+  for (name in names(tab_sections)) {
+    section <- find_test_report_section(cm$reportObjects, name)
+
+    expect_s4_class(section, ".textSection")
+    expect_true(grepl("tabset", section@title, fixed = TRUE))
+    expect_true(
+      grepl(tab_sections[[name]], section@Rchunk@code, fixed = TRUE),
+      info = paste(name, "must emit headings one level below its tabset")
+    )
+  }
+
+  references <- find_test_report_section(cm$reportObjects, "References_eow")
+  appendix <- find_test_report_section(cm$reportObjects, "appendix_eow")
+  css <- .report_css_block()
+
+  expect_false(grepl("tabset", references@title, fixed = TRUE))
+  expect_false(grepl("tabset", appendix@title, fixed = TRUE))
+  expect_match(css, ".tab-content > .tab-pane", fixed = TRUE)
+  expect_match(css, "display: block !important", fixed = TRUE)
+})
+
 
 test_that("bundled report maps default to self-contained backgrounds", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
