@@ -1,0 +1,98 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "camtrapReport",
+  "identifier": "camtrapReport",
+  "description": "Provides an extensible workflow for processing camera-trap data in the 'Camtrap DP' format and automatically generating reproducible data-status and ecological reports in HTML or PDF format. The package supports data-quality checks, ecological summaries, visualisations, maps, tables and modular report sections for wildlife-monitoring applications. Optional taxonomic enrichment queries the Global Biodiversity Information Facility Species API <https://techdocs.gbif.org/en/openapi/v1/species> through 'taxize'.",
+  "codeRepository": "https://github.com/spatialecology/camtrapReport",
+  "url": "https://spatialecology.github.io/camtrapReport/",
+  "issueTracker": "https://github.com/spatialecology/camtrapReport/issues",
+  "version": "1.0.66",
+  "license": "https://spdx.org/licenses/MIT.html",
+  "programmingLanguage": "R",
+  "runtimePlatform": "R >= 4.1.0",
+  "author": [
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0001-5191-9832",
+      "givenName": "Elham",
+      "familyName": "Ebrahimi",
+      "email": "eebrahimi.bio@gmail.com"
+    }
+  ],
+  "maintainer": {
+    "@type": "Person",
+    "@id": "https://orcid.org/0000-0001-5191-9832",
+    "givenName": "Elham",
+    "familyName": "Ebrahimi",
+    "email": "eebrahimi.bio@gmail.com"
+  },
+  "developmentStatus": "https://www.repostatus.org/#active",
+  "readme": "https://github.com/spatialecology/camtrapReport/blob/main/README.md",
+  "buildInstructions": "https://spatialecology.github.io/camtrapReport/#installation",
+  "releaseNotes": "https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md",
+  "softwareRequirements": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "data.table"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "dplyr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "shiny"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "glue"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "jsonlite"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "lubridate"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "knitr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "methods"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "rmarkdown"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "terra"
+    }
+  ],
+  "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "roxygen2"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "pak"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "pagedown"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "testthat (>= 3.1.7)"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "xml2"
+    }
+  ]
+}

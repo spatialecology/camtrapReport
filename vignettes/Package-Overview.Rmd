@@ -37,6 +37,34 @@ Optional supporting data can also be provided. These include habitat
 information and a study-area boundary, which can be used in relevant
 summaries, maps, and ecological analyses.
 
+`data` currently takes a file path, rather than an in-memory list or data
+frame. `habitat` accepts a data frame, and `study_area` accepts a spatial file,
+`terra::SpatVector`, or `sf` object. A Camtrap DP contains `datapackage.json`
+plus linked deployment, media, and observation tables. Deployments describe
+camera placements and their active periods; media rows describe photographs
+or videos; observations describe classifications derived from those media.
+An event (also called a sequence) groups related media within a time interval;
+it is not necessarily one photograph or one animal. See the
+[standard's field definitions](https://camtrap-dp.tdwg.org/data/).
+
+There is no universal converter for arbitrary camera-trap tables in this
+package. Export Camtrap DP from the original management platform when
+possible, or map your tables and metadata to the
+[Camtrap DP specification](https://camtrap-dp.tdwg.org/). The
+[camtrapdp package](https://inbo.github.io/camtrapdp/reference/index.html)
+supports reading, editing, and writing existing Camtrap DP objects.
+`camtrapReport`'s readiness checks do not replace the standard's full
+[schema-validation workflow](https://camtrap-dp.tdwg.org/#validation).
+
+One `camReport` stores one study-area boundary. In the GUI, multiple uploads
+are the component files of one shapefile (`.shp`, `.shx`, `.dbf`, `.prj`, etc.),
+not a separate boundary for each year. When the boundary changes between
+years, use separate year-specific Camtrap DP subsets and objects with the
+matching boundary; use separate directories so their caches remain separate.
+The optional `camtrapdp::filter_deployments()` and
+`camtrapdp::write_camtrapdp()` functions can help prepare those subsets while
+preserving links to media and observations.
+
 ### Bundled example data
 
 The package includes a relationship-preserving subset of the GMU8_LEUVEN
@@ -61,11 +89,18 @@ other aspects of data readiness.
 It is generated with:
 
 ```r
-status(cm)
+status(cm, filename = file.path(tempdir(), "overview-status.html"))
 ```
 
 The report is diagnostic rather than inferential: passing the checks does not
 mean that a sampling design is suitable for every ecological analysis.
+The check tables support user judgement; there is no computed overall
+quality grade or automatic gate preventing ecological report generation.
+Correct problems in the source Camtrap DP, recreate the object with
+`camData(data_path, update = TRUE)`, and rerun `status()`. The report does not
+modify the source CSV/JSON records for you. `camData()` caches the processed
+object as `__camReport_Object.rds` and, when a boundary is supplied,
+`study_area.map` in the extracted dataset directory.
 
 ### Ecological Report
 
@@ -76,19 +111,39 @@ document.
 It is generated with:
 
 ```r
-report(cm)
+report(cm, filename = file.path(tempdir(), "overview-report.html"))
 ```
 
 The content of the report depends on the selected sections, available data,
 and analytical settings. Users can therefore adapt the report to the purpose
 and scope of a particular monitoring project.
 
+The standard profile uses pooled multi-year REM parameters. The EOW profile
+uses the `population_density_annual` module and estimates REM parameters
+independently for each species and sampling year. Map modules use a
+self-contained offline background by default, avoiding reliance on a live tile
+service. Set `cm$setting$map_basemap` to `"cartodb"`, `"esri"`, or
+`"openstreetmap"` only when a live web background is preferred. OpenStreetMap
+mode places OpenTopoMap underneath the primary tiles so failed tiles reveal the
+fallback while successfully loaded OpenStreetMap tiles remain visible.
+
+Shiny is used for the optional `gui()` interface; the code-based workflow
+does not need a running Shiny application. Optional analysis packages are
+declared by the YAML modules and can be installed through an explicit call
+to `install_all()` after inspecting those requirements.
+
 Both `status()` and `report()` create an HTML file together with the
 intermediate R Markdown file used to render it. With their default relative
 filenames, these files are written beside the writable camera-trap data used to
 create the object. Supply an explicit file stem or an existing output directory
-through `filename` to control where the files are written. Package examples
-copy the bundled data and write generated reports to temporary directories.
+through `filename` to control where the files are written. A `.pdf` filename or
+`format = "pdf"` creates a static browser-printed PDF through the optional
+`pagedown` package; Chrome or Edge is also required. PDF reports do not include
+a table of contents. The module registry's `formats` column identifies modules
+that support `html`, `pdf`, or `both`; report generation omits incompatible
+modules and dependent children for the requested output. Printable tabsets are
+expanded for PDF so every panel remains visible. Package examples copy the
+bundled data and write generated reports to temporary directories.
 
 ## Working with the `camReport` object
 
@@ -140,8 +195,34 @@ n <- section_names(
 sections(cm, n)
 
 # Generate the report
-report(cm)
+report(cm, filename = file.path(tempdir(), "overview-selected-report.html"))
 ```
+
+For repeated report types, a named profile stores an ordered selection without
+moving or duplicating module YAML files:
+
+```r
+# Inspect bundled or user-registered profiles
+profile_names(cm)
+section_names(object = cm, profile = "default")
+
+# Apply a profile when rendering
+report(
+  cm,
+  profile = "default",
+  filename = file.path(tempdir(), "overview-default-report.html")
+)
+
+# A profile may also select status modules for the status report
+sections(cm, profile = "default", report_type = "status")
+```
+
+The two module pools are the ecological modules in `reportSections` and the
+data-status modules in `statusSections`. Profile entries use `report::module`
+or `status::module` to identify a pool explicitly. This also allows selected
+status modules to be placed in an ecological report profile. See the
+[Report profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
+for creating, applying, and sharing profiles.
 
 This makes it possible to use the same overall workflow for projects that
 differ in species, survey duration, spatial extent, available covariates, or

@@ -106,9 +106,8 @@ Because modules can execute arbitrary R code with the permissions of the
 current R process, only install modules from trusted sources and inspect
 their contents before running them.
 
-\code{add_Module()} adds a new YAML-defined module to the package module
-directory. The module can optionally be inserted before or after an existing
-module.
+\code{add_Module()} adds a new YAML-defined module to a module registry. The
+module can optionally be inserted before or after an existing module.
 
 \code{move_Module()} changes the position or parent of an existing module within
 the hierarchical report structure.
@@ -122,6 +121,18 @@ child modules are also moved to the trash.
 
 \code{list_Modules()} lists active modules and can optionally include deleted
 modules stored in the trash.
+
+Supply \code{dir} when changing modules. If it is omitted, these functions use
+the installed package's module directory, which may be read-only and is
+replaced during package updates. Copy \code{reportSections} to a writable project
+directory first, then pass that copied directory to \code{add_Module()} and the
+other management functions. See the
+\href{https://spatialecology.github.io/camtrapReport/articles/modules.html}{module guide}.
+
+YAML modules contain executable R code. Add and run only modules from
+trusted sources; inspect their code, package declarations, network requests,
+and file operations before running them. A profile selects modules but does
+not sandbox their execution.
 }
 \examples{
 # List modules as a hierarchical tree

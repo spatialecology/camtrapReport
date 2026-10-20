@@ -13,6 +13,11 @@
 #' stores the camera-trap dataset, report metadata, processed summaries, report
 #' modules, status-report modules, and settings used for report generation.
 #'
+#' The exported `camR` object is the low-level Reference Class generator for
+#' advanced use. Calling `camR$new()` creates an unprepared container; it does
+#' not import data or run the setup and data-status checks performed by
+#' [camData()]. Use [camData()] for the normal reporting workflow.
+#'
 #' @section Main fields:
 #' Important fields in a `camReport` object include:
 #'

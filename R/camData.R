@@ -790,6 +790,59 @@ setGeneric(
 #'   recreate a previously saved `camReport` object.
 #' @param ... Additional arguments. These are currently reserved for future use.
 #'
+#' @details
+#' `data` currently accepts a file-system path, not an in-memory data frame or
+#' list. A dataset directory contains `datapackage.json`, `deployments.csv`,
+#' `media.csv`, and `observations.csv`. The following identifiers and columns
+#' explain the main relationships; this is not a complete Camtrap DP schema:
+#'
+#' | File | Contents and important links |
+#' | :--- | :--- |
+#' | `datapackage.json` | Project metadata and a `taxonomic` list with species names, taxon identifiers, ranks, families, orders, and optional vernacular names. |
+#' | `deployments.csv` | One camera deployment per `deploymentID`, with `locationID`, `locationName`, `longitude`, `latitude`, `deploymentStart`, and `deploymentEnd`. |
+#' | `media.csv` | Images or videos identified by `mediaID`, linked to `deploymentID`, with `timestamp` and optional capture-method and file metadata. |
+#' | `observations.csv` | Species or other classifications linked to `deploymentID`, `mediaID` and/or `eventID`, with `scientificName`, observation level, event times, counts, and optional individual measurements. |
+#'
+#' A deployment is a period during which a camera is installed at a location.
+#' An observation records a classification at media or event level. An event
+#' groups related media; camtrapReport uses `sequenceID` internally for this
+#' event grouping and derives a `sequences` table from media timestamps. These
+#' internal sequences are not an additional input CSV file. See the
+#' [Camtrap DP specification](https://camtrap-dp.tdwg.org/) for definitions and
+#' the [example-data provenance](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md)
+#' for a concrete dataset.
+#'
+#' Import and [status()] provide package-specific data checks, not formal
+#' validation against the complete Camtrap DP schema. Check schema compliance
+#' upstream. After correcting source CSV or JSON files, call `camData()` again
+#' with `update = TRUE` and the optional inputs, then regenerate [status()].
+#' Merely rerunning `status()` on the old object does not reread changed files.
+#'
+#' @section Files and cache reuse:
+#' `camData()` writes `__camReport_Object.rds` beside the extracted data and,
+#' when a study area is supplied, writes `study_area.map`. A ZIP input is
+#' extracted before reading. Use a writable copy of the input dataset, as in
+#' the examples, rather than an installed package directory. A cached object
+#' is reused when `update = FALSE`; changes to source files or optional inputs
+#' are not detected automatically. Use `update = TRUE` to rebuild it.
+#' Only load datasets and saved R objects from sources you trust.
+#'
+#' @section Optional taxonomy enrichment:
+#' In the current implementation, installing `taxize` enables GBIF taxonomy
+#' lookups during import. Species names are sent to GBIF to supplement class
+#' and order information. This can require an internet connection and affect
+#' import time and reproducibility; there is currently no per-call opt-out or
+#' request-timeout argument. Preserve the processed object and package versions
+#' used in an analysis, and consider this network behaviour before processing
+#' confidential species lists. Without `taxize`, this lookup is not performed.
+#'
+#' @section Study areas that change over time:
+#' `study_area` accepts one boundary per object. Multiple Shiny uploads are
+#' the component files of a shapefile (`.shp`, `.shx`, `.dbf`, `.prj`, etc.),
+#' not a set of year-specific boundaries. For different survey footprints,
+#' prepare separate year-specific datasets and objects with the corresponding
+#' boundary, or supply a custom module with an explicit year-to-boundary mapping.
+#'
 #' @return A [`camReport`][camReport-classes] object.
 #'
 #' @seealso [report()], [status()], [info()], [gui()]

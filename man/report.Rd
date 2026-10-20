@@ -48,6 +48,28 @@ widgets or HTML-formatted tables. Interactive controls are naturally static
 in the resulting PDF. PDF output omits the table of contents and excludes
 modules whose registry entry does not support PDF. The \code{formats} column
 shown by \code{\link[=list_Modules]{list_Modules()}} records module compatibility.
+
+Output includes the rendered \code{.html} or \code{.pdf} file and an \code{.Rmd} source
+file with the same stem. If no path is given, the object's dataset directory
+is used when available, otherwise the current working directory is used.
+Existing files with the chosen stem can be overwritten. Supply a new,
+explicit \code{filename} for each retained report; use \code{\link[=tempfile]{tempfile()}} for a preview.
+
+\code{view = TRUE} opens the completed file after rendering; it does not select
+different modules or dependencies. To inspect a file that was already
+generated, call \code{utils::browseURL(report_file)} instead of rendering it again.
+A failure in the R Markdown \code{setup} chunk commonly reports a missing package
+required by the selected modules. Read that original error before using
+\code{test = TRUE}: recovery tests only the attached selection, preserves its
+order, and keeps passing modules whose parent sections also pass. Descendants
+of failing parents are excluded. A shorter report is an expected diagnostic
+outcome, not an equivalent successful full report.
+
+Use \code{profile = "default"} or \code{profile = "EOW"} to select a known report
+structure explicitly. \code{section_names()} without a profile lists the complete
+available module pool, including alternative modules; it is not the same as
+a profile's selection. Reread corrected source files with
+\code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
 }
 \examples{
 \donttest{

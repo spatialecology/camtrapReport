@@ -53,6 +53,9 @@ navbar:
         - text: Module management and extension
           href: articles/modules.html
 
+        - text: Reusable report profiles
+          href: articles/profiles.html
+
     reference:
       text: Reference
       href: reference/index.html
@@ -105,6 +108,7 @@ articles:
       - articles/data-status-report
       - articles/ecological-report
       - articles/modules
+      - articles/profiles
 
   - title: Resources
     desc: >
@@ -134,10 +138,11 @@ reference:
 
   - title: Configure report contents
     desc: >
-      Inspect, select, and update the sections included in a report.
+      Inspect, select, and update sections and reusable report profiles.
 
   - contents:
       - section_names
+      - reportProfile
       - updateReportSection
 
   - title: Module development and management

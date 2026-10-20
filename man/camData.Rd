@@ -41,7 +41,65 @@ is stored with the object and used in spatial summaries where relevant.
 The \code{camReport} object is saved within an extracted dataset directory as
 \verb{__camReport_Object.rds}. A later call using that directory reuses the saved
 object unless \code{update = TRUE}, in which case the object is recreated.
+
+\code{data} currently accepts a file-system path, not an in-memory data frame or
+list. A dataset directory contains \code{datapackage.json}, \code{deployments.csv},
+\code{media.csv}, and \code{observations.csv}. The following identifiers and columns
+explain the main relationships; this is not a complete Camtrap DP schema:\tabular{ll}{
+   File \tab Contents and important links \cr
+   \code{datapackage.json} \tab Project metadata and a \code{taxonomic} list with species names, taxon identifiers, ranks, families, orders, and optional vernacular names. \cr
+   \code{deployments.csv} \tab One camera deployment per \code{deploymentID}, with \code{locationID}, \code{locationName}, \code{longitude}, \code{latitude}, \code{deploymentStart}, and \code{deploymentEnd}. \cr
+   \code{media.csv} \tab Images or videos identified by \code{mediaID}, linked to \code{deploymentID}, with \code{timestamp} and optional capture-method and file metadata. \cr
+   \code{observations.csv} \tab Species or other classifications linked to \code{deploymentID}, \code{mediaID} and/or \code{eventID}, with \code{scientificName}, observation level, event times, counts, and optional individual measurements. \cr
 }
+
+
+A deployment is a period during which a camera is installed at a location.
+An observation records a classification at media or event level. An event
+groups related media; camtrapReport uses \code{sequenceID} internally for this
+event grouping and derives a \code{sequences} table from media timestamps. These
+internal sequences are not an additional input CSV file. See the
+\href{https://camtrap-dp.tdwg.org/}{Camtrap DP specification} for definitions and
+the \href{https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md}{example-data provenance}
+for a concrete dataset.
+
+Import and \code{\link[=status]{status()}} provide package-specific data checks, not formal
+validation against the complete Camtrap DP schema. Check schema compliance
+upstream. After correcting source CSV or JSON files, call \code{camData()} again
+with \code{update = TRUE} and the optional inputs, then regenerate \code{\link[=status]{status()}}.
+Merely rerunning \code{status()} on the old object does not reread changed files.
+}
+\section{Files and cache reuse}{
+
+\code{camData()} writes \verb{__camReport_Object.rds} beside the extracted data and,
+when a study area is supplied, writes \code{study_area.map}. A ZIP input is
+extracted before reading. Use a writable copy of the input dataset, as in
+the examples, rather than an installed package directory. A cached object
+is reused when \code{update = FALSE}; changes to source files or optional inputs
+are not detected automatically. Use \code{update = TRUE} to rebuild it.
+Only load datasets and saved R objects from sources you trust.
+}
+
+\section{Optional taxonomy enrichment}{
+
+In the current implementation, installing \code{taxize} enables GBIF taxonomy
+lookups during import. Species names are sent to GBIF to supplement class
+and order information. This can require an internet connection and affect
+import time and reproducibility; there is currently no per-call opt-out or
+request-timeout argument. Preserve the processed object and package versions
+used in an analysis, and consider this network behaviour before processing
+confidential species lists. Without \code{taxize}, this lookup is not performed.
+}
+
+\section{Study areas that change over time}{
+
+\code{study_area} accepts one boundary per object. Multiple Shiny uploads are
+the component files of a shapefile (\code{.shp}, \code{.shx}, \code{.dbf}, \code{.prj}, etc.),
+not a set of year-specific boundaries. For different survey footprints,
+prepare separate year-specific datasets and objects with the corresponding
+boundary, or supply a custom module with an explicit year-to-boundary mapping.
+}
+
 \examples{
 \donttest{
 source_dataset <- system.file(

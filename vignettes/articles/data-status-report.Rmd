@@ -21,6 +21,11 @@ The Data Status Report provides an overview of the quality, completeness, and re
 
 This report is especially useful as a first quality-control step. It allows users to identify missing values, duplicated records, invalid timestamps, incomplete metadata, spatial issues, and inconsistencies between deployments and observations. Based on these checks, users can decide whether the dataset is ready for reporting or whether further correction is needed before ecological analyses are performed.
 
+Read the individual check tables and warnings and apply scientific judgement.
+The package does not compute an overall quality grade or automatically block
+`report()` when issues remain. A successfully rendered status report confirms
+that its selected checks ran, rather than certifying the data for all methods.
+
 Figure 1 summarises how `camtrapReport` checks the readiness of a camera-trap dataset before ecological reporting. After the data are loaded with `camData()`, the `status()` function runs automated checks on the main input files, metadata, deployments, observations, timestamps, taxonomy, spatial information, and annotation records. The output helps users identify potential issues and decide whether the dataset is ready for generating the final Ecological Report.
 
 <style>
@@ -73,31 +78,74 @@ cm <- camData(
 )
 
 # Generate and view the Data Status Report
-status(cm, view = TRUE)
+status(
+  cm,
+  profile = "default",
+  filename = file.path(example_root, "data-status.html"),
+  view = TRUE
+)
 ```
 
 When `view = TRUE`, the generated report is opened in the browser. This provides a quick, human-readable overview of dataset quality, completeness, and consistency.
 
-The function also invisibly returns the path to the HTML report. By default,
-`data_status.html` and its intermediate `data_status.Rmd` file are written to
-the R session's temporary directory. Use `filename` to give another file stem
+The function also invisibly returns the path to the report. By default,
+`data_status.html` and its intermediate `data_status.Rmd` file are written
+beside the writable input dataset. Use `filename` to give another file stem
 or a path inside an existing output directory:
 
 ```{r data-status-output-path, eval=FALSE}
+output_dir <- file.path(tempdir(), "camtrapReport-status")
 dir.create(
-  "reports",
+  output_dir,
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 status_file <- status(
   cm,
-  filename = file.path("reports", "data_status_2026"),
+  filename = file.path(output_dir, "data_status_2026"),
   view = FALSE
 )
 ```
 
+Use `profile` to select a named status-report configuration. A `.pdf` filename
+creates a static PDF through the optional `pagedown` package and a supported
+Chrome or Edge browser.
+
+```{r data-status-profile-pdf, eval=FALSE}
+sections(cm, profile = "default", report_type = "status")
+status(
+  cm,
+  profile = "default",
+  filename = file.path(output_dir, "data_status_2026.pdf")
+)
+```
+
 An existing file with the same name may be replaced. Use a deliberate, versioned filename when reports from multiple processing runs must be retained.
+
+### Correcting data and repeating the check
+
+`status()` diagnoses the current object's processed data; it does not repair
+source CSV or JSON files. Inspect the affected records, correct the original
+Camtrap DP while preserving its identifiers and table relationships, then
+reload it and repeat the check:
+
+```{r data-status-recheck, eval=FALSE}
+# After correcting files in your writable dataset directory:
+cm <- camData(data_path, update = TRUE)
+status(
+  cm,
+  profile = "default",
+  filename = file.path(output_dir, "data_status_rechecked.html"),
+  view = FALSE
+)
+```
+
+Here `data_path` is your corrected dataset directory. `update = TRUE` avoids
+reusing the older `__camReport_Object.rds` cache. Record the corrections and
+review unresolved warnings before choosing appropriate ecological analyses.
+Passing these reporting checks does not replace
+[Camtrap DP schema validation](https://camtrap-dp.tdwg.org/#validation).
 
 
 <hr class="section-divider">

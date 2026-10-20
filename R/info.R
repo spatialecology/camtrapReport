@@ -32,6 +32,24 @@ setGeneric(
 #' form, `info(x, name) <- value`, can be used to update report information
 #' before generating the report.
 #'
+#' @details
+#' The getter accepts actual `camReport` field names, such as `"title"` and
+#' `"description"`. The replacement form also recognises the following
+#' convenience names (case-insensitive):
+#'
+#' | Replacement name | Updated content |
+#' | :--- | :--- |
+#' | `"study area"` | The `description` field. |
+#' | `"introduction"` | Text of the introduction module. |
+#' | `"image processing"` | Text of the image-processing module. |
+#' | `"sampling effort"` or `"sampling efforts"` | Text of the sampling-effort module. |
+#' | `"acknowledgement"` or `"acknowledgements"` | Text of the acknowledgements module. |
+#'
+#' Other replacement names must match a field name exactly. To target a
+#' particular module variant, use [updateReportSection()] with its module name.
+#' Edits to report text affect the object; they do not rewrite the original
+#' dataset or the bundled YAML files.
+#'
 #' @param x A [`camReport`][camReport-classes] object created by [camData()].
 #' @param name A character vector naming fields to retrieve, or a single
 #'   character string naming the field to update. When omitted from `info()`,

@@ -8,12 +8,12 @@ bibentry(
   title = "camtrapReport: An R Package for Automated Camera-Trap Reporting",
   author = person("Elham", "Ebrahimi"),
   year = "2026",
-  note = "R package version 1.0.47",
+  note = paste("R package version", meta$Version),
   url = "https://github.com/spatialecology/camtrapReport",
   textVersion = paste(
     "Ebrahimi, Elham (2026).",
     "camtrapReport: An R Package for Automated Camera-Trap Reporting.",
-    "R package version 1.0.47.",
+    paste0("R package version ", meta$Version, "."),
     "https://github.com/spatialecology/camtrapReport."
   )
 )

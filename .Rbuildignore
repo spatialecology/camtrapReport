@@ -8,6 +8,7 @@
 ^pkgdown$
 ^_pkgdown\.yml$
 ^CITATION\.cff$
+^codemeta\.json$
 ^cran-comments\.md$
 ^dev$
 ^vignettes/articles$

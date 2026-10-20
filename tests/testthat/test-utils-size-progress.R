@@ -302,6 +302,16 @@ test_that("size estimation handles an empty directory", {
 
 
 test_that("size estimation reads compressed and uncompressed ZIP sizes", {
+  zip_candidates <- unique(c(Sys.getenv("R_ZIPCMD"), "zip"))
+  zip_candidates <- zip_candidates[nzchar(zip_candidates)]
+  zip_commands <- unname(Sys.which(zip_candidates))
+  zip_commands <- zip_commands[nzchar(zip_commands)]
+
+  skip_if(
+    length(zip_commands) == 0L,
+    "A ZIP executable is required to create the test archive"
+  )
+
   test_dir <- tempfile(
     "camtrapReport-zip-source-"
   )
@@ -344,7 +354,8 @@ test_that("size estimation reads compressed and uncompressed ZIP sizes", {
 
   utils::zip(
     zipfile = zip_file,
-    files = source_file
+    files = source_file,
+    zip = zip_commands[[1L]]
   )
 
   expect_true(

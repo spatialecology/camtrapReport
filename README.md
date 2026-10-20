@@ -35,6 +35,9 @@ outputs:
   summaries, analyses, figures, tables, maps, metadata, and explanatory
   text in a configurable report.
 
+Shiny supports the optional `gui()` interface. The code-based workflow
+does not start a Shiny application.
+
 The package focuses on the reporting workflow. It complements tools for
 camera-trap data management and specialised ecological modelling rather
 than replacing them.
@@ -47,6 +50,59 @@ than replacing them.
 <br> <em>Workflow from Camtrap DP input through camtrapReport to the
 Data Status Check and Ecological Report.</em>
 </p>
+
+Follow the diagram with the [Data Status Check
+guide](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html),
+[Ecological Report
+guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html),
+[module editing
+guide](https://spatialecology.github.io/camtrapReport/articles/modules.html),
+and [reusable profiles
+guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html).
+The last two explain how to customise the analyses and narrative text.
+
+### Bundled analyses
+
+The `default` profile selects the following ecological modules.
+Availability of a module does not establish that its method is suitable
+for a dataset; some need optional packages, habitat information, or
+additional measurements.
+
+| Report component | Module names | Main requirements or interpretation |
+|----|----|----|
+| Context and methods | `introduction`, `methods`, `study_area`, `sampling`, `location`, `effort`, `image_processing`, `data_processing` | Metadata, deployment information, and optional study-area boundary. |
+| Captures and trends | `results`, `captures`, `abundance_trends` | Observation and effort summaries; capture rates are not density estimates. |
+| Random encounter model (REM) | `population_density`, `model_parameters`, `population_densities` | Species-specific detection, speed, activity, and effort data; the default pools fitted parameters across years. |
+| Activity and community summaries | `activity_patterns`, `richness`, `co_occurrence`, `species_accumulation` | Timestamps, species identities, and adequate observations for each method. |
+| Spatial and habitat summaries | `spatial_density`, `habitat_preferences` | Camera coordinates and, for habitat comparisons, habitat input. |
+| Supporting sections | `acknowledgements`, `appendix`, `References` | Narrative, supplementary outputs, and citations; the default appendix is HTML-only. |
+
+The status profile contains `abstract`, `spatial`, `temporal`,
+`availability`, `validation`, `annotation`, `observation_type`,
+`conclusion`, and `acknowledge`. The `EOW` profile selects customised
+alternatives, including annual REM parameters. Inspect the exact
+selections with `section_names(profile = "default")` or
+`section_names(profile = "EOW")`.
+
+### Preparing data from another format
+
+`camData()` reads an existing Camtrap DP directory or ZIP archive; it
+does not convert arbitrary camera-trap tables. If your platform supports
+Camtrap DP export, use that export (for example, Agouti and TRAPPER are
+listed by the [Camtrap DP
+standard](https://camtrap-dp.tdwg.org/#software)). Otherwise, map your
+fields and identifiers to the standard’s linked tables and metadata. The
+[camtrapdp
+package](https://inbo.github.io/camtrapdp/reference/index.html) can
+read, edit, and write existing Camtrap DP objects; its writer is not a
+general converter from arbitrary input tables.
+
+The checks in `camtrapReport` assess reporting readiness; they are not
+full Camtrap DP schema validation. For schema validation, follow the
+[standard’s Frictionless validation
+instructions](https://camtrap-dp.tdwg.org/#validation).
+`camtrapdp::check_camtrapdp()` checks a Camtrap DP R object’s required
+properties and serves a different purpose.
 
 ## Use in practice
 
@@ -91,7 +147,12 @@ camtrapReport::install_all()
 ```
 
 `install_all()` scans the bundled and registered user modules and
-installs any missing dependencies automatically.
+installs any missing dependencies when you explicitly call it. It is not
+needed for the small report below. Before installing the optional
+analysis stack, inspect the `#| packages:` declarations in the YAML
+modules you intend to run; the [module
+guide](https://spatialecology.github.io/camtrapReport/articles/modules.html#inspect-dependencies-without-installing)
+shows how to inspect these declarations without installing packages.
 
 ## Quick start
 
@@ -166,6 +227,25 @@ cm
 Camtrap DP directory. Habitat data and a study-area boundary are
 optional.
 
+`camData()` saves `__camReport_Object.rds` in the extracted dataset
+directory. When a study-area boundary is supplied, it also saves
+`study_area.map` there. Keep these files with the dataset if you want to
+reuse the processed object. After correcting source CSV/JSON files,
+reload with `update = TRUE` to rebuild the cached object before
+generating another report.
+
+To make the quick start small and reproducible without optional analysis
+packages, use an introduction-only ecological report and three status
+modules:
+
+``` r
+quick_start <- reportProfile(
+  name = "quick-start",
+  report = "introduction",
+  status = c("spatial", "temporal", "availability")
+)
+```
+
 ### Generate a Data Status Check
 
 `status()` generates a Data Status Check report that provides a
@@ -173,22 +253,30 @@ structured assessment of whether the camera-trap dataset is ready for
 ecological reporting. It summarises five core areas: spatial quality,
 temporal coverage, essential data availability, classification and
 validation, and annotation quality. The report also summarises
-observation types by capture method and concludes with an overall
-data-quality classification, highlighting issues that require attention
-and providing clear guidance to users and data owners on what should be
-corrected or improved before ecological analysis. The function returns
-the path to the generated HTML report; set `view = TRUE` to open it in a
-browser.
+observation types by capture method and highlights issues that require
+attention. Review the measured check tables and their warnings to decide
+what should be corrected before ecological analysis. There is no
+computed overall quality grade or automatic gate preventing `report()`
+from running. The function returns the path to the generated report; set
+`view = TRUE` to open it.
 
 ``` r
 status_file <- status(
   cm,
+  profile = quick_start,
+  filename = file.path(example_root, "quick-start-status.html"),
   view = FALSE
 )
 ```
 
 [**View Data Status Check
 output**](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
+
+The linked report illustrates a full status report, rather than the
+three modules selected in this quick start. After correcting issues in
+your source data, repeat `cm <- camData(data_path, update = TRUE)` and
+`status(cm, ...)`. `status()` diagnoses issues; it does not repair
+source records.
 
 ### Generate an Ecological Report
 
@@ -203,18 +291,30 @@ narrative text that adapts to the underlying data and metadata,
 providing an interpretable overview of the camera-trap monitoring
 dataset. Because the report is modular, users can select, omit, reorder,
 or extend sections according to their data and reporting needs. The
-function returns the path to the generated HTML report; set
-`view = TRUE` to open it in a browser.
+function returns the path to the generated report; set `view = TRUE` to
+open it.
 
 ``` r
 report_file <- report(
   cm,
+  profile = quick_start,
+  filename = file.path(example_root, "quick-start-report.html"),
   view = FALSE
 )
 ```
 
 [**View Ecological Report
 output**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)
+
+The linked report is a separate, more complete illustration. Its data,
+profile, optional inputs, and selected analyses may differ from this
+quick start. To request the bundled standard or EOW selection
+explicitly, use `report(cm, profile = "default", filename = ...)` or
+`report(cm, profile = "EOW", filename = ...)` after reviewing module
+requirements. `test = TRUE` tests modules and excludes failing ones; a
+report produced that way can therefore contain fewer sections. It is a
+diagnostic tool, not a way to make missing analyses equivalent to
+successful ones.
 
 ## Configure a report
 
@@ -244,6 +344,42 @@ sections(
 )
 ```
 
+Named profiles provide reusable module selections. Bundled profiles can
+be listed and inspected without changing the module pool:
+
+``` r
+profile_names(cm)
+section_names(object = cm, profile = "EOW")
+
+# Select and render the EOW profile
+report(
+  cm,
+  profile = "EOW",
+  filename = file.path(tempdir(), "EOW-report.html")
+)
+
+# Profiles can be shared independently of module YAML files
+write_profile(
+  "EOW",
+  file.path(tempdir(), "EOW-profile.yml"),
+  object = cm
+)
+```
+
+HTML is the default output. To create a static PDF of the HTML-based
+report, install the optional `pagedown` package and use either a PDF
+filename or `format = "pdf"`. A supported Chrome or Edge browser is also
+required. PDF reports omit the table of contents. Module compatibility
+is recorded as `html`, `pdf`, or `both` in the `formats` column returned
+by `list_Modules(tree = FALSE)`; incompatible modules are skipped for
+the selected output format. Printable tabsets are expanded so all of
+their panels remain visible in PDF output.
+
+``` r
+report(cm, filename = file.path(tempdir(), "ecological-report.pdf"))
+status(cm, filename = file.path(tempdir(), "data-status.pdf"))
+```
+
 Reports can also be configured by taxonomic group, survey year, and
 observation-count threshold. See the [Ecological
 Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
@@ -253,6 +389,57 @@ guides for further examples.
 
 Use `gui(cm)` to configure and generate reports through an interactive
 interface.
+
+Report narrative comes from the selected YAML modules’ `text` fields and
+their R code, together with metadata and text stored in `cm`. You can
+edit the current object’s text with `updateReportSection()` or `info()`,
+or copy the module registry to a writable project directory and edit its
+YAML files for reuse. A profile selects modules; it does not create
+their narrative or analyses. See the [module editing
+guide](https://spatialecology.github.io/camtrapReport/articles/modules.html#editing-existing-modules)
+for the copy, edit, reload, and test workflow. Only load modules from
+trusted sources: module code and expressions embedded in text execute
+with your R session’s permissions.
+
+### REM parameter scope
+
+The standard profile uses the pooled REM modules: one set of detection,
+movement-speed, and activity parameters is fitted per species across all
+sampling years, while trap rate remains year-specific. The `EOW` profile
+uses the annual REM module, which fits all parameters independently for
+every species and sampling year:
+
+``` r
+report(
+  cm,
+  profile = "EOW",
+  filename = file.path(tempdir(), "EOW-annual-report.html")
+)
+```
+
+Both methods remain available as report modules. The annual parent
+module is `population_density_annual`; the pooled parent module is
+`population_density`. REM output records the parameter scope,
+individual-count unit, number of repetitions, and random seed used for
+the calculation.
+
+### Map backgrounds
+
+Report maps use a self-contained offline background by default. It does
+not request web tiles, so saved reports remain readable without an
+internet connection or a third-party tile service. A remote background
+can be requested when internet access is available:
+
+``` r
+cm$setting$map_basemap <- "openstreetmap" # OpenTopoMap fallback on tile failure
+cm$setting$map_basemap <- "cartodb"       # or "esri"
+cm$setting$map_basemap <- "offline"       # reproducible default
+```
+
+In OpenStreetMap mode, OpenTopoMap is placed underneath the primary
+tiles. Successfully loaded OpenStreetMap tiles remain visible; failed
+tiles are transparent so the fallback is revealed. Both services require
+internet access. Use `"offline"` for archival and reproducible reports.
 
 ## Interpretation and reproducibility
 
@@ -314,6 +501,8 @@ camera-trap data.
   Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
 - [Module
   management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
+- [Report
+  profiles](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
 - [Function
   reference](https://spatialecology.github.io/camtrapReport/reference/index.html)
 - [Issue

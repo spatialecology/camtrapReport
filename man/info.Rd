@@ -38,6 +38,23 @@ name, description, and acknowledgement text.
 The \code{info} function can be used to inspect selected fields. The replacement
 form, \code{info(x, name) <- value}, can be used to update report information
 before generating the report.
+
+The getter accepts actual \code{camReport} field names, such as \code{"title"} and
+\code{"description"}. The replacement form also recognises the following
+convenience names (case-insensitive):\tabular{ll}{
+   Replacement name \tab Updated content \cr
+   \code{"study area"} \tab The \code{description} field. \cr
+   \code{"introduction"} \tab Text of the introduction module. \cr
+   \code{"image processing"} \tab Text of the image-processing module. \cr
+   \code{"sampling effort"} or \code{"sampling efforts"} \tab Text of the sampling-effort module. \cr
+   \code{"acknowledgement"} or \code{"acknowledgements"} \tab Text of the acknowledgements module. \cr
+}
+
+
+Other replacement names must match a field name exactly. To target a
+particular module variant, use \code{\link[=updateReportSection]{updateReportSection()}} with its module name.
+Edits to report text affect the object; they do not rewrite the original
+dataset or the bundled YAML files.
 }
 \examples{
 \donttest{

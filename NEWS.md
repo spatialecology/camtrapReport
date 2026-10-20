@@ -1,4 +1,40 @@
-# camtrapReport 1.0.64 (development version)
+# camtrapReport 1.0.66 (development version)
+
+- Fixed `report(test = TRUE)` recovery after a failed render so that it tests
+  only the attached selection, preserves module order and cross-pool parent
+  overrides, and excludes descendants of failed parents. Diagnostic recovery
+  no longer adds unselected default or EOW modules from the complete pool.
+- Fixed species filtering when the optional English vernacular-name column is
+  absent. Missing English names are represented by character `NA` values;
+  scientific-name selection and existing English names are preserved.
+- Added regression coverage for both fixes. Successful rendering, analytical
+  calculations, `.eval()`, public arguments, and dependencies are unchanged.
+
+# camtrapReport 1.0.65
+
+- Expanded the README and guides with a default-module inventory, reusable
+  profiles, input-file relationships, upstream validation and conversion
+  guidance, study-area limitations, and instructions for editing report text.
+- Documented cache files, source-data reloads, automatic GBIF queries when
+  `taxize` is installed, package attachment during rendering, and output-file
+  replacement behaviour without changing those defaults.
+- Clarified advanced use of `camR`, metadata replacement names, and the need
+  to use a writable project registry and trusted YAML modules.
+- Corrected static Data Status Check chapter labels and removed the fixed
+  `Acceptable` conclusion, which was not derived from the data. The narrative
+  now accurately describes individual checks and user review rather than
+  promising an automatic overall grade or a report-generation gate.
+- Fixed the ZIP-size test for an empty `R_ZIPCMD` by locating and explicitly
+  passing an available ZIP executable, retaining the existing assertions.
+- Gave the optional-installer help topic a case-distinct filename to prevent
+  pkgdown redirects for `install_All` from overwriting the `install_all` page.
+  Both function names remain available with the same behaviour.
+- Rebuilt the website and stopped ignoring new files in the already tracked
+  `docs/` directory, so new profile and reference pages can be published.
+- Updated citation metadata: the installed citation now reads the version from
+  package metadata, and CodeMeta metadata accompanies `CITATION.cff`.
+
+# camtrapReport 1.0.64
 
 - Corrected the EOW report tab structure. HTML output retains interactive tabs
   for abundance metrics, annual density estimates by species, and activity

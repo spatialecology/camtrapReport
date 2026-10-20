@@ -166,6 +166,29 @@ setGeneric(
 #' modules whose registry entry does not support PDF. The `formats` column
 #' shown by [list_Modules()] records module compatibility.
 #'
+#' @details
+#' Output includes the rendered `.html` or `.pdf` file and an `.Rmd` source
+#' file with the same stem. If no path is given, the object's dataset directory
+#' is used when available, otherwise the current working directory is used.
+#' Existing files with the chosen stem can be overwritten. Supply a new,
+#' explicit `filename` for each retained report; use [tempfile()] for a preview.
+#'
+#' `view = TRUE` opens the completed file after rendering; it does not select
+#' different modules or dependencies. To inspect a file that was already
+#' generated, call `utils::browseURL(report_file)` instead of rendering it again.
+#' A failure in the R Markdown `setup` chunk commonly reports a missing package
+#' required by the selected modules. Read that original error before using
+#' `test = TRUE`: recovery tests only the attached selection, preserves its
+#' order, and keeps passing modules whose parent sections also pass. Descendants
+#' of failing parents are excluded. A shorter report is an expected diagnostic
+#' outcome, not an equivalent successful full report.
+#'
+#' Use `profile = "default"` or `profile = "EOW"` to select a known report
+#' structure explicitly. `section_names()` without a profile lists the complete
+#' available module pool, including alternative modules; it is not the same as
+#' a profile's selection. Reread corrected source files with
+#' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
+#'
 #' @param object A [`camReport`][camReport-classes] object created by
 #'   [camData()].
 #' @param filename An optional output filename or path. A `.html` or `.pdf`
@@ -302,36 +325,67 @@ setMethod(
           profile_value,
           path = temp_path
         )
+        passed <- .prune_profile_selection(passed, object)
         if (nrow(passed) == 0L) {
           stop("No modules in the selected profile passed module testing.")
         }
         .attach_profile_entries(object, passed, report_type = "report")
       } else {
-        unknown <- which(is.na(
-          object$reportObjectElements$Modules_info$tested
-        ))
-        if (length(unknown) > 0L) {
-          names_to_test <-
-            object$reportObjectElements$Modules_info$name[unknown]
-          for (module_name in names_to_test) {
-            result <- .QuickTestReportSection(
-              object$reportObjectElements$Modules[[module_name]],
-              object,
-              path = temp_path
-            )
-            object$reportObjectElements$Modules_info$tested[
-              object$reportObjectElements$Modules_info$name == module_name
-            ] <- result
+        selected <- .flatten_attached_sections(object$reportObjects)
+        passing <- list()
+        for (module in selected) {
+          parent <- .norm_parent(module@parent)
+          if (!identical(parent, ".root") &&
+              !parent %in% names(passing)) {
+            next
           }
+
+          # Use cached tests only for an unchanged, unambiguous pool module.
+          sources <- c("report", "status")
+          same <- vapply(sources, function(source) {
+            original <- .module_pool(object, source)[[module@name]]
+            !is.null(original) &&
+              identical(original@title, module@title) &&
+              identical(original@txt, module@txt) &&
+              identical(original@Rchunk, module@Rchunk)
+          }, logical(1))
+          info_name <- if (sum(same) == 1L) {
+            if (identical(sources[same], "report")) {
+              "Modules_info"
+            } else {
+              "Status_modules_info"
+            }
+          } else {
+            NULL
+          }
+          info <- if (!is.null(info_name)) {
+            object$reportObjectElements[[info_name]]
+          } else {
+            NULL
+          }
+          row <- match(module@name, info$name)
+          result <- if (length(row) == 1L && !is.na(row) &&
+                        "tested" %in% names(info)) {
+            info$tested[row]
+          } else {
+            NA
+          }
+          if (length(result) != 1L || is.na(result)) {
+            result <- .QuickTestReportSection(
+              module, object, path = temp_path
+            )
+            if (length(row) == 1L && !is.na(row)) {
+              info$tested[row] <- isTRUE(result)
+              object$reportObjectElements[[info_name]] <- info
+            }
+          }
+          if (isTRUE(result)) passing[[module@name]] <- module
         }
-        tested <- object$reportObjectElements$Modules_info$tested
-        passing <- object$reportObjectElements$Modules_info$name[
-          which(!is.na(tested) & tested)
-        ]
         if (length(passing) == 0L) {
           stop("No ecological report modules passed module testing.")
         }
-        .attach_modules(object, n = passing)
+        object$reportObjects <- list()
+        for (module in passing) object$addReportObject(module)
       }
 
       message(

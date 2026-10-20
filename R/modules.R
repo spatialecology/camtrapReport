@@ -1582,9 +1582,8 @@ setGeneric(
 #' current R process, only install modules from trusted sources and inspect
 #' their contents before running them.
 #'
-#' `add_Module()` adds a new YAML-defined module to the package module
-#' directory. The module can optionally be inserted before or after an existing
-#' module.
+#' `add_Module()` adds a new YAML-defined module to a module registry. The
+#' module can optionally be inserted before or after an existing module.
 #'
 #' `move_Module()` changes the position or parent of an existing module within
 #' the hierarchical report structure.
@@ -1598,6 +1597,19 @@ setGeneric(
 #'
 #' `list_Modules()` lists active modules and can optionally include deleted
 #' modules stored in the trash.
+#'
+#' @details
+#' Supply `dir` when changing modules. If it is omitted, these functions use
+#' the installed package's module directory, which may be read-only and is
+#' replaced during package updates. Copy `reportSections` to a writable project
+#' directory first, then pass that copied directory to `add_Module()` and the
+#' other management functions. See the
+#' [module guide](https://spatialecology.github.io/camtrapReport/articles/modules.html).
+#'
+#' YAML modules contain executable R code. Add and run only modules from
+#' trusted sources; inspect their code, package declarations, network requests,
+#' and file operations before running them. A profile selects modules but does
+#' not sandbox their execution.
 #'
 #' @param x A character string giving the path to a module YAML file to add to
 #'   the package.

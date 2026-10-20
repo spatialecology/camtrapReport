@@ -134,9 +134,15 @@
 #' Define, import, and export report profiles
 #'
 #' A report profile is an ordered selection of modules used to produce an
-#' ecological report and a data-status report. Modules normally come from the
-#' corresponding module pool. A module from the other pool can be selected
-#' with a qualified reference such as `"status::spatial"`.
+#' ecological report and a data-status report. The ecological module pool is
+#' the collection of YAML files in `reportSections`; the data-status module
+#' pool is the separate collection in `statusSections`. These are libraries
+#' of available modules, not lists of sections that must all be rendered.
+#' A profile selects an ordered subset of either library. For example,
+#' `"report::introduction"` selects an ecological module, whereas
+#' `"status::spatial"` selects a data-status module, including when it is used
+#' in an ecological report's appendix. These prefixes select module libraries;
+#' they are not R namespace calls.
 #'
 #' Profile entries may be character vectors or data frames. Character entries
 #' use `"source::module"` notation; unqualified entries default to the report
@@ -148,6 +154,8 @@
 #' Bundled profiles are registered in each object created by [camData()]. User
 #' profiles can be registered with `add_profile()` and shared as YAML files
 #' with `read_profile()` and `write_profile()`.
+#' See the [report-profile guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
+#' for a reusable custom profile and cross-library appendix example.
 #'
 #' @param name A non-empty profile name.
 #' @param report An ordered set of modules for [report()].

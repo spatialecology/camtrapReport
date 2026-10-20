@@ -284,6 +284,12 @@
 #' `install_All()` is retained as a deprecated compatibility alias. New code
 #' should use `install_all()`.
 #'
+#' To inspect optional packages without installing anything, examine module
+#' YAML `#| packages:` declarations (see the module guide). Use
+#' `pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]` to check
+#' a character vector of package names. There is currently no `dry_run`
+#' argument; passing that name through `...` is not a supported inspection API.
+#'
 #' When `update = TRUE`, the requested optional packages are force-reinstalled
 #' from their configured sources using the `pak` `reinstall` parameter.
 #' Dependencies are upgraded only when required by the requested packages,
@@ -307,11 +313,24 @@
 #'
 #' @usage install_all(pkgs = NULL, update = FALSE, github = TRUE,
 #'   gitlab = FALSE, ...)
-#' @rdname install_all
+#' @rdname install-all
 #' @aliases install_all
 #' @export
 #'
 #' @examples
+#' # Inspect one module's optional packages without installing anything.
+#' module_file <- system.file(
+#'   "reportSections", "sampling.yml", package = "camtrapReport"
+#' )
+#' declaration <- grep(
+#'   "#| packages:", readLines(module_file, warn = FALSE),
+#'   value = TRUE, fixed = TRUE
+#' )
+#' pkgs <- trimws(strsplit(
+#'   sub("#| packages:", "", declaration, fixed = TRUE), ","
+#' )[[1]])
+#' pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+#'
 #' # Package installation changes the user's R library, so these examples are
 #' # deliberately restricted to interactive sessions.
 #' if (interactive()) {
@@ -329,7 +348,7 @@ setGeneric(
   }
 )
 
-#' @rdname install_all
+#' @rdname install-all
 #' @aliases install_all,ANY-method
 setMethod(
   "install_all",
@@ -510,7 +529,7 @@ setMethod(
   }
 )
 
-#' @rdname install_all
+#' @rdname install-all
 #' @aliases install_All
 #' @export
 setGeneric(
@@ -520,7 +539,7 @@ setGeneric(
   }
 )
 
-#' @rdname install_all
+#' @rdname install-all
 #' @aliases install_All,ANY-method
 setMethod(
   "install_All",

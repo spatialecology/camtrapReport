@@ -18,6 +18,49 @@ The Ecological Report is built from separate report sections, here referred to a
 
 A new module is defined in a YAML file and then registered with `camtrapReport` using `add_Module()`. After the module has been added, it is useful to test it before generating the full report.
 
+Work in a writable project copy of the registry, not the installed package
+directory: package updates replace installed files. Modules contain real R
+code, including expressions embedded in their narrative text. Inspect their
+code, package requirements, network requests, and file operations, and only
+run modules from sources you trust. A profile selects modules; it does not
+sandbox their execution.
+
+## Editing existing modules
+
+The narrative shown in a report comes from YAML `text` fields, R code that
+prints text, and metadata/text stored in the `camReport` object. Existing
+modules can be customised. For a change to the current report only, select
+the sections first and then update the attached section:
+
+```{r edit-current-section, eval=FALSE}
+sections(cm, "introduction")
+updateReportSection(
+  cm,
+  section = "introduction",
+  text = "This report documents the camera-trap survey at our study site."
+)
+report(
+  cm,
+  filename = file.path(tempdir(), "edited-introduction.html"),
+  view = FALSE
+)
+```
+
+This replaces the section's static text; any retained code can still print
+additional narrative. `updateReportSection()` can also replace a code chunk.
+It changes the attached report section, rather than the installed YAML file.
+Apply such edits after selecting modules: passing a `profile` to `report()`
+rebuilds the attached selection from the module pool and can replace edits to
+the current tree.
+
+To share a reusable YAML variant, copy a bundled YAML to your project, give
+it a unique filename and internal `name` (for example,
+`introduction_project`), edit its `text` and/or `code`, and add it to your
+writable registry using the workflow below. Keep parent names consistent and
+test the edited module before rendering. A copied registry is not loaded
+automatically by `camData()` or `setup()`; `add_Module()` returns the parsed
+module so you can attach it explicitly to the current object.
+
 
 
 <style>
@@ -49,6 +92,12 @@ list_Modules()
 section_names()
 ```
 
+The table form, `list_Modules(tree = FALSE)`, includes a `formats` column. Its
+value is `html`, `pdf`, or `both`. Report generation uses this value to omit a
+module that is incompatible with the requested output and also omits any child
+whose parent is unavailable. Existing three-column registries remain valid and
+default to `both`.
+
 ### 2. Create a new module YAML file
 
 A module can be written as a YAML file. Figure 2 illustrates how the main
@@ -64,12 +113,23 @@ knitr::include_graphics(
 The example below defines a simple module called `species_table`, which adds a
 species summary table to the Ecological Report.
 
-Create a file called `species_table.yml` and save it in your working directory.
+Create a file called `species_table.yml` in a writable project directory.
+The example below uses `project_dir` for that directory; replace the temporary
+directory with a deliberate project path if you want to retain your modules.
+
+```{r create-module-workspace, eval=FALSE}
+project_dir <- tempfile("camtrapReport-modules-")
+dir.create(project_dir)
+module_file <- file.path(project_dir, "species_table.yml")
+```
+
+Save the following YAML content at `module_file` before running the next step.
 
 ~~~yaml
 name: species_table
 title: "Species summary table"
 parent: "results"
+formats: "both"
 text: "This section provides a summary of the species detected in the camera-trap dataset, including their taxonomy and total number of captures."
 
 code: |
@@ -102,7 +162,7 @@ bundled_modules <- system.file(
   "reportSections",
   package = "camtrapReport"
 )
-module_dir <- file.path(getwd(), "reportSections")
+module_dir <- file.path(project_dir, "reportSections")
 
 if (!dir.exists(module_dir)) {
   dir.create(module_dir)
@@ -115,10 +175,11 @@ if (!dir.exists(module_dir)) {
 
 # Add a new module from a YAML file
 added <- add_Module(
-  x = "species_table.yml",
+  x = module_file,
   before = "richness",
   test = FALSE,
   object = cm,
+  formats = "both",
   dir = module_dir
 )
 
@@ -128,6 +189,12 @@ list_Modules(dir = module_dir)
 
 You can change `before = "richness"` to another section name if you want the new module to appear elsewhere in the report.
 
+The `formats` argument can be omitted when the YAML contains a top-level field
+such as `formats: "html"`; if neither is supplied, the module defaults to
+`both`. `move_Module(..., formats = "pdf")` can update the compatibility value
+while repositioning an existing module. Removing and restoring modules
+preserves the value in the trash index.
+
 ### 4. Install module dependencies
 
 When a module is added with add_Module(), its package requirements are registered automatically. Use install_all() to install any missing packages required by the bundled and user-added modules.
@@ -136,6 +203,37 @@ When a module is added with add_Module(), its package requirements are registere
 # Discover and install all dependencies declared by all modules
 install_all()
 ```
+
+#### Inspect dependencies without installing
+
+Read a module's package declarations before deciding what to install. This
+example only prints the declarations in your copied YAML files:
+
+```{r inspect-module-dependencies, eval=FALSE}
+yaml_files <- list.files(
+  module_dir,
+  pattern = "\\.ya?ml$",
+  full.names = TRUE
+)
+declarations <- lapply(yaml_files, function(file) {
+  grep(
+    "^\\s*#\\|\\s*packages:",
+    readLines(file, warn = FALSE),
+    value = TRUE
+  )
+})
+names(declarations) <- basename(yaml_files)
+declarations[lengths(declarations) > 0L]
+
+# Check selected names from a declaration without installing or attaching:
+pkgs <- c("ggplot2", "dplyr")
+pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+```
+
+`install_all()` scans the bundled/registered module requirements, not every
+arbitrary folder containing YAML files. When working with a separate copied
+registry, inspect its declarations and explicitly supply additional package
+names through `install_all(pkgs = ...)` if needed.
 
 ### 5. Add the module to the current camReport object
 
@@ -168,10 +266,88 @@ After testing, generate the full Ecological Report with the new module included.
 
 ```{r generate-report-with-new-module, eval=FALSE}
 # Generate the full report
-report(cm, view = TRUE)
+report(
+  cm,
+  filename = file.path(tempdir(), "project-ecological-report.html"),
+  view = TRUE
+)
 ```
 
 This workflow allows users to extend the Ecological Report with project-specific outputs, additional summaries, new figures, or custom interpretation sections.
+
+The attachment above affects the current report tree. It does not add the
+module to a named profile's source pool. Render that tree without a `profile`
+argument; applying a profile again replaces the current selection. Retain the
+YAML file and repeat its registration/attachment when constructing a new
+object. Re-running `setup()` reloads the bundled module pools.
+
+## Defining and sharing report profiles
+
+All YAML modules remain in their report or status module pool. A profile stores
+only an ordered selection from those pools, so alternative introductions,
+methods, or result modules can coexist without all appearing in every report.
+Each module still needs a unique internal `name` within its pool.
+
+See the dedicated [Report profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
+for a complete reusable example and the difference between module pools and
+the current attached report tree.
+
+```{r define-report-profile, eval=FALSE}
+project_profile <- reportProfile(
+  name = "project",
+  description = "A project-specific ecological and status report",
+  report = c(
+    "report::introduction",
+    "report::methods",
+    "report::results",
+    "report::appendix"
+  ),
+  status = c(
+    "status::abstract",
+    "status::availability"
+  )
+)
+
+add_profile(cm, project_profile)
+report(
+  cm,
+  profile = "project",
+  filename = file.path(tempdir(), "profile-project-report.html")
+)
+status(
+  cm,
+  profile = "project",
+  filename = file.path(tempdir(), "profile-project-status.html")
+)
+```
+
+The `parent` column can override a module's YAML parent for one profile. For
+example, this places selected status modules below the ecological appendix
+without editing their source files:
+
+```{r cross-pool-profile, eval=FALSE}
+main_entries <- data.frame(
+  source = c("report", "report", "status", "status"),
+  module = c("introduction", "appendix", "spatial", "temporal"),
+  parent = c(NA, NA, "appendix", "appendix")
+)
+
+combined_profile <- reportProfile(
+  name = "combined",
+  report = main_entries
+)
+```
+
+Profiles are ordinary YAML files and can be versioned or shared beside custom
+module files. Reading a profile does not execute its modules.
+
+```{r share-report-profile, eval=FALSE}
+profile_file <- file.path(project_dir, "project-profile.yml")
+write_profile(project_profile, profile_file)
+shared_profile <- read_profile(profile_file)
+# Replace the profile named "project" registered in the previous example.
+add_profile(cm, shared_profile, overwrite = TRUE)
+```
 
 ## Reordering, removing, and restoring modules
 
@@ -199,4 +375,10 @@ list_Modules(include_trash = TRUE, dir = module_dir)
 restore_Module("species_table", test = TRUE, dir = module_dir)
 ```
 
-`empty_trash()` permanently deletes trashed module definitions and should only be used after confirming that the YAML files are backed up elsewhere. After any registry change, recreate or rerun `setup()` on the `camReport` object, confirm the selected sections with `listReportSections(cm)`, test affected modules, and generate the complete report in a new output file. Review the resulting text, tables, figures, warnings, and citations as carefully as any manually written scientific analysis.
+`empty_trash()` permanently deletes trashed module definitions and should only
+be used after confirming that the YAML files are backed up elsewhere. Changes
+to a copied registry do not automatically update a `camReport` object. Attach
+the returned module explicitly when adding one, confirm the current selection
+with `listReportSections(cm)`, test affected modules, and generate the report
+in a new output file. Review the resulting text, tables, figures, warnings,
+and citations as carefully as any manually written scientific analysis.

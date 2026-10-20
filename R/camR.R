@@ -2277,7 +2277,13 @@ camR <- setRefClass(
         w <- w1 & w2 & w3 & w4
         .self$frequent_species <- data.frame(
           scientificName = .self$data$taxonomy$scientificName[w],
-          vernacularNames.eng = .self$data$taxonomy$vernacularNames.eng[w]
+          vernacularNames.eng = if (
+            "vernacularNames.eng" %in% names(.self$data$taxonomy)
+          ) {
+            .self$data$taxonomy$vernacularNames.eng[w]
+          } else {
+            rep(NA_character_, nrow(.self$data$taxonomy))[w]
+          }
         )
       } else {
         warning(

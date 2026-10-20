@@ -51,9 +51,15 @@ invisibly returns the output path.
 }
 \description{
 A report profile is an ordered selection of modules used to produce an
-ecological report and a data-status report. Modules normally come from the
-corresponding module pool. A module from the other pool can be selected
-with a qualified reference such as \code{"status::spatial"}.
+ecological report and a data-status report. The ecological module pool is
+the collection of YAML files in \code{reportSections}; the data-status module
+pool is the separate collection in \code{statusSections}. These are libraries
+of available modules, not lists of sections that must all be rendered.
+A profile selects an ordered subset of either library. For example,
+\code{"report::introduction"} selects an ecological module, whereas
+\code{"status::spatial"} selects a data-status module, including when it is used
+in an ecological report's appendix. These prefixes select module libraries;
+they are not R namespace calls.
 }
 \details{
 Profile entries may be character vectors or data frames. Character entries
@@ -66,6 +72,8 @@ report's appendix without modifying the shared module YAML files.
 Bundled profiles are registered in each object created by \code{\link[=camData]{camData()}}. User
 profiles can be registered with \code{add_profile()} and shared as YAML files
 with \code{read_profile()} and \code{write_profile()}.
+See the \href{https://spatialecology.github.io/camtrapReport/articles/profiles.html}{report-profile guide}
+for a reusable custom profile and cross-library appendix example.
 }
 \examples{
 profile <- reportProfile(

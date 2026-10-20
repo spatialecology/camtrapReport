@@ -95,30 +95,53 @@ cm <- camData(
   update = TRUE
 )
 
-# Generate the Ecological Report
-report(cm, view = TRUE)
+# Generate the bundled standard Ecological Report
+# Review and install optional module requirements before the full report.
+report(
+  cm,
+  profile = "default",
+  filename = file.path(example_root, "ecological-report.html"),
+  view = TRUE
+)
 ```
 
 `report()` invisibly returns the path to the generated HTML file. By default,
-`report.html` and the intermediate `report.Rmd` file are written to the R
-session's temporary directory. A specific file stem or a path inside an
+`report.html` and the intermediate `report.Rmd` file are written beside the
+writable input dataset. A specific file stem or a path inside an
 existing output directory can be supplied through `filename`:
 
 ```{r ecological-report-output-path, eval=FALSE}
+output_dir <- file.path(tempdir(), "camtrapReport-ecological")
 dir.create(
-  "reports",
+  output_dir,
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 report_file <- report(
   cm,
-  filename = file.path("reports", "ecological_report_2026"),
+  filename = file.path(output_dir, "ecological_report_2026"),
   view = FALSE
 )
 ```
 
 An existing output with the same name may be replaced. Use explicit, versioned filenames when reports from multiple datasets, settings, or processing dates must be retained.
+
+The [README quick start](https://spatialecology.github.io/camtrapReport/)
+deliberately selects only the introduction, so it can run without the optional
+analysis packages. The full `default` and `EOW` profiles differ: EOW selects
+customised narrative and analyses and fits REM parameters separately by year;
+the standard profile uses pooled parameters. The report galleries below are
+illustrations from different datasets and configurations, rather than exact
+expected output from the small bundled example. Inspect a named selection
+with `section_names(object = cm, profile = "default")` or `"EOW"`.
+
+With `test = TRUE`, modules are tested and failing modules are excluded.
+Consequently, successful rendering can still produce an incomplete report.
+Read the module-test messages and resolve missing packages or inputs before
+treating a shortened report as a final analysis. `view = TRUE` requests a
+viewer after rendering; use `view = FALSE` to retain and inspect the output
+path if the local viewer causes problems.
 
 <hr class="section-divider">
 
@@ -457,7 +480,11 @@ cm$filterCount
 cm$filterCount <- 10
 
 # Generate the report using the selected years and filter settings
-report(cm, view = TRUE)
+report(
+  cm,
+  filename = file.path(output_dir, "ecological-report-selected-years.html"),
+  view = TRUE
+)
 ```
 
 ### Selecting which sections are included
@@ -468,37 +495,95 @@ Users can also control which sections are included in the final report. This is 
 # View the sections currently available
 listReportSections(cm)
 
-# Show all section names
+# Show the whole module pool (including alternative EOW modules)
 section_names()
 
-# Exclude one section
-section_names(exclude = "introduction")
+# Inspect the standard profile, excluding one section
+section_names(profile = "default", exclude = "introduction")
 
 # Exclude multiple sections
-section_names(exclude = c("acknowledgements", "appendix"))
+section_names(
+  profile = "default",
+  exclude = c("acknowledgements", "appendix")
+)
 
 # Keep only selected sections
 section_names(
+  profile = "default",
   keep = c("introduction", "methods", "study_area")
 )
 
 # Example: include all sections except richness and co-occurrence
 selected_sections <- section_names(
+  profile = "default",
   exclude = c("richness", "co_occurrence")
 )
 
 # Check the selected section names
 selected_sections
 
-# Apply selected sections to the camReport object
-sections(cm, selected_sections)
+# Save the selection separately so the standard profile is unchanged
+selected_profile <- reportProfile(
+  name = "selected",
+  report = selected_sections
+)
+add_profile(cm, selected_profile)
 
 # Generate the customised report
-report(cm, view = TRUE)
+report(
+  cm,
+  profile = "selected",
+  filename = file.path(output_dir, "ecological-report-selected.html"),
+  view = TRUE
+)
 
-# Restore all available sections
-sections(cm, n = section_names())
+# Generate the standard selection again when needed
+report(
+  cm,
+  profile = "default",
+  filename = file.path(output_dir, "ecological-report-default.html")
+)
 ```
+
+The full module pool can include alternatives with the same displayed role,
+such as `appendix` and `appendix_eow`. Select one profile or a deliberate subset
+rather than attaching the whole pool, which would include both alternatives.
+
+### Reusing a report profile
+
+A report profile records an ordered module selection while leaving the complete
+module pool unchanged. This is useful when the same package installation must
+produce different report types.
+
+```{r ecological-report-profile, eval=FALSE}
+# List profiles registered in the object
+profile_names(cm)
+
+# Inspect and render a profile
+section_names(object = cm, profile = "EOW")
+report(
+  cm,
+  profile = "EOW",
+  filename = file.path(output_dir, "EOW-ecological-report.html"),
+  view = TRUE
+)
+
+# A PDF filename selects static PDF output
+report(
+  cm,
+  profile = "EOW",
+  filename = file.path(output_dir, "EOW-ecological-report.pdf")
+)
+```
+
+PDF output requires the optional `pagedown` package and Chrome or Edge. It is
+created by printing the HTML report so that existing HTML-oriented modules do
+not need a second implementation. Interactive maps and controls are static in
+the PDF.
+
+For a complete example of defining, editing, importing, and exporting a
+reusable selection, see the
+[Report profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html).
 
 A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
 

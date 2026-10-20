@@ -107,6 +107,20 @@ or changing a module dependency, update its documentation and tests, and verify
 that a missing optional package produces a clear message rather than breaking
 unrelated sections.
 
+The current `.require()` helper also attaches a package after checking its
+namespace, and selected report modules are loaded with `library()` during
+rendering. Existing modules may call unqualified functions, so these operations
+are part of the current execution contract and can affect `search()`. Replacing
+them with namespace checks alone requires a separate compatibility review;
+do not make that change as a lint fix. `.eval()` and the dedicated render
+environment do not isolate process-wide effects such as package attachment,
+network requests, options, or file writes.
+
+Only set minimum dependency versions when a required API or known
+incompatibility establishes the lower bound. Installed developer versions are
+not evidence of a minimum supported version. Describe and test any new
+version constraints separately from documentation changes.
+
 ## Coding conventions
 
 Please follow the structure and coding style already used in the package.
@@ -136,4 +150,4 @@ and released code remains with the maintainer.
 ## Code of Conduct
 
 Participation in this project is governed by the
-[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md) 
+[Code of Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md)

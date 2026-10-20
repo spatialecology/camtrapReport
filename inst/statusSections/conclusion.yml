@@ -2,14 +2,9 @@
 name: "conclusion"
 title: "# Conclusion {.unnumbered}"
 parent: null
-text: null
-code: |
-  #| name: setup_code
-  #| setting: results="asis", echo=FALSE, warning=FALSE, message=FALSE
-  #| packages: base
-  
-  
-  cat(paste0("Based on results across five key sections—Spatial, Temporal, Data Availability, Validation, and Annotation, this dataset is classified as ",
-  "<span style='color: orange; font-weight: bold;'>Acceptable </span> — Minor issues found; the dataset remains usable, although corrections are recommended."))
-  
+text: |
+  Review the spatial, temporal, data-availability, validation, and annotation results together before interpreting an ecological report. These checks identify potential data issues but do not compute a single overall quality grade or establish suitability for an ecological model.
+
+  Investigate missing or inconsistent records and document any corrections or exclusions. After editing source data, reload them with `camData(..., update = TRUE)` and rerun `status()`. Retain the corrected inputs, selected modules, settings, and package versions with your analysis.
+code: null
 ---

@@ -31,6 +31,11 @@ The \code{camReport} class is the main object class used by camtrapReport. Objec
 of this class are usually created with \code{\link[=camData]{camData()}}. A \code{camReport} object
 stores the camera-trap dataset, report metadata, processed summaries, report
 modules, status-report modules, and settings used for report generation.
+
+The exported \code{camR} object is the low-level Reference Class generator for
+advanced use. Calling \code{camR$new()} creates an unprepared container; it does
+not import data or run the setup and data-status checks performed by
+\code{\link[=camData]{camData()}}. Use \code{\link[=camData]{camData()}} for the normal reporting workflow.
 }
 
 \section{Main fields}{

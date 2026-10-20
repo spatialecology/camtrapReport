@@ -4,6 +4,6 @@
 .Ruserdata
 .RDataTmp
 .DS_Store
-docs/
+# The generated docs/ website is tracked for GitHub Pages, including new pages.
 /doc/
 /Meta/
