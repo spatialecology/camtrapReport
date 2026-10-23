@@ -68,10 +68,12 @@ setMethod(
     }
 
     if (isTRUE(view)) {
-      message(
-        "Report generated at: ",
-        normalizePath(destination$output, winslash = "/", mustWork = FALSE)
-      )
+      if (.report_progress_enabled()) {
+        message(
+          "Report generated at: ",
+          normalizePath(destination$output, winslash = "/", mustWork = FALSE)
+        )
+      }
       .open_generated_report(destination$output, destination$format)
     }
 

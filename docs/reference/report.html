@@ -13,7 +13,7 @@ rendering."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,7 +140,8 @@ structure explicitly. <code><a href="section_names.html">section_names()</a></co
 available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 <code>camData(..., update = TRUE)</code> before rerunning <code>status()</code> or <code>report()</code>.</p>
-<p>Console progress identifies module construction, individual chunks, HTML
+<p>Rendering is quiet by default. Set <code>options(camtrapReport.progress = TRUE)</code>
+to show console progress for module construction, individual chunks, HTML
 rendering, PDF conversion, and opening the completed file. Timings include
 elapsed time and CPU time in the current R process; Pandoc and browser CPU
 time is not included in the latter. The last started chunk identifies where

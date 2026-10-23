@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -727,16 +727,23 @@ profiles guide</a>.</p>
 <div class="section level3">
 <h3 id="report-progress-and-slow-rendering">Report progress and slow rendering<a class="anchor" aria-label="anchor" href="#report-progress-and-slow-rendering"></a>
 </h3>
-<p>Console messages identify construction, each module/chunk, knitr
-completion, HTML/Pandoc rendering, PDF conversion, and output opening.
-Completion lines show elapsed time and CPU time in the current R
-process. A high R CPU time can indicate computation; a low R CPU time
-does not identify a specific cause, because child processes, disk
-access, and network waits are not measured separately. These messages do
-not change calculations or appear in the report.</p>
+<p>HTML and PDF rendering is quiet by default. Enable optional console
+diagnostics when investigating slow rendering:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>camtrapReport.progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># Run report() or status(), then restore quiet rendering:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>camtrapReport.progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>When enabled, these messages identify construction, each
+module/chunk, knitr completion, HTML/Pandoc rendering, PDF conversion,
+and output opening. Completion lines show elapsed time and CPU time in
+the current R process. A high R CPU time can indicate computation; a low
+R CPU time does not identify a specific cause, because child processes,
+disk access, and network waits are not measured separately. These
+messages do not change calculations or appear in the report. Quiet mode
+does not suppress warnings, errors or notices about omitted content.</p>
 <p>If a run seems stalled, record the last started chunk and compare the
 same object and selection using distinct output filenames:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>,</span>
 <span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="st">"EOW-timing.html"</span><span class="op">)</span>, view <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -765,38 +772,64 @@ before comparing versions.</p>
 <div class="section level3">
 <h3 id="map-backgrounds-and-offline-use">Map backgrounds and offline use<a class="anchor" aria-label="anchor" href="#map-backgrounds-and-offline-use"></a>
 </h3>
-<p>The default is self-contained and requires no tile service:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"offline"</span></span>
-<span><span class="co"># Explicitly opt into an online background:</span></span>
-<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"openstreetmap"</span></span></code></pre></div>
-<p>In the online mode, web-served reports try OpenStreetMap, then
-OpenTopoMap, then the offline grid. A local <code>file://</code> report
-starts at OpenTopoMap because OpenStreetMap’s web-use policy requires a
-valid Referer. Repeated failures or an eight-second loading deadline
-advance the background once, without an infinite retry cycle. Fallback
-runs in the browser even after R exits. Hidden tabs do not prefetch
-tiles; markers, polygons, rasters, legends, extent, zoom, and layer
-controls are retained. During printing, pending tile requests are
-cancelled and the offline background remains visible; already loaded
-imagery may be retained. Offline vectors are not downloaded map
-tiles.</p>
+<p>New report objects use the shared online fallback helper. An explicit
+offline setting, including one stored in an older object, is never
+overwritten:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"openstreetmap"</span></span>
+<span><span class="co"># For sensitive, disconnected or archived reports, disable all tile requests:</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"offline"</span></span></code></pre></div>
+<p>For noncommercial research reports, the automatic order is
+<strong>OpenStreetMap Standard → OpenStreetMap Germany → OpenTopoMap →
+neutral grid</strong>. It works without an additional eligibility
+setting. Free access is subject to each operator’s usage conditions; it
+is not unrestricted service capacity or a guarantee that geographic
+tiles will always load.</p>
+<p>Standard requires an actual HTTP Referer for web pages. A local
+<code>file://</code> report cannot send one and therefore starts with
+Germany rather than spoofing a header. Serve the report over HTTP(S),
+including a local HTTP server, to attempt Standard first. Tile requests
+reveal the viewed area to the provider; use offline mode for sensitive
+locations. France/HOT and Esri World Street Map are not part of the
+default chain: noncommercial research alone does not establish
+compliance with their public-site or licensing conditions.</p>
+<p>Fallback runs in the browser even after R exits, using actual
+<code>tileload</code> and <code>tileerror</code> events. One isolated
+error does not switch a working provider. At least three unavailable
+tiles and 75% failed coverage trigger failover once the current viewport
+settles. An eight-second deadline also advances a stalled provider if no
+useful tiles arrive or that failure threshold is reached; otherwise
+useful imagery is retained and outstanding requests are cancelled. Only
+one online background is active, and each provider is attempted at most
+once per failure cascade. If all fail, the neutral grid remains without
+stopping the report. Hidden/nested tabs resize when activated and do not
+prefetch unseen tiles. Markers, polygons, rasters, legends, extent, zoom
+and controls are retained. During printing, unfinished tiles use the
+neutral background; completed imagery can remain. Backgrounds paused
+only for printing resume afterwards; exhausted providers and explicit
+offline mode do not restart. The grid is not a downloaded tile
+archive.</p>
 <p>Read the <a href="https://operations.osmfoundation.org/policies/tiles/" class="external-link">OSMF tile
 policy</a> and <a href="https://opentopomap.org/about#verwendung" class="external-link">OpenTopoMap usage
 conditions</a>. Both require visible attribution and prohibit excessive
-or bulk downloading; neither provides an uptime guarantee.
-OpenStreetMap.DE, OpenStreetMap.France, and HOT are not automatic
-fallbacks: their conditions restrict some commercial or private/local
-uses. This deliberately shortens the requested provider chain rather
-than assuming permission for every report.</p>
+or bulk downloading; neither provides an uptime guarantee. The <a href="https://openstreetmap.de/germanstyle/" class="external-link">German service
+conditions</a> restrict embedding to noncommercial use, with a small-use
+exception. The package retains visible credits for the active provider:
+OpenStreetMap contributors for Standard/Germany, or
+OpenStreetMap/SRTM/OpenTopoMap with the latter’s CC-BY-SA licence.
+Retain these credits when exporting maps. A disconnected or blocked
+network can make all online backgrounds unavailable. The neutral grid
+keeps the ecological overlays readable in that case, but is not a
+geographic basemap.</p>
 <p>Existing explicit <code>"cartodb"</code> and <code>"esri"</code>
-settings remain for compatibility, with an offline error fallback, not
-as additional automatic providers. They remain subject to the operators’
-terms. CARTO’s current raster service <a href="https://github.com/CartoDB/basemap-styles/blob/master/README.md" class="external-link">requires
+settings remain for compatibility, with a neutral error fallback. They
+remain subject to the operators’ terms. Esri use requires applicable <a href="https://www.esri.com/en-us/legal/terms/master-agreement" class="external-link">service
+licensing</a>; anonymous endpoint access is not itself a licence.
+CARTO’s current raster service <a href="https://github.com/CartoDB/basemap-styles/blob/master/README.md" class="external-link">requires
 an API key</a>; the legacy keyless mode is not a promise of a licensed
 or unwatermarked service. The package does not add a
-credential-management API in this revision. Prefer the default offline
-mode for private data, archives, or reproducible outputs.</p>
+credential-management API in this revision. Prefer offline mode for
+private data, archives or disconnected viewing.</p>
 <p>A generated report summarises the implemented checks and selected
 analyses. It does not establish that the survey design is suitable for a
 particular ecological question or that the data satisfy all assumptions

@@ -271,6 +271,7 @@ test_that("report sends the generated file to the configured viewer", {
   viewer_state$file <- NULL
 
   old_options <- options(
+    camtrapReport.progress = TRUE,
     viewer = function(path) {
       viewer_state$file <- path
     }
@@ -330,6 +331,7 @@ test_that("status sends the generated file to the configured viewer", {
   viewer_state$file <- NULL
 
   old_options <- options(
+    camtrapReport.progress = TRUE,
     viewer = function(path) {
       viewer_state$file <- path
     }

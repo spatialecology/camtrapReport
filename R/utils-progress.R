@@ -1,5 +1,10 @@
 # Console-only report progress; these messages are not part of report content.
+.report_progress_enabled <- function() {
+  isTRUE(getOption("camtrapReport.progress", FALSE))
+}
+
 .report_stage_start <- function(label) {
+  if (!.report_progress_enabled()) return(NULL)
   stage <- new.env(parent = emptyenv())
   stage$label <- label
   stage$started <- proc.time()
@@ -35,6 +40,21 @@
   saved_chunks <- knitr::opts_chunk$get()
   saved_options <- knitr::opts_hooks$get()
   saved_hooks <- knitr::knit_hooks$get()
+  on.exit({
+    knitr::opts_chunk$restore(saved_chunks)
+    knitr::opts_hooks$restore(saved_options)
+    knitr::knit_hooks$restore(saved_hooks)
+  }, add = TRUE)
+
+  if (!.report_progress_enabled()) {
+    return(rmarkdown::render(
+      input = input,
+      output_file = output_file,
+      envir = envir,
+      quiet = TRUE
+    ))
+  }
+
   state <- new.env(parent = emptyenv())
   state$installed <- FALSE
   state$chunk <- NULL
@@ -42,9 +62,6 @@
   complete <- FALSE
 
   on.exit({
-    knitr::opts_chunk$restore(saved_chunks)
-    knitr::opts_hooks$restore(saved_options)
-    knitr::knit_hooks$restore(saved_hooks)
     .report_stage_end(state$chunk, complete = FALSE)
     .report_stage_end(state$stage, complete)
   }, add = TRUE)

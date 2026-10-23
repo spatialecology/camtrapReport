@@ -4,7 +4,7 @@ test_that("offline backgrounds never request a browser tile layer", {
   calls$code <- character()
   calls$config <- NULL
   result <- testthat::with_mocked_bindings(
-    cm$add_report_basemap(list(), bounds = c(4, 50, 5, 51)),
+    cm$add_report_basemap(list(), bounds = c(4, 50, 5, 51), mode = "offline"),
     .eval = function(code, env) {
       calls$code <- c(calls$code, code)
       if (grepl("htmlwidgets::onRender", code, fixed = TRUE)) {
@@ -29,8 +29,10 @@ test_that("online sources retain explicit attribution and finite deadlines", {
   expect_identical(sources[[1]]$url,
                    "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
   expect_true(sources[[1]]$requiresWebReferrer)
-  expect_match(sources[[2]]$attribution, "CC-BY-SA", fixed = TRUE)
-  expect_match(sources[[2]]$attribution, "SRTM", fixed = TRUE)
+  expect_identical(sources[[2]]$url,
+                   "https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+  expect_match(sources[[3]]$attribution, "CC-BY-SA", fixed = TRUE)
+  expect_match(sources[[3]]$attribution, "SRTM", fixed = TRUE)
   expect_identical(
     .report_basemap_sources("cartodb")[[1]]$name,
     "CartoDB.Positron"
@@ -42,7 +44,27 @@ test_that("online sources retain explicit attribution and finite deadlines", {
   expect_length(.report_basemap_sources("offline"), 0L)
 })
 
-test_that("browser tile recovery is finite and preserves overlay groups", {
+test_that("default online sources are ordered and need no extra settings", {
+  source_names <- function(sources) {
+    vapply(sources, function(source) source$name, character(1))
+  }
+  expect_identical(
+    source_names(.report_basemap_sources("openstreetmap")),
+    c("OpenStreetMap", "OpenStreetMap.DE", "OpenTopoMap")
+  )
+  all_sources <- .report_basemap_sources("openstreetmap")
+  expect_true(all(vapply(
+    all_sources, function(source) nzchar(source$attribution), logical(1)
+  )))
+  expect_false(any(vapply(
+    all_sources, function(source) isTRUE(source$requiresPublicWebsite), logical(1)
+  )))
+  cartodb <- .report_basemap_sources("cartodb")[[1]]
+  expect_match(cartodb$url, "{r}.png", fixed = TRUE)
+  expect_identical(cartodb$subdomains, "abcd")
+})
+
+test_that("browser tile recovery tolerates isolated and partial tile failures", {
   node <- Sys.which("node")
   skip_if(!nzchar(node), "Node.js is needed for this optional JS runtime test")
   script <- test_path("fixtures", "basemap-runtime-test.js")

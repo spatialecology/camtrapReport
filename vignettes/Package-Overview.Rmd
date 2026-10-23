@@ -120,18 +120,28 @@ and scope of a particular monitoring project.
 
 The standard profile uses pooled multi-year REM parameters. The EOW profile
 uses the `population_density_annual` module and estimates REM parameters
-independently for each species and sampling year. Map modules use a
-self-contained offline background by default, avoiding reliance on a live tile
-service. Set `cm$setting$map_basemap <- "openstreetmap"` to opt into live tiles.
-For HTTP(S)-served reports the permitted fallback chain is OpenStreetMap,
-OpenTopoMap, then offline. Local `file://` reports skip OpenStreetMap because
-they cannot send its required web Referer. Each online provider has a bounded
-tile-loading deadline and is attempted at most once; ecological overlays and
-controls remain available when the background fails. The requested German,
-French, and HOT servers are not generic fallbacks because their use conditions
-exclude some private, local, or commercial reports. See the
+independently for each species and sampling year. New report objects use an
+OpenStreetMap-first online background, with automatic fallback through
+OpenStreetMap Germany and OpenTopoMap, then a neutral grid if all fail.
+This default is intended for noncommercial research reports and needs no
+additional settings. Free access does not remove the services' usage terms
+or attribution requirements, and online availability cannot be guaranteed.
+Existing explicit background settings are retained;
+`cm$setting$map_basemap <- "offline"` disables tile requests. Local `file://`
+reports start with Germany because they cannot send Standard's required web
+Referer; serve the HTML over HTTP(S) to try Standard first. A single bad tile
+does not discard a usable background. Each provider has a bounded loading
+deadline and is attempted at most once; ecological overlays and controls
+remain available when every provider fails. See the
 [map-background guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use)
-for policies, attributions, and existing explicit CARTO/Esri modes.
+for policies, attributions and explicit CARTO/Esri modes.
+
+HTML and PDF rendering is quiet by default. For troubleshooting, enable
+console-only progress and stage/chunk timings with
+`options(camtrapReport.progress = TRUE)`; set it to `FALSE` afterwards to
+return to normal rendering. Warnings, errors and notices about omitted
+content remain visible. These diagnostics do not change report content or
+analytical calculations.
 
 Shiny is used for the optional `gui()` interface; the code-based workflow
 does not need a running Shiny application. Optional analysis packages are

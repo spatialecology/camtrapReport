@@ -9,7 +9,7 @@ metadata, report sections, and intermediate report objects."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,10 +99,18 @@ the report.</p></li>
 <li><p><code>setting</code>: Report settings, including selected focus groups,
 <code>rem_parameter_scope</code> (<code>"pooled"</code> or <code>"annual"</code>), <code>rem_reps</code>, <code>rem_seed</code>,
 and <code>map_basemap</code> (<code>"offline"</code>, <code>"cartodb"</code>, <code>"esri"</code>, or
-<code>"openstreetmap"</code>). The offline mode is the default; the OpenStreetMap mode
-includes an OpenTopoMap fallback for failed tiles. Bundled report modules
-select their REM scope explicitly; the standard profile is pooled and the
-EOW profile is annual.</p></li>
+<code>"openstreetmap"</code>, the default). For noncommercial research reports, the
+OpenStreetMap mode tries OpenStreetMap Standard, OpenStreetMap Germany,
+and OpenTopoMap in that order, then a neutral background if all fail.
+There is no additional eligibility setting. The services' usage terms
+and visible attributions still apply; no online service guarantees
+availability. Local <code>file://</code> reports skip Standard because they cannot
+send its required web Referer, and start with Germany. Serve the report
+over HTTP(S) to try Standard first. No header is fabricated.
+<code>"offline"</code> makes no tile requests. Existing explicit CARTO and Esri
+settings remain subject to their operators' applicable terms.
+Bundled report modules select their REM scope explicitly; the standard
+profile is pooled and the EOW profile is annual.</p></li>
 <li><p><code>data_status</code>: Data-status summaries generated from the input dataset.</p></li>
 <li><p><code>reportObjectElements</code>: Report modules and related objects used to generate
 the ecological report.</p></li>

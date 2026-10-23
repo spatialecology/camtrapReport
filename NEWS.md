@@ -1,4 +1,26 @@
-# camtrapReport 1.0.67 (development version)
+# camtrapReport 1.0.68 (development version)
+
+- Restored online OpenStreetMap-first backgrounds for new report objects;
+  explicitly selected offline backgrounds remain offline. All bundled Leaflet
+  maps continue to use one shared helper, with a neutral fallback that leaves
+  ecological overlays and controls intact.
+- Simplified the default fallback for noncommercial research reports to
+  OpenStreetMap Standard, OpenStreetMap Germany, OpenTopoMap, then a neutral
+  background, without extra eligibility settings. Local files start with
+  Germany because they cannot send Standard's required web Referer; no header
+  is spoofed and no tiles are downloaded or bundled by R. Existing explicit
+  CARTO and Esri selections are retained subject to their service terms.
+- Corrected browser tile-failure detection so that an isolated tile error does
+  not discard a working basemap. Failed providers are removed before advancing,
+  hidden/nested tabs resize on activation, and exhausted providers never stop
+  report generation. Scientific analyses, `.eval()`, public arguments and R
+  dependencies are unchanged.
+- Made HTML and PDF rendering quiet by default. Detailed console-only progress,
+  stage and chunk timings remain available with
+  `options(camtrapReport.progress = TRUE)` for troubleshooting. Warnings,
+  errors and notices about omitted content are not suppressed.
+
+# camtrapReport 1.0.67
 
 - Added console-only report stage and chunk timings, including elapsed and R
   CPU time, and explicit PDF conversion/opening progress. Browser printing has

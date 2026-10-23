@@ -239,10 +239,10 @@ test_that("bundled EOW tabsets have nested tabs and print sequentially", {
 })
 
 
-test_that("bundled report maps default to self-contained backgrounds", {
+test_that("bundled report maps use shared OSM-first backgrounds", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
-  expect_identical(cm$setting$map_basemap, "offline")
+  expect_identical(cm$setting$map_basemap, "openstreetmap")
   expect_true(is.function(cm$add_report_basemap))
 
   report_modules <- system.file(
@@ -281,7 +281,7 @@ test_that("bundled report maps default to self-contained backgrounds", {
   expect_type(result, "list")
   expect_identical(
     vapply(calls$config$providers, function(x) x$name, character(1)),
-    c("OpenStreetMap", "OpenTopoMap")
+    c("OpenStreetMap", "OpenStreetMap.DE", "OpenTopoMap")
   )
   expect_identical(
     sum(grepl("htmlwidgets::onRender", calls$code, fixed = TRUE)),
@@ -289,6 +289,29 @@ test_that("bundled report maps default to self-contained backgrounds", {
   )
   expect_true(any(grepl("addRectangles", calls$code, fixed = TRUE)))
   expect_true(any(grepl("zIndex = 190", calls$code, fixed = TRUE)))
+})
+
+
+test_that("default basemap sources reach the shared browser configuration", {
+  cm <- camR$new()
+  expect_false("map_basemap_permissions" %in% names(cm$setting))
+  config <- testthat::with_mocked_bindings(
+    cm$add_report_basemap(list(), c(4, 50, 5, 51)),
+    .eval = function(code, envir) {
+      if (grepl("htmlwidgets::onRender", code, fixed = TRUE)) {
+        return(get("config", envir = envir, inherits = FALSE))
+      }
+      get("map", envir = envir, inherits = FALSE)
+    },
+    .package = "camtrapReport"
+  )
+  expect_identical(
+    vapply(config$providers, function(x) x$name, character(1)),
+    c("OpenStreetMap", "OpenStreetMap.DE", "OpenTopoMap")
+  )
+  expect_identical(config$timeout, 8000L)
+  expect_identical(config$errorLimit, 3L)
+  expect_identical(config$failureRatio, 0.75)
 })
 
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.67" id="camtrapreport-1067-development-version">camtrapReport 1.0.67 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1067-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.68" id="camtrapreport-1068-development-version">camtrapReport 1.0.68 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1068-development-version"></a></h2>
+<ul><li>Restored online OpenStreetMap-first backgrounds for new report objects; explicitly selected offline backgrounds remain offline. All bundled Leaflet maps continue to use one shared helper, with a neutral fallback that leaves ecological overlays and controls intact.</li>
+<li>Simplified the default fallback for noncommercial research reports to OpenStreetMap Standard, OpenStreetMap Germany, OpenTopoMap, then a neutral background, without extra eligibility settings. Local files start with Germany because they cannot send Standard’s required web Referer; no header is spoofed and no tiles are downloaded or bundled by R. Existing explicit CARTO and Esri selections are retained subject to their service terms.</li>
+<li>Corrected browser tile-failure detection so that an isolated tile error does not discard a working basemap. Failed providers are removed before advancing, hidden/nested tabs resize on activation, and exhausted providers never stop report generation. Scientific analyses, <code>.eval()</code>, public arguments and R dependencies are unchanged.</li>
+<li>Made HTML and PDF rendering quiet by default. Detailed console-only progress, stage and chunk timings remain available with <code>options(camtrapReport.progress = TRUE)</code> for troubleshooting. Warnings, errors and notices about omitted content are not suppressed.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.67" id="camtrapreport-1067">camtrapReport 1.0.67<a class="anchor" aria-label="anchor" href="#camtrapreport-1067"></a></h2>
 <ul><li>Added console-only report stage and chunk timings, including elapsed and R CPU time, and explicit PDF conversion/opening progress. Browser printing has an explicit bounded timeout. Scientific methods, repetitions, random seeds, module selections, and the <code>.eval()</code> architecture are unchanged.</li>
 <li>Made online Leaflet basemaps fail over finitely to permitted alternative tiles and a self-contained offline background. Existing overlays and map controls are retained; the default remains offline. Provider policies and local-file restrictions are documented.</li>
 <li>Reordered tabs in the five original year-tab modules: the existing aggregate or Comparison first, followed by available years newest first. EOW YAML modules are unchanged; stochastic calculation order is preserved.</li>

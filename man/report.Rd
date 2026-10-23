@@ -71,7 +71,8 @@ available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 \code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
 
-Console progress identifies module construction, individual chunks, HTML
+Rendering is quiet by default. Set \code{options(camtrapReport.progress = TRUE)}
+to show console progress for module construction, individual chunks, HTML
 rendering, PDF conversion, and opening the completed file. Timings include
 elapsed time and CPU time in the current R process; Pandoc and browser CPU
 time is not included in the latter. The last started chunk identifies where

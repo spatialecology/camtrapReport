@@ -739,7 +739,7 @@ setGeneric(
     rem_parameter_scope = "pooled",
     rem_reps = 10L,
     rem_seed = 42L,
-    map_basemap = "offline"
+    map_basemap = "openstreetmap"
   )
 
   if (is.null(x$setting) || !is.list(x$setting)) {

@@ -1,4 +1,6 @@
 test_that("console stage timers preserve results and report failures", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   captured <- capture_report_conditions(
     withVisible(.with_report_stage("Stage test", invisible(42L)))
   )
@@ -18,6 +20,8 @@ test_that("console stage timers preserve results and report failures", {
 })
 
 test_that("render progress stays in the console and restores knitr hooks", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   skip_if_not(rmarkdown::pandoc_available())
   source_file <- tempfile(fileext = ".Rmd")
   output <- tempfile(fileext = ".html")
@@ -50,6 +54,8 @@ test_that("render progress stays in the console and restores knitr hooks", {
 })
 
 test_that("failed rendering identifies the active chunk and restores hooks", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   skip_if_not(rmarkdown::pandoc_available())
   source_file <- tempfile(fileext = ".Rmd")
   output <- tempfile(fileext = ".html")
@@ -78,6 +84,8 @@ test_that("failed rendering identifies the active chunk and restores hooks", {
 })
 
 test_that("progress does not invalidate existing knitr chunk caches", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   skip_if_not(rmarkdown::pandoc_available())
   root <- tempfile("camtrapReport-progress-cache-")
   dir.create(root)
@@ -107,6 +115,8 @@ test_that("progress does not invalidate existing knitr chunk caches", {
 })
 
 test_that("progress composes custom hooks without adding cache option keys", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   skip_if_not(rmarkdown::pandoc_available())
   root <- tempfile("camtrapReport-progress-custom-cache-")
   dir.create(root)
@@ -146,6 +156,8 @@ test_that("progress composes custom hooks without adding cache option keys", {
 })
 
 test_that("PDF conversion supplies a finite browser printing timeout", {
+  previous <- options(camtrapReport.progress = TRUE)
+  on.exit(options(previous), add = TRUE)
   skip_if_not_installed("pagedown")
   output <- tempfile(fileext = ".pdf")
   on.exit(unlink(output, force = TRUE), add = TRUE)
@@ -169,9 +181,12 @@ test_that("PDF conversion supplies a finite browser printing timeout", {
 test_that("viewer progress surrounds only opening a completed report", {
   state <- new.env(parent = emptyenv())
   state$opened <- NULL
-  previous <- options(viewer = function(path) {
-    state$opened <- path
-  })
+  previous <- options(
+    camtrapReport.progress = TRUE,
+    viewer = function(path) {
+      state$opened <- path
+    }
+  )
   on.exit(options(previous), add = TRUE)
   captured <- capture_report_conditions(
     .open_generated_report("completed.html", "html")
@@ -180,4 +195,167 @@ test_that("viewer progress surrounds only opening a completed report", {
   expect_identical(captured$value, "completed.html")
   expect_true(any(grepl("Opening completed report completed",
                         captured$messages, fixed = TRUE)))
+})
+
+test_that("routine stage progress is quiet by default without hiding conditions", {
+  previous <- options(camtrapReport.progress = NULL)
+  on.exit(options(previous), add = TRUE)
+  expect_false(.report_progress_enabled())
+  expect_null(.report_stage_start("Silent stage"))
+  captured <- capture_report_conditions(
+    withVisible(.with_report_stage("Silent stage", {
+      warning("original stage warning")
+      invisible(42L)
+    }))
+  )
+  expect_identical(captured$value$value, 42L)
+  expect_false(captured$value$visible)
+  expect_length(captured$messages, 0L)
+  expect_identical(captured$warnings, "original stage warning")
+  expect_error(.with_report_stage("Silent failure", stop("original error")),
+               "original error", fixed = TRUE)
+})
+
+test_that("quiet HTML rendering preserves content and restores knitr hooks", {
+  skip_if_not(rmarkdown::pandoc_available())
+  previous <- options(camtrapReport.progress = NULL)
+  on.exit(options(previous), add = TRUE)
+  source_file <- tempfile(fileext = ".Rmd")
+  output <- tempfile(fileext = ".html")
+  on.exit(unlink(c(source_file, output), force = TRUE), add = TRUE)
+  writeLines(c(
+    "---", "title: Quiet smoke test", "output: html_document", "---",
+    "```{r quiet_value, echo=FALSE}",
+    "cat('Preserved quiet report value:', sum(1:3))",
+    "warning('Preserved report warning')", "```"
+  ), source_file)
+  saved_chunks <- knitr::opts_chunk$get()
+  saved_options <- knitr::opts_hooks$get()
+  saved_hooks <- knitr::knit_hooks$get()
+  captured <- capture_report_conditions(.render_report_with_progress(
+    source_file, output, new.env()
+  ))
+  expect_true(file.exists(captured$value))
+  expect_length(captured$messages, 0L)
+  html <- paste(readLines(output, warn = FALSE), collapse = "\n")
+  expect_match(html, "Preserved quiet report value: 6", fixed = TRUE)
+  expect_match(html, "Preserved report warning", fixed = TRUE)
+  expect_false(grepl("[camtrapReport]", html, fixed = TRUE))
+  expect_identical(knitr::opts_chunk$get(), saved_chunks)
+  expect_identical(knitr::opts_hooks$get(), saved_options)
+  expect_identical(knitr::knit_hooks$get(), saved_hooks)
+
+  writeLines(c(
+    "---", "output: html_document", "---",
+    "```{r quiet_failure, error=FALSE}",
+    "stop('original quiet render error')", "```"
+  ), source_file)
+  captured <- capture_report_conditions(expect_error(
+    .render_report_with_progress(source_file, output, new.env()),
+    "original quiet render error", fixed = TRUE
+  ))
+  expect_false(any(grepl("[camtrapReport]", captured$messages, fixed = TRUE)))
+  expect_identical(knitr::opts_chunk$get(), saved_chunks)
+  expect_identical(knitr::opts_hooks$get(), saved_options)
+  expect_identical(knitr::knit_hooks$get(), saved_hooks)
+})
+
+test_that("quiet PDF conversion preserves warnings, errors and its deadline", {
+  skip_if_not_installed("pagedown")
+  previous <- options(camtrapReport.progress = NULL)
+  on.exit(options(previous), add = TRUE)
+  output <- tempfile(fileext = ".pdf")
+  on.exit(unlink(output, force = TRUE), add = TRUE)
+  state <- new.env(parent = emptyenv())
+  captured <- testthat::with_mocked_bindings(
+    capture_report_conditions(.convert_html_to_pdf("input.html", output)),
+    chrome_print = function(input, output, timeout, verbose) {
+      state$timeout <- timeout
+      state$verbose <- verbose
+      warning("original PDF warning")
+      writeLines("PDF conversion stub", output)
+    },
+    .package = "pagedown"
+  )
+  expect_identical(state$timeout, 60)
+  expect_identical(state$verbose, 0)
+  expect_true(file.exists(captured$value))
+  expect_length(captured$messages, 0L)
+  expect_identical(captured$warnings, "original PDF warning")
+  testthat::with_mocked_bindings(
+    expect_error(.convert_html_to_pdf("input.html", output),
+                 "Original error: original PDF error", fixed = TRUE),
+    chrome_print = function(...) stop("original PDF error"),
+    .package = "pagedown"
+  )
+})
+
+test_that("opening a completed report is quiet by default", {
+  state <- new.env(parent = emptyenv())
+  previous <- options(
+    camtrapReport.progress = NULL,
+    viewer = function(path) {
+      state$opened <- path
+    }
+  )
+  on.exit(options(previous), add = TRUE)
+  captured <- capture_report_conditions(
+    .open_generated_report("completed.html", "html")
+  )
+  expect_identical(state$opened, "completed.html")
+  expect_identical(captured$value, "completed.html")
+  expect_length(captured$messages, 0L)
+})
+
+test_that("report and status are quiet for both formats and view settings", {
+  skip_if_not(rmarkdown::pandoc_available())
+  skip_if_not_installed("pagedown")
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  introduction <- cm$reportObjectElements$Modules$introduction
+  cm$reportObjects <- list(introduction = introduction)
+  cm$statusReportObjects <- list(introduction = introduction)
+  state <- new.env(parent = emptyenv())
+  state$opened <- character()
+  open_file <- function(path) {
+    state$opened <- c(state$opened, path)
+  }
+  previous <- options(camtrapReport.progress = NULL, viewer = open_file)
+  on.exit(options(previous), add = TRUE)
+  testthat::local_mocked_bindings(
+    browseURL = open_file,
+    .package = "utils"
+  )
+  testthat::local_mocked_bindings(
+    chrome_print = function(input, output, timeout, verbose) {
+      expect_identical(verbose, 0)
+      expect_identical(timeout, 60)
+      expect_true(file.exists(input))
+      writeLines("PDF conversion stub", output)
+    },
+    .package = "pagedown"
+  )
+  root <- tempfile("camtrapReport-quiet-")
+  dir.create(root)
+  root <- normalizePath(root, winslash = "/", mustWork = TRUE)
+  on.exit(unlink(root, recursive = TRUE, force = TRUE), add = TRUE)
+
+  for (type in c("report", "status")) {
+    generate <- if (identical(type, "report")) report else status
+    for (format in c("html", "pdf")) {
+      for (view in c(FALSE, TRUE)) {
+        output <- file.path(root, paste0(type, "-", view, ".", format))
+        console <- capture.output({
+          captured <- capture_report_conditions(
+            generate(cm, filename = output, view = view, profile = NULL)
+          )
+        })
+        expect_identical(captured$value, output)
+        expect_true(file.exists(output))
+        expect_length(console, 0L)
+        expect_length(captured$messages, 0L)
+        expect_length(captured$warnings, 0L)
+      }
+    }
+  }
+  expect_length(state$opened, 4L)
 })

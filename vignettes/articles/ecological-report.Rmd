@@ -587,12 +587,23 @@ reusable selection, see the
 
 ### Report progress and slow rendering
 
-Console messages identify construction, each module/chunk, knitr completion,
-HTML/Pandoc rendering, PDF conversion, and output opening. Completion lines
-show elapsed time and CPU time in the current R process. A high R CPU time can
-indicate computation; a low R CPU time does not identify a specific cause,
-because child processes, disk access, and network waits are not measured
-separately. These messages do not change calculations or appear in the report.
+HTML and PDF rendering is quiet by default. Enable optional console diagnostics
+when investigating slow rendering:
+
+```{r ecological-progress, eval=FALSE}
+options(camtrapReport.progress = TRUE)
+# Run report() or status(), then restore quiet rendering:
+options(camtrapReport.progress = FALSE)
+```
+
+When enabled, these messages identify construction, each module/chunk, knitr
+completion, HTML/Pandoc rendering, PDF conversion, and output opening.
+Completion lines show elapsed time and CPU time in the current R process.
+A high R CPU time can indicate computation; a low R CPU time does not identify
+a specific cause, because child processes, disk access, and network waits are
+not measured separately. These messages do not change calculations or appear
+in the report. Quiet mode does not suppress warnings, errors or notices about
+omitted content.
 
 If a run seems stalled, record the last started chunk and compare the same
 object and selection using distinct output filenames:
@@ -625,39 +636,67 @@ data with `update = TRUE` before comparing versions.
 
 ### Map backgrounds and offline use
 
-The default is self-contained and requires no tile service:
+New report objects use the shared online fallback helper. An explicit offline
+setting, including one stored in an older object, is never overwritten:
 
 ```{r ecological-basemap, eval=FALSE}
-cm$setting$map_basemap <- "offline"
-# Explicitly opt into an online background:
 cm$setting$map_basemap <- "openstreetmap"
+# For sensitive, disconnected or archived reports, disable all tile requests:
+cm$setting$map_basemap <- "offline"
 ```
 
-In the online mode, web-served reports try OpenStreetMap, then OpenTopoMap,
-then the offline grid. A local `file://` report starts at OpenTopoMap because
-OpenStreetMap's web-use policy requires a valid Referer. Repeated failures or
-an eight-second loading deadline advance the background once, without an
-infinite retry cycle. Fallback runs in the browser even after R exits.
-Hidden tabs do not prefetch tiles; markers, polygons, rasters, legends, extent,
-zoom, and layer controls are retained. During printing, pending tile requests
-are cancelled and the offline background remains visible; already loaded
-imagery may be retained. Offline vectors are not downloaded map tiles.
+For noncommercial research reports, the automatic order is **OpenStreetMap
+Standard → OpenStreetMap Germany → OpenTopoMap → neutral grid**. It works
+without an additional eligibility setting. Free access is subject to each
+operator's usage conditions; it is not unrestricted service capacity or a
+guarantee that geographic tiles will always load.
+
+Standard requires an actual HTTP Referer for web pages. A local `file://`
+report cannot send one and therefore starts with Germany rather than spoofing
+a header. Serve the report over HTTP(S), including a local HTTP server, to
+attempt Standard first. Tile requests reveal the viewed area to the provider;
+use offline mode for sensitive locations. France/HOT and Esri World Street
+Map are not part of the default chain: noncommercial research alone does not
+establish compliance with their public-site or licensing conditions.
+
+Fallback runs in the browser even after R exits, using actual `tileload` and
+`tileerror` events. One isolated error does not switch a working provider.
+At least three unavailable tiles and 75% failed coverage trigger failover once
+the current viewport settles. An eight-second deadline also advances a stalled
+provider if no useful tiles arrive or that failure threshold is reached;
+otherwise useful imagery is retained and outstanding requests are cancelled.
+Only one online background is active, and each provider is attempted at most
+once per failure cascade. If all fail, the neutral grid remains without
+stopping the report.
+Hidden/nested tabs resize when activated and do not prefetch unseen tiles.
+Markers, polygons, rasters, legends, extent, zoom and controls are retained.
+During printing, unfinished tiles use the neutral background; completed
+imagery can remain. Backgrounds paused only for printing resume afterwards;
+exhausted providers and explicit offline mode do not restart. The grid is not
+a downloaded tile archive.
 
 Read the [OSMF tile policy](https://operations.osmfoundation.org/policies/tiles/)
 and [OpenTopoMap usage conditions](https://opentopomap.org/about#verwendung).
 Both require visible attribution and prohibit excessive or bulk downloading;
-neither provides an uptime guarantee. OpenStreetMap.DE, OpenStreetMap.France,
-and HOT are not automatic fallbacks: their conditions restrict some
-commercial or private/local uses. This deliberately shortens the requested
-provider chain rather than assuming permission for every report.
+neither provides an uptime guarantee. The
+[German service conditions](https://openstreetmap.de/germanstyle/) restrict
+embedding to noncommercial use, with a small-use exception. The package retains
+visible credits for the active provider: OpenStreetMap contributors for
+Standard/Germany, or OpenStreetMap/SRTM/OpenTopoMap with the latter's CC-BY-SA
+licence. Retain these credits when exporting maps. A disconnected or blocked
+network can make all online backgrounds unavailable. The neutral grid keeps
+the ecological overlays readable in that case, but is not a geographic
+basemap.
 
 Existing explicit `"cartodb"` and `"esri"` settings remain for compatibility,
-with an offline error fallback, not as additional automatic providers. They
-remain subject to the operators' terms. CARTO's current raster service
+with a neutral error fallback. They remain subject to the operators' terms.
+Esri use requires applicable
+[service licensing](https://www.esri.com/en-us/legal/terms/master-agreement);
+anonymous endpoint access is not itself a licence. CARTO's current raster service
 [requires an API key](https://github.com/CartoDB/basemap-styles/blob/master/README.md);
 the legacy keyless mode is not a promise of a licensed or unwatermarked service.
 The package does not add a credential-management API in this revision. Prefer
-the default offline mode for private data, archives, or reproducible outputs.
+offline mode for private data, archives or disconnected viewing.
 
 A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
 

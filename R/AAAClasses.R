@@ -38,10 +38,18 @@
 #' * `setting`: Report settings, including selected focus groups,
 #'   `rem_parameter_scope` (`"pooled"` or `"annual"`), `rem_reps`, `rem_seed`,
 #'   and `map_basemap` (`"offline"`, `"cartodb"`, `"esri"`, or
-#'   `"openstreetmap"`). The offline mode is the default; the OpenStreetMap mode
-#'   includes an OpenTopoMap fallback for failed tiles. Bundled report modules
-#'   select their REM scope explicitly; the standard profile is pooled and the
-#'   EOW profile is annual.
+#'   `"openstreetmap"`, the default). For noncommercial research reports, the
+#'   OpenStreetMap mode tries OpenStreetMap Standard, OpenStreetMap Germany,
+#'   and OpenTopoMap in that order, then a neutral background if all fail.
+#'   There is no additional eligibility setting. The services' usage terms
+#'   and visible attributions still apply; no online service guarantees
+#'   availability. Local `file://` reports skip Standard because they cannot
+#'   send its required web Referer, and start with Germany. Serve the report
+#'   over HTTP(S) to try Standard first. No header is fabricated.
+#'   `"offline"` makes no tile requests. Existing explicit CARTO and Esri
+#'   settings remain subject to their operators' applicable terms.
+#'   Bundled report modules select their REM scope explicitly; the standard
+#'   profile is pooled and the EOW profile is annual.
 #' * `data_status`: Data-status summaries generated from the input dataset.
 #' * `reportObjectElements`: Report modules and related objects used to generate
 #'   the ecological report.

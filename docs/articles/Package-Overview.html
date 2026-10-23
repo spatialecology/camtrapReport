@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -205,19 +205,27 @@ the purpose and scope of a particular monitoring project.</p>
 <p>The standard profile uses pooled multi-year REM parameters. The EOW
 profile uses the <code>population_density_annual</code> module and
 estimates REM parameters independently for each species and sampling
-year. Map modules use a self-contained offline background by default,
-avoiding reliance on a live tile service. Set
-<code>cm$setting$map_basemap &lt;- "openstreetmap"</code> to opt into
-live tiles. For HTTP(S)-served reports the permitted fallback chain is
-OpenStreetMap, OpenTopoMap, then offline. Local <code>file://</code>
-reports skip OpenStreetMap because they cannot send its required web
-Referer. Each online provider has a bounded tile-loading deadline and is
+year. New report objects use an OpenStreetMap-first online background,
+with automatic fallback through OpenStreetMap Germany and OpenTopoMap,
+then a neutral grid if all fail. This default is intended for
+noncommercial research reports and needs no additional settings. Free
+access does not remove the services’ usage terms or attribution
+requirements, and online availability cannot be guaranteed. Existing
+explicit background settings are retained;
+<code>cm$setting$map_basemap &lt;- "offline"</code> disables tile
+requests. Local <code>file://</code> reports start with Germany because
+they cannot send Standard’s required web Referer; serve the HTML over
+HTTP(S) to try Standard first. A single bad tile does not discard a
+usable background. Each provider has a bounded loading deadline and is
 attempted at most once; ecological overlays and controls remain
-available when the background fails. The requested German, French, and
-HOT servers are not generic fallbacks because their use conditions
-exclude some private, local, or commercial reports. See the <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use">map-background
-guide</a> for policies, attributions, and existing explicit CARTO/Esri
-modes.</p>
+available when every provider fails. See the <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use">map-background
+guide</a> for policies, attributions and explicit CARTO/Esri modes.</p>
+<p>HTML and PDF rendering is quiet by default. For troubleshooting,
+enable console-only progress and stage/chunk timings with
+<code>options(camtrapReport.progress = TRUE)</code>; set it to
+<code>FALSE</code> afterwards to return to normal rendering. Warnings,
+errors and notices about omitted content remain visible. These
+diagnostics do not change report content or analytical calculations.</p>
 <p>Shiny is used for the optional <code><a href="../reference/gui.html">gui()</a></code> interface; the
 code-based workflow does not need a running Shiny application. Optional
 analysis packages are declared by the YAML modules and can be installed

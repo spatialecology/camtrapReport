@@ -1,7 +1,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.67
+Version: 1.0.68
 Authors@R: c(
     person(
       given = "Elham",
@@ -19,6 +19,10 @@ Description: Provides an extensible workflow for processing camera-trap data
     Optional taxonomic
     enrichment queries the Global Biodiversity Information Facility Species API
     <https://techdocs.gbif.org/en/openapi/v1/species> through 'taxize'.
+    Browser-based map backgrounds use OpenStreetMap
+    <https://www.openstreetmap.org>, OSM Germany
+    <https://openstreetmap.de/germanstyle/> and OpenTopoMap
+    <https://opentopomap.org>, subject to their usage terms.
 License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/,
     https://github.com/spatialecology/camtrapReport

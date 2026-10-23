@@ -59,10 +59,18 @@ the report.
 \item \code{setting}: Report settings, including selected focus groups,
 \code{rem_parameter_scope} (\code{"pooled"} or \code{"annual"}), \code{rem_reps}, \code{rem_seed},
 and \code{map_basemap} (\code{"offline"}, \code{"cartodb"}, \code{"esri"}, or
-\code{"openstreetmap"}). The offline mode is the default; the OpenStreetMap mode
-includes an OpenTopoMap fallback for failed tiles. Bundled report modules
-select their REM scope explicitly; the standard profile is pooled and the
-EOW profile is annual.
+\code{"openstreetmap"}, the default). For noncommercial research reports, the
+OpenStreetMap mode tries OpenStreetMap Standard, OpenStreetMap Germany,
+and OpenTopoMap in that order, then a neutral background if all fail.
+There is no additional eligibility setting. The services' usage terms
+and visible attributions still apply; no online service guarantees
+availability. Local \verb{file://} reports skip Standard because they cannot
+send its required web Referer, and start with Germany. Serve the report
+over HTTP(S) to try Standard first. No header is fabricated.
+\code{"offline"} makes no tile requests. Existing explicit CARTO and Esri
+settings remain subject to their operators' applicable terms.
+Bundled report modules select their REM scope explicitly; the standard
+profile is pooled and the EOW profile is annual.
 \item \code{data_status}: Data-status summaries generated from the input dataset.
 \item \code{reportObjectElements}: Report modules and related objects used to generate
 the ecological report.

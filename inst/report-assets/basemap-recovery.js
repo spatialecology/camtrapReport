@@ -5,24 +5,54 @@ function(el, x, config) {
   // Keep their surroundings consistent with the self-contained background.
   el.style.backgroundColor = "#F2F1EC";
   var transparent = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+  var webPage = /^https?:$/.test(window.location.protocol);
+  function publicWebsite() {
+    if (!webPage) return false;
+    var host = (window.location.hostname || "").toLowerCase()
+      .replace(/[.]$/, "").replace(/^\[|\]$/g, "");
+    if (!host || host === "localhost" || /[.]localhost$/.test(host) ||
+        host === "::1" || host === "::" || /^f[cd][0-9a-f]{2}:/.test(host) ||
+        /^fe[89ab][0-9a-f]:/.test(host)) return false;
+    var ipv4 = host.match(/^(\d{1,3})[.](\d{1,3})[.](\d{1,3})[.](\d{1,3})$/);
+    if (ipv4) {
+      var first = Number(ipv4[1]);
+      var second = Number(ipv4[2]);
+      if (first === 0 || first === 10 || first === 127 ||
+          (first === 172 && second >= 16 && second <= 31) ||
+          (first === 192 && second === 168) ||
+          (first === 169 && second === 254)) return false;
+    }
+    return true;
+  }
+  var skipped = [];
   var sources = (config.providers || []).filter(function(source) {
     // file:// pages cannot send OSM's required web Referer. Do not spoof it.
-    return !source.requiresWebReferrer ||
-      /^https?:$/.test(window.location.protocol);
+    var reason = source.requiresPublicWebsite && !publicWebsite() ?
+      "requires a public HTTP(S) website" :
+      (source.requiresWebReferrer && !webPage ? "requires a web Referer" : "");
+    if (reason) skipped.push({provider: source.name, reason: reason});
+    return !reason;
   });
   var index = -1;
   var layer = null;
   var timer = null;
+  var activationTimer = null;
+  var activationFrame = null;
+  var initialized = false;
   var finished = false;
   var printing = false;
+  var resumeAfterPrint = false;
   var disposed = false;
   var printStyles = [];
-  var errors = 0;
   var pending = new Set();
+  var loaded = new Set();
+  var failed = new Set();
   var id = "camtrap-report-online-background";
   var manager = map.layerManager;
   var background = manager && manager.getLayerGroup(config.group, false);
-  var state = {provider: "offline", history: [], reason: "initializing"};
+  var state = {
+    provider: "offline", history: [], reason: "initializing", skipped: skipped
+  };
   var resolveReady;
   state.ready = new Promise(function(resolve) { resolveReady = resolve; });
   window.camtrapReportBasemaps = window.camtrapReportBasemaps || [];
@@ -75,6 +105,8 @@ function(el, x, config) {
     else map.removeLayer(layer);
     layer = null;
     pending.clear();
+    loaded.clear();
+    failed.clear();
   }
 
   function offline(reason) {
@@ -91,8 +123,37 @@ function(el, x, config) {
     timer = window.setTimeout(function() {
       timer = null;
       if (!visible()) return;
-      advance("tile timeout");
+      if (loaded.size === 0 || severeFailure(true)) {
+        advance("tile timeout");
+      } else {
+        // Keep useful imagery while cancelling a few stalled tile requests.
+        var stalled = Array.from(pending);
+        pending.clear();
+        stalled.forEach(function(tile) {
+          failed.add(tile);
+          if (typeof tile.src === "string") tile.src = transparent;
+        });
+        resolveReady(state.provider);
+      }
     }, config.timeout || 8000);
+  }
+
+  function severeFailure(includePending) {
+    var unavailable = failed.size + (includePending ? pending.size : 0);
+    var total = loaded.size + unavailable;
+    return unavailable >= (config.errorLimit || 3) && total > 0 &&
+      unavailable / total >= (config.failureRatio || 0.75);
+  }
+
+  function settle() {
+    if (pending.size > 0) return;
+    if (severeFailure(false)) return advance("background tile coverage failed");
+    if (loaded.size > 0) {
+      clearTimer();
+      resolveReady(state.provider);
+    } else {
+      armTimer();
+    }
   }
 
   function start() {
@@ -100,8 +161,9 @@ function(el, x, config) {
     if (printing) return offline("print uses the offline background");
     if (index >= sources.length) return offline("online providers exhausted");
     var source = sources[index];
-    errors = 0;
     pending.clear();
+    loaded.clear();
+    failed.clear();
     state.provider = source.name;
     state.history.push(source.name);
     el.setAttribute("data-camtrap-basemap", source.name);
@@ -116,26 +178,43 @@ function(el, x, config) {
       keepBuffer: 0,
       referrerPolicy: "strict-origin-when-cross-origin"
     });
+    var activeLayer = layer;
+    function current() { return layer === activeLayer && !disposed && !finished; }
     layer.on("loading", function() {
-      errors = 0;
+      if (!current()) return;
       if (printing) return offline("print avoids pending tile requests");
       armTimer();
     });
     layer.on("tileloadstart", function(event) {
+      if (!current()) return;
+      loaded.delete(event.tile);
+      failed.delete(event.tile);
       pending.add(event.tile);
       armTimer();
     });
-    layer.on("tileload", function(event) { pending.delete(event.tile); });
-    layer.on("tileunload", function(event) { pending.delete(event.tile); });
-    layer.on("tileerror", function(event) {
+    layer.on("tileload", function(event) {
+      if (!current() || (!pending.has(event.tile) && !failed.has(event.tile))) return;
       pending.delete(event.tile);
-      errors += 1;
-      if (errors >= (config.errorLimit || 3)) advance("repeated tile errors");
+      // Leaflet can emit tileload for errorTileUrl after the real tile failed.
+      if (!failed.has(event.tile)) loaded.add(event.tile);
+      settle();
+    });
+    layer.on("tileunload", function(event) {
+      if (!current()) return;
+      pending.delete(event.tile);
+      loaded.delete(event.tile);
+      failed.delete(event.tile);
+      settle();
+    });
+    layer.on("tileerror", function(event) {
+      if (!current() || !pending.has(event.tile)) return;
+      pending.delete(event.tile);
+      loaded.delete(event.tile);
+      failed.add(event.tile);
+      settle();
     });
     layer.on("load", function() {
-      clearTimer();
-      if (errors > 0) advance("incomplete background tiles");
-      else resolveReady(state.provider);
+      if (current()) settle();
     });
     if (manager) manager.addLayer(layer, "tile", id, config.group);
     else layer.addTo(map);
@@ -152,7 +231,7 @@ function(el, x, config) {
   }
 
   function refresh() {
-    if (disposed || finished) return;
+    if (disposed || finished || !initialized) return;
     if (!visible()) {
       clearTimer();
       return;
@@ -166,6 +245,7 @@ function(el, x, config) {
   }
 
   function beforePrint() {
+    if (!printing) resumeAfterPrint = !finished && sources.length > 0;
     printing = true;
     // Chrome's beforeprint fires before print CSS takes effect. Reveal only
     // hidden tab ancestors long enough to materialize deferred Leaflet data.
@@ -189,7 +269,7 @@ function(el, x, config) {
     }
     // Keep already loaded imagery. New/unfinished views print offline instead
     // of fetching every hidden tab or waiting indefinitely for remote tiles.
-    if (!layer || pending.size > 0 || layer.isLoading()) {
+    if (!layer || loaded.size === 0 || pending.size > 0 || layer.isLoading()) {
       offline("print avoids pending tile requests");
     }
   }
@@ -201,6 +281,10 @@ function(el, x, config) {
       saved.element.style.setProperty("opacity", saved.opacity, saved.opacityPriority);
     });
     printStyles = [];
+    if (resumeAfterPrint) {
+      finished = false;
+      resumeAfterPrint = false;
+    }
     refresh();
   }
 
@@ -215,18 +299,50 @@ function(el, x, config) {
   if (background) background.on("add remove", refresh);
   map.on("unload", function() {
     disposed = true;
+    if (activationTimer !== null) window.clearTimeout(activationTimer);
+    if (activationFrame !== null && window.cancelAnimationFrame) {
+      window.cancelAnimationFrame(activationFrame);
+    }
     stopLayer();
     resolveReady("unloaded");
     if (resizeObserver) resizeObserver.disconnect();
     document.removeEventListener("shown.bs.tab", refresh, true);
+    document.removeEventListener("DOMContentLoaded", scheduleActivation);
     if (window.jQuery) window.jQuery(document).off("shown.bs.tab", refresh);
     window.removeEventListener("resize", refresh);
     window.removeEventListener("beforeprint", beforePrint);
     window.removeEventListener("afterprint", afterPrint);
     if (background) background.off("add remove", refresh);
   });
-  refresh();
-  // Unvisited tabs remain fully usable with their already-present offline
-  // background and must not make printing wait or prefetch unseen viewports.
-  if (!visible()) resolveReady("hidden offline background");
+
+  function activate() {
+    if (disposed || initialized) return;
+    initialized = true;
+    refresh();
+    // Assess visibility after rmarkdown has built its Bootstrap tab panes.
+    if (!visible()) resolveReady("hidden offline background");
+  }
+
+  function scheduleActivation() {
+    if (disposed || initialized || activationTimer !== null ||
+        activationFrame !== null) return;
+    // HTMLWidgets can run before buildTabsets() in jQuery's ready queue.
+    // A macrotask and two layout frames avoid prefetching future hidden tabs,
+    // without waiting for unrelated external images or the window load event.
+    activationTimer = window.setTimeout(function() {
+      activationTimer = null;
+      if (typeof window.requestAnimationFrame !== "function") return activate();
+      activationFrame = window.requestAnimationFrame(function() {
+        activationFrame = window.requestAnimationFrame(function() {
+          activationFrame = null;
+          activate();
+        });
+      });
+    }, 0);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleActivation, {once: true});
+  } else {
+    scheduleActivation();
+  }
 }

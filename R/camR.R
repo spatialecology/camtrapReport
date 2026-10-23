@@ -325,7 +325,7 @@ camR <- setRefClass(
         rem_parameter_scope = "pooled",
         rem_reps = 10L,
         rem_seed = 42L,
-        map_basemap = "offline"
+        map_basemap = "openstreetmap"
       )
 
       .self$filterDuration <- 5
@@ -1279,7 +1279,7 @@ camR <- setRefClass(
         mode <- .self$setting$map_basemap
       }
       if (is.null(mode) || length(mode) == 0 || is.na(mode[1])) {
-        mode <- "offline"
+        mode <- "openstreetmap"
       }
       mode <- tolower(as.character(mode)[1])
       mode <- match.arg(
@@ -3543,14 +3543,18 @@ output:
       # Pass an environment so the R Markdown document sees object fields.
       # One approach: pass the entire object as 'object' in the environment
 
-      message("Rendering R Markdown report ...")
+      if (.report_progress_enabled()) {
+        message("Rendering R Markdown report ...")
+      }
       out <- .render_report_with_progress(
         input = rmd_file,
         output_file = output_file,
         envir = render_env
       )
 
-      message("Report generated at: ", normalizePath(out))
+      if (.report_progress_enabled()) {
+        message("Report generated at: ", normalizePath(out))
+      }
       return(invisible(out))
     },
     generateStatusReport = function(
@@ -3633,14 +3637,18 @@ output:
       cat(rmd_template, file = rmd_file, sep = "\n")
       .report_stage_end(construction)
 
-      message("Rendering R Markdown data_status report ...")
+      if (.report_progress_enabled()) {
+        message("Rendering R Markdown data_status report ...")
+      }
       out <- .render_report_with_progress(
         input = rmd_file,
         output_file = output_file,
         envir = render_env
       )
 
-      message("Data_Status Report generated at: ", normalizePath(out))
+      if (.report_progress_enabled()) {
+        message("Data_Status Report generated at: ", normalizePath(out))
+      }
       return(invisible(out))
     },
 

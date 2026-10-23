@@ -97,13 +97,17 @@ setGeneric(
     )
   }
 
-  message(
-    "[camtrapReport] Starting PDF browser conversion; page-print timeout: ",
-    "60 s after browser startup."
-  )
+  progress <- .report_progress_enabled()
+  if (progress) {
+    message(
+      "[camtrapReport] Starting PDF browser conversion; page-print timeout: ",
+      "60 s after browser startup."
+    )
+  }
   .with_report_stage("PDF conversion/browser resource waits", tryCatch(
     pagedown::chrome_print(
-      input = html_file, output = pdf_file, timeout = 60, verbose = 1
+      input = html_file, output = pdf_file, timeout = 60,
+      verbose = if (progress) 1 else 0
     ),
     error = function(e) {
       stop(
@@ -196,7 +200,8 @@ setGeneric(
 #' a profile's selection. Reread corrected source files with
 #' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
 #'
-#' Console progress identifies module construction, individual chunks, HTML
+#' Rendering is quiet by default. Set `options(camtrapReport.progress = TRUE)`
+#' to show console progress for module construction, individual chunks, HTML
 #' rendering, PDF conversion, and opening the completed file. Timings include
 #' elapsed time and CPU time in the current R process; Pandoc and browser CPU
 #' time is not included in the latter. The last started chunk identifies where
@@ -422,10 +427,12 @@ setMethod(
     }
 
     if (isTRUE(view)) {
-      message(
-        "Report generated at: ",
-        normalizePath(destination$output, winslash = "/", mustWork = FALSE)
-      )
+      if (.report_progress_enabled()) {
+        message(
+          "Report generated at: ",
+          normalizePath(destination$output, winslash = "/", mustWork = FALSE)
+        )
+      }
       .open_generated_report(destination$output, destination$format)
     }
 
