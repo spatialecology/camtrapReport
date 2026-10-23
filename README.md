@@ -19,17 +19,29 @@ It supports reproducible workflows in R or through a graphical interface. Report
 
 <p align="center"><img src="vignettes/figures/package-architecture.png" width="820" alt="camtrapReport workflow from Camtrap DP data to reports"></p>
 
-## What can it analyse?
+## Available ecological analyses
 
-| Area | Included analyses |
+`camtrapReport` provides reusable modules for ecological summaries and analyses. The table lists the main analyses and underlying methods; what appears in a particular report depends on the selected profile, available data, and method-specific requirements.
+
+| Ecological analysis | Underlying method |
 |:--|:--|
-| **Sampling** | Study area, camera locations, sampling effort, data and image processing |
-| **Species records** | Captures, capture-based trends, richness, species accumulation |
-| **Community & behaviour** | Co-occurrence, activity patterns |
-| **Space & habitat** | Spatial point-pattern density, habitat preferences |
-| **Abundance & density** | Random Encounter Model (REM) parameters and density estimates |
+| Sampling effort | Deployment-based effort calculation |
+| Captures and trends | Capture counts by sampling period and selected observation unit |
+| Capture rates and trends | Detection index per 100 trap-days |
+| Observed locations | Number of camera locations with detections over time |
+| Population density | Random Encounter Model (REM) |
+| Population density trends | Temporal summaries of REM-based density estimates |
+| Movement speed | Movement-speed parameter used in REM |
+| Activity level | Proportion of time active, estimated from detection times |
+| Day range | Daily movement-distance parameter used in REM |
+| Activity patterns | Circular kernel density estimation of detection times |
+| Species richness | Number of species detected per camera-trap location |
+| Species co-occurrence | Pairwise correlation matrices and clustering |
+| Spatial detection patterns | Spatial point-pattern summaries of detection records |
+| Habitat-use summaries | Habitat-specific summaries based on capture rates |
+| Species accumulation | Species accumulation and rarefaction curves |
 
-Available analyses depend on the dataset, selected modules/profile and method-specific requirements. In particular, capture rates are **not** population-density estimates, and REM analyses need additional inputs and assumptions. The [Ecological Report guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) describes modules and requirements; the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) covers extensions.
+Capture rates are **not** population-density estimates. REM estimates require additional inputs and assumptions, and all analyses should be interpreted in relation to the survey design. See the [Ecological Report guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) for requirements and the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) for customisation.
 
 ## Install
 
@@ -92,11 +104,17 @@ report(cm, view = FALSE)
 gui(cm)
 ```
 
-Report text comes from YAML-based modules and may incorporate metadata and analysis results. Create or adapt modules in a **project-level registry** rather than editing installed package files. See [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
+Report content is generated from YAML-based modules that combine predefined text with dataset metadata and analytical results. Users can customise existing modules or create their own without modifying the package files. See the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) for details.
 
-## Reusable profiles
+## Reusable analytical profiles
 
-A **profile** specifies a reusable selection and order of ecological and data-status modules, allowing monitoring projects to follow consistent reporting conventions. The bundled **default** and **EOW** profiles use different reporting configurations; for example, the EOW REM workflow estimates parameters by species and year, whereas the default profile pools years.
+**Analytical profiles extend standardisation beyond data to the analyses themselves.** Even when camera-trap datasets follow common standards, differences in analytical methods, parameter settings, and data-processing decisions can substantially affect ecological estimates. In wildlife monitoring, these differences may influence assessments of species abundance, population trends, and biodiversity change, potentially affecting conservation and management decisions. They can also make comparisons across sites and monitoring periods difficult, as apparent ecological differences may partly reflect inconsistent analytical choices.
+
+Analytical profiles address this challenge by explicitly specifying **which analytical modules are used, how their methods and parameters are configured, and how results are combined and reported**. Each profile can reflect the objectives, sampling protocols, and methodological conventions of a particular monitoring programme or network. This supports consistent and reproducible analyses across sites, researchers, and monitoring rounds without imposing a universal analytical workflow.
+
+`camtrapReport` provides a **default profile** based on broadly applicable analytical methods and settings, alongside an extensible collection of profiles tailored to specific monitoring programmes. For example, the **European Observatory of Wildlife (EOW)** profile is designed to reflect its monitoring protocols and agreed analytical practices. Users and monitoring networks can also create, share, and maintain their own profiles, adapting them as analytical requirements evolve.
+
+The underlying architecture combines a **shared library of reusable analytical modules** with **network- or project-specific reproducible workflows**. Over time, this framework could develop into a **community-driven knowledge hub for camera-trap monitoring**, where analytical methods, parameter settings, methodological conventions, and reporting practices are collectively documented, reviewed, shared, and improved.
 
 ```r
 profile_names(cm)
@@ -104,7 +122,7 @@ section_names(object = cm, profile = "EOW")
 report(cm, profile = "EOW", view = FALSE)
 ```
 
-You can create, save and share custom profiles; see the [Profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html). A profile standardises settings but does not establish their scientific suitability for every survey.
+You can create, save and share custom profiles; see the [Profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html).
 
 ## Learn more
 

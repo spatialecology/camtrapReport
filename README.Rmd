@@ -29,17 +29,29 @@ It supports reproducible workflows in R or through a graphical interface. Report
 
 <p align="center"><img src="vignettes/figures/package-architecture.png" width="820" alt="camtrapReport workflow from Camtrap DP data to reports"></p>
 
-## What can it analyse?
+## Available ecological analyses
 
-| Area | Included analyses |
+`camtrapReport` provides reusable modules for ecological summaries and analyses. The table lists the main analyses and underlying methods; what appears in a particular report depends on the selected profile, available data, and method-specific requirements.
+
+| Ecological analysis | Underlying method |
 |:--|:--|
-| **Sampling** | Study area, camera locations, sampling effort, data and image processing |
-| **Species records** | Captures, capture-based trends, richness, species accumulation |
-| **Community & behaviour** | Co-occurrence, activity patterns |
-| **Space & habitat** | Spatial point-pattern density, habitat preferences |
-| **Abundance & density** | Random Encounter Model (REM) parameters and density estimates |
+| Sampling effort | Deployment-based effort calculation |
+| Captures and trends | Capture counts by sampling period and selected observation unit |
+| Capture rates and trends | Detection index per 100 trap-days |
+| Observed locations | Number of camera locations with detections over time |
+| Population density | Random Encounter Model (REM) |
+| Population density trends | Temporal summaries of REM-based density estimates |
+| Movement speed | Movement-speed parameter used in REM |
+| Activity level | Proportion of time active, estimated from detection times |
+| Day range | Daily movement-distance parameter used in REM |
+| Activity patterns | Circular kernel density estimation of detection times |
+| Species richness | Number of species detected per camera-trap location |
+| Species co-occurrence | Pairwise correlation matrices and clustering |
+| Spatial detection patterns | Spatial point-pattern summaries of detection records |
+| Habitat-use summaries | Habitat-specific summaries based on capture rates |
+| Species accumulation | Species accumulation and rarefaction curves |
 
-Available analyses depend on the dataset, selected modules/profile and method-specific requirements. In particular, capture rates are **not** population-density estimates, and REM analyses need additional inputs and assumptions. The [Ecological Report guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) describes modules and requirements; the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) covers extensions.
+Capture rates are **not** population-density estimates. REM estimates require additional inputs and assumptions, and all analyses should be interpreted in relation to the survey design. See the [Ecological Report guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) for requirements and the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) for customisation.
 
 ## Install
 
