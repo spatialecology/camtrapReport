@@ -1,334 +1,118 @@
-
 <!-- README.md is generated from README.Rmd. Edit README.Rmd, not README.md. -->
 
-<h1 align="center">
-
-camtrapReport
-</h1>
-
+<h1 align="center">camtrapReport</h1>
+<p align="center"><strong>From camera-trap data to reproducible ecological reports</strong></p>
 <p align="center">
-
-<em>Reproducible reporting for camera-trap monitoring data</em>
+  <a href="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R CMD check"></a>
+  <a href="https://github.com/ropensci/software-review/issues/799"><img src="https://badges.ropensci.org/799_status.svg" alt="rOpenSci review"></a>
+  <a href="https://codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Test coverage"></a>
+  <a href="https://spatialecology.github.io/camtrapReport/"><img src="https://img.shields.io/badge/Documentation-Website-1976D2" alt="Documentation"></a>
+  <a href="https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-2E7D32" alt="MIT License"></a>
 </p>
 
-<p align="center">
+`camtrapReport` turns [Camtrap DP](https://camtrap-dp.tdwg.org/) datasets into two configurable outputs:
 
-<a href="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R CMD check status"></a>
-<a href="https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml"><img src="https://github.com/spatialecology/camtrapReport/actions/workflows/pkgcheck.yaml/badge.svg" alt="rOpenSci package check status"></a>
-<a href="https://github.com/ropensci/software-review/issues/799"><img src="https://badges.ropensci.org/799_status.svg" alt="Status at rOpenSci Software Peer Review"></a>
-<a href="https://app.codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Test coverage"></a>
-<a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project status: active"></a>
-<a href="https://www.r-project.org/"><img src="https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white" alt="R version 4.1.0 or later"></a>
-<a href="https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license"></a>
-<a href="https://spatialecology.github.io/camtrapReport/"><img src="https://img.shields.io/badge/docs-pkgdown-orange.svg" alt="pkgdown documentation"></a>
-</p>
+- **Data Status Check** — checks completeness, consistency, classifications and spatial/temporal coverage.
+- **Ecological Report** — combines analyses, maps, figures, tables and explanatory text.
 
-------------------------------------------------------------------------
+It supports reproducible workflows in R or through a graphical interface. Reports are HTML by default; PDF output is also available where supported by the chosen modules and local setup.
 
-`camtrapReport` turns camera-trap data in [Camtrap
-DP](https://camtrap-dp.tdwg.org/) format into reproducible data-quality
-assessments and ecological reports. It combines data checks, ecological
-analyses, visualisations, and explanatory text in a configurable
-workflow, helping researchers report consistently across sites and
-surveys. The package produces two complementary outputs:
+<p align="center"><img src="vignettes/figures/package-architecture.png" width="820" alt="camtrapReport workflow from Camtrap DP data to reports"></p>
 
-- **Data Status Check:** checks data completeness, consistency,
-  annotations, and spatial and temporal coverage.
-- **Ecological Report:** brings together selected analyses, figures,
-  maps, tables, and explanatory text in a configurable report.
+## What can it analyse?
 
-Reports are generated as HTML by default. PDF export is available for
-ecological reports where supported by the selected modules and local
-setup. You can work directly in R or use the optional graphical
-interface.
+| Area | Included analyses |
+|:--|:--|
+| **Sampling** | Study area, camera locations, sampling effort, data and image processing |
+| **Species records** | Captures, capture-based trends, richness, species accumulation |
+| **Community & behaviour** | Co-occurrence, activity patterns |
+| **Space & habitat** | Spatial point-pattern density, habitat preferences |
+| **Abundance & density** | Random Encounter Model (REM) parameters and density estimates |
 
-<p align="center">
+Available analyses depend on the dataset, selected modules/profile and method-specific requirements. In particular, capture rates are **not** population-density estimates, and REM analyses need additional inputs and assumptions. The [Ecological Report guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) describes modules and requirements; the [Module management guide](https://spatialecology.github.io/camtrapReport/articles/modules.html) covers extensions.
 
-<img src="vignettes/figures/package-architecture.png"
-       width="900"
-       alt="Camtrap DP input, data-status checks, and ecological reporting workflow">
-</p>
+## Install
 
-## Available analyses
+Requires **R 4.1.0 or later**. Install the development version:
 
-`camtrapReport` provides modules for describing sampling, summarising
-species observations, and exploring ecological patterns. The table lists
-available modules; the analyses included in a particular report depend
-on its selected [profile](#profiles), data, and requirements.
-
-| Analysis | Available modules | Main inputs or considerations |
-|----|----|----|
-| Study and sampling | `introduction`, `methods`, `study_area`, `sampling`, `location`, `effort`, `image_processing`, `data_processing` | Metadata, deployments, and optional study-area boundary |
-| Captures and trends | `results`, `captures`, `abundance_trends` | Observations and sampling effort; capture rates are not density estimates |
-| Population density (REM) | `population_density`, `model_parameters`, `population_densities` | Species-specific REM inputs and assumptions |
-| Activity and community patterns | `activity_patterns`, `richness`, `co_occurrence`, `species_accumulation` | Species records, timestamps, and sufficient observations |
-| Spatial and habitat analyses | `spatial_density`, `habitat_preferences` | Camera locations and, where relevant, habitat data |
-| Supporting sections | `acknowledgements`, `appendix`, `References` | Supplementary information and citations |
-
-Data-status modules assess spatial and temporal information,
-availability, validation, annotations, and observation types. Some
-ecological analyses need additional data or optional R packages. See the
-[Ecological Report
-guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
-for interpretation and requirements.
-
-## Installation
-
-`camtrapReport` requires R 4.1.0 or later. Install the development
-version from GitHub:
-
-``` r
-if (!requireNamespace("pak", quietly = TRUE)) {
-  install.packages("pak")
-}
+```r
+install.packages("pak") # if needed
 pak::pkg_install("spatialecology/camtrapReport")
 ```
 
-Some analytical modules require optional R packages. If a selected
-module reports a missing dependency, install the required package.
-Alternatively, `camtrapReport::install_all()` checks dependencies for
-bundled and registered modules, but may install many packages. The core
-workflow does not require launching the graphical interface.
-
-## Prepare your data
-
-Start with a [Camtrap DP](https://camtrap-dp.tdwg.org/) dataset
-containing its metadata and related deployment, media, and observation
-tables. If your data are in another format, prepare and validate a
-Camtrap DP dataset first; the [`camtrapdp`
-package](https://inbo.github.io/camtrapdp/) provides tools and examples
-for this step.
-
-`camData()` accepts an extracted Camtrap DP directory or ZIP archive.
-Habitat information and a study-area boundary are optional. If a
-study-area boundary changes between surveys, account for that when
-interpreting spatial results. See the [Data Status Check
-guide](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html)
-and `?camData` for input details.
-
-`camData()` can save processed files alongside the source dataset. The
-example below works on a temporary copy so the bundled data remain
-unchanged. If you correct the source CSV or JSON files, reload with
-`update = TRUE` before rerunning reports to refresh the processed
-object.
+Some modules use optional packages. Install missing dependencies as needed, or use `camtrapReport::install_all()` to check and install module dependencies (which may be numerous).
 
 ## Quick start
 
-This example uses a compact Camtrap DP dataset derived from
-**GMU8_LEUVEN**, with bundled habitat information and a study-area
-boundary.
+Input must be a Camtrap DP ZIP file or extracted directory containing `datapackage.json`, `deployments.csv`, `media.csv` and `observations.csv`. If necessary, prepare your data with upstream tools such as [`camtrapdp`](https://inbo.github.io/camtrapdp/). See [`?camData`](https://spatialecology.github.io/camtrapReport/reference/camData.html) for input tables and their relationships, observations/sequences, and study-area limitations. The primary data input is currently a **path**, not an in-memory list of tables.
 
-``` r
+The following example uses bundled data. It copies the dataset to a writable temporary folder because `camData()` may save processed objects alongside its input.
+
+```r
 library(camtrapReport)
 
-example_root <- tempfile("camtrapReport-example-")
+example_root <- tempfile("camtrapReport-")
+dir.create(example_root)
+file.copy(system.file("external", "dataset", package = "camtrapReport"),
+          example_root, recursive = TRUE)
 
-dir.create(
-  example_root,
-  recursive = TRUE
-)
+habitat <- read.csv(system.file("external", "habitat", "habitat.csv",
+                                package = "camtrapReport"))
+study_area <- system.file("external", "study_area", "study_area.shp",
+                          package = "camtrapReport")
 
-copied <- file.copy(
-  from = system.file(
-    "external",
-    "dataset",
-    package = "camtrapReport",
-    mustWork = TRUE
-  ),
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-habitat <- utils::read.csv(
-  system.file(
-    "external",
-    "habitat",
-    "habitat.csv",
-    package = "camtrapReport",
-    mustWork = TRUE
-  )
-)
-
-study_area <- system.file(
-  "external",
-  "study_area",
-  "study_area.shp",
-  package = "camtrapReport",
-  mustWork = TRUE
-)
-```
-
-``` r
-cm <- camData(
-  data = file.path(example_root, "dataset"),
-  habitat = habitat,
-  study_area = study_area,
-  update = TRUE
-)
-```
-
-``` r
+cm <- camData(file.path(example_root, "dataset"),
+              habitat = habitat, study_area = study_area, update = TRUE)
 cm
-#> Camera trap Object for the site : GMU8 LEUVEN 
-#> ===================================================== 
-#> Total number of sequences       :  10182 
-#> Total number of observations    :  10798 
-#> Total number of animals         :  4693 
-#> Total number of detected species:  41 
-#> Date/time (years) with data     :  2018, 2019, 2020, 2021, 2022, and 2023 
-#> -----------------------------------------------------
 ```
 
-### 1. Check your data
+**1. Check the data**
 
-Run `status()` to review completeness, consistency, and spatial and
-temporal coverage before interpreting ecological results.
-
-``` r
-status_file <- status(cm, view = FALSE)
+```r
+status(cm, view = FALSE)
 ```
 
-[View an example Data Status
-Check](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html).
-Review the findings, correct relevant issues in your source data, reload
-with `camData(..., update = TRUE)`, and rerun `status()` as needed. Not
-every warning necessarily means that a dataset is unusable; assess its
-relevance to the intended analysis.
+[View example Data Status Check](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html). If you correct the source files, rebuild the object with `camData(..., update = TRUE)` before rerunning `status()`. Checks identify possible problems; they do not automatically repair data or guarantee suitability for an ecological analysis.
 
-### 2. Generate an ecological report
+**2. Generate a report**
 
-Run `report()` to combine selected analyses, figures, tables, and
-explanatory text in one report.
-
-``` r
-report_file <- report(cm, view = FALSE)
+```r
+report(cm, view = FALSE)
 ```
 
-[View an example Ecological
-Report](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html).
-Report content depends on the selected modules, input data, and
-installed optional packages. The example output may therefore differ
-from reports made with other datasets or settings. Set `view = TRUE` to
-open a generated report.
+[View example Ecological Report](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html). Outputs vary with the dataset, module selection and optional inputs. Use `view = TRUE` to open a rendered report.
 
-### 3. Choose report sections
+**3. Select sections or use the GUI**
 
-``` r
-# See available section names
+```r
 section_names()
-
-# Choose a smaller ecological report
-selected <- section_names(
-  keep = c("introduction", "methods", "study_area", "sampling", "effort")
-)
-sections(cm, selected)
-
-# Generate the configured report
-report(cm, filename = "selected-report.html", view = FALSE)
+sections(cm, section_names(keep = c("introduction", "methods",
+                                    "study_area", "sampling", "effort")))
+report(cm, view = FALSE)
+gui(cm)
 ```
 
-For more control over module selection and report content, see the
-[Ecological
-Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
-and [Module
-management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
-guides. Report narratives come from the selected module definitions,
-including text that may be filled using dataset metadata and analytical
-results. To edit or replace that text, follow the module guide rather
-than editing generated HTML files.
+Report text comes from YAML-based modules and may incorporate metadata and analysis results. Create or adapt modules in a **project-level registry** rather than editing installed package files. See [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
 
-## Profiles
+## Reusable profiles
 
-Camera-trap monitoring networks may follow the same data standard while
-using different analytical methods, parameters, and reporting
-conventions. **Analytical profiles** make these choices reusable across
-datasets, sites, and repeated surveys. A profile selects and configures
-report modules for a particular monitoring context.
+A **profile** specifies a reusable selection and order of ecological and data-status modules, allowing monitoring projects to follow consistent reporting conventions. The bundled **default** and **EOW** profiles use different reporting configurations; for example, the EOW REM workflow estimates parameters by species and year, whereas the default profile pools years.
 
-For example, the **European Observatory of Wildlife (EOW)** profile uses
-annual Random Encounter Model (REM) calculations with parameters
-estimated separately for each species and sampling year, whereas the
-default profile uses pooled parameters across years.
-
-Explore the available profiles and inspect their selected modules:
-
-``` r
-# Explore available profiles
+```r
 profile_names(cm)
-
-# Inspect the modules selected by the EOW profile
 section_names(object = cm, profile = "EOW")
-
-# Generate an ecological report using the EOW profile
-report(
-  cm,
-  profile = "EOW",
-  format = "pdf",
-  filename = "EOW-report.pdf"
-)
+report(cm, profile = "EOW", view = FALSE)
 ```
 
-Networks and individual projects can also create and share their own
-profiles, reusing analytical components while documenting distinct
-reporting workflows. See the [Profiles
-guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
-for creating, editing, and sharing profiles.
+You can create, save and share custom profiles; see the [Profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html). A profile standardises settings but does not establish their scientific suitability for every survey.
 
-A profile standardises selected methods and settings; it does not
-establish that those methods are suitable for every dataset. Evaluate
-sampling design, input requirements, and method-specific assumptions
-before interpreting results.
+## Learn more
 
-## Reproducibility and interpretation
+**Guides:** [Data Status Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html) · [Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html) · [Profiles](https://spatialecology.github.io/camtrapReport/articles/profiles.html) · [Module management](https://spatialecology.github.io/camtrapReport/articles/modules.html) · [Function reference](https://spatialecology.github.io/camtrapReport/reference/index.html)
 
-A successful Data Status Check means that the implemented checks
-completed; it does not establish the validity of every ecological
-analysis. Interpret results in light of sampling design, effort,
-detectability, and method-specific assumptions. Retain your source data,
-selected profile and modules, settings, and software versions. Check
-reports for sensitive species locations before sharing them.
+`camtrapReport` complements data tools such as [`camtrapdp`](https://inbo.github.io/camtrapdp/), [`camtrapR`](https://jniedballa.github.io/camtrapR/), [`camtraptor`](https://inbo.github.io/camtraptor/) and [`ct`](https://cran.r-project.org/package=ct) by integrating data checks and ecological results into configurable reports. Development has drawn on real camera-trap datasets and user feedback; see [Resources](https://spatialecology.github.io/camtrapReport/articles/resources.html).
 
-The bundled example data are a reduced, relationship-preserving subset
-of the [GMU8_LEUVEN dataset](https://doi.org/10.15468/4u3wm4), published
-by INBO through GBIF. They are provided for demonstrations and tests,
-**not ecological inference**. See the [example-data
-provenance](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md).
+The bundled example is a reduced version of [GMU8_LEUVEN](https://doi.org/10.15468/4u3wm4), intended for software demonstration, **not ecological inference** ([provenance](https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md)). Retain original data, settings and package versions, interpret analyses in light of detectability and sampling design, and check reports for sensitive species locations before sharing.
 
-## Documentation and support
+**Maintainer:** [Elham Ebrahimi](https://orcid.org/0000-0001-5191-9832) · **Citation:** `citation("camtrapReport")` · [Contributing](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md) · [Code of conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md) · [Report an issue](https://github.com/spatialecology/camtrapReport/issues)
 
-- [Data Status
-  Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html)
-- [Ecological
-  Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)
-- [Profiles](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
-- [Module
-  management](https://spatialecology.github.io/camtrapReport/articles/modules.html)
-- [Function
-  reference](https://spatialecology.github.io/camtrapReport/reference/index.html)
-- [Issues and feature
-  requests](https://github.com/spatialecology/camtrapReport/issues)
-
-Related tools include [`camtrapdp`](https://inbo.github.io/camtrapdp/),
-[`camtraptor`](https://inbo.github.io/camtraptor/),
-[`camtrapR`](https://jniedballa.github.io/camtrapR/), and
-[`ct`](https://cran.r-project.org/package=ct). `camtrapReport`
-complements these tools by bringing data checks and selected analyses
-together in configurable reports. Development and evaluation have
-involved real-world camera-trap datasets and feedback from users; see
-the [Resources
-page](https://spatialecology.github.io/camtrapReport/articles/resources.html).
-
-## Citation and contributing
-
-``` r
-citation("camtrapReport")
-```
-
-`camtrapReport` is developed and maintained by [Elham
-Ebrahimi](https://orcid.org/0000-0001-5191-9832). Contributions, bug
-reports, and new monitoring-specific modules and profiles are welcome.
-See the [contributing
-guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)
-and [Code of
-Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
