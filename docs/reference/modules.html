@@ -11,7 +11,7 @@ remove modules, restore deleted modules, and empty the module trash."></head><bo
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,6 +26,7 @@ remove modules, restore deleted modules, and empty the module trash."></head><bo
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
@@ -66,17 +67,17 @@ remove modules, restore deleted modules, and empty the module trash.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_Module</span><span class="op">(</span><span class="va">x</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">test</span>, <span class="va">object</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_Module</span><span class="op">(</span><span class="va">x</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">test</span>, <span class="va">object</span>, <span class="va">formats</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">move_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">parent</span>, <span class="va">level0</span><span class="op">)</span></span>
+<span><span class="fu">move_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">before</span>, <span class="va">after</span>, <span class="va">parent</span>, <span class="va">level0</span>, <span class="va">formats</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">remove_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">recursive</span><span class="op">)</span></span>
+<span><span class="fu">remove_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">recursive</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">restore_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">batch_id</span>, <span class="va">test</span><span class="op">)</span></span>
+<span><span class="fu">restore_Module</span><span class="op">(</span><span class="va">name</span>, <span class="va">batch_id</span>, <span class="va">test</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">empty_trash</span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span><span class="op">)</span></span>
+<span><span class="fu">empty_trash</span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">list_Modules</span><span class="op">(</span><span class="va">tree</span>, <span class="va">brief</span>, <span class="va">include_trash</span>, <span class="va">validate</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">list_Modules</span><span class="op">(</span><span class="va">tree</span>, <span class="va">brief</span>, <span class="va">include_trash</span>, <span class="va">validate</span>, <span class="va">dir</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -109,6 +110,19 @@ For <code>restore_Module()</code>, the default is <code>TRUE</code>.</p></dd>
 <dd><p>An optional <code><a href="camReport-classes.html">camReport</a></code> object used when
 testing a module that requires access to report data. The default is
 <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-formats">formats<a class="anchor" aria-label="anchor" href="#arg-formats"></a></dt>
+<dd><p>Output compatibility for the module: <code>"html"</code>, <code>"pdf"</code>, or
+<code>"both"</code>. For <code>add_Module()</code>, an omitted value is read from an optional
+<code>formats</code> field in the YAML file and otherwise defaults to <code>"both"</code>. For
+<code>move_Module()</code>, an omitted value retains the current setting.</p></dd>
+
+
+<dt id="arg-dir">dir<a class="anchor" aria-label="anchor" href="#arg-dir"></a></dt>
+<dd><p>An optional path to a writable module registry containing
+<code>__modulesList.csv</code>. When omitted, the package's bundled report-module
+registry is used.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
@@ -176,9 +190,8 @@ executable R code, required packages, and rendering settings.</p>
 <p>Because modules can execute arbitrary R code with the permissions of the
 current R process, only install modules from trusted sources and inspect
 their contents before running them.</p>
-<p><code>add_Module()</code> adds a new YAML-defined module to the package module
-directory. The module can optionally be inserted before or after an existing
-module.</p>
+<p><code>add_Module()</code> adds a new YAML-defined module to a module registry. The
+module can optionally be inserted before or after an existing module.</p>
 <p><code>move_Module()</code> changes the position or parent of an existing module within
 the hierarchical report structure.</p>
 <p><code>remove_Module()</code> moves a module to the module trash. If <code>recursive = TRUE</code>,
@@ -187,6 +200,16 @@ child modules are also moved to the trash.</p>
 <p><code>empty_trash()</code> permanently removes modules from the trash.</p>
 <p><code>list_Modules()</code> lists active modules and can optionally include deleted
 modules stored in the trash.</p>
+<p>Supply <code>dir</code> when changing modules. If it is omitted, these functions use
+the installed package's module directory, which may be read-only and is
+replaced during package updates. Copy <code>reportSections</code> to a writable project
+directory first, then pass that copied directory to <code>add_Module()</code> and the
+other management functions. See the
+<a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">module guide</a>.</p>
+<p>YAML modules contain executable R code. Add and run only modules from
+trusted sources; inspect their code, package declarations, network requests,
+and file operations before running them. A profile selects modules but does
+not sandbox their execution.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -199,24 +222,24 @@ modules stored in the trash.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># List modules as a hierarchical tree</span></span></span>
 <span class="r-in"><span><span class="va">module_tree</span> <span class="op">&lt;-</span> <span class="fu">list_Modules</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">module_tree</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              ID         name  parent level          label</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> introduction  1 introduction   .root     0 - introduction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> methods       2      methods   .root     0      - methods</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> study_area    3   study_area methods     1   - study_area</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sampling      4     sampling methods     1     - sampling</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> location      5     location methods     1     - location</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> effort        6       effort methods     1       - effort</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              ID         name  parent formats level            label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> introduction  1 introduction   .root    both     0   - introduction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> methods       2      methods   .root    both     0        - methods</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> study_area    3   study_area methods    both     1     - study_area</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sampling      4     sampling methods    both     1       - sampling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> location      5     location methods    both     1       - location</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> location_eow  6 location_eow methods    both     1   - location_eow</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># List modules in table form</span></span></span>
 <span class="r-in"><span><span class="va">module_table</span> <span class="op">&lt;-</span> <span class="fu">list_Modules</span><span class="op">(</span>tree <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">module_table</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID         name  parent valid status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 introduction   .root  TRUE     ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2      methods   .root  TRUE     ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3   study_area methods  TRUE     ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  4     sampling methods  TRUE     ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  5     location methods  TRUE     ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  6       effort methods  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID         name  parent formats valid status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 introduction   .root    both  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2      methods   .root    both  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3   study_area methods    both  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  4     sampling methods    both  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  5     location methods    both  TRUE     ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  6 location_eow methods    both  TRUE     ok</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

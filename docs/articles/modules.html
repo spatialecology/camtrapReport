@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -108,6 +109,49 @@ ones, or changing the order in which sections appear.</p>
 <code>camtrapReport</code> using <code><a href="../reference/modules.html">add_Module()</a></code>. After the
 module has been added, it is useful to test it before generating the
 full report.</p>
+<p>Work in a writable project copy of the registry, not the installed
+package directory: package updates replace installed files. Modules
+contain real R code, including expressions embedded in their narrative
+text. Inspect their code, package requirements, network requests, and
+file operations, and only run modules from sources you trust. A profile
+selects modules; it does not sandbox their execution.</p>
+</div>
+<div class="section level2">
+<h2 id="editing-existing-modules">Editing existing modules<a class="anchor" aria-label="anchor" href="#editing-existing-modules"></a>
+</h2>
+<p>The narrative shown in a report comes from YAML <code>text</code>
+fields, R code that prints text, and metadata/text stored in the
+<code>camReport</code> object. Existing modules can be customised. For a
+change to the current report only, select the sections first and then
+update the attached section:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="st">"introduction"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/updateReportSection.html">updateReportSection</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  section <span class="op">=</span> <span class="st">"introduction"</span>,</span>
+<span>  text <span class="op">=</span> <span class="st">"This report documents the camera-trap survey at our study site."</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"edited-introduction.html"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>This replaces the section’s static text; any retained code can still
+print additional narrative. <code><a href="../reference/updateReportSection.html">updateReportSection()</a></code> can also
+replace a code chunk. It changes the attached report section, rather
+than the installed YAML file. Apply such edits after selecting modules:
+passing a <code>profile</code> to <code><a href="../reference/report.html">report()</a></code> rebuilds the
+attached selection from the module pool and can replace edits to the
+current tree.</p>
+<p>To share a reusable YAML variant, copy a bundled YAML to your
+project, give it a unique filename and internal <code>name</code> (for
+example, <code>introduction_project</code>), edit its <code>text</code>
+and/or <code>code</code>, and add it to your writable registry using the
+workflow below. Keep parent names consistent and test the edited module
+before rendering. A copied registry is not loaded automatically by
+<code><a href="../reference/camData.html">camData()</a></code> or <code>setup()</code>;
+<code><a href="../reference/modules.html">add_Module()</a></code> returns the parsed module so you can attach it
+explicitly to the current object.</p>
 <style>
 .figure .caption,
 figcaption,
@@ -134,12 +178,19 @@ Report.</p>
 </h3>
 <p>Before adding a new module, check which modules are already available
 in the package.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List all available modules</span></span>
 <span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Show all section names used in the report</span></span>
 <span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The table form, <code>list_Modules(tree = FALSE)</code>, includes a
+<code>formats</code> column. Its value is <code>html</code>,
+<code>pdf</code>, or <code>both</code>. Report generation uses this
+value to omit a module that is incompatible with the requested output
+and also omits any child whose parent is unavailable. Existing
+three-column registries remain valid and default to
+<code>both</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="create-a-new-module-yaml-file">2. Create a new module YAML file<a class="anchor" aria-label="anchor" href="#create-a-new-module-yaml-file"></a>
@@ -156,28 +207,37 @@ module and its output in the Ecological Report.
 <p>The example below defines a simple module called
 <code>species_table</code>, which adds a species summary table to the
 Ecological Report.</p>
-<p>Create a file called <code>species_table.yml</code> and save it in
-your working directory.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> species_table</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Species summary table"</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">parent</span><span class="kw">:</span><span class="at"> </span><span class="st">"results"</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">"This section provides a summary of the species detected in the camera-trap dataset, including their taxonomy and total number of captures."</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">code</span><span class="kw">: </span><span class="ch">|</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  #| echo: false</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  #| message: false</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  #| warning: false</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  species_table &lt;- object$data_status$Species$Table</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  if (!is.null(species_table) &amp;&amp; nrow(species_table) &gt; 0) {</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    knitr::kable(</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>      species_table,</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>      caption = "Species detected in the camera-trap dataset."</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    )</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  } else {</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    cat("No species table is available for this dataset.")</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  }</span></code></pre></div>
+<p>Create a file called <code>species_table.yml</code> in a writable
+project directory. The example below uses <code>project_dir</code> for
+that directory; replace the temporary directory with a deliberate
+project path if you want to retain your modules.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">project_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-modules-"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">project_dir</span><span class="op">)</span></span>
+<span><span class="va">module_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"species_table.yml"</span><span class="op">)</span></span></code></pre></div>
+<p>Save the following YAML content at <code>module_file</code> before
+running the next step.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> species_table</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Species summary table"</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">parent</span><span class="kw">:</span><span class="at"> </span><span class="st">"results"</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">formats</span><span class="kw">:</span><span class="at"> </span><span class="st">"both"</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">"This section provides a summary of the species detected in the camera-trap dataset, including their taxonomy and total number of captures."</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">code</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  #| echo: false</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  #| message: false</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  #| warning: false</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  species_table &lt;- object$data_status$Species$Table</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  if (!is.null(species_table) &amp;&amp; nrow(species_table) &gt; 0) {</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>    knitr::kable(</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>      species_table,</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>      caption = "Species detected in the camera-trap dataset."</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>    )</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  } else {</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>    cat("No species table is available for this dataset.")</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="add-the-new-module">3. Add the new module<a class="anchor" aria-label="anchor" href="#add-the-new-module"></a>
@@ -187,13 +247,13 @@ installed package directory. Start by copying the bundled registry to a
 writable project directory, then add the new module to that copy. In
 this example, <code>species_table</code> is placed before the
 <code>richness</code> section.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a writable project-level module registry once</span></span>
 <span><span class="va">bundled_modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
 <span>  <span class="st">"reportSections"</span>,</span>
 <span>  package <span class="op">=</span> <span class="st">"camtrapReport"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">module_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"reportSections"</span><span class="op">)</span></span>
+<span><span class="va">module_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"reportSections"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="va">module_dir</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">module_dir</span><span class="op">)</span></span>
@@ -206,10 +266,11 @@ this example, <code>species_table</code> is placed before the
 <span></span>
 <span><span class="co"># Add a new module from a YAML file</span></span>
 <span><span class="va">added</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/modules.html">add_Module</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="st">"species_table.yml"</span>,</span>
+<span>  x <span class="op">=</span> <span class="va">module_file</span>,</span>
 <span>  before <span class="op">=</span> <span class="st">"richness"</span>,</span>
 <span>  test <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  object <span class="op">=</span> <span class="va">cm</span>,</span>
+<span>  formats <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  dir <span class="op">=</span> <span class="va">module_dir</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -217,6 +278,12 @@ this example, <code>species_table</code> is placed before the
 <span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span></code></pre></div>
 <p>You can change <code>before = "richness"</code> to another section
 name if you want the new module to appear elsewhere in the report.</p>
+<p>The <code>formats</code> argument can be omitted when the YAML
+contains a top-level field such as <code>formats: "html"</code>; if
+neither is supplied, the module defaults to <code>both</code>.
+<code>move_Module(..., formats = "pdf")</code> can update the
+compatibility value while repositioning an existing module. Removing and
+restoring modules preserves the value in the trash index.</p>
 </div>
 <div class="section level3">
 <h3 id="install-module-dependencies">4. Install module dependencies<a class="anchor" aria-label="anchor" href="#install-module-dependencies"></a>
@@ -224,9 +291,39 @@ name if you want the new module to appear elsewhere in the report.</p>
 <p>When a module is added with add_Module(), its package requirements
 are registered automatically. Use install_all() to install any missing
 packages required by the bundled and user-added modules.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Discover and install all dependencies declared by all modules</span></span>
-<span><span class="fu"><a href="../reference/install_all.html">install_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/install-all.html">install_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="inspect-dependencies-without-installing">Inspect dependencies without installing<a class="anchor" aria-label="anchor" href="#inspect-dependencies-without-installing"></a>
+</h4>
+<p>Read a module’s package declarations before deciding what to install.
+This example only prints the declarations in your copied YAML files:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">yaml_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span></span>
+<span>  <span class="va">module_dir</span>,</span>
+<span>  pattern <span class="op">=</span> <span class="st">"\\.ya?ml$"</span>,</span>
+<span>  full.names <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">declarations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">yaml_files</span>, <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span></span>
+<span>    <span class="st">"^\\s*#\\|\\s*packages:"</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">file</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>    value <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">declarations</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="va">yaml_files</span><span class="op">)</span></span>
+<span><span class="va">declarations</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">declarations</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0L</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Check selected names from a declaration without installing or attaching:</span></span>
+<span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, <span class="st">"dplyr"</span><span class="op">)</span></span>
+<span><span class="va">pkgs</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">pkgs</span>, <span class="va">requireNamespace</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p><code><a href="../reference/install-all.html">install_all()</a></code> scans the bundled/registered module
+requirements, not every arbitrary folder containing YAML files. When
+working with a separate copied registry, inspect its declarations and
+explicitly supply additional package names through
+<code>install_all(pkgs = ...)</code> if needed.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="add-the-module-to-the-current-camreport-object">5. Add the module to the current camReport object<a class="anchor" aria-label="anchor" href="#add-the-module-to-the-current-camreport-object"></a>
@@ -234,7 +331,7 @@ packages required by the bundled and user-added modules.</p>
 <p>The object returned by <code><a href="../reference/modules.html">add_Module()</a></code> contains the parsed
 module. Attach it to the current report object and confirm that it
 appears in the report catalogue.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="fu">addReportObject</span><span class="op">(</span><span class="va">added</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -244,7 +341,7 @@ appears in the report catalogue.</p>
 <p>Before generating the full report, test only the new module. This is
 useful for checking whether the YAML structure, text, and R code work
 correctly.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Test the new module only</span></span>
 <span><span class="fu"><a href="../reference/testSection.html">testSection</a></span><span class="op">(</span></span>
 <span>  <span class="va">added</span><span class="op">$</span><span class="va">module</span>,</span>
@@ -259,20 +356,92 @@ the full report.</p>
 </h3>
 <p>After testing, generate the full Ecological Report with the new
 module included.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate the full report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"project-ecological-report.html"</span><span class="op">)</span>,</span>
+<span>  view <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This workflow allows users to extend the Ecological Report with
 project-specific outputs, additional summaries, new figures, or custom
 interpretation sections.</p>
+<p>The attachment above affects the current report tree. It does not add
+the module to a named profile’s source pool. Render that tree without a
+<code>profile</code> argument; applying a profile again replaces the
+current selection. Retain the YAML file and repeat its
+registration/attachment when constructing a new object. Re-running
+<code>setup()</code> reloads the bundled module pools.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="defining-and-sharing-report-profiles">Defining and sharing report profiles<a class="anchor" aria-label="anchor" href="#defining-and-sharing-report-profiles"></a>
+</h2>
+<p>All YAML modules remain in their report or status module pool. A
+profile stores only an ordered selection from those pools, so
+alternative introductions, methods, or result modules can coexist
+without all appearing in every report. Each module still needs a unique
+internal <code>name</code> within its pool.</p>
+<p>See the dedicated <a href="https://spatialecology.github.io/camtrapReport/articles/profiles.html">Report
+profiles guide</a> for a complete reusable example and the difference
+between module pools and the current attached report tree.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">project_profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">reportProfile</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"project"</span>,</span>
+<span>  description <span class="op">=</span> <span class="st">"A project-specific ecological and status report"</span>,</span>
+<span>  report <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"report::introduction"</span>,</span>
+<span>    <span class="st">"report::methods"</span>,</span>
+<span>    <span class="st">"report::results"</span>,</span>
+<span>    <span class="st">"report::appendix"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  status <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"status::abstract"</span>,</span>
+<span>    <span class="st">"status::availability"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">project_profile</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  profile <span class="op">=</span> <span class="st">"project"</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"profile-project-report.html"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>,</span>
+<span>  profile <span class="op">=</span> <span class="st">"project"</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"profile-project-status.html"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The <code>parent</code> column can override a module’s YAML parent
+for one profile. For example, this places selected status modules below
+the ecological appendix without editing their source files:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">main_entries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"report"</span>, <span class="st">"report"</span>, <span class="st">"status"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
+<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"appendix"</span>, <span class="st">"spatial"</span>, <span class="st">"temporal"</span><span class="op">)</span>,</span>
+<span>  parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"appendix"</span>, <span class="st">"appendix"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">combined_profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">reportProfile</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"combined"</span>,</span>
+<span>  report <span class="op">=</span> <span class="va">main_entries</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Profiles are ordinary YAML files and can be versioned or shared
+beside custom module files. Reading a profile does not execute its
+modules.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">profile_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"project-profile.yml"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/reportProfile.html">write_profile</a></span><span class="op">(</span><span class="va">project_profile</span>, <span class="va">profile_file</span><span class="op">)</span></span>
+<span><span class="va">shared_profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">read_profile</a></span><span class="op">(</span><span class="va">profile_file</span><span class="op">)</span></span>
+<span><span class="co"># Replace the profile named "project" registered in the previous example.</span></span>
+<span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">shared_profile</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reordering-removing-and-restoring-modules">Reordering, removing, and restoring modules<a class="anchor" aria-label="anchor" href="#reordering-removing-and-restoring-modules"></a>
 </h2>
 <p>Module changes can be inspected and reversed before anything is
 deleted permanently:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate active module definitions and inspect the hierarchy</span></span>
 <span><span class="fu"><a href="../reference/modules.html">list_Modules</a></span><span class="op">(</span>validate <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span>
 <span></span>
@@ -294,12 +463,13 @@ deleted permanently:</p>
 <span><span class="fu"><a href="../reference/modules.html">restore_Module</a></span><span class="op">(</span><span class="st">"species_table"</span>, test <span class="op">=</span> <span class="cn">TRUE</span>, dir <span class="op">=</span> <span class="va">module_dir</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/modules.html">empty_trash()</a></code> permanently deletes trashed module
 definitions and should only be used after confirming that the YAML files
-are backed up elsewhere. After any registry change, recreate or rerun
-<code>setup()</code> on the <code>camReport</code> object, confirm the
-selected sections with <code>listReportSections(cm)</code>, test
-affected modules, and generate the complete report in a new output file.
-Review the resulting text, tables, figures, warnings, and citations as
-carefully as any manually written scientific analysis.</p>
+are backed up elsewhere. Changes to a copied registry do not
+automatically update a <code>camReport</code> object. Attach the
+returned module explicitly when adding one, confirm the current
+selection with <code>listReportSections(cm)</code>, test affected
+modules, and generate the report in a new output file. Review the
+resulting text, tables, figures, warnings, and citations as carefully as
+any manually written scientific analysis.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

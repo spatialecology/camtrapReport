@@ -9,7 +9,7 @@ object or update the value of a field used in report generation."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ object or update the value of a field used in report generation."></head><body>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
@@ -103,6 +104,12 @@ name, description, and acknowledgement text.</p>
 <p>The <code>info</code> function can be used to inspect selected fields. The replacement
 form, <code>info(x, name) &lt;- value</code>, can be used to update report information
 before generating the report.</p>
+<p>The getter accepts actual <code>camReport</code> field names, such as <code>"title"</code> and
+<code>"description"</code>. The replacement form also recognises the following
+convenience names (case-insensitive):</p><table class="table table"><tr><td>Replacement name</td><td>Updated content</td></tr><tr><td><code>"study area"</code></td><td>The <code>description</code> field.</td></tr><tr><td><code>"introduction"</code></td><td>Text of the introduction module.</td></tr><tr><td><code>"image processing"</code></td><td>Text of the image-processing module.</td></tr><tr><td><code>"sampling effort"</code> or <code>"sampling efforts"</code></td><td>Text of the sampling-effort module.</td></tr><tr><td><code>"acknowledgement"</code> or <code>"acknowledgements"</code></td><td>Text of the acknowledgements module.</td></tr></table><p>Other replacement names must match a field name exactly. To target a
+particular module variant, use <code><a href="updateReportSection.html">updateReportSection()</a></code> with its module name.
+Edits to report text affect the object; they do not rewrite the original
+dataset or the bundled YAML files.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -130,7 +137,7 @@ before generating the report.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 6.6 MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 26 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 20 sec.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Retrieve all report information</span></span></span>

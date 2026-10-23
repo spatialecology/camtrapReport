@@ -9,7 +9,7 @@ metadata, report sections, and intermediate report objects."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ metadata, report sections, and intermediate report objects."></head><body>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
@@ -74,6 +75,10 @@ metadata, report sections, and intermediate report objects.</p>
 of this class are usually created with <code><a href="camData.html">camData()</a></code>. A <code>camReport</code> object
 stores the camera-trap dataset, report metadata, processed summaries, report
 modules, status-report modules, and settings used for report generation.</p>
+<p>The exported <code>camR</code> object is the low-level Reference Class generator for
+advanced use. Calling <code>camR$new()</code> creates an unprepared container; it does
+not import data or run the setup and data-status checks performed by
+<code><a href="camData.html">camData()</a></code>. Use <code><a href="camData.html">camData()</a></code> for the normal reporting workflow.</p>
     </div>
     <div class="section level2">
     <h2 id="main-fields">Main fields<a class="anchor" aria-label="anchor" href="#main-fields"></a></h2>
@@ -93,8 +98,13 @@ report.</p></li>
 <li><p><code>years</code>: Years included in the report summaries.</p></li>
 <li><p><code>group_definition</code>: Definitions of species or observation groups used in
 the report.</p></li>
-<li><p><code>setting</code>: Report settings, including selected focus groups and other
-configuration options.</p></li>
+<li><p><code>setting</code>: Report settings, including selected focus groups,
+<code>rem_parameter_scope</code> (<code>"pooled"</code> or <code>"annual"</code>), <code>rem_reps</code>, <code>rem_seed</code>,
+and <code>map_basemap</code> (<code>"offline"</code>, <code>"cartodb"</code>, <code>"esri"</code>, or
+<code>"openstreetmap"</code>). The offline mode is the default; the OpenStreetMap mode
+includes an OpenTopoMap fallback for failed tiles. Bundled report modules
+select their REM scope explicitly; the standard profile is pooled and the
+EOW profile is annual.</p></li>
 <li><p><code>data_status</code>: Data-status summaries generated from the input dataset.</p></li>
 <li><p><code>reportObjectElements</code>: Report modules and related objects used to generate
 the ecological report.</p></li>
@@ -196,8 +206,8 @@ internally, including <code>camInfo</code>, <code>.Rchunk</code>, <code>.textSec
 <span class="r-out co"><span class="r-pr">#&gt;</span>      "recetFigTabNumber", "spatial_density", "extractYears", "generateReport", </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      "species_summary_by_location", ".objectPackage", "trace", "getRefClass", </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      "copy", "show", "addReportObject", "usingMethods", "generateStatusReport", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "set_focus_group", ".get_REM_Param", "getTableNumber", ".objectParent", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "add_group", "getFigureNumber"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "set_focus_group", ".get_REM_Param", "getTableNumber", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      "add_report_basemap", ".objectParent", "add_group", "getFigureNumber"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reference Superclasses: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      "envRefClass"</span>

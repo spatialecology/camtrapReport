@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
@@ -54,16 +55,74 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.58" id="camtrapreport-1058-development-version">camtrapReport 1.0.58 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1058-development-version"></a></h2>
-<ul><li>Expanded deterministic unit coverage for sampling and project metadata, taxonomy lookup fallbacks, module-management dispatch, and nested report object insertion.</li>
-<li>The new tests use in-memory fixtures and mocked external lookups. They do not contact remote services, install packages, or require optional module dependencies.</li>
-<li>Increased locally measured <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code> from 73.50% to 77.76% without changing package functionality, dependencies, or the public API.</li>
+<h2 class="pkg-version" data-toc-text="1.0.66" id="camtrapreport-1066-development-version">camtrapReport 1.0.66 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1066-development-version"></a></h2>
+<ul><li>Fixed <code>report(test = TRUE)</code> recovery after a failed render so that it tests only the attached selection, preserves module order and cross-pool parent overrides, and excludes descendants of failed parents. Diagnostic recovery no longer adds unselected default or EOW modules from the complete pool.</li>
+<li>Fixed species filtering when the optional English vernacular-name column is absent. Missing English names are represented by character <code>NA</code> values; scientific-name selection and existing English names are preserved.</li>
+<li>Added regression coverage for both fixes. Successful rendering, analytical calculations, <code>.eval()</code>, public arguments, and dependencies are unchanged.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.57" id="camtrapreport-1057">camtrapReport 1.0.57<a class="anchor" aria-label="anchor" href="#camtrapreport-1057"></a></h2>
-<ul><li>Addressed the remaining behavior-preserving <code>goodpractice</code> recommendations: type-stable iteration, non-nested pipes and conditionals, direct condition messages, clearer character-vector formatting, and stricter exact unit-test expectations.</li>
-<li>Documented the intentional, narrowly scoped uses of <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require()</a></code>, <code><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach()</a></code>, and <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd()</a></code> that support dynamic report modules, package updates, and GUI report generation. Their runtime behavior is unchanged.</li>
-<li>Retained the existing public API, dependency policy, dynamic <code>.eval()</code> architecture, and report behavior.</li>
+<h2 class="pkg-version" data-toc-text="1.0.65" id="camtrapreport-1065">camtrapReport 1.0.65<a class="anchor" aria-label="anchor" href="#camtrapreport-1065"></a></h2>
+<ul><li>Expanded the README and guides with a default-module inventory, reusable profiles, input-file relationships, upstream validation and conversion guidance, study-area limitations, and instructions for editing report text.</li>
+<li>Documented cache files, source-data reloads, automatic GBIF queries when <code>taxize</code> is installed, package attachment during rendering, and output-file replacement behaviour without changing those defaults.</li>
+<li>Clarified advanced use of <code>camR</code>, metadata replacement names, and the need to use a writable project registry and trusted YAML modules.</li>
+<li>Corrected static Data Status Check chapter labels and removed the fixed <code>Acceptable</code> conclusion, which was not derived from the data. The narrative now accurately describes individual checks and user review rather than promising an automatic overall grade or a report-generation gate.</li>
+<li>Fixed the ZIP-size test for an empty <code>R_ZIPCMD</code> by locating and explicitly passing an available ZIP executable, retaining the existing assertions.</li>
+<li>Gave the optional-installer help topic a case-distinct filename to prevent pkgdown redirects for <code>install_All</code> from overwriting the <code>install_all</code> page. Both function names remain available with the same behaviour.</li>
+<li>Rebuilt the website and stopped ignoring new files in the already tracked <code>docs/</code> directory, so new profile and reference pages can be published.</li>
+<li>Updated citation metadata: the installed citation now reads the version from package metadata, and CodeMeta metadata accompanies <code>CITATION.cff</code>.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.64" id="camtrapreport-1064">camtrapReport 1.0.64<a class="anchor" aria-label="anchor" href="#camtrapreport-1064"></a></h2>
+<ul><li>Corrected the EOW report tab structure. HTML output retains interactive tabs for abundance metrics, annual density estimates by species, and activity patterns by species, while the print stylesheet exposes every tab panel sequentially in PDF output. References remain an ordinary non-tabbed section. The three modules no longer declare the unused optional <code>patchwork</code> dependency because their panels are rendered separately.</li>
+<li>Added a regression test that verifies the bundled EOW tabsets have nested tab headings and that the reference and appendix sections remain non-tabbed.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.63" id="camtrapreport-1063">camtrapReport 1.0.63<a class="anchor" aria-label="anchor" href="#camtrapreport-1063"></a></h2>
+<ul><li>Added an OpenTopoMap fallback beneath explicitly selected OpenStreetMap backgrounds. Failed OpenStreetMap tiles are transparent so the fallback is revealed, while the privacy-preserving offline background remains the default.</li>
+<li>Added a regression test for the <code>add_report_basemap</code> reference-class method used by the bundled map modules.</li>
+<li>Legacy cached <code>camReport</code> objects that predate the basemap method are upgraded to the current reference-class definition while retaining their stored fields.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.62" id="camtrapreport-1062">camtrapReport 1.0.62<a class="anchor" aria-label="anchor" href="#camtrapreport-1062"></a></h2>
+<ul><li>Resolved jarl diagnostics without changing package behaviour by moving report-selection restoration assignments into cleanup callbacks and using the equivalent <code>!all()</code> form for finite map-bound validation.</li>
+<li>Restored platform-independent path normalization in the profile tests so Windows and Unix-like runners compare the same path representation.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.61" id="camtrapreport-1061">camtrapReport 1.0.61<a class="anchor" aria-label="anchor" href="#camtrapreport-1061"></a></h2>
+<ul><li>Added separate pooled and annual REM report modules. The EOW profile now fits detection, movement-speed, activity, trap-rate, and density parameters independently for each species and sampling year; the standard profile retains the pooled multi-year method for backwards compatibility.</li>
+<li>Corrected REM trap-rate input to sum the Camtrap DP event-level <code>count</code> field as numbers of individuals, with a backwards-compatible row-count fallback when no usable counts are supplied.</li>
+<li>Applied deployment inclusion flags consistently to detection and speed calibration data, added reproducible REM repetition and seed metadata, and separated pooled and annual caches.</li>
+<li>Added an REM analysis signature so obsolete cached REM estimates are cleared when an existing <code>__camReport_Object.rds</code> is loaded.</li>
+<li>Replaced live OpenStreetMap tiles in bundled report modules with a self-contained offline background. Optional CartoDB, Esri, and OpenStreetMap backgrounds remain available through <code>cm$setting$map_basemap</code>.</li>
+<li>Restored the package species palette for multi-species trend figures instead of switching palettes when more than six species are displayed.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.60" id="camtrapreport-1060">camtrapReport 1.0.60<a class="anchor" aria-label="anchor" href="#camtrapreport-1060"></a></h2>
+<ul><li>Added <code>html</code>, <code>pdf</code>, and <code>both</code> compatibility metadata to the report and data-status module registries. Module management now preserves this metadata, and <code><a href="../reference/modules.html">add_Module()</a></code> and <code><a href="../reference/modules.html">move_Module()</a></code> can set it explicitly. Module-management functions now also accept the documented <code>dir</code> argument for writable project-level registries.</li>
+<li>Report generation now excludes format-incompatible modules and their orphaned children while leaving the user’s attached section selection unchanged.</li>
+<li>Added a non-tabbed <code>appendix_eow</code> module so the EOW profile’s data-status sections render as ordinary appendix subsections in HTML and PDF output.</li>
+<li>PDF reports no longer include a table of contents. Print styling also suppresses Bootstrap’s appended hyperlink URLs and expands printable tabset content so that non-interactive PDF readers can access every panel.</li>
+<li>Expanded tests and documentation for module-format metadata, EOW appendix structure, PDF routing, print styling, and selection restoration.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.59" id="camtrapreport-1059">camtrapReport 1.0.59<a class="anchor" aria-label="anchor" href="#camtrapreport-1059"></a></h2>
+<ul><li>Added reusable <code>reportProfile</code> objects and bundled <code>default</code> and <code>EOW</code> profiles for selecting ordered ecological and data-status module sets.</li>
+<li>Added qualified <code>report::module</code> and <code>status::module</code> references, including profile-level parent overrides that allow selected status modules to appear below the ecological report appendix without modifying module YAML files.</li>
+<li>Extended <code><a href="../reference/section_names.html">section_names()</a></code> and <code><a href="../reference/section_names.html">sections()</a></code> to inspect and edit profile and data-status selections while retaining their previous default behaviour.</li>
+<li>Added <code><a href="../reference/reportProfile.html">read_profile()</a></code>, <code><a href="../reference/reportProfile.html">write_profile()</a></code>, <code><a href="../reference/reportProfile.html">add_profile()</a></code>, and <code><a href="../reference/reportProfile.html">profile_names()</a></code> for sharing and registering profile YAML files.</li>
+<li>Added optional static PDF output to <code><a href="../reference/report.html">report()</a></code> and <code><a href="../reference/report.html">status()</a></code>. PDF generation prints the existing HTML output with <code>pagedown</code> and Chrome or Edge, preserving compatibility with HTML-oriented report modules.</li>
+<li>Added the EOW module variants to the module registry and corrected the malformed text scalar in <code>location_EOW.yml</code>.</li>
+<li>Expanded profile, cross-pool selection, and PDF-routing tests and updated the README, vignettes, reference documentation, and pkgdown configuration.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.58" id="camtrapreport-1058">camtrapReport 1.0.58<a class="anchor" aria-label="anchor" href="#camtrapreport-1058"></a></h2>
+<ul><li>Renamed <code><a href="../reference/install-all.html">install_All()</a></code> to <code><a href="../reference/install-all.html">install_all()</a></code> for consistency with R naming conventions. <code><a href="../reference/install-all.html">install_All()</a></code> remains available as a deprecated compatibility alias for existing code.</li>
+<li>Clarified the report-module architecture and contributor documentation, including the distinction from Shiny modules, the rationale for the Reference Class implementation, and the role of <code>.eval()</code> relative to <code>rlang</code>-style evaluation.</li>
+<li>Improved the README and package website with clearer descriptions and direct example outputs for the Data Status Check and Ecological Report.</li>
+<li>Added the rOpenSci Software Peer Review status badge to the README and package website.</li>
+<li>Expanded deterministic unit coverage for sampling and project metadata, taxonomy lookup fallbacks, module-management dispatch, and nested report object insertion.</li>
+<li>The new tests use in-memory fixtures and mocked external lookups. They do not contact remote services, install packages, or require optional module dependencies.</li>
+<li>Increased locally measured <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code> from 73.50% to 77.76%.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.56" id="camtrapreport-1056">camtrapReport 1.0.56<a class="anchor" aria-label="anchor" href="#camtrapreport-1056"></a></h2>
@@ -100,7 +159,7 @@
 <h2 class="pkg-version" data-toc-text="1.0.51" id="camtrapreport-1051">camtrapReport 1.0.51<a class="anchor" aria-label="anchor" href="#camtrapreport-1051"></a></h2>
 <ul><li>Made the coverage-test fixture independent of optional report-module packages and made Pandoc availability explicit in the coverage workflow.</li>
 <li>Added network-independent tests for taxonomy-lookup failure handling.</li>
-<li>Revised the documentation topic for <code><a href="../reference/install_all.html">install_All()</a></code> to avoid a case-insensitive filename collision on Windows.</li>
+<li>Revised the documentation topic for <code><a href="../reference/install-all.html">install_All()</a></code> to avoid a case-insensitive filename collision on Windows.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.50" id="camtrapreport-1050">camtrapReport 1.0.50<a class="anchor" aria-label="anchor" href="#camtrapreport-1050"></a></h2>
@@ -113,8 +172,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.48" id="camtrapreport-1048">camtrapReport 1.0.48<a class="anchor" aria-label="anchor" href="#camtrapreport-1048"></a></h2>
 <ul><li>Revised the package in response to the initial rOpenSci editor assessment.</li>
-<li>Updated <code><a href="../reference/install_all.html">install_All()</a></code> to delegate dependency resolution and installation to <code>pak</code>.</li>
-<li>Documented the opt-in role of <code><a href="../reference/install_all.html">install_All()</a></code> in discovering dependencies from bundled and user-provided report modules.</li>
+<li>Updated <code><a href="../reference/install-all.html">install_All()</a></code> to delegate dependency resolution and installation to <code>pak</code>.</li>
+<li>Documented the opt-in role of <code><a href="../reference/install-all.html">install_All()</a></code> in discovering dependencies from bundled and user-provided report modules.</li>
 <li>Split internal rendering, taxonomy, and spatial utilities into focused files without changing the public API.</li>
 <li>Replaced the earlier example fixture with a documented, relationship-preserving subset of the GMU8_LEUVEN Camtrap DP dataset.</li>
 <li>Removed contact email addresses from the example data because they are not required by examples or automated tests.</li>

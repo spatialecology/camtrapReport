@@ -1,3 +1,4 @@
+
 llm-docs: false
 
 url: https://spatialecology.github.io/camtrapReport/
@@ -105,25 +106,24 @@ articles:
       generating ecological reports, and customising report modules.
     contents:
       - Package-Overview
-      - articles/data-status-report
-      - articles/ecological-report
-      - articles/modules
-      - articles/profiles
+      - "articles/data-status-report"
+      - "articles/ecological-report"
+      - "articles/modules"
+      - "articles/profiles"
 
   - title: Resources
     desc: >
       Publications, workshops, and training resources related to
       camtrapReport.
     contents:
-      - articles/resources
+      - "articles/resources"
 
 reference:
   - title: Data input and metadata
     desc: >
       Create a camReport object from Camtrap DP data and inspect or
       update report metadata.
-
-  - contents:
+    contents:
       - camData
       - info
 
@@ -131,16 +131,14 @@ reference:
     desc: >
       Generate the Data Status Check or Ecological Report, or use the
       graphical interface.
-
-  - contents:
+    contents:
       - report
       - gui
 
   - title: Configure report contents
     desc: >
       Inspect, select, and update sections and reusable report profiles.
-
-  - contents:
+    contents:
       - section_names
       - reportProfile
       - updateReportSection
@@ -149,8 +147,7 @@ reference:
     desc: >
       Create, test, add, move, remove, restore, and inspect report
       modules.
-
-  - contents:
+    contents:
       - reportSection
       - testSection
       - modules
@@ -161,6 +158,5 @@ reference:
       Low-level documentation for the camReport class. Most users
       should create camReport objects with camData() rather than
       interacting with the class directly.
-
-  - contents:
+    contents:
       - camReport-classes

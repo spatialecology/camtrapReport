@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.58</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
     <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
@@ -107,6 +108,56 @@ is stored with the object and used in spatial summaries where relevant.</p>
 <p>The <code>camReport</code> object is saved within an extracted dataset directory as
 <code>__camReport_Object.rds</code>. A later call using that directory reuses the saved
 object unless <code>update = TRUE</code>, in which case the object is recreated.</p>
+<p><code>data</code> currently accepts a file-system path, not an in-memory data frame or
+list. A dataset directory contains <code>datapackage.json</code>, <code>deployments.csv</code>,
+<code>media.csv</code>, and <code>observations.csv</code>. The following identifiers and columns
+explain the main relationships; this is not a complete Camtrap DP schema:</p><table class="table table"><tr><td>File</td><td>Contents and important links</td></tr><tr><td><code>datapackage.json</code></td><td>Project metadata and a <code>taxonomic</code> list with species names, taxon identifiers, ranks, families, orders, and optional vernacular names.</td></tr><tr><td><code>deployments.csv</code></td><td>One camera deployment per <code>deploymentID</code>, with <code>locationID</code>, <code>locationName</code>, <code>longitude</code>, <code>latitude</code>, <code>deploymentStart</code>, and <code>deploymentEnd</code>.</td></tr><tr><td><code>media.csv</code></td><td>Images or videos identified by <code>mediaID</code>, linked to <code>deploymentID</code>, with <code>timestamp</code> and optional capture-method and file metadata.</td></tr><tr><td><code>observations.csv</code></td><td>Species or other classifications linked to <code>deploymentID</code>, <code>mediaID</code> and/or <code>eventID</code>, with <code>scientificName</code>, observation level, event times, counts, and optional individual measurements.</td></tr></table><p>A deployment is a period during which a camera is installed at a location.
+An observation records a classification at media or event level. An event
+groups related media; camtrapReport uses <code>sequenceID</code> internally for this
+event grouping and derives a <code>sequences</code> table from media timestamps. These
+internal sequences are not an additional input CSV file. See the
+<a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP specification</a> for definitions and
+the <a href="https://github.com/spatialecology/camtrapReport/blob/main/inst/external/README-Leuven-dataset.md" class="external-link">example-data provenance</a>
+for a concrete dataset.</p>
+<p>Import and <code><a href="report.html">status()</a></code> provide package-specific data checks, not formal
+validation against the complete Camtrap DP schema. Check schema compliance
+upstream. After correcting source CSV or JSON files, call <code>camData()</code> again
+with <code>update = TRUE</code> and the optional inputs, then regenerate <code><a href="report.html">status()</a></code>.
+Merely rerunning <code><a href="report.html">status()</a></code> on the old object does not reread changed files.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="files-and-cache-reuse">Files and cache reuse<a class="anchor" aria-label="anchor" href="#files-and-cache-reuse"></a></h2>
+
+
+<p><code>camData()</code> writes <code>__camReport_Object.rds</code> beside the extracted data and,
+when a study area is supplied, writes <code>study_area.map</code>. A ZIP input is
+extracted before reading. Use a writable copy of the input dataset, as in
+the examples, rather than an installed package directory. A cached object
+is reused when <code>update = FALSE</code>; changes to source files or optional inputs
+are not detected automatically. Use <code>update = TRUE</code> to rebuild it.
+Only load datasets and saved R objects from sources you trust.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a></h2>
+
+
+<p>In the current implementation, installing <code>taxize</code> enables GBIF taxonomy
+lookups during import. Species names are sent to GBIF to supplement class
+and order information. This can require an internet connection and affect
+import time and reproducibility; there is currently no per-call opt-out or
+request-timeout argument. Preserve the processed object and package versions
+used in an analysis, and consider this network behaviour before processing
+confidential species lists. Without <code>taxize</code>, this lookup is not performed.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="study-areas-that-change-over-time">Study areas that change over time<a class="anchor" aria-label="anchor" href="#study-areas-that-change-over-time"></a></h2>
+
+
+<p><code>study_area</code> accepts one boundary per object. Multiple Shiny uploads are
+the component files of a shapefile (<code>.shp</code>, <code>.shx</code>, <code>.dbf</code>, <code>.prj</code>, etc.),
+not a set of year-specific boundaries. For different survey footprints,
+prepare separate year-specific datasets and objects with the corresponding
+boundary, or supply a custom module with an explicit year-to-boundary mapping.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -134,7 +185,7 @@ object unless <code>update = TRUE</code>, in which case the object is recreated.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 6.6 MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 31 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 23 sec.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span></span></span>
