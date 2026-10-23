@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,37 +39,33 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../index.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
-    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
+    <li><a class="dropdown-item" href="../articles/resources.html">Resources and training</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../articles/profiles.html">Profiles</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/modules.html">Modules</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
-<li><a class="dropdown-item" href="../authors.html">Authors</a></li>
-    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
-    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
-    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
-    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
-  </ul>
-</li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-project" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Project</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-project">
 <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
     <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+    <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
+    <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
+    <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
+    <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
@@ -134,7 +130,7 @@ visualisation. This processed object is then passed to the
 <code><a href="../reference/report.html">report()</a></code> function, which generates a complete HTML
 Ecological Report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">camtrapReport</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Copy the bundled example dataset to a writable temporary directory</span></span>
 <span><span class="va">example_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span>
@@ -727,6 +723,80 @@ Interactive maps and controls are static in the PDF.</p>
 <p>For a complete example of defining, editing, importing, and exporting
 a reusable selection, see the <a href="https://spatialecology.github.io/camtrapReport/articles/profiles.html">Report
 profiles guide</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="report-progress-and-slow-rendering">Report progress and slow rendering<a class="anchor" aria-label="anchor" href="#report-progress-and-slow-rendering"></a>
+</h3>
+<p>Console messages identify construction, each module/chunk, knitr
+completion, HTML/Pandoc rendering, PDF conversion, and output opening.
+Completion lines show elapsed time and CPU time in the current R
+process. A high R CPU time can indicate computation; a low R CPU time
+does not identify a specific cause, because child processes, disk
+access, and network waits are not measured separately. These messages do
+not change calculations or appear in the report.</p>
+<p>If a run seems stalled, record the last started chunk and compare the
+same object and selection using distinct output filenames:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="st">"EOW-timing.html"</span><span class="op">)</span>, view <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
+<span>  <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>,</span>
+<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="st">"EOW-timing.pdf"</span><span class="op">)</span>, view <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Run cold and same-object warm comparisons separately: successfully
+fitted REM models can be reused from the object. The annual EOW analysis
+performs species-by-year work; its repetitions and methods have not been
+reduced for rendering speed. A previous run ending at
+<code>Rendering R Markdown report ...</code> without a generated-file
+message was still in knitr/HTML rendering, before PDF conversion or
+<code>view = TRUE</code> opening.</p>
+<p>Open an already completed file with
+<code>utils::browseURL(report_file)</code> to isolate viewer overhead.
+PDF printing has a 60-second timeout after browser startup; this is not
+a timeout on analytical computations. An error preserves the original
+failure rather than silently omitting analyses. Do not use
+<code>test = TRUE</code> as a performance workaround: its diagnostic
+recovery can exclude failed sections. After updating the package,
+restart R and reload the source data with <code>update = TRUE</code>
+before comparing versions.</p>
+</div>
+<div class="section level3">
+<h3 id="map-backgrounds-and-offline-use">Map backgrounds and offline use<a class="anchor" aria-label="anchor" href="#map-backgrounds-and-offline-use"></a>
+</h3>
+<p>The default is self-contained and requires no tile service:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"offline"</span></span>
+<span><span class="co"># Explicitly opt into an online background:</span></span>
+<span><span class="va">cm</span><span class="op">$</span><span class="va">setting</span><span class="op">$</span><span class="va">map_basemap</span> <span class="op">&lt;-</span> <span class="st">"openstreetmap"</span></span></code></pre></div>
+<p>In the online mode, web-served reports try OpenStreetMap, then
+OpenTopoMap, then the offline grid. A local <code>file://</code> report
+starts at OpenTopoMap because OpenStreetMap’s web-use policy requires a
+valid Referer. Repeated failures or an eight-second loading deadline
+advance the background once, without an infinite retry cycle. Fallback
+runs in the browser even after R exits. Hidden tabs do not prefetch
+tiles; markers, polygons, rasters, legends, extent, zoom, and layer
+controls are retained. During printing, pending tile requests are
+cancelled and the offline background remains visible; already loaded
+imagery may be retained. Offline vectors are not downloaded map
+tiles.</p>
+<p>Read the <a href="https://operations.osmfoundation.org/policies/tiles/" class="external-link">OSMF tile
+policy</a> and <a href="https://opentopomap.org/about#verwendung" class="external-link">OpenTopoMap usage
+conditions</a>. Both require visible attribution and prohibit excessive
+or bulk downloading; neither provides an uptime guarantee.
+OpenStreetMap.DE, OpenStreetMap.France, and HOT are not automatic
+fallbacks: their conditions restrict some commercial or private/local
+uses. This deliberately shortens the requested provider chain rather
+than assuming permission for every report.</p>
+<p>Existing explicit <code>"cartodb"</code> and <code>"esri"</code>
+settings remain for compatibility, with an offline error fallback, not
+as additional automatic providers. They remain subject to the operators’
+terms. CARTO’s current raster service <a href="https://github.com/CartoDB/basemap-styles/blob/master/README.md" class="external-link">requires
+an API key</a>; the legacy keyless mode is not a promise of a licensed
+or unwatermarked service. The package does not add a
+credential-management API in this revision. Prefer the default offline
+mode for private data, archives, or reproducible outputs.</p>
 <p>A generated report summarises the implemented checks and selected
 analyses. It does not establish that the survey design is suitable for a
 particular ecological question or that the data satisfy all assumptions

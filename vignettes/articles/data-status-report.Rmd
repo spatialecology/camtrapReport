@@ -17,6 +17,12 @@ resource_files:
 
 ## Purpose of the Data Status Report
 
+The Abstract and Conclusion retain the familiar Perfect, Acceptable, and Needs
+Improvement descriptions as a **user-assessed interpretation guide**. The
+software does not calculate an overall classification or automatically prevent
+ecological report generation. Review the measured checks and method-specific
+requirements before relying on an analysis.
+
 The Data Status Report provides an overview of the quality, completeness, and readiness of a camera-trap dataset before generating the final Ecological Report. It helps users check whether the main input files, metadata fields, deployment information, observation records, taxonomy, timestamps, annotation information, and spatial data are complete and internally consistent.
 
 This report is especially useful as a first quality-control step. It allows users to identify missing values, duplicated records, invalid timestamps, incomplete metadata, spatial issues, and inconsistencies between deployments and observations. Based on these checks, users can decide whether the dataset is ready for reporting or whether further correction is needed before ecological analyses are performed.

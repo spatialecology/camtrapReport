@@ -585,6 +585,80 @@ For a complete example of defining, editing, importing, and exporting a
 reusable selection, see the
 [Report profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html).
 
+### Report progress and slow rendering
+
+Console messages identify construction, each module/chunk, knitr completion,
+HTML/Pandoc rendering, PDF conversion, and output opening. Completion lines
+show elapsed time and CPU time in the current R process. A high R CPU time can
+indicate computation; a low R CPU time does not identify a specific cause,
+because child processes, disk access, and network waits are not measured
+separately. These messages do not change calculations or appear in the report.
+
+If a run seems stalled, record the last started chunk and compare the same
+object and selection using distinct output filenames:
+
+```{r compare-report-formats, eval=FALSE}
+report(
+  cm, profile = "EOW",
+  filename = file.path(output_dir, "EOW-timing.html"), view = FALSE
+)
+report(
+  cm, profile = "EOW",
+  filename = file.path(output_dir, "EOW-timing.pdf"), view = FALSE
+)
+```
+
+Run cold and same-object warm comparisons separately: successfully fitted REM
+models can be reused from the object. The annual EOW analysis performs
+species-by-year work; its repetitions and methods have not been reduced for
+rendering speed. A previous run ending at `Rendering R Markdown report ...`
+without a generated-file message was still in knitr/HTML rendering, before
+PDF conversion or `view = TRUE` opening.
+
+Open an already completed file with `utils::browseURL(report_file)` to isolate
+viewer overhead. PDF printing has a 60-second timeout after browser startup;
+this is not a timeout on analytical computations. An error preserves the
+original failure rather than silently omitting analyses. Do not use
+`test = TRUE` as a performance workaround: its diagnostic recovery can exclude
+failed sections. After updating the package, restart R and reload the source
+data with `update = TRUE` before comparing versions.
+
+### Map backgrounds and offline use
+
+The default is self-contained and requires no tile service:
+
+```{r ecological-basemap, eval=FALSE}
+cm$setting$map_basemap <- "offline"
+# Explicitly opt into an online background:
+cm$setting$map_basemap <- "openstreetmap"
+```
+
+In the online mode, web-served reports try OpenStreetMap, then OpenTopoMap,
+then the offline grid. A local `file://` report starts at OpenTopoMap because
+OpenStreetMap's web-use policy requires a valid Referer. Repeated failures or
+an eight-second loading deadline advance the background once, without an
+infinite retry cycle. Fallback runs in the browser even after R exits.
+Hidden tabs do not prefetch tiles; markers, polygons, rasters, legends, extent,
+zoom, and layer controls are retained. During printing, pending tile requests
+are cancelled and the offline background remains visible; already loaded
+imagery may be retained. Offline vectors are not downloaded map tiles.
+
+Read the [OSMF tile policy](https://operations.osmfoundation.org/policies/tiles/)
+and [OpenTopoMap usage conditions](https://opentopomap.org/about#verwendung).
+Both require visible attribution and prohibit excessive or bulk downloading;
+neither provides an uptime guarantee. OpenStreetMap.DE, OpenStreetMap.France,
+and HOT are not automatic fallbacks: their conditions restrict some
+commercial or private/local uses. This deliberately shortens the requested
+provider chain rather than assuming permission for every report.
+
+Existing explicit `"cartodb"` and `"esri"` settings remain for compatibility,
+with an offline error fallback, not as additional automatic providers. They
+remain subject to the operators' terms. CARTO's current raster service
+[requires an API key](https://github.com/CartoDB/basemap-styles/blob/master/README.md);
+the legacy keyless mode is not a promise of a licensed or unwatermarked service.
+The package does not add a credential-management API in this revision. Prefer
+the default offline mode for private data, archives, or reproducible outputs.
+
 A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
 
 Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.

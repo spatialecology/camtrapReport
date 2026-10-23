@@ -1299,101 +1299,56 @@ camR <- setRefClass(
       lng_range <- lng_range + c(-lng_pad, lng_pad)
       lat_range <- lat_range + c(-lat_pad, lat_pad)
 
-      if (identical(mode, "offline")) {
-        map <- .eval(
-          paste0(
-            "leaflet::addRectangles(map, ",
-            "lng1 = lng_range[1], lat1 = lat_range[1], ",
-            "lng2 = lng_range[2], lat2 = lat_range[2], ",
-            "stroke = FALSE, fillColor = '#F2F1EC', ",
-            "fillOpacity = 1, group = group, ",
-            "options = leaflet::pathOptions(interactive = FALSE))"
-          ),
-          environment()
-        )
+      # Keep a self-contained background below tiles and ecological overlays.
+      # Failed remote layers can then be removed without leaving a grey map.
+      offline_pane <- "camtrap-report-background"
+      map <- .eval(
+        "leaflet::addMapPane(map, offline_pane, zIndex = 190)",
+        environment()
+      )
+      map <- .eval(
+        paste0(
+          "leaflet::addRectangles(map, ",
+          "lng1 = lng_range[1], lat1 = lat_range[1], ",
+          "lng2 = lng_range[2], lat2 = lat_range[2], ",
+          "stroke = FALSE, fillColor = '#F2F1EC', ",
+          "fillOpacity = 1, group = group, ",
+          "options = leaflet::pathOptions(interactive = FALSE, ",
+          "pane = offline_pane))"
+        ),
+        environment()
+      )
 
-        lon_grid <- seq(lng_range[1], lng_range[2], length.out = 6)
-        lat_grid <- seq(lat_range[1], lat_range[2], length.out = 6)
-        for (longitude in lon_grid) {
-          map <- .eval(
-            paste0(
-              "leaflet::addPolylines(map, ",
-              "lng = c(longitude, longitude), lat = lat_range, ",
-              "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
-              "group = group, ",
-              "options = leaflet::pathOptions(interactive = FALSE))"
-            ),
-            environment()
-          )
-        }
-        for (latitude in lat_grid) {
-          map <- .eval(
-            paste0(
-              "leaflet::addPolylines(map, ",
-              "lng = lng_range, lat = c(latitude, latitude), ",
-              "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
-              "group = group, ",
-              "options = leaflet::pathOptions(interactive = FALSE))"
-            ),
-            environment()
-          )
-        }
-      } else if (identical(mode, "openstreetmap")) {
-        provider_name <- "OpenTopoMap"
-        provider <- .eval(
-          "leaflet::providers[[provider_name]]",
-          environment()
-        )
-        options <- .eval(
-          "leaflet::providerTileOptions(zIndex = 1)",
-          environment()
-        )
+      lon_grid <- seq(lng_range[1], lng_range[2], length.out = 6)
+      lat_grid <- seq(lat_range[1], lat_range[2], length.out = 6)
+      for (longitude in lon_grid) {
         map <- .eval(
           paste0(
-            "leaflet::addProviderTiles(map, provider, group = group, ",
-            "options = options)"
+            "leaflet::addPolylines(map, ",
+            "lng = c(longitude, longitude), lat = lat_range, ",
+            "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
+            "group = group, ",
+            "options = leaflet::pathOptions(interactive = FALSE, ",
+            "pane = offline_pane))"
           ),
-          environment()
-        )
-
-        provider_name <- "OpenStreetMap"
-        provider <- .eval(
-          "leaflet::providers[[provider_name]]",
-          environment()
-        )
-        transparent_tile <- paste0(
-          "data:image/gif;base64,",
-          "R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-        )
-        options <- .eval(
-          paste0(
-            "leaflet::providerTileOptions(zIndex = 2, ",
-            "errorTileUrl = transparent_tile)"
-          ),
-          environment()
-        )
-        map <- .eval(
-          paste0(
-            "leaflet::addProviderTiles(map, provider, group = group, ",
-            "options = options)"
-          ),
-          environment()
-        )
-      } else {
-        provider_name <- switch(
-          mode,
-          cartodb = "CartoDB.Positron",
-          esri = "Esri.WorldGrayCanvas"
-        )
-        provider <- .eval(
-          "leaflet::providers[[provider_name]]",
-          environment()
-        )
-        map <- .eval(
-          "leaflet::addProviderTiles(map, provider, group = group)",
           environment()
         )
       }
+      for (latitude in lat_grid) {
+        map <- .eval(
+          paste0(
+            "leaflet::addPolylines(map, ",
+            "lng = lng_range, lat = c(latitude, latitude), ",
+            "color = '#D6D3C9', weight = 0.7, opacity = 0.8, ",
+            "group = group, ",
+            "options = leaflet::pathOptions(interactive = FALSE, ",
+            "pane = offline_pane))"
+          ),
+          environment()
+        )
+      }
+
+      map <- .add_report_basemap_recovery(map, group, mode)
 
       .eval(
         paste0(
@@ -3508,6 +3463,8 @@ camR <- setRefClass(
       rmd_file = "cam_report.Rmd",
       toc = TRUE
     ) {
+      construction <- .report_stage_start("Report module construction")
+      on.exit(.report_stage_end(construction, complete = FALSE), add = TRUE)
       .self$recetFigTabNumber()
       render_env <- .make_render_env(.self)
 
@@ -3580,17 +3537,17 @@ output:
 
       # Write out the R Markdown file
       cat(rmd_template, file = rmd_file, sep = "\n")
+      .report_stage_end(construction)
 
       # Render the R Markdown file
       # Pass an environment so the R Markdown document sees object fields.
       # One approach: pass the entire object as 'object' in the environment
 
       message("Rendering R Markdown report ...")
-      out <- rmarkdown::render(
+      out <- .render_report_with_progress(
         input = rmd_file,
         output_file = output_file,
-        envir = render_env,
-        quiet = TRUE
+        envir = render_env
       )
 
       message("Report generated at: ", normalizePath(out))
@@ -3601,6 +3558,8 @@ output:
       rmd_file = "data_status_report.Rmd",
       toc = TRUE
     ) {
+      construction <- .report_stage_start("Status module construction")
+      on.exit(.report_stage_end(construction, complete = FALSE), add = TRUE)
       render_env <- .make_render_env(.self)
 
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
@@ -3672,13 +3631,13 @@ output:
 
       # Write out the R Markdown file
       cat(rmd_template, file = rmd_file, sep = "\n")
+      .report_stage_end(construction)
 
       message("Rendering R Markdown data_status report ...")
-      out <- rmarkdown::render(
+      out <- .render_report_with_progress(
         input = rmd_file,
         output_file = output_file,
-        envir = render_env,
-        quiet = TRUE
+        envir = render_env
       )
 
       message("Data_Status Report generated at: ", normalizePath(out))

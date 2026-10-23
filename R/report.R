@@ -97,29 +97,36 @@ setGeneric(
     )
   }
 
-  tryCatch(
-    pagedown::chrome_print(input = html_file, output = pdf_file),
+  message(
+    "[camtrapReport] Starting PDF browser conversion; page-print timeout: ",
+    "60 s after browser startup."
+  )
+  .with_report_stage("PDF conversion/browser resource waits", tryCatch(
+    pagedown::chrome_print(
+      input = html_file, output = pdf_file, timeout = 60, verbose = 1
+    ),
     error = function(e) {
       stop(
         "The HTML report was created, but conversion to PDF failed. ",
-        "Ensure that Chrome or Edge is installed. Original error: ",
+        "Check Chrome or Edge and page resources (printing timeout: 60 s). ",
+        "Original error: ",
         conditionMessage(e),
         call. = FALSE
       )
     }
-  )
+  ))
   normalizePath(pdf_file, winslash = "/", mustWork = TRUE)
 }
 
 .open_generated_report <- function(path, format) {
-  if (identical(format, "html")) {
-    viewer <- getOption("viewer")
+  .with_report_stage("Opening completed report", {
+    viewer <- if (identical(format, "html")) getOption("viewer") else NULL
     if (!is.null(viewer)) {
       viewer(path)
-      return(invisible(path))
+    } else {
+      utils::browseURL(path)
     }
-  }
-  utils::browseURL(path)
+  })
   invisible(path)
 }
 
@@ -188,6 +195,14 @@ setGeneric(
 #' available module pool, including alternative modules; it is not the same as
 #' a profile's selection. Reread corrected source files with
 #' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
+#'
+#' Console progress identifies module construction, individual chunks, HTML
+#' rendering, PDF conversion, and opening the completed file. Timings include
+#' elapsed time and CPU time in the current R process; Pandoc and browser CPU
+#' time is not included in the latter. The last started chunk identifies where
+#' a long-running computation is executing. PDF page loading and printing use
+#' a 60-second timeout after browser startup; analytical computations are not
+#' interrupted by that timeout.
 #'
 #' @param object A [`camReport`][camReport-classes] object created by
 #'   [camData()].

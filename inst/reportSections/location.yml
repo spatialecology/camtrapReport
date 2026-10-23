@@ -2,7 +2,7 @@
 name: "location"
 title: "## Camera Locations {.tabset}"
 parent: "methods"
-text: "The maps below display the locations of camera traps deployed during different years. Use the tabs above to explore data for each sampling year. The last tab shows the study area with all camera locations in this site. Locations are color-coded by habitat type. Click on the points for additional deployment information."
+text: "The maps below display the locations of camera traps deployed during different years. The first tab shows the study area with all camera locations in this site, followed by sampling years from newest to oldest. Locations are color-coded by habitat type. Click on the points for additional deployment information."
 code1: |
   #| name: camera_locations_leaflet
   #| setting: echo = FALSE, results = 'asis', fig.show = "hold"
@@ -127,44 +127,12 @@ code1: |
   .all_habitat <- sort(.all_habitat[!is.na(.all_habitat) & .all_habitat != ""])
   .habitat_palette <- .nice_habitat_palette(length(.all_habitat))
   
-  # Automatically create tabs for each year
-  for (doyear in object$years) {
-    cat(paste0("### ", doyear, " {.unnumbered}\n\n"))
-    
-    .dat_year <- object$data_merged[
-      object$data_merged$Year == doyear,
-      c(
-        "locationName", "cameraHeight", "BaitUse_List", "Species_List",
-        "CaptureMethod_List", "Total_Photos", "Classify_By_List",
-        "Setup_By_List", "longitude", "latitude", "Year", "Habitat_Type"
-      )
-    ]
-    
-    .dat_year <- .dat_year[
-      !is.na(.dat_year$longitude) &
-        !is.na(.dat_year$latitude),
-    ]
-    
-    if (nrow(.dat_year) > 0) {
-      p <- plot_locations(
-        data = .dat_year,
-        color_palette = .habitat_palette,
-        .all_habitat = .all_habitat
-      )
-      print(htmltools::tagList(p))
-    } else {
-      cat(paste0("⚠️ No location data available for ", doyear, ".\n"))
-    }
-    
-    cat("\n\n")
-  }
-
 code2: |
   #| name: camera_research_area
   #| setting: echo = FALSE, results = "asis", message = FALSE, warning = FALSE
   #| packages: leaflet, dplyr, terra, htmltools
   
-  cat("\n### Total {.unnumbered} \n")
+  cat("\n### Total {.active .unnumbered} \n")
   
   # High-contrast categorical colours for habitat classes
   .nice_habitat_palette <- function(n) {
@@ -291,6 +259,43 @@ code2: |
   }
   
   map
+
+code3: |
+  #| name: camera_locations_years
+  #| setting: echo = FALSE, results = 'asis', fig.show = "hold"
+  #| packages: leaflet, dplyr, terra, htmltools
+  
+  # The aggregate tab precedes yearly maps; retain the existing map layers.
+  for (doyear in sort(object$years, decreasing = TRUE)) {
+    cat(paste0("### ", doyear, " {.unnumbered}\n\n"))
+    
+    .dat_year <- object$data_merged[
+      object$data_merged$Year == doyear,
+      c(
+        "locationName", "cameraHeight", "BaitUse_List", "Species_List",
+        "CaptureMethod_List", "Total_Photos", "Classify_By_List",
+        "Setup_By_List", "longitude", "latitude", "Year", "Habitat_Type"
+      )
+    ]
+    
+    .dat_year <- .dat_year[
+      !is.na(.dat_year$longitude) &
+        !is.na(.dat_year$latitude),
+    ]
+    
+    if (nrow(.dat_year) > 0) {
+      p <- plot_locations(
+        data = .dat_year,
+        color_palette = .habitat_palette,
+        .all_habitat = .all_habitat
+      )
+      print(htmltools::tagList(p))
+    } else {
+      cat(paste0("⚠️ No location data available for ", doyear, ".\n"))
+    }
+    
+    cat("\n\n")
+  }
   
   cat("\n\n")
   cat("##  {.unnumbered}\n")

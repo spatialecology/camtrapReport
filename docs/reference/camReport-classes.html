@@ -9,7 +9,7 @@ metadata, report sections, and intermediate report objects."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.66</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.67</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,29 +19,27 @@ metadata, report sections, and intermediate report objects."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">Get started</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module management and extension</a></li>
-    <li><a class="dropdown-item" href="../articles/profiles.html">Reusable report profiles</a></li>
+    <li><a class="dropdown-item" href="../articles/resources.html">Resources and training</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../articles/profiles.html">Profiles</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/modules.html">Modules</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-about" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">About</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about"><li><a class="dropdown-item" href="../authors.html">Authors</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-project" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Project</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-project"><li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../authors.html">Authors</a></li>
     <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
     <li><a class="dropdown-item" href="../LICENSE.html">License</a></li>
     <li><a class="dropdown-item" href="../CONTRIBUTING.html">Contributing guide</a></li>
     <li><a class="dropdown-item" href="../CODE_OF_CONDUCT.html">Code of conduct</a></li>
-  </ul></li>
-<li class="nav-item"><form class="form-inline" role="search">
- <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-support" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Support</button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-support"><li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/spatialecology/camtrapReport" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul></div>
@@ -126,97 +124,11 @@ internally, including <code>camInfo</code>, <code>.Rchunk</code>, <code>.textSec
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect the formal definition of the main report class.</span></span></span>
-<span class="r-in"><span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/getClass.html" class="external-link">getClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reference Class "camReport":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class fields:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                        data                    habitat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 data_merged                 study_area</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 listORnull</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                    siteName                      title</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                    subtitle                    authors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   institute                   logoPath</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   annonator            acknowledgement</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                  character</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 description                      years</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                  character                    numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:            group_definition              filterExclude</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                  filterKeep                filterCount</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                    numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:              filterDuration            observed_counts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                    numeric                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:            frequent_species               camera_stats</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                camera_setup          observation_stats</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:             species_summary              species_stats</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:  species_summary_by_habitat                    capture</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                 data.frame</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:           density_estimates                    setting</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                 data.frame                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                   sun_times                   packages</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:           data.frameORnull                  character</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                        info                data_status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                         rem                .rem_params</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                 .act_models          .any_data_for_rem</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                    logical</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:                .tempObjects         reportTextElements</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:        reportObjectElements        statusReportObjects</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Name:               reportObjects</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class:                       list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class Methods: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "get_REM", "get_speciesNames", "get_data_subset", "import", "initFields", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "filter", "export", "show#envRefClass", "fit_REM", "getClass", "field", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "initialize", "addStatusReportObject", "gui", "get_focus_group", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "get_group", "callSuper", "untrace", "setup", "richness", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "recetFigTabNumber", "spatial_density", "extractYears", "generateReport", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "species_summary_by_location", ".objectPackage", "trace", "getRefClass", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "copy", "show", "addReportObject", "usingMethods", "generateStatusReport", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "set_focus_group", ".get_REM_Param", "getTableNumber", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "add_report_basemap", ".objectParent", "add_group", "getFigureNumber"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reference Superclasses: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      "envRefClass"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Check whether the class is registered.</span></span></span>
-<span class="r-in"><span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/findClass.html" class="external-link">isClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Inspect the formal definition of the main report class.</span></span>
+<span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/getClass.html" class="external-link">getClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check whether the class is registered.</span></span>
+<span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/findClass.html" class="external-link">isClass</a></span><span class="op">(</span><span class="st">"camReport"</span><span class="op">)</span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

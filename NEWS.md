@@ -1,4 +1,24 @@
-# camtrapReport 1.0.66 (development version)
+# camtrapReport 1.0.67 (development version)
+
+- Added console-only report stage and chunk timings, including elapsed and R
+  CPU time, and explicit PDF conversion/opening progress. Browser printing has
+  an explicit bounded timeout. Scientific methods, repetitions, random seeds,
+  module selections, and the `.eval()` architecture are unchanged.
+- Made online Leaflet basemaps fail over finitely to permitted alternative
+  tiles and a self-contained offline background. Existing overlays and map
+  controls are retained; the default remains offline. Provider policies and
+  local-file restrictions are documented.
+- Reordered tabs in the five original year-tab modules: the existing aggregate
+  or Comparison first, followed by available years newest first. EOW YAML
+  modules are unchanged; stochastic calculation order is preserved.
+- Restored the Data Status Check's qualitative interpretation guide without
+  reinstating an uncomputed overall grade or an automatic reporting gate.
+- Redesigned the pkgdown learning path and shared typography/styles, clarified
+  reusable analytical profiles, and retained technical and scientific guidance.
+- Documented and reproduced an upstream pkgcheck Markdown formatter failure,
+  with a proposed upstream correction; package checks are not bypassed.
+
+# camtrapReport 1.0.66
 
 - Fixed `report(test = TRUE)` recovery after a failed render so that it tests
   only the attached selection, preserves module order and cross-pool parent

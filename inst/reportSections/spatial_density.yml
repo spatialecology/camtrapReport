@@ -108,7 +108,11 @@ code: |
         .caption_label <- paste0("survey year ", .year)
       }
       
-      cat("\n### ", .label, " {.tabset .unnumbered}\n\n", sep = "")
+      if (is.null(.year)) {
+        cat("\n### ", .label, " {.tabset .active .unnumbered}\n\n", sep = "")
+      } else {
+        cat("\n### ", .label, " {.tabset .unnumbered}\n\n", sep = "")
+      }
       
       for (sp in species_list) {
         
@@ -222,10 +226,10 @@ code: |
       }
     }
     
-    for (.year in object$years) {
+    .generate_density_maps(.year = NULL, .ext = .ext, .crop = .crop)
+    
+    for (.year in sort(object$years, decreasing = TRUE)) {
       .generate_density_maps(.year = .year, .ext = .ext, .crop = .crop)
     }
-    
-    .generate_density_maps(.year = NULL, .ext = .ext, .crop = .crop)
   }
 ---

@@ -70,6 +70,14 @@ structure explicitly. \code{section_names()} without a profile lists the complet
 available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 \code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
+
+Console progress identifies module construction, individual chunks, HTML
+rendering, PDF conversion, and opening the completed file. Timings include
+elapsed time and CPU time in the current R process; Pandoc and browser CPU
+time is not included in the latter. The last started chunk identifies where
+a long-running computation is executing. PDF page loading and printing use
+a 60-second timeout after browser startup; analytical computations are not
+interrupted by that timeout.
 }
 \examples{
 \donttest{

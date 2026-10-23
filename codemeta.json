@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/spatialecology/camtrapReport",
   "url": "https://spatialecology.github.io/camtrapReport/",
   "issueTracker": "https://github.com/spatialecology/camtrapReport/issues",
-  "version": "1.0.66",
+  "version": "1.0.67",
   "license": "https://spdx.org/licenses/MIT.html",
   "programmingLanguage": "R",
   "runtimePlatform": "R >= 4.1.0",

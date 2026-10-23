@@ -172,10 +172,30 @@ code: |
   }
   
   # -------------------------
-  # Richness maps by year
+  # Total richness map
   # -------------------------
   
-  for (.year in object$years) {
+  cat("\n\n### Total {.active .unnumbered}\n\n")
+  
+  .richness <- object$richness(
+    year = NULL,
+    spList = object$get_speciesNames(group = object$setting$focus_groups)
+  )
+  
+  p <- plot_richness(.richness)
+  
+  if (is.null(p)) {
+    cat("\nNo cumulative richness map could be generated.\n\n")
+  } else {
+    print(htmltools::tagList(p))
+    .richness_caption("the cumulative dataset across all years")
+  }
+  
+  # -------------------------
+  # Richness maps by year, newest first
+  # -------------------------
+  
+  for (.year in sort(object$years, decreasing = TRUE)) {
     
     cat(paste0("\n### ", .year, " {.unnumbered}\n\n"))
     
@@ -192,25 +212,5 @@ code: |
       print(htmltools::tagList(p))
       .richness_caption(paste0("survey year ", .year))
     }
-  }
-  
-  # -------------------------
-  # Total richness map
-  # -------------------------
-  
-  cat("\n\n### Total {.unnumbered}\n\n")
-  
-  .richness <- object$richness(
-    year = NULL,
-    spList = object$get_speciesNames(group = object$setting$focus_groups)
-  )
-  
-  p <- plot_richness(.richness)
-  
-  if (is.null(p)) {
-    cat("\nNo cumulative richness map could be generated.\n\n")
-  } else {
-    print(htmltools::tagList(p))
-    .richness_caption("the cumulative dataset across all years")
   }
 ---

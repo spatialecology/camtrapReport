@@ -1,16 +1,17 @@
-
 llm-docs: false
 
 url: https://spatialecology.github.io/camtrapReport/
 
 template:
   bootstrap: 5
-  bootswatch: flatly
   bslib:
-    primary: "#1F6F54"
-    secondary: "#4B5563"
-    light: "#F8FAF7"
-    dark: "#1F2937"
+    primary: "#146353"
+    secondary: "#52645c"
+    light: "#f0f5f1"
+    dark: "#123e35"
+    base_font: "system-ui"
+    heading_font: "system-ui"
+    code_font: "ui-monospace"
 
 home:
   title: camtrapReport
@@ -21,17 +22,19 @@ home:
     structure: [toc]
 
 navbar:
+  bg: primary
+  type: dark
   structure:
     left:
       - home
       - articles
+      - profiles
+      - modules
       - reference
-      - resources
 
     right:
-      - about
       - search
-      - support
+      - about
       - github
 
   components:
@@ -40,7 +43,7 @@ navbar:
       href: index.html
 
     articles:
-      text: Articles
+      text: Guides
       menu:
         - text: Package Overview
           href: articles/Package-Overview.html
@@ -51,23 +54,34 @@ navbar:
         - text: Ecological Report
           href: articles/ecological-report.html
 
-        - text: Module management and extension
-          href: articles/modules.html
+        - text: Resources and training
+          href: articles/resources.html
 
-        - text: Reusable report profiles
-          href: articles/profiles.html
+    profiles:
+      text: Profiles
+      href: articles/profiles.html
+
+    modules:
+      text: Modules
+      href: articles/modules.html
 
     reference:
       text: Reference
       href: reference/index.html
 
-    resources:
-      text: Resources
-      href: articles/resources.html
-
     about:
-      text: About
+      text: Project
       menu:
+        - text: Report a bug
+          icon: fa-bug
+          href: https://github.com/spatialecology/camtrapReport/issues/new/choose
+
+        - text: Ask a question
+          icon: fa-comments
+          href: https://github.com/spatialecology/camtrapReport/discussions
+
+        - text: -------
+
         - text: Authors
           href: authors.html
 
@@ -83,17 +97,6 @@ navbar:
         - text: Code of conduct
           href: CODE_OF_CONDUCT.html
 
-    support:
-      text: Support
-      menu:
-        - text: Report a bug
-          icon: fa-bug
-          href: https://github.com/spatialecology/camtrapReport/issues/new/choose
-
-        - text: Ask a question
-          icon: fa-comments
-          href: https://github.com/spatialecology/camtrapReport/discussions
-
     github:
       icon: fab fa-github
       href: https://github.com/spatialecology/camtrapReport
@@ -106,23 +109,24 @@ articles:
       generating ecological reports, and customising report modules.
     contents:
       - Package-Overview
-      - "articles/data-status-report"
-      - "articles/ecological-report"
-      - "articles/modules"
-      - "articles/profiles"
+      - articles/data-status-report
+      - articles/ecological-report
+      - articles/profiles
+      - articles/modules
 
   - title: Resources
     desc: >
       Publications, workshops, and training resources related to
       camtrapReport.
     contents:
-      - "articles/resources"
+      - articles/resources
 
 reference:
   - title: Data input and metadata
     desc: >
       Create a camReport object from Camtrap DP data and inspect or
       update report metadata.
+
     contents:
       - camData
       - info
@@ -131,6 +135,7 @@ reference:
     desc: >
       Generate the Data Status Check or Ecological Report, or use the
       graphical interface.
+
     contents:
       - report
       - gui
@@ -138,6 +143,7 @@ reference:
   - title: Configure report contents
     desc: >
       Inspect, select, and update sections and reusable report profiles.
+
     contents:
       - section_names
       - reportProfile
@@ -147,6 +153,7 @@ reference:
     desc: >
       Create, test, add, move, remove, restore, and inspect report
       modules.
+
     contents:
       - reportSection
       - testSection
@@ -158,5 +165,6 @@ reference:
       Low-level documentation for the camReport class. Most users
       should create camReport objects with camData() rather than
       interacting with the class directly.
+
     contents:
       - camReport-classes

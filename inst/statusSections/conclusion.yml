@@ -3,8 +3,10 @@ name: "conclusion"
 title: "# Conclusion {.unnumbered}"
 parent: null
 text: |
-  Review the spatial, temporal, data-availability, validation, and annotation results together before interpreting an ecological report. These checks identify potential data issues but do not compute a single overall quality grade or establish suitability for an ecological model.
+  Based on results across the five key areas - Spatial, Temporal, Data Availability, Validation, and Annotation - assess whether the dataset needs further correction before ecological interpretation. Also review the Observation Types by Capture Method chapter when included in your profile.
 
-  Investigate missing or inconsistent records and document any corrections or exclusions. After editing source data, reload them with `camData(..., update = TRUE)` and rerun `status()`. Retain the corrected inputs, selected modules, settings, and package versions with your analysis.
+  Use the qualitative descriptions in the Abstract as a user-assessed guide: Perfect for checks reviewed without identified issues, Acceptable for minor issues requiring assessment, and Needs Improvement for major issues requiring correction. No overall classification is calculated by this report; in particular, it does not label every dataset Acceptable or automatically prevent report generation.
+
+  Investigate missing or inconsistent records and document any corrections or exclusions. After editing source data, reload them with `camData(..., update = TRUE)` and rerun `status()`. Retain the corrected inputs, selected modules, settings, and package versions with your analysis. A successful report does not establish that the survey design or data meet the assumptions of the selected ecological methods.
 code: null
 ---

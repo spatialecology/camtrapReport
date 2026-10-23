@@ -260,7 +260,7 @@ test_that("bundled report maps default to self-contained backgrounds", {
 
   calls <- new.env(parent = emptyenv())
   calls$code <- character()
-  calls$providers <- character()
+  calls$config <- NULL
 
   result <- testthat::with_mocked_bindings(
     cm$add_report_basemap(
@@ -270,14 +270,8 @@ test_that("bundled report maps default to self-contained backgrounds", {
     ),
     .eval = function(code, envir) {
       calls$code <- c(calls$code, code)
-      if (grepl("leaflet::providers", code, fixed = TRUE)) {
-        provider_name <- get(
-          "provider_name",
-          envir = envir,
-          inherits = FALSE
-        )
-        calls$providers <- c(calls$providers, provider_name)
-        return(provider_name)
+      if (grepl("htmlwidgets::onRender", code, fixed = TRUE)) {
+        calls$config <- get("config", envir = envir, inherits = FALSE)
       }
       get("map", envir = envir, inherits = FALSE)
     },
@@ -285,12 +279,16 @@ test_that("bundled report maps default to self-contained backgrounds", {
   )
 
   expect_type(result, "list")
-  expect_identical(calls$providers, c("OpenTopoMap", "OpenStreetMap"))
   expect_identical(
-    sum(grepl("addProviderTiles", calls$code, fixed = TRUE)),
-    2L
+    vapply(calls$config$providers, function(x) x$name, character(1)),
+    c("OpenStreetMap", "OpenTopoMap")
   )
-  expect_true(any(grepl("errorTileUrl", calls$code, fixed = TRUE)))
+  expect_identical(
+    sum(grepl("htmlwidgets::onRender", calls$code, fixed = TRUE)),
+    1L
+  )
+  expect_true(any(grepl("addRectangles", calls$code, fixed = TRUE)))
+  expect_true(any(grepl("zIndex = 190", calls$code, fixed = TRUE)))
 })
 
 
