@@ -1,0 +1,29 @@
+# Pre-commit hooks for camtrapReport
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-r-syntax
+        name: Check R syntax
+        entry: Rscript --vanilla -e "invisible(lapply(commandArgs(TRUE), function(f) parse(file=f)))"
+        language: system
+        files: \.[Rr]$
+        types: [file]
+        pass_filenames: true
+
+      - id: check-debug-statements
+        name: Check for debugging statements
+        entry: >-
+          Rscript --vanilla -e "files <- commandArgs(TRUE);
+          bad <- vapply(files, function(f)
+          any(grepl('browser[(]|debug[(]|debugonce[(]',
+          readLines(f, warn=FALSE))), logical(1));
+          if (any(bad)) {
+          cat('Debugging statements found in:',
+          paste(files[bad], collapse=', '), '\n');
+          quit(status=1)
+          }"
+        language: system
+        files: \.[Rr]$
+        types: [file]
+        pass_filenames: true
