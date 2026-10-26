@@ -30,22 +30,29 @@ BugReports: https://github.com/spatialecology/camtrapReport/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    data.table,
-    dplyr,
-    shiny,
-    glue,
-    jsonlite,
-    lubridate,
-    knitr,
+ data.table (>= 1.14.0),
+    dplyr (>= 1.1.0),
+    shiny (>= 1.7.0),
+    glue (>= 1.6.0),
+    jsonlite (>= 1.8.0),
+    lubridate (>= 1.9.0),
+    knitr (>= 1.40),
     methods,
-    rmarkdown,
-    terra
+    rmarkdown (>= 2.20),
+    terra (>= 1.7-0)
 Suggests:
     roxygen2,
     pak,
     pagedown,
     testthat (>= 3.1.7),
-    xml2
+    xml2,
+    taxize,
+    lutz,
+    spatstat,
+    camtrapDensity,
+    suncalc
+Additional_repositories:
+    https://camera-traps.r-universe.dev
 VignetteBuilder: knitr
 SystemRequirements: Google Chrome or Microsoft Edge (optional, for PDF output)
 Encoding: UTF-8

@@ -1,98 +1,324 @@
 {
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
-  "name": "camtrapReport",
   "identifier": "camtrapReport",
   "description": "Provides an extensible workflow for processing camera-trap data in the 'Camtrap DP' format and automatically generating reproducible data-status and ecological reports in HTML or PDF format. The package supports data-quality checks, ecological summaries, visualisations, maps, tables and modular report sections for wildlife-monitoring applications. Optional taxonomic enrichment queries the Global Biodiversity Information Facility Species API <https://techdocs.gbif.org/en/openapi/v1/species> through 'taxize'. Browser-based map backgrounds use OpenStreetMap <https://www.openstreetmap.org>, OSM Germany <https://openstreetmap.de/germanstyle/> and OpenTopoMap <https://opentopomap.org>, subject to their usage terms.",
+  "name": "camtrapReport: Camera-Trap Report Generator",
+  "relatedLink": "https://spatialecology.github.io/camtrapReport/",
   "codeRepository": "https://github.com/spatialecology/camtrapReport",
-  "url": "https://spatialecology.github.io/camtrapReport/",
   "issueTracker": "https://github.com/spatialecology/camtrapReport/issues",
+  "license": "https://spdx.org/licenses/MIT",
   "version": "1.0.68",
-  "license": "https://spdx.org/licenses/MIT.html",
-  "programmingLanguage": "R",
-  "runtimePlatform": "R >= 4.1.0",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "url": "https://r-project.org"
+  },
+  "runtimePlatform": "R version 4.5.3 (2026-03-11 ucrt)",
   "author": [
     {
       "@type": "Person",
-      "@id": "https://orcid.org/0000-0001-5191-9832",
       "givenName": "Elham",
       "familyName": "Ebrahimi",
-      "email": "eebrahimi.bio@gmail.com"
+      "email": "eebrahimi.bio@gmail.com",
+      "@id": "https://orcid.org/0000-0001-5191-9832"
     }
   ],
-  "maintainer": {
-    "@type": "Person",
-    "@id": "https://orcid.org/0000-0001-5191-9832",
-    "givenName": "Elham",
-    "familyName": "Ebrahimi",
-    "email": "eebrahimi.bio@gmail.com"
-  },
-  "developmentStatus": "https://www.repostatus.org/#active",
-  "readme": "https://github.com/spatialecology/camtrapReport/blob/main/README.md",
-  "buildInstructions": "https://spatialecology.github.io/camtrapReport/#installation",
-  "releaseNotes": "https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md",
-  "softwareRequirements": [
+  "maintainer": [
     {
-      "@type": "SoftwareApplication",
-      "name": "data.table"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "dplyr"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "shiny"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "glue"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "jsonlite"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "lubridate"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "knitr"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "methods"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "rmarkdown"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "terra"
+      "@type": "Person",
+      "givenName": "Elham",
+      "familyName": "Ebrahimi",
+      "email": "eebrahimi.bio@gmail.com",
+      "@id": "https://orcid.org/0000-0001-5191-9832"
     }
   ],
   "softwareSuggestions": [
     {
       "@type": "SoftwareApplication",
-      "name": "roxygen2"
+      "identifier": "roxygen2",
+      "name": "roxygen2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=roxygen2"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "pak"
+      "identifier": "pak",
+      "name": "pak",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=pak"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "pagedown"
+      "identifier": "pagedown",
+      "name": "pagedown",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=pagedown"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "testthat (>= 3.1.7)"
+      "identifier": "testthat",
+      "name": "testthat",
+      "version": ">= 3.1.7",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=testthat"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "xml2"
+      "identifier": "xml2",
+      "name": "xml2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=xml2"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "taxize",
+      "name": "taxize",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=taxize"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "lutz",
+      "name": "lutz",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=lutz"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "spatstat",
+      "name": "spatstat",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=spatstat"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "camtrapDensity",
+      "name": "camtrapDensity"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "suncalc",
+      "name": "suncalc",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=suncalc"
     }
-  ]
+  ],
+  "softwareRequirements": {
+    "1": {
+      "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 4.1.0"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
+      "identifier": "data.table",
+      "name": "data.table",
+      "version": ">= 1.14.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=data.table"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
+      "identifier": "dplyr",
+      "name": "dplyr",
+      "version": ">= 1.1.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=dplyr"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
+      "identifier": "shiny",
+      "name": "shiny",
+      "version": ">= 1.7.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=shiny"
+    },
+    "5": {
+      "@type": "SoftwareApplication",
+      "identifier": "glue",
+      "name": "glue",
+      "version": ">= 1.6.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=glue"
+    },
+    "6": {
+      "@type": "SoftwareApplication",
+      "identifier": "jsonlite",
+      "name": "jsonlite",
+      "version": ">= 1.8.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=jsonlite"
+    },
+    "7": {
+      "@type": "SoftwareApplication",
+      "identifier": "lubridate",
+      "name": "lubridate",
+      "version": ">= 1.9.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=lubridate"
+    },
+    "8": {
+      "@type": "SoftwareApplication",
+      "identifier": "knitr",
+      "name": "knitr",
+      "version": ">= 1.40",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=knitr"
+    },
+    "9": {
+      "@type": "SoftwareApplication",
+      "identifier": "methods",
+      "name": "methods"
+    },
+    "10": {
+      "@type": "SoftwareApplication",
+      "identifier": "rmarkdown",
+      "name": "rmarkdown",
+      "version": ">= 2.20",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rmarkdown"
+    },
+    "11": {
+      "@type": "SoftwareApplication",
+      "identifier": "terra",
+      "name": "terra",
+      "version": ">= 1.7-0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=terra"
+    },
+    "SystemRequirements": "Google Chrome or Microsoft Edge (optional, for PDF output)"
+  },
+  "fileSize": "8841.283KB",
+  "citation": [
+    {
+      "@type": "SoftwareSourceCode",
+      "datePublished": "2026",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Elham",
+          "familyName": "Ebrahimi"
+        }
+      ],
+      "name": "camtrapReport: An R Package for Automated Camera-Trap Reporting",
+      "url": "https://github.com/spatialecology/camtrapReport",
+      "description": "R package version 1.0.68"
+    },
+    {
+      "@type": "CreativeWork",
+      "datePublished": "2026",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Elham",
+          "familyName": "Ebrahimi"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Patrick A.",
+          "familyName": "Jansen"
+        }
+      ],
+      "name": "camtrapReport: An R Package for Automating Camera-Trap Data Reporting for Wildlife Monitoring",
+      "identifier": "10.5281/zenodo.18405441",
+      "url": "https://doi.org/10.5281/zenodo.18405441",
+      "@id": "https://doi.org/10.5281/zenodo.18405441",
+      "sameAs": "https://doi.org/10.5281/zenodo.18405441"
+    }
+  ],
+  "releaseNotes": "https://github.com/spatialecology/camtrapReport/blob/main/NEWS.md",
+  "readme": "https://github.com/spatialecology/camtrapReport/blob/main/README.md",
+  "keywords": ["ecological-reporting", "reproducible-workflow", "wildlife-monitoring", "automating-camera-trap-data-reporting", "camera-traps", "modular-r-package"]
 }

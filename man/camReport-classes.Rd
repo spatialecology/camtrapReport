@@ -32,10 +32,12 @@ of this class are usually created with \code{\link[=camData]{camData()}}. A \cod
 stores the camera-trap dataset, report metadata, processed summaries, report
 modules, status-report modules, and settings used for report generation.
 
-The exported \code{camR} object is the low-level Reference Class generator for
-advanced use. Calling \code{camR$new()} creates an unprepared container; it does
-not import data or run the setup and data-status checks performed by
-\code{\link[=camData]{camData()}}. Use \code{\link[=camData]{camData()}} for the normal reporting workflow.
+The \code{camR} Reference Class generator is intended for advanced use.
+Most users should use \code{\link[=camData]{camData()}} to create and initialize
+camera-trap data objects.
+
+Calling \code{camR$new()} directly does not import data or perform
+the initialization and checks provided by \code{\link[=camData]{camData()}}.
 }
 
 \section{Main fields}{
