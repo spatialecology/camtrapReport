@@ -3,7 +3,6 @@
 \name{install_all}
 \alias{install_all}
 \alias{install_all,ANY-method}
-\alias{install_All}
 \alias{install_All,ANY-method}
 \title{Install packages required by camtrapReport}
 \usage{
@@ -11,8 +10,6 @@ install_all(pkgs = NULL, update = FALSE, github = TRUE,
   gitlab = FALSE, ...)
 
 \S4method{install_all}{ANY}(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
-
-install_All(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
 
 \S4method{install_All}{ANY}(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
 }

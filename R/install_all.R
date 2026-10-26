@@ -529,8 +529,13 @@ setMethod(
   }
 )
 
-#' @rdname install-all
-#' @aliases install_All
+#' Deprecated installer
+#'
+#' `install_All()` is retained for backward compatibility.
+#' Use [install_all()] instead.
+#'
+#' @inheritParams install_all
+#' @keywords internal
 #' @export
 setGeneric(
   "install_All",
