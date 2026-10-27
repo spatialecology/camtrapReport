@@ -127,6 +127,14 @@ stopifnot(file.exists(status_file), file.exists(report_file))
 ```
 
 Open the returned files, or use `view = TRUE` when generating them.
+Both output paths are displayed before rendering. Existing output or `.Rmd`
+files are protected by default; choose a new filename or explicitly pass
+`overwrite = TRUE` to replace them. An invalid directory now raises an error
+instead of silently writing elsewhere. In project scripts you can choose an
+existing directory with `here::here("reports")`; check the project root first
+and create the directory deliberately. Executed package examples use temporary
+directories so they do not write into your project or installed package.
+
 For fuller illustrations, view the
 [Data Status Check](https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html)
 and [Ecological Report](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html).
@@ -136,7 +144,11 @@ packages; they are not the expected output of this minimal example.
 Correct source records when needed, rebuild with
 `cm <- camData(data_path, update = TRUE)`, then run `status()` again.
 Rerunning a report on the existing object does not reread edited CSV/JSON
-files. Checks identify possible problems; they do not repair records, assign
+files. Cache reuse now checks source sizes and modification times and warns
+when a saved object is stale or too old to verify. It still returns the cached
+object until you explicitly rebuild it. Optional habitat/boundary changes and
+edits preserving both size and modification time require an explicit rebuild.
+Checks identify possible problems; they do not repair records, assign
 an overall quality grade, or guarantee analytical suitability.
 
 ## GUI and customisation
@@ -224,13 +236,17 @@ Retain input data, optional inputs, analytical settings, module/profile
 versions, and software versions. Interpret results in light of sampling
 effort, detectability, season, habitat, and method-specific assumptions.
 Diagnostic `test = TRUE` can omit failed sections; it is not a substitute for
-successful full analyses. The default offline map background needs no tile
+successful full analyses. The explicit offline map background needs no tile
 service; online backgrounds depend on provider permissions and availability.
 
-When `taxize` is installed, import may query GBIF automatically; the current
-API has no per-call opt-out. This can affect privacy, offline use, and
-reproducibility. Reports can reveal sensitive species locations; review them
-before sharing. See the overview for details on these limits and caches.
+Fresh imports with `taxize` installed may query GBIF by default, with a notice
+before sending scientific names. Use `camData(data_path, enrich_taxonomy = FALSE)`
+for an offline import or a confidential species list; add `update = TRUE` when
+rebuilding an existing cache. The default `TRUE` preserves previous enrichment.
+Without it, class-dependent groups (including `wild_mammals`, birds, reptiles
+and amphibians) can be unavailable; source orders and raw counts are retained.
+Reports can reveal sensitive species locations; review them before sharing.
+See the overview for details on these limits and caches.
 
 The bundled example is a relationship-preserving subset of
 [GMU8_LEUVEN](https://doi.org/10.15468/4u3wm4), intended for software

@@ -114,12 +114,19 @@ The example below defines a simple module called `species_table`, which adds a
 species summary table to the Ecological Report.
 
 Create a file called `species_table.yml` in a writable project directory.
-The example below uses `project_dir` for that directory; replace the temporary
-directory with a deliberate project path if you want to retain your modules.
+The example below assumes that you have opened the intended R project and
+have the optional `here` package installed. Check the root printed by
+`here::here()` before creating a persistent module folder there. See the
+[here project-root guidance](https://here.r-lib.org/reference/here.html) if it
+does not identify the intended project. Alternatively, set `project_dir` to
+an explicit writable project path. These project-specific steps are shown
+for interactive use and are not executed when the vignette is built.
 
 ```{r create-module-workspace, eval=FALSE}
-project_dir <- tempfile("camtrapReport-modules-")
-dir.create(project_dir)
+# Verify this is the project where you want to retain your modules:
+here::here()
+project_dir <- here::here("camtrapReport-modules")
+dir.create(project_dir, recursive = TRUE, showWarnings = FALSE)
 module_file <- file.path(project_dir, "species_table.yml")
 ```
 
@@ -263,6 +270,12 @@ If the module opens correctly in the browser, it can be included in the full rep
 ### 7. Generate the full report
 
 After testing, generate the full Ecological Report with the new module included.
+The resolved output and `.Rmd` paths are displayed first. Existing files are
+protected by default: choose a new filename, or explicitly use
+`overwrite = TRUE` when replacement is intended. HTML and PDF files with the
+same stem share an `.Rmd` source, so use different stems to retain both.
+Supply an existing output directory; an invalid directory raises an error
+rather than silently falling back to the working directory.
 
 ```{r generate-report-with-new-module, eval=FALSE}
 # Generate the full report

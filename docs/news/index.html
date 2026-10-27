@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.68" id="camtrapreport-1068-development-version">camtrapReport 1.0.68 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1068-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.69" id="camtrapreport-1069-development-version">camtrapReport 1.0.69 (development version)<a class="anchor" aria-label="anchor" href="#camtrapreport-1069-development-version"></a></h2>
+<ul><li>Added <code>camData(enrich_taxonomy = FALSE)</code> to disable GBIF taxonomy requests. The default remains <code>TRUE</code> for compatibility; fresh enrichment announces that scientific names are sent to GBIF. Offline imports retain source names, orders and counts, but class-dependent groups can be unavailable.</li>
+<li>Protected ecological and status report outputs and their shared <code>.Rmd</code> sources with <code>overwrite = FALSE</code>. Resolved paths are displayed before rendering, invalid directories fail clearly, and no working-directory fallback is used. The GUI previews paths and requires explicit overwrite consent. Its optional project-root default uses <code>here</code> (in Suggests), not the core report functions.</li>
+<li>Added advisory cache-freshness checks using the four input files’ sizes and modification times, captured before parsing. Changed or unverifiable caches warn with <code>update = TRUE</code> guidance and are still reused without rewriting. No hashing, new cache arguments, dependency or automatic rebuild was added.</li>
+<li>Configured explicitly math-free test fixtures without MathJax to avoid the rmarkdown 2.32 / Pandoc 3.11 deprecated <code>--mathjax</code> diagnostic. Production math rendering, report contents and unrelated warnings remain unchanged.</li>
+<li>Added focused regressions and updated help, guides and reviewer responses. Scientific calculations and the <code>.eval()</code> architecture are unchanged.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.68" id="camtrapreport-1068">camtrapReport 1.0.68<a class="anchor" aria-label="anchor" href="#camtrapreport-1068"></a></h2>
 <ul><li>Restored online OpenStreetMap-first backgrounds for new report objects; explicitly selected offline backgrounds remain offline. All bundled Leaflet maps continue to use one shared helper, with a neutral fallback that leaves ecological overlays and controls intact.</li>
 <li>Simplified the default fallback for noncommercial research reports to OpenStreetMap Standard, OpenStreetMap Germany, OpenTopoMap, then a neutral background, without extra eligibility settings. Local files start with Germany because they cannot send Standard’s required web Referer; no header is spoofed and no tiles are downloaded or bundled by R. Existing explicit CARTO and Esri selections are retained subject to their service terms.</li>
 <li>Corrected browser tile-failure detection so that an isolated tile error does not discard a working basemap. Failed providers are removed before advancing, hidden/nested tabs resize on activation, and exhausted providers never stop report generation. Scientific analyses, <code>.eval()</code>, public arguments and R dependencies are unchanged.</li>

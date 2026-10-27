@@ -1,4 +1,26 @@
-# camtrapReport 1.0.68 (development version)
+# camtrapReport 1.0.69 (development version)
+
+- Added `camData(enrich_taxonomy = FALSE)` to disable GBIF taxonomy requests.
+  The default remains `TRUE` for compatibility; fresh enrichment announces
+  that scientific names are sent to GBIF. Offline imports retain source names,
+  orders and counts, but class-dependent groups can be unavailable.
+- Protected ecological and status report outputs and their shared `.Rmd`
+  sources with `overwrite = FALSE`. Resolved paths are displayed before
+  rendering, invalid directories fail clearly, and no working-directory
+  fallback is used. The GUI previews paths and requires explicit overwrite
+  consent. Its optional project-root default uses `here` (in Suggests), not
+  the core report functions.
+- Added advisory cache-freshness checks using the four input files' sizes and
+  modification times, captured before parsing. Changed or unverifiable caches
+  warn with `update = TRUE` guidance and are still reused without rewriting.
+  No hashing, new cache arguments, dependency or automatic rebuild was added.
+- Configured explicitly math-free test fixtures without MathJax to avoid the
+  rmarkdown 2.32 / Pandoc 3.11 deprecated `--mathjax` diagnostic. Production
+  math rendering, report contents and unrelated warnings remain unchanged.
+- Added focused regressions and updated help, guides and reviewer responses.
+  Scientific calculations and the `.eval()` architecture are unchanged.
+
+# camtrapReport 1.0.68
 
 - Restored online OpenStreetMap-first backgrounds for new report objects;
   explicitly selected offline backgrounds remain offline. All bundled Leaflet

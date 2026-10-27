@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,6 +151,58 @@ directories so their caches remain separate. The optional
 <code>camtrapdp::write_camtrapdp()</code> functions can help prepare
 those subsets while preserving links to media and observations.</p>
 <div class="section level3">
+<h3 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a>
+</h3>
+<p><code>camData(..., enrich_taxonomy = TRUE)</code> preserves the
+previous default: when the optional <code>taxize</code> package is
+installed, a fresh import sends scientific names to GBIF to supplement
+taxonomic classes and missing orders. A message announces those
+requests. For offline work or confidential species lists, disable this
+enrichment explicitly:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="va">data_path</span>, update <span class="op">=</span> <span class="cn">TRUE</span>, enrich_taxonomy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>This disables GBIF taxonomy requests, not network operations in
+subsequently selected modules or map backgrounds. Imported names,
+families, supplied orders and observation counts are retained. When
+taxonomic classes are unavailable, automatically defined class-based
+groups such as <code>birds</code>, <code>reptiles</code>,
+<code>amphibians</code> and <code>wild_mammals</code> are not created.
+Their group summaries can therefore be absent, while order-based groups
+such as <code>large_mammals</code> remain usable when the source
+supplies the relevant orders. Reusing a cache does not remove enrichment
+already stored in that object; <code>update = TRUE</code> is needed to
+import again with a different setting.</p>
+</div>
+<div class="section level3">
+<h3 id="cached-inputs-and-re-importing">Cached inputs and re-importing<a class="anchor" aria-label="anchor" href="#cached-inputs-and-re-importing"></a>
+</h3>
+<p><code><a href="../reference/camData.html">camData()</a></code> saves the processed object as
+<code>__camReport_Object.rds</code> beside the extracted dataset. With
+the default <code>update = FALSE</code>, a later call using that
+directory still reuses the saved object. New caches include a
+lightweight snapshot of the four selected source files:
+<code>datapackage.json</code>, <code>deployments.csv</code>,
+<code>media.csv</code> and <code>observations.csv</code>. Their relative
+paths, sizes and modification times are recorded before parsing, so
+later changes during a long import do not become a falsely fresh
+post-import snapshot.</p>
+<p>On reuse, added or removed core-file candidates in the dataset root
+or known input directories, or changed source sizes/times, trigger an
+advisory warning. The cached object is still returned: it is not
+automatically rebuilt, deleted or rewritten. Older caches without a
+snapshot warn that freshness cannot be verified. After editing source
+data, rebuild explicitly with
+<code>camData(data_path, update = TRUE)</code> and resupply optional
+inputs and the intended taxonomy setting before regenerating
+reports.</p>
+<p>This is a metadata check, not content hashing or a full provenance
+guarantee. Same-size edits whose modification time is restored can be
+missed. It does not recursively search previously unknown nested
+directories, or detect changes to optional habitat data and study-area
+boundaries supplied separately. Use <code>update = TRUE</code> after
+changing those inputs even if no warning appears.</p>
+</div>
+<div class="section level3">
 <h3 id="bundled-example-data">Bundled example data<a class="anchor" aria-label="anchor" href="#bundled-example-data"></a>
 </h3>
 <p>The package includes a relationship-preserving subset of the
@@ -177,7 +229,7 @@ interpretation. It summarises issues such as missing information,
 annotation and validation status, temporal inconsistencies, spatial
 outliers, observation types, and other aspects of data readiness.</p>
 <p>It is generated with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-status.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The report is diagnostic rather than inferential: passing the checks
 does not mean that a sampling design is suitable for every ecological
@@ -197,7 +249,7 @@ records for you. <code><a href="../reference/camData.html">camData()</a></code> 
 analyses, figures, tables, maps, and explanatory text in an
 article-style document.</p>
 <p>It is generated with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-report.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The content of the report depends on the selected sections, available
 data, and analytical settings. Users can therefore adapt the report to
@@ -220,8 +272,9 @@ usable background. Each provider has a bounded loading deadline and is
 attempted at most once; ecological overlays and controls remain
 available when every provider fails. See the <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use">map-background
 guide</a> for policies, attributions and explicit CARTO/Esri modes.</p>
-<p>HTML and PDF rendering is quiet by default. For troubleshooting,
-enable console-only progress and stage/chunk timings with
+<p>Apart from the resolved-destination notice, HTML and PDF rendering is
+quiet by default. For troubleshooting, enable console-only progress and
+stage/chunk timings with
 <code>options(camtrapReport.progress = TRUE)</code>; set it to
 <code>FALSE</code> afterwards to return to normal rendering. Warnings,
 errors and notices about omitted content remain visible. These
@@ -231,22 +284,36 @@ code-based workflow does not need a running Shiny application. Optional
 analysis packages are declared by the YAML modules and can be installed
 through an explicit call to <code><a href="../reference/install-all.html">install_all()</a></code> after inspecting
 those requirements.</p>
-<p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create an HTML
-file together with the intermediate R Markdown file used to render it.
-With their default relative filenames, these files are written beside
-the writable camera-trap data used to create the object. Supply an
-explicit file stem or an existing output directory through
-<code>filename</code> to control where the files are written. A
-<code>.pdf</code> filename or <code>format = "pdf"</code> creates a
-static browser-printed PDF through the optional <code>pagedown</code>
-package; Chrome or Edge is also required. PDF reports do not include a
-table of contents. The module registry’s <code>formats</code> column
-identifies modules that support <code>html</code>, <code>pdf</code>, or
-<code>both</code>; report generation omits incompatible modules and
-dependent children for the requested output. Printable tabsets are
-expanded for PDF so every panel remains visible. Package examples copy
-the bundled data and write generated reports to temporary
-directories.</p>
+<p>The GUI initially suggests a valid project root returned by the
+optional <code>here</code> package, otherwise falling back to the
+object’s valid dataset directory. Check that this is your intended
+location and choose an existing output directory. It previews the
+resolved paths and does not change the R working directory. Its
+overwrite checkbox starts unchecked, protecting existing reports, R
+Markdown sources and saved objects until replacement is explicitly
+allowed.</p>
+<p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create a
+rendered file together with the intermediate <code>.Rmd</code> source
+used to render it. The resolved paths are displayed before rendering.
+With a filename that contains no directory, the object’s existing
+dataset directory is used. Otherwise supply a filename including an
+existing output directory. An invalid directory is an error, not a
+reason to silently use <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code> or another location.</p>
+<p>Existing rendered output and the same-stem <code>.Rmd</code> file are
+protected by <code>overwrite = FALSE</code>, the default. Choose a new
+filename or explicitly set <code>overwrite = TRUE</code> to replace
+them. HTML and PDF outputs with the same stem share the
+<code>.Rmd</code> path, so use distinct stems when retaining both
+versions. A <code>.pdf</code> filename or <code>format = "pdf"</code>
+creates a static browser-printed PDF through the optional
+<code>pagedown</code> package; Chrome or Edge is also required. PDF
+reports do not include a table of contents. The module registry’s
+<code>formats</code> column identifies modules that support
+<code>html</code>, <code>pdf</code>, or <code>both</code>; report
+generation omits incompatible modules and dependent children for the
+requested output. Printable tabsets are expanded for PDF so every panel
+remains visible. Executed package examples copy the bundled data and
+write generated reports to temporary directories.</p>
 </div>
 </div>
 <div class="section level2">
@@ -258,7 +325,7 @@ users, the important point is that the same object can be inspected,
 adjusted, and then used to regenerate reports with updated settings.</p>
 <p>For example, metadata can be viewed or changed with
 <code><a href="../reference/info.html">info()</a></code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span></span>
@@ -279,7 +346,7 @@ assembled from separate sections rather than from one fixed template.
 Users can keep only the sections relevant to their data and reporting
 needs, and can omit or reorder sections when needed.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect available report sections</span></span>
 <span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -299,7 +366,7 @@ needs, and can omit or reorder sections when needed.</p>
 <span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-selected-report.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>For repeated report types, a named profile stores an ordered
 selection without moving or duplicating module YAML files:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect bundled or user-registered profiles</span></span>
 <span><span class="fu"><a href="../reference/reportProfile.html">profile_names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>

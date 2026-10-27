@@ -65,6 +65,52 @@ The optional `camtrapdp::filter_deployments()` and
 `camtrapdp::write_camtrapdp()` functions can help prepare those subsets while
 preserving links to media and observations.
 
+### Optional taxonomy enrichment
+
+`camData(..., enrich_taxonomy = TRUE)` preserves the previous default: when
+the optional `taxize` package is installed, a fresh import sends scientific
+names to GBIF to supplement taxonomic classes and missing orders. A message
+announces those requests. For offline work or confidential species lists,
+disable this enrichment explicitly:
+
+```r
+cm <- camData(data_path, update = TRUE, enrich_taxonomy = FALSE)
+```
+
+This disables GBIF taxonomy requests, not network operations in subsequently
+selected modules or map backgrounds. Imported names, families, supplied
+orders and observation counts are retained. When taxonomic classes are
+unavailable, automatically defined class-based groups such as `birds`,
+`reptiles`, `amphibians` and `wild_mammals` are not created. Their group
+summaries can therefore be absent, while order-based groups such as
+`large_mammals` remain usable when the source supplies the relevant orders.
+Reusing a cache does not remove enrichment already stored in that object;
+`update = TRUE` is needed to import again with a different setting.
+
+### Cached inputs and re-importing
+
+`camData()` saves the processed object as `__camReport_Object.rds` beside the
+extracted dataset. With the default `update = FALSE`, a later call using that
+directory still reuses the saved object. New caches include a lightweight
+snapshot of the four selected source files: `datapackage.json`,
+`deployments.csv`, `media.csv` and `observations.csv`. Their relative paths,
+sizes and modification times are recorded before parsing, so later changes
+during a long import do not become a falsely fresh post-import snapshot.
+
+On reuse, added or removed core-file candidates in the dataset root or known
+input directories, or changed source sizes/times, trigger an advisory warning.
+The cached object is still returned: it is not automatically rebuilt, deleted
+or rewritten. Older caches without a snapshot warn that freshness cannot be
+verified. After editing source data, rebuild explicitly with
+`camData(data_path, update = TRUE)` and resupply optional inputs and the
+intended taxonomy setting before regenerating reports.
+
+This is a metadata check, not content hashing or a full provenance guarantee.
+Same-size edits whose modification time is restored can be missed. It does
+not recursively search previously unknown nested directories, or detect
+changes to optional habitat data and study-area boundaries supplied separately.
+Use `update = TRUE` after changing those inputs even if no warning appears.
+
 ### Bundled example data
 
 The package includes a relationship-preserving subset of the GMU8_LEUVEN
@@ -136,7 +182,8 @@ remain available when every provider fails. See the
 [map-background guide](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use)
 for policies, attributions and explicit CARTO/Esri modes.
 
-HTML and PDF rendering is quiet by default. For troubleshooting, enable
+Apart from the resolved-destination notice, HTML and PDF rendering is quiet
+by default. For troubleshooting, enable
 console-only progress and stage/chunk timings with
 `options(camtrapReport.progress = TRUE)`; set it to `FALSE` afterwards to
 return to normal rendering. Warnings, errors and notices about omitted
@@ -148,18 +195,33 @@ does not need a running Shiny application. Optional analysis packages are
 declared by the YAML modules and can be installed through an explicit call
 to `install_all()` after inspecting those requirements.
 
-Both `status()` and `report()` create an HTML file together with the
-intermediate R Markdown file used to render it. With their default relative
-filenames, these files are written beside the writable camera-trap data used to
-create the object. Supply an explicit file stem or an existing output directory
-through `filename` to control where the files are written. A `.pdf` filename or
+The GUI initially suggests a valid project root returned by the optional
+`here` package, otherwise falling back to the object's valid dataset directory.
+Check that this is your intended location and choose an existing output
+directory. It previews the resolved paths and does not change the R working
+directory. Its overwrite checkbox starts unchecked, protecting existing
+reports, R Markdown sources and saved objects until replacement is explicitly
+allowed.
+
+Both `status()` and `report()` create a rendered file together with the
+intermediate `.Rmd` source used to render it. The resolved paths are displayed
+before rendering. With a filename that contains no directory, the object's
+existing dataset directory is used. Otherwise supply a filename including an
+existing output directory. An invalid directory is an error, not a reason to
+silently use `getwd()` or another location.
+
+Existing rendered output and the same-stem `.Rmd` file are protected by
+`overwrite = FALSE`, the default. Choose a new filename or explicitly set
+`overwrite = TRUE` to replace them. HTML and PDF outputs with the same stem
+share the `.Rmd` path, so use distinct stems when retaining both versions.
+A `.pdf` filename or
 `format = "pdf"` creates a static browser-printed PDF through the optional
 `pagedown` package; Chrome or Edge is also required. PDF reports do not include
 a table of contents. The module registry's `formats` column identifies modules
 that support `html`, `pdf`, or `both`; report generation omits incompatible
 modules and dependent children for the requested output. Printable tabsets are
-expanded for PDF so every panel remains visible. Package examples copy the
-bundled data and write generated reports to temporary directories.
+expanded for PDF so every panel remains visible. Executed package examples
+copy the bundled data and write generated reports to temporary directories.
 
 ## Working with the `camReport` object
 

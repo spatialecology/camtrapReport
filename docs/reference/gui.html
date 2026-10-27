@@ -11,7 +11,7 @@ object."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,13 @@ application.</p>
 metadata, selecting report sections, defining focus groups, and generating
 data-status or ecological reports.</p>
 <p>The GUI can be used with an existing <code>camReport</code> object and provides an
-interactive alternative to configuring reports directly in R.</p>
+interactive alternative to configuring reports directly in R.
+The output directory initially uses the project root from the optional
+<code>here</code> package when available, otherwise the object's dataset directory.
+Choose an existing directory explicitly before saving output.
+Existing report, R Markdown, and saved-object files are protected unless
+the overwrite checkbox is selected. Generating output does not change the
+R working directory.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

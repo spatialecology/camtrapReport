@@ -50,7 +50,8 @@ Suggests:
     lutz,
     spatstat,
     camtrapDensity,
-    suncalc
+    suncalc,
+    here
 Additional_repositories:
     https://camera-traps.r-universe.dev
 VignetteBuilder: knitr

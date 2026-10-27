@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,12 +204,19 @@ module and its output in the Ecological Report.
 <code>species_table</code>, which adds a species summary table to the
 Ecological Report.</p>
 <p>Create a file called <code>species_table.yml</code> in a writable
-project directory. The example below uses <code>project_dir</code> for
-that directory; replace the temporary directory with a deliberate
-project path if you want to retain your modules.</p>
+project directory. The example below assumes that you have opened the
+intended R project and have the optional <code>here</code> package
+installed. Check the root printed by <code><a href="https://here.r-lib.org/reference/here.html" class="external-link">here::here()</a></code> before
+creating a persistent module folder there. See the <a href="https://here.r-lib.org/reference/here.html" class="external-link">here project-root
+guidance</a> if it does not identify the intended project.
+Alternatively, set <code>project_dir</code> to an explicit writable
+project path. These project-specific steps are shown for interactive use
+and are not executed when the vignette is built.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">project_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-modules-"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">project_dir</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Verify this is the project where you want to retain your modules:</span></span>
+<span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">project_dir</span> <span class="op">&lt;-</span> <span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"camtrapReport-modules"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">project_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">module_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"species_table.yml"</span><span class="op">)</span></span></code></pre></div>
 <p>Save the following YAML content at <code>module_file</code> before
 running the next step.</p>
@@ -351,7 +358,13 @@ the full report.</p>
 <h3 id="generate-the-full-report">7. Generate the full report<a class="anchor" aria-label="anchor" href="#generate-the-full-report"></a>
 </h3>
 <p>After testing, generate the full Ecological Report with the new
-module included.</p>
+module included. The resolved output and <code>.Rmd</code> paths are
+displayed first. Existing files are protected by default: choose a new
+filename, or explicitly use <code>overwrite = TRUE</code> when
+replacement is intended. HTML and PDF files with the same stem share an
+<code>.Rmd</code> source, so use different stems to retain both. Supply
+an existing output directory; an invalid directory raises an error
+rather than silently falling back to the working directory.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate the full report</span></span>
 <span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>

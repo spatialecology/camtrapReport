@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">camData</span><span class="op">(</span><span class="va">data</span>, <span class="va">habitat</span>, <span class="va">study_area</span>, <span class="va">update</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">camData</span><span class="op">(</span><span class="va">data</span>, <span class="va">habitat</span>, <span class="va">study_area</span>, <span class="va">update</span>, enrich_taxonomy <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -84,6 +84,13 @@ path, a <code>SpatVector</code>, or an <code>sf</code> object. The default is <c
 <dt id="arg-update">update<a class="anchor" aria-label="anchor" href="#arg-update"></a></dt>
 <dd><p>A logical value (default <code>FALSE</code>) specifying whether to
 recreate a previously saved <code>camReport</code> object.</p></dd>
+
+
+<dt id="arg-enrich-taxonomy">enrich_taxonomy<a class="anchor" aria-label="anchor" href="#arg-enrich-taxonomy"></a></dt>
+<dd><p>A single logical value (default <code>TRUE</code>) allowing GBIF
+taxonomy enrichment when the optional <code>taxize</code> package is installed.
+Set to <code>FALSE</code> to prevent these network requests. This affects fresh
+imports; use <code>update = TRUE</code> to rebuild a previously cached object.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -131,21 +138,34 @@ Merely rerunning <code><a href="report.html">status()</a></code> on the old obje
 when a study area is supplied, writes <code>study_area.map</code>. A ZIP input is
 extracted before reading. Use a writable copy of the input dataset, as in
 the examples, rather than an installed package directory. A cached object
-is reused when <code>update = FALSE</code>; changes to source files or optional inputs
-are not detected automatically. Use <code>update = TRUE</code> to rebuild it.
+is reused when <code>update = FALSE</code>. Lightweight file-size and modification-time
+checks warn if the four source CSV/JSON files were changed, added or removed
+in the dataset root or their recorded directories. The cache is still reused;
+use <code>update = TRUE</code> to rebuild it. Older caches without this metadata also
+warn because their freshness cannot be verified. No input contents are hashed
+or reread during this check. Changes that preserve both size and modification
+time, files in previously unknown nested directories, and changes to optional
+<code>habitat</code> or <code>study_area</code> inputs are not detected; rebuild explicitly for these.
 Only load datasets and saved R objects from sources you trust.</p>
     </div>
     <div class="section level2">
     <h2 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a></h2>
 
 
-<p>In the current implementation, installing <code>taxize</code> enables GBIF taxonomy
-lookups during import. Species names are sent to GBIF to supplement class
-and order information. This can require an internet connection and affect
-import time and reproducibility; there is currently no per-call opt-out or
-request-timeout argument. Preserve the processed object and package versions
-used in an analysis, and consider this network behaviour before processing
-confidential species lists. Without <code>taxize</code>, this lookup is not performed.</p>
+<p>With <code>enrich_taxonomy = TRUE</code> and <code>taxize</code> installed, a fresh import sends
+scientific names to GBIF to supply class and missing order information.
+A message announces this network access. The default preserves the previous
+import behaviour; requests can affect import time, privacy and reproducibility.
+Use <code>enrich_taxonomy = FALSE</code> for offline or confidential species lists.
+No GBIF taxonomy request is made with that setting, or without <code>taxize</code>.
+No new timeout is imposed on the existing taxize workflow.</p>
+<p>Without enrichment, imported species names, families, orders and counts are
+retained, but taxonomic classes may be unavailable. Groups defined by class
+(for example <code>wild_mammals</code>, birds, reptiles or amphibians) may then be absent.
+Default
+order-based groups remain usable when the source supplies the relevant
+orders. This option does not remove taxonomy already present in a reused
+cache. Preserve the processed object and package versions used in analyses.</p>
     </div>
     <div class="section level2">
     <h2 id="study-areas-that-change-over-time">Study areas that change over time<a class="anchor" aria-label="anchor" href="#study-areas-that-change-over-time"></a></h2>

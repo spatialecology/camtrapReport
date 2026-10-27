@@ -206,7 +206,7 @@ contents and expands printable tab panels in sequence. Use an explicit path:
 report(
   cm,
   profile = "brief",
-  filename = file.path(tempdir(), "brief-report.pdf"),
+  filename = file.path(tempdir(), "brief-report-pdf.pdf"),
   view = FALSE
 )
 ```

@@ -111,7 +111,8 @@ writable input dataset. A specific file stem or a path inside an
 existing output directory can be supplied through `filename`:
 
 ```{r ecological-report-output-path, eval=FALSE}
-output_dir <- file.path(tempdir(), "camtrapReport-ecological")
+# In a project script, check that here::here() identifies your intended root.
+output_dir <- here::here("reports", "camtrapReport-ecological")
 dir.create(
   output_dir,
   recursive = TRUE,
@@ -125,7 +126,14 @@ report_file <- report(
 )
 ```
 
-An existing output with the same name may be replaced. Use explicit, versioned filenames when reports from multiple datasets, settings, or processing dates must be retained.
+The resolved output and `.Rmd` paths are displayed before rendering. Existing
+files are protected by default: use a new stem for a retained report, or pass
+`overwrite = TRUE` only when you intend to replace them. A bare filename uses
+the object's existing dataset directory; a missing or invalid directory raises
+an error, never a silent fallback to the working directory. The GUI previews
+the destination and leaves overwrite consent unchecked. Its initial directory
+uses the optional `here` package's project root, or the dataset directory when
+`here` is unavailable. The core report functions do not use `here`.
 
 The [README quick start](https://spatialecology.github.io/camtrapReport/)
 deliberately selects only the introduction, so it can run without the optional
@@ -572,7 +580,7 @@ report(
 report(
   cm,
   profile = "EOW",
-  filename = file.path(output_dir, "EOW-ecological-report.pdf")
+  filename = file.path(output_dir, "EOW-ecological-report-pdf.pdf")
 )
 ```
 
@@ -587,7 +595,8 @@ reusable selection, see the
 
 ### Report progress and slow rendering
 
-HTML and PDF rendering is quiet by default. Enable optional console diagnostics
+Apart from the resolved destination notice, HTML and PDF rendering is quiet
+by default. Enable optional console diagnostics
 when investigating slow rendering:
 
 ```{r ecological-progress, eval=FALSE}
@@ -615,7 +624,7 @@ report(
 )
 report(
   cm, profile = "EOW",
-  filename = file.path(output_dir, "EOW-timing.pdf"), view = FALSE
+  filename = file.path(output_dir, "EOW-timing-pdf.pdf"), view = FALSE
 )
 ```
 

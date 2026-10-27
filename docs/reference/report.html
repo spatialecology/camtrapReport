@@ -13,7 +13,7 @@ rendering."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.68</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,9 +68,9 @@ rendering.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">report</span><span class="op">(</span><span class="va">object</span>, <span class="va">filename</span>, <span class="va">view</span>, <span class="va">test</span>, <span class="va">profile</span>, <span class="va">format</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">report</span><span class="op">(</span><span class="va">object</span>, <span class="va">filename</span>, <span class="va">view</span>, <span class="va">test</span>, <span class="va">profile</span>, <span class="va">format</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">status</span><span class="op">(</span><span class="va">object</span>, <span class="va">filename</span>, <span class="va">view</span>, <span class="va">profile</span>, <span class="va">format</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">status</span><span class="op">(</span><span class="va">object</span>, <span class="va">filename</span>, <span class="va">view</span>, <span class="va">profile</span>, <span class="va">format</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -107,6 +107,11 @@ omitted, the sections currently attached to <code>object</code> are rendered.</p
 <dd><p>Output format, either <code>"html"</code> or <code>"pdf"</code>. The default is
 inferred from <code>filename</code>, falling back to <code>"html"</code>.</p></dd>
 
+
+<dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
+<dd><p>A logical value (default <code>FALSE</code>). Set to <code>TRUE</code> explicitly
+to replace existing output and <code>.Rmd</code> files with the selected stem.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -122,10 +127,13 @@ in the resulting PDF. PDF output omits the table of contents and excludes
 modules whose registry entry does not support PDF. The <code>formats</code> column
 shown by <code><a href="modules.html">list_Modules()</a></code> records module compatibility.</p>
 <p>Output includes the rendered <code>.html</code> or <code>.pdf</code> file and an <code>.Rmd</code> source
-file with the same stem. If no path is given, the object's dataset directory
-is used when available, otherwise the current working directory is used.
-Existing files with the chosen stem can be overwritten. Supply a new,
-explicit <code>filename</code> for each retained report; use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile()</a></code> for a preview.</p>
+file with the same stem. The resolved paths are displayed before rendering.
+A filename without a directory uses the object's existing dataset directory;
+otherwise supply a filename including an existing output directory. Invalid
+directories cause an error rather than falling back to a different location.
+Existing report or <code>.Rmd</code> files are protected unless <code>overwrite = TRUE</code>.
+Supply a new <code>filename</code> for each retained report; use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile()</a></code> for a
+preview.</p>
 <p><code>view = TRUE</code> opens the completed file after rendering; it does not select
 different modules or dependencies. To inspect a file that was already
 generated, call <code>utils::browseURL(report_file)</code> instead of rendering it again.
@@ -140,7 +148,8 @@ structure explicitly. <code><a href="section_names.html">section_names()</a></co
 available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 <code>camData(..., update = TRUE)</code> before rerunning <code>status()</code> or <code>report()</code>.</p>
-<p>Rendering is quiet by default. Set <code>options(camtrapReport.progress = TRUE)</code>
+<p>Apart from the destination notice, rendering is quiet by default. Set
+<code>options(camtrapReport.progress = TRUE)</code>
 to show console progress for module construction, individual chunks, HTML
 rendering, PDF conversion, and opening the completed file. Timings include
 elapsed time and CPU time in the current R process; Pandoc and browser CPU
