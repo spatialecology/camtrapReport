@@ -27,7 +27,8 @@ test_that("render progress stays in the console and restores knitr hooks", {
   output <- tempfile(fileext = ".html")
   on.exit(unlink(c(source_file, output), force = TRUE), add = TRUE)
   writeLines(c(
-    "---", "title: Progress smoke test", "output: html_document", "---",
+    "---", "title: Progress smoke test", "output:",
+    "  html_document:", "    mathjax: null", "---",
     "```{r progress_value, echo=FALSE, message=FALSE}",
     "cat('Preserved report value:', sum(1:3))", "```"
   ), source_file)
@@ -61,7 +62,7 @@ test_that("failed rendering identifies the active chunk and restores hooks", {
   output <- tempfile(fileext = ".html")
   on.exit(unlink(c(source_file, output), force = TRUE), add = TRUE)
   writeLines(c(
-    "---", "output: html_document", "---",
+    "---", "output:", "  html_document:", "    mathjax: null", "---",
     "```{r failing_progress, error=FALSE}",
     "stop('intentional progress error')", "```"
   ), source_file)
@@ -94,7 +95,8 @@ test_that("progress does not invalidate existing knitr chunk caches", {
   output <- file.path(root, "cached.html")
   counter <- file.path(root, "evaluations.txt")
   writeLines(c(
-    "---", "title: Cache smoke test", "output: html_document", "---",
+    "---", "title: Cache smoke test", "output:",
+    "  html_document:", "    mathjax: null", "---",
     "```{r cached_progress, cache=TRUE, echo=FALSE}",
     paste0("cat('x', file=", encodeString(counter, quote = '"'),
            ", append=TRUE)"),
@@ -125,7 +127,8 @@ test_that("progress composes custom hooks without adding cache option keys", {
   output <- file.path(root, "cached.html")
   counter <- file.path(root, "evaluations.txt")
   writeLines(c(
-    "---", "title: Custom cache smoke test", "output: html_document", "---",
+    "---", "title: Custom cache smoke test", "output:",
+    "  html_document:", "    mathjax: null", "---",
     "```{r cached_progress, cache=TRUE, echo=FALSE}",
     paste0("cat('x', file=", encodeString(counter, quote = '"'),
            ", append=TRUE)"), "```"
@@ -224,7 +227,8 @@ test_that("quiet HTML rendering preserves content and restores knitr hooks", {
   output <- tempfile(fileext = ".html")
   on.exit(unlink(c(source_file, output), force = TRUE), add = TRUE)
   writeLines(c(
-    "---", "title: Quiet smoke test", "output: html_document", "---",
+    "---", "title: Quiet smoke test", "output:",
+    "  html_document:", "    mathjax: null", "---",
     "```{r quiet_value, echo=FALSE}",
     "cat('Preserved quiet report value:', sum(1:3))",
     "warning('Preserved report warning')", "```"
@@ -246,7 +250,7 @@ test_that("quiet HTML rendering preserves content and restores knitr hooks", {
   expect_identical(knitr::knit_hooks$get(), saved_hooks)
 
   writeLines(c(
-    "---", "output: html_document", "---",
+    "---", "output:", "  html_document:", "    mathjax: null", "---",
     "```{r quiet_failure, error=FALSE}",
     "stop('original quiet render error')", "```"
   ), source_file)
@@ -310,6 +314,7 @@ test_that("opening a completed report is quiet by default", {
 test_that("report and status are quiet for both formats and view settings", {
   skip_if_not(rmarkdown::pandoc_available())
   skip_if_not_installed("pagedown")
+  local_math_free_html_fixture()
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   introduction <- cm$reportObjectElements$Modules$introduction
   cm$reportObjects <- list(introduction = introduction)
@@ -343,7 +348,8 @@ test_that("report and status are quiet for both formats and view settings", {
     generate <- if (identical(type, "report")) report else status
     for (format in c("html", "pdf")) {
       for (view in c(FALSE, TRUE)) {
-        output <- file.path(root, paste0(type, "-", view, ".", format))
+        output <- file.path(root, paste0(type, "-", format, "-", view,
+                                        ".", format))
         console <- capture.output({
           captured <- capture_report_conditions(
             generate(cm, filename = output, view = view, profile = NULL)
@@ -352,7 +358,10 @@ test_that("report and status are quiet for both formats and view settings", {
         expect_identical(captured$value, output)
         expect_true(file.exists(output))
         expect_length(console, 0L)
-        expect_length(captured$messages, 0L)
+        expect_length(captured$messages, 1L)
+        expect_match(captured$messages[1], paste0("Report output: ", output),
+                     fixed = TRUE)
+        expect_match(captured$messages[1], "R Markdown source: ", fixed = TRUE)
         expect_length(captured$warnings, 0L)
       }
     }

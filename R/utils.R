@@ -661,10 +661,6 @@
     .dir <- "."
   } else {
     .dir <- dirname(x)
-
-    if (.dir == getwd()) {
-      .dir <- "."
-    }
   }
 
   w <- strsplit(basename(x), ".", fixed = TRUE)[[1]]

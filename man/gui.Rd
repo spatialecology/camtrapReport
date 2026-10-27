@@ -35,6 +35,12 @@ data-status or ecological reports.
 
 The GUI can be used with an existing \code{camReport} object and provides an
 interactive alternative to configuring reports directly in R.
+The output directory initially uses the project root from the optional
+\code{here} package when available, otherwise the object's dataset directory.
+Choose an existing directory explicitly before saving output.
+Existing report, R Markdown, and saved-object files are protected unless
+the overwrite checkbox is selected. Generating output does not change the
+R working directory.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}

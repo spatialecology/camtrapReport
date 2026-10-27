@@ -7,9 +7,9 @@
 \alias{status,camReport-method}
 \title{Generate ecological and data-status reports}
 \usage{
-report(object, filename, view, test, profile, format)
+report(object, filename, view, test, profile, format, overwrite = FALSE)
 
-status(object, filename, view, profile, format)
+status(object, filename, view, profile, format, overwrite = FALSE)
 }
 \arguments{
 \item{object}{A \code{\link[=camReport-classes]{camReport}} object created by
@@ -30,6 +30,9 @@ omitted, the sections currently attached to \code{object} are rendered.}
 
 \item{format}{Output format, either \code{"html"} or \code{"pdf"}. The default is
 inferred from \code{filename}, falling back to \code{"html"}.}
+
+\item{overwrite}{A logical value (default \code{FALSE}). Set to \code{TRUE} explicitly
+to replace existing output and \code{.Rmd} files with the selected stem.}
 }
 \value{
 Invisibly returns the generated report path.
@@ -50,10 +53,13 @@ modules whose registry entry does not support PDF. The \code{formats} column
 shown by \code{\link[=list_Modules]{list_Modules()}} records module compatibility.
 
 Output includes the rendered \code{.html} or \code{.pdf} file and an \code{.Rmd} source
-file with the same stem. If no path is given, the object's dataset directory
-is used when available, otherwise the current working directory is used.
-Existing files with the chosen stem can be overwritten. Supply a new,
-explicit \code{filename} for each retained report; use \code{\link[=tempfile]{tempfile()}} for a preview.
+file with the same stem. The resolved paths are displayed before rendering.
+A filename without a directory uses the object's existing dataset directory;
+otherwise supply a filename including an existing output directory. Invalid
+directories cause an error rather than falling back to a different location.
+Existing report or \code{.Rmd} files are protected unless \code{overwrite = TRUE}.
+Supply a new \code{filename} for each retained report; use \code{\link[=tempfile]{tempfile()}} for a
+preview.
 
 \code{view = TRUE} opens the completed file after rendering; it does not select
 different modules or dependencies. To inspect a file that was already
@@ -71,7 +77,8 @@ available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 \code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
 
-Rendering is quiet by default. Set \code{options(camtrapReport.progress = TRUE)}
+Apart from the destination notice, rendering is quiet by default. Set
+\code{options(camtrapReport.progress = TRUE)}
 to show console progress for module construction, individual chunks, HTML
 rendering, PDF conversion, and opening the completed file. Timings include
 elapsed time and CPU time in the current R process; Pandoc and browser CPU

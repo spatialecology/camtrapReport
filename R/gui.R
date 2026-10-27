@@ -18,6 +18,12 @@ setGeneric("gui", function(object, launch.browser, max_upload_mb, ...) {
 #'
 #' The GUI can be used with an existing `camReport` object and provides an
 #' interactive alternative to configuring reports directly in R.
+#' The output directory initially uses the project root from the optional
+#' `here` package when available, otherwise the object's dataset directory.
+#' Choose an existing directory explicitly before saving output.
+#' Existing report, R Markdown, and saved-object files are protected unless
+#' the overwrite checkbox is selected. Generating output does not change the
+#' R working directory.
 #'
 #' @param object A [`camReport`][camReport-classes] object, usually created with
 #'   [camData()].
@@ -121,6 +127,40 @@ setMethod(
 
   .safe <- function(expr, fallback = NULL) {
     tryCatch(expr, error = function(e) fallback)
+  }
+
+  .default_output_dir <- function(cm) {
+    if (requireNamespace("here", quietly = TRUE)) {
+      project <- .safe(.eval("here::here()"), NULL)
+      if (is.character(project) && length(project) == 1L && !is.na(project) &&
+          nzchar(project) && dir.exists(project)) {
+        return(normalizePath(project, winslash = "/", mustWork = TRUE))
+      }
+    }
+    path <- .safe(cm$info$directory, NULL)
+    if (is.character(path) && length(path) == 1L && !is.na(path) &&
+        nzchar(path) && dir.exists(path)) {
+      normalizePath(path, winslash = "/", mustWork = TRUE)
+    } else {
+      ""
+    }
+  }
+
+  .output_directory <- function(path) {
+    path <- trimws(path %||% "")
+    if (length(path) != 1L || !nzchar(path) || !dir.exists(path)) {
+      stop("Choose an existing output directory before saving or rendering.",
+           call. = FALSE)
+    }
+    normalizePath(path, winslash = "/", mustWork = TRUE)
+  }
+
+  .check_gui_report_output <- function(cm, out_dir, stem, overwrite) {
+    destination <- .resolve_report_output(
+      cm, file.path(out_dir, paste0(stem, ".html")), stem,
+      format = "html", format_missing = TRUE
+    )
+    .check_report_destination(destination, overwrite, announce = FALSE)
   }
 
   .as_text <- function(x) {
@@ -735,15 +775,23 @@ setMethod(
               shiny::textInput(
                 "output_dir",
                 "Output directory",
-                value = getwd()
+                value = .default_output_dir(object)
               ),
 
               shiny::p(
                 paste0(
-                  "The report functions save outputs in the working ",
-                  "directory. This GUI temporarily switches to the directory ",
-                  "above when generating reports."
+                  "Choose an existing directory. Reports and their R Markdown ",
+                  "sources are saved at the paths below without changing ",
+                  "the R working directory."
                 )
+              ),
+
+              shiny::verbatimTextOutput("output_paths"),
+
+              shiny::checkboxInput(
+                "overwrite_outputs",
+                "Allow replacing existing reports, R Markdown or saved objects",
+                value = FALSE
               ),
 
               shiny::actionButton(
@@ -790,6 +838,11 @@ setMethod(
     refresh_inputs <- function(cm) {
       inf <- .get_info(cm)
 
+      if (!nzchar(trimws(input$output_dir %||% ""))) {
+        shiny::updateTextInput(
+          session, "output_dir", value = .default_output_dir(cm)
+        )
+      }
       shiny::updateTextInput(session, "meta_title", value = inf$title %||% "")
       shiny::updateTextInput(
         session,
@@ -1283,42 +1336,48 @@ setMethod(
       )
     })
 
+    output$output_paths <- shiny::renderText({
+      out_dir <- .output_directory(input$output_dir)
+      paste(file.path(out_dir, c(
+        "report.html", "report.Rmd", "data_status.html", "data_status.Rmd",
+        "camtrapReport_gui_object.rds"
+      )), collapse = "\n")
+    })
+
     shiny::observeEvent(input$save_cm, {
-      cm <- apply_gui_settings(run_setup = FALSE)
-
-      out_dir <- input$output_dir %||% getwd()
-      dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
-      out_file <- file.path(out_dir, "camtrapReport_gui_object.rds")
-
-      saveRDS(cm, out_file)
-
-      shiny::showNotification(
-        paste(
-          "Saved:",
-          normalizePath(out_file, winslash = "/", mustWork = FALSE)
-        ),
-        type = "message",
-        duration = 8
-      )
+      tryCatch({
+        out_dir <- .output_directory(input$output_dir)
+        out_file <- file.path(out_dir, "camtrapReport_gui_object.rds")
+        if (file.exists(out_file) && !isTRUE(input$overwrite_outputs)) {
+          stop("The saved object already exists. Select the overwrite ",
+               "checkbox or choose another output directory.", call. = FALSE)
+        }
+        cm <- apply_gui_settings(run_setup = FALSE)
+        saveRDS(cm, out_file)
+        shiny::showNotification(
+          paste("Saved:", out_file), type = "message", duration = 8
+        )
+      }, error = function(e) {
+        shiny::showNotification(
+          paste("Could not save object:", conditionMessage(e)),
+          type = "error", duration = 10
+        )
+      })
     })
 
     shiny::observeEvent(input$generate_status, {
-      cm <- apply_gui_settings(run_setup = TRUE)
-
-      out_dir <- input$output_dir %||% getwd()
-      dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
-      old_wd <- getwd()
-      # Report methods use the current directory as a fallback. Restore it
-      # immediately after this observer completes.
-      on.exit(setwd(old_wd), add = TRUE) # nolint
-
-      setwd(out_dir) # nolint
-
       tryCatch(
         {
-          status(cm, view = TRUE)
+          out_dir <- .output_directory(input$output_dir)
+          .check_gui_report_output(
+            cm_current(), out_dir, "data_status",
+            overwrite = isTRUE(input$overwrite_outputs)
+          )
+          cm <- apply_gui_settings(run_setup = TRUE)
+          status(
+            cm, filename = file.path(out_dir, "data_status.html"),
+            view = TRUE, overwrite = isTRUE(input$overwrite_outputs)
+          )
 
           shiny::showNotification(
             "Data status report generated.",
@@ -1336,21 +1395,21 @@ setMethod(
     })
 
     shiny::observeEvent(input$generate_report, {
-      cm <- apply_gui_settings(run_setup = TRUE)
-
-      out_dir <- input$output_dir %||% getwd()
-      dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
-      old_wd <- getwd()
-      # Report methods use the current directory as a fallback. Restore it
-      # immediately after this observer completes.
-      on.exit(setwd(old_wd), add = TRUE) # nolint
-
-      setwd(out_dir) # nolint
-
       tryCatch(
         {
-          report(cm, view = TRUE)
+          out_dir <- .output_directory(input$output_dir)
+          .check_gui_report_output(
+            cm_current(), out_dir, "report",
+            overwrite = isTRUE(input$overwrite_outputs)
+          )
+          cm <- apply_gui_settings(run_setup = TRUE)
+          result <- report(
+            cm, filename = file.path(out_dir, "report.html"),
+            view = TRUE, overwrite = isTRUE(input$overwrite_outputs)
+          )
+          if (inherits(result, "try-error")) {
+            stop(as.character(result), call. = FALSE)
+          }
 
           shiny::showNotification(
             "Ecological report generated.",

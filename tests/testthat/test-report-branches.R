@@ -20,6 +20,7 @@ normalise_test_path <- function(path) {
 
 test_that("report handles NULL and empty filenames", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
@@ -62,7 +63,8 @@ test_that("report handles NULL and empty filenames", {
     cm,
     filename = "",
     view = FALSE,
-    test = FALSE
+    test = FALSE,
+    overwrite = TRUE
   )
 
   expect_identical(
@@ -78,6 +80,7 @@ test_that("report handles NULL and empty filenames", {
 
 test_that("status handles NULL and empty filenames", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
@@ -118,7 +121,8 @@ test_that("status handles NULL and empty filenames", {
   output_empty <- status(
     cm,
     filename = "",
-    view = FALSE
+    view = FALSE,
+    overwrite = TRUE
   )
 
   expect_identical(
@@ -132,7 +136,7 @@ test_that("status handles NULL and empty filenames", {
 })
 
 
-test_that("report falls back from a nonexistent requested directory", {
+test_that("report rejects a nonexistent requested directory", {
   skip_if_not(rmarkdown::pandoc_available())
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
@@ -162,7 +166,7 @@ test_that("report falls back from a nonexistent requested directory", {
     "custom-report"
   )
 
-  output <- capture_expected_warning(
+  expect_error(
     report(
       cm,
       filename = requested_file,
@@ -172,23 +176,17 @@ test_that("report falls back from a nonexistent requested directory", {
     "does not exist"
   )
 
-  expected_output <- file.path(
+  unexpected_output <- file.path(
     output_dir,
     "custom-report.html"
   )
 
-  expect_identical(
-    normalise_test_path(output),
-    normalise_test_path(expected_output)
-  )
-
-  expect_true(
-    file.exists(output)
-  )
+  expect_false(file.exists(unexpected_output))
+  expect_false(dir.exists(dirname(requested_file)))
 })
 
 
-test_that("status falls back from a nonexistent requested directory", {
+test_that("status rejects a nonexistent requested directory", {
   skip_if_not(rmarkdown::pandoc_available())
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
@@ -218,7 +216,7 @@ test_that("status falls back from a nonexistent requested directory", {
     "custom-status"
   )
 
-  output <- capture_expected_warning(
+  expect_error(
     status(
       cm,
       filename = requested_file,
@@ -227,24 +225,19 @@ test_that("status falls back from a nonexistent requested directory", {
     "does not exist"
   )
 
-  expected_output <- file.path(
+  unexpected_output <- file.path(
     output_dir,
     "custom-status.html"
   )
 
-  expect_identical(
-    normalise_test_path(output),
-    normalise_test_path(expected_output)
-  )
-
-  expect_true(
-    file.exists(output)
-  )
+  expect_false(file.exists(unexpected_output))
+  expect_false(dir.exists(dirname(requested_file)))
 })
 
 
 test_that("report sends the generated file to the configured viewer", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
@@ -305,6 +298,7 @@ test_that("report sends the generated file to the configured viewer", {
 
 test_that("status sends the generated file to the configured viewer", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 

@@ -35,6 +35,7 @@ test_that("reportSection captures code, settings, and package requirements", {
 
 test_that("testSection renders a self-contained section", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   section <- reportSection(
     name = "render_test",
@@ -84,6 +85,7 @@ test_that("low-level report chunks and Pandoc attributes are preserved", {
 
 test_that("quick section checks report rendering success and failure", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   valid <- reportSection("quick_valid", txt = "Valid quick test")
   expect_true(.QuickTestReportSection(valid))

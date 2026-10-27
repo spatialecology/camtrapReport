@@ -4,7 +4,7 @@
 
 setGeneric(
   "report",
-  function(object, filename, view, test, profile, format) {
+  function(object, filename, view, test, profile, format, overwrite = FALSE) {
     methods::standardGeneric("report")
   }
 )
@@ -61,31 +61,59 @@ setGeneric(
     supplied_stem <- sub("\\.[^.]+$", "", supplied_stem)
   }
 
-  base_dir <- tryCatch(
-    normalizePath(object$info$directory, winslash = "/", mustWork = TRUE),
-    error = function(e) getwd()
-  )
-
-  if (identical(supplied_dir, ".")) {
-    out_dir <- base_dir
-  } else {
-    out_dir <- tryCatch(
-      normalizePath(supplied_dir, winslash = "/", mustWork = TRUE),
-      error = function(e) {
-        warning(
-          'The directory specified in "filename" ("', supplied_dir,
-          '") does not exist; the default path is used instead.'
-        )
-        base_dir
-      }
+  explicit_directory <- !identical(filename, basename(filename))
+  if (!explicit_directory) {
+    supplied_dir <- object$info$directory
+    if (!is.character(supplied_dir) || length(supplied_dir) != 1L ||
+        is.na(supplied_dir) || !nzchar(supplied_dir)) {
+      stop(
+        "No valid dataset directory is available. Supply 'filename' ",
+        "including an existing output directory.",
+        call. = FALSE
+      )
+    }
+  }
+  if (!dir.exists(supplied_dir)) {
+    stop(
+      'The output directory ("', supplied_dir,
+      '") does not exist or is not a directory. Supply an existing ',
+      "directory in 'filename'.",
+      call. = FALSE
     )
   }
+  out_dir <- normalizePath(supplied_dir, winslash = "/", mustWork = TRUE)
 
   list(
     stem = file.path(out_dir, supplied_stem),
     format = format,
     output = paste0(file.path(out_dir, supplied_stem), ".", format)
   )
+}
+
+.check_report_destination <- function(
+  destination, overwrite = FALSE, announce = TRUE
+) {
+  if (!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) {
+    stop("'overwrite' must be TRUE or FALSE.", call. = FALSE)
+  }
+  paths <- c(destination$output, paste0(destination$stem, ".Rmd"))
+  if (isTRUE(announce)) {
+    message("Report output: ", paths[1], "\nR Markdown source: ", paths[2])
+  }
+  if (any(dir.exists(paths))) {
+    stop("A report output path names an existing directory: ",
+         toString(paths[dir.exists(paths)]), call. = FALSE)
+  }
+  existing <- paths[file.exists(paths)]
+  if (!overwrite && length(existing) > 0L) {
+    stop(
+      "Existing report file(s) would be overwritten: ",
+      toString(existing),
+      ". Choose a new filename or set overwrite = TRUE explicitly.",
+      call. = FALSE
+    )
+  }
+  invisible(paths)
 }
 
 .convert_html_to_pdf <- function(html_file, pdf_file) {
@@ -179,10 +207,13 @@ setGeneric(
 #'
 #' @details
 #' Output includes the rendered `.html` or `.pdf` file and an `.Rmd` source
-#' file with the same stem. If no path is given, the object's dataset directory
-#' is used when available, otherwise the current working directory is used.
-#' Existing files with the chosen stem can be overwritten. Supply a new,
-#' explicit `filename` for each retained report; use [tempfile()] for a preview.
+#' file with the same stem. The resolved paths are displayed before rendering.
+#' A filename without a directory uses the object's existing dataset directory;
+#' otherwise supply a filename including an existing output directory. Invalid
+#' directories cause an error rather than falling back to a different location.
+#' Existing report or `.Rmd` files are protected unless `overwrite = TRUE`.
+#' Supply a new `filename` for each retained report; use [tempfile()] for a
+#' preview.
 #'
 #' `view = TRUE` opens the completed file after rendering; it does not select
 #' different modules or dependencies. To inspect a file that was already
@@ -200,7 +231,8 @@ setGeneric(
 #' a profile's selection. Reread corrected source files with
 #' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
 #'
-#' Rendering is quiet by default. Set `options(camtrapReport.progress = TRUE)`
+#' Apart from the destination notice, rendering is quiet by default. Set
+#' `options(camtrapReport.progress = TRUE)`
 #' to show console progress for module construction, individual chunks, HTML
 #' rendering, PDF conversion, and opening the completed file. Timings include
 #' elapsed time and CPU time in the current R process; Pandoc and browser CPU
@@ -222,6 +254,8 @@ setGeneric(
 #'   omitted, the sections currently attached to `object` are rendered.
 #' @param format Output format, either `"html"` or `"pdf"`. The default is
 #'   inferred from `filename`, falling back to `"html"`.
+#' @param overwrite A logical value (default `FALSE`). Set to `TRUE` explicitly
+#'   to replace existing output and `.Rmd` files with the selected stem.
 #'
 #' @return Invisibly returns the generated report path.
 #'
@@ -229,9 +263,9 @@ setGeneric(
 #' @family report generation
 #'
 #' @usage
-#' report(object, filename, view, test, profile, format)
+#' report(object, filename, view, test, profile, format, overwrite = FALSE)
 #'
-#' status(object, filename, view, profile, format)
+#' status(object, filename, view, profile, format, overwrite = FALSE)
 #' @name report
 #' @aliases report status report,camReport-method status,camReport-method
 #'
@@ -269,7 +303,8 @@ setMethod(
     view = FALSE,
     test = FALSE,
     profile = NULL,
-    format = c("html", "pdf")
+    format = c("html", "pdf"),
+    overwrite = FALSE
   ) {
     if (missing(filename)) filename <- "report"
     if (missing(view)) view <- FALSE
@@ -283,6 +318,7 @@ setMethod(
       format = format,
       format_missing = format_missing
     )
+    .check_report_destination(destination, overwrite = overwrite)
 
     profile_value <- NULL
     if (!is.null(profile)) {
@@ -418,7 +454,10 @@ setMethod(
         view = view,
         test = FALSE,
         profile = NULL,
-        format = destination$format
+        format = destination$format,
+        # The initial preflight already protected existing user files. Reuse
+        # the Rmd created by this same failed rendering attempt.
+        overwrite = TRUE
       ))
     }
 

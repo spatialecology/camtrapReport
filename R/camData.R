@@ -241,7 +241,9 @@
 
 #--------
 
-.read_camdp <- function(file, path = NULL, tz = "") {
+.read_camdp <- function(
+  file, path = NULL, tz = "", enrich_taxonomy = TRUE
+) {
   if (!.require("jsonlite")) {
     stop("The jsonlite package is not installed; please install it first.")
   }
@@ -307,6 +309,19 @@
     stop("The specified input is not a zip file or a directory.")
   }
 
+  .input_files <- vapply(
+    c("observations.csv", "deployments.csv", "media.csv", "datapackage.json"),
+    function(pattern) {
+      matching <- file[grepl(pattern, file, ignore.case = TRUE)]
+      if (length(matching)) matching[1] else NA_character_
+    },
+    character(1), USE.NAMES = FALSE
+  )
+  .source_metadata <- if (!anyNA(.input_files)) {
+    .capture_camdata_source_metadata(.path, .input_files)
+  } else {
+    NULL
+  }
   .w <- grepl("observations.csv", file, ignore.case = TRUE)
   if (any(.w)) {
     .d$observations <- as.data.frame(data.table::fread(file[.w][1], tz = tz))
@@ -673,7 +688,11 @@
     .d$taxonomy$order[.d$taxonomy$order == ""] <- NA
   }
 
-  if (.require("taxize")) {
+  if (isTRUE(enrich_taxonomy) && .require("taxize")) {
+    message(
+      "Taxonomy enrichment sends scientific names to GBIF via taxize. ",
+      "Use enrich_taxonomy = FALSE to disable these network requests."
+    )
     .w <- .getMissingTaxon_GBIF(
       .d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)]
     )
@@ -703,14 +722,16 @@
   list(
     data = .d,
     json = .js,
-    directory = normalizePath(.path, winslash = "/", mustWork = FALSE)
+    directory = normalizePath(.path, winslash = "/", mustWork = FALSE),
+    input_files = .input_files,
+    source_file_metadata = .source_metadata
   )
 }
 
 #--------
 setGeneric(
   "camData",
-  function(data, habitat, study_area, update, ...) {
+  function(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...) {
     methods::standardGeneric("camData")
   }
 )
@@ -788,6 +809,10 @@ setGeneric(
 #'   path, a `SpatVector`, or an `sf` object. The default is `NULL`.
 #' @param update A logical value (default `FALSE`) specifying whether to
 #'   recreate a previously saved `camReport` object.
+#' @param enrich_taxonomy A single logical value (default `TRUE`) allowing GBIF
+#'   taxonomy enrichment when the optional `taxize` package is installed.
+#'   Set to `FALSE` to prevent these network requests. This affects fresh
+#'   imports; use `update = TRUE` to rebuild a previously cached object.
 #' @param ... Additional arguments. These are currently reserved for future use.
 #'
 #' @details
@@ -823,18 +848,32 @@ setGeneric(
 #' when a study area is supplied, writes `study_area.map`. A ZIP input is
 #' extracted before reading. Use a writable copy of the input dataset, as in
 #' the examples, rather than an installed package directory. A cached object
-#' is reused when `update = FALSE`; changes to source files or optional inputs
-#' are not detected automatically. Use `update = TRUE` to rebuild it.
+#' is reused when `update = FALSE`. Lightweight file-size and modification-time
+#' checks warn if the four source CSV/JSON files were changed, added or removed
+#' in the dataset root or their recorded directories. The cache is still reused;
+#' use `update = TRUE` to rebuild it. Older caches without this metadata also
+#' warn because their freshness cannot be verified. No input contents are hashed
+#' or reread during this check. Changes that preserve both size and modification
+#' time, files in previously unknown nested directories, and changes to optional
+#' `habitat` or `study_area` inputs are not detected; rebuild explicitly for these.
 #' Only load datasets and saved R objects from sources you trust.
 #'
 #' @section Optional taxonomy enrichment:
-#' In the current implementation, installing `taxize` enables GBIF taxonomy
-#' lookups during import. Species names are sent to GBIF to supplement class
-#' and order information. This can require an internet connection and affect
-#' import time and reproducibility; there is currently no per-call opt-out or
-#' request-timeout argument. Preserve the processed object and package versions
-#' used in an analysis, and consider this network behaviour before processing
-#' confidential species lists. Without `taxize`, this lookup is not performed.
+#' With `enrich_taxonomy = TRUE` and `taxize` installed, a fresh import sends
+#' scientific names to GBIF to supply class and missing order information.
+#' A message announces this network access. The default preserves the previous
+#' import behaviour; requests can affect import time, privacy and reproducibility.
+#' Use `enrich_taxonomy = FALSE` for offline or confidential species lists.
+#' No GBIF taxonomy request is made with that setting, or without `taxize`.
+#' No new timeout is imposed on the existing taxize workflow.
+#'
+#' Without enrichment, imported species names, families, orders and counts are
+#' retained, but taxonomic classes may be unavailable. Groups defined by class
+#' (for example `wild_mammals`, birds, reptiles or amphibians) may then be absent.
+#' Default
+#' order-based groups remain usable when the source supplies the relevant
+#' orders. This option does not remove taxonomy already present in a reused
+#' cache. Preserve the processed object and package versions used in analyses.
 #'
 #' @section Study areas that change over time:
 #' `study_area` accepts one boundary per object. Multiple Shiny uploads are
@@ -848,7 +887,7 @@ setGeneric(
 #' @seealso [report()], [status()], [info()], [gui()]
 #' @family camtrapReport data
 #'
-#' @usage camData(data, habitat, study_area, update, ...)
+#' @usage camData(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...)
 #' @rdname camData
 #' @aliases camData
 #' @keywords spatial species camera-trap
@@ -877,9 +916,19 @@ setGeneric(
 setMethod(
   "camData",
   signature(data = "character"),
-  function(data, habitat, study_area = NULL, update = FALSE, ...) {
+  function(
+    data, habitat, study_area = NULL, update = FALSE,
+    enrich_taxonomy = TRUE, ...
+  ) {
     if (missing(update)) {
       update <- FALSE
+    }
+    if (missing(enrich_taxonomy)) {
+      enrich_taxonomy <- TRUE
+    }
+    if (!is.logical(enrich_taxonomy) || length(enrich_taxonomy) != 1L ||
+        is.na(enrich_taxonomy)) {
+      stop("'enrich_taxonomy' must be TRUE or FALSE.", call. = FALSE)
     }
 
     if (dir.exists(data) && !update) {
@@ -888,6 +937,7 @@ setMethod(
         .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
         if (any(.w)) {
           cm <- readRDS(file[.w][1])
+          .check_camdata_cache_metadata(cm, data)
           cm <- .upgrade_camreport_analysis(cm)
           if (is.null(cm$reportObjectElements$Profiles)) {
             cm$reportObjectElements$Profiles <- .read_profiles()
@@ -908,7 +958,8 @@ setMethod(
       study_area <- NULL
     }
 
-    .d <- .read_camdp(data)
+    .d <- .read_camdp(data, enrich_taxonomy = enrich_taxonomy)
+    .source_metadata <- .d$source_file_metadata
 
     cm <- camR$new()
     cm <- .upgrade_camreport_analysis(cm)
@@ -1080,6 +1131,7 @@ setMethod(
 
     .camdata_done_message(.camdata_start_time, cm$siteName)
 
+    cm$info$source_file_metadata <- .source_metadata
     saveRDS(
       cm,
       file.path(cm$info$directory, "__camReport_Object.rds")

@@ -20,6 +20,15 @@ test_that("formatting helpers handle normal and boundary inputs", {
   expect_identical(format_size(NA_real_), "unknown size")
 })
 
+test_that("filename parsing preserves an explicitly supplied directory", {
+  directory <- getwd()
+  expect_identical(
+    .file_info(file.path(directory, "report.html"))$path,
+    directory
+  )
+  expect_identical(.file_info("report.html")$path, ".")
+})
+
 test_that("text parsing helpers preserve their documented contracts", {
   trim_one <- .trim
   trim_many <- .trim_chr

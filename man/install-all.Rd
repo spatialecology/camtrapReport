@@ -79,20 +79,18 @@ declaration <- grep(
 pkgs <- trimws(strsplit(
   sub("#| packages:", "", declaration, fixed = TRUE), ","
 )[[1]])
-missing <- pkgs[
-  !vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)
-]
-missing
+pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
 
-# To install optional packages, run these commands manually:
-# install_all()
-# install_all(pkgs = "readr")
+# Package installation changes the user's R library, so these examples are
+# deliberately restricted to interactive sessions.
+if (interactive()) {
+install_all()
+install_all(pkgs = "readr")
+install_all(update = TRUE)
 
-# To reinstall packages:
-# install_all(update = TRUE)
-
-# To reinstall and update dependencies:
-# install_all(update = TRUE, upgrade = TRUE)
+# Reinstall the requested packages and also update their dependencies.
+install_all(update = TRUE, upgrade = TRUE)
+}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}

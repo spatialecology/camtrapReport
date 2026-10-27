@@ -256,7 +256,8 @@ test_that("original year tabs render with the aggregate marked active", {
   on.exit(unlink(dir, recursive = TRUE, force = TRUE), add = TRUE)
   rmd <- file.path(dir, "year-tabs.Rmd")
   writeLines(c(
-    "---", "title: Original year tabs", "output: html_document", "---",
+    "---", "title: Original year tabs", "output:",
+    "  html_document:", "    mathjax: null", "---",
     unlist(parts, use.names = FALSE)
   ), rmd)
   html <- rmarkdown::render(rmd, quiet = TRUE, envir = new.env())

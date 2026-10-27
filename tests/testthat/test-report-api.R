@@ -57,6 +57,7 @@ test_that("section selectors expose and update valid modules", {
 
 test_that("a minimal ecological report renders without optional packages", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   minimal_section <- reportSection(
@@ -88,11 +89,13 @@ test_that("a minimal ecological report renders without optional packages", {
   expect_true(file.exists(paste0(output_stem, ".Rmd")))
   expect_match(output, "\\.html$")
   expect_identical(report_test_loader_packages(rmd), "knitr")
+  expect_false(any(grepl("mathjax:", rmd, fixed = TRUE)))
   expect_true(any(grepl("Observations in the test dataset", rmd, fixed = TRUE)))
 })
 
 test_that("a minimal data-status report renders from the Leuven subset", {
   skip_if_not(rmarkdown::pandoc_available())
+  local_math_free_html_fixture()
 
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   minimal_section <- reportSection(
@@ -124,5 +127,6 @@ test_that("a minimal data-status report renders from the Leuven subset", {
   expect_true(file.exists(paste0(output_stem, ".Rmd")))
   expect_match(output, "\\.html$")
   expect_identical(report_test_loader_packages(rmd), "knitr")
+  expect_false(any(grepl("mathjax:", rmd, fixed = TRUE)))
   expect_true(any(grepl("Deployments in the test dataset", rmd, fixed = TRUE)))
 })

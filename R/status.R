@@ -4,7 +4,7 @@
 
 setGeneric(
   "status",
-  function(object, filename, view, profile, format) {
+  function(object, filename, view, profile, format, overwrite = FALSE) {
     methods::standardGeneric("status")
   }
 )
@@ -17,7 +17,8 @@ setMethod(
     filename = "data_status",
     view = FALSE,
     profile = NULL,
-    format = c("html", "pdf")
+    format = c("html", "pdf"),
+    overwrite = FALSE
   ) {
     if (missing(filename)) filename <- "data_status"
     if (missing(view)) view <- FALSE
@@ -30,6 +31,7 @@ setMethod(
       format = format,
       format_missing = format_missing
     )
+    .check_report_destination(destination, overwrite = overwrite)
 
     if (!is.null(profile)) {
       .apply_profile(object, profile, report_type = "status")

@@ -5,7 +5,7 @@
 \alias{camData}
 \title{Read camera-trap data in Camtrap DP format}
 \usage{
-camData(data, habitat, study_area, update, ...)
+camData(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...)
 }
 \arguments{
 \item{data}{A character string giving the path to a Camtrap DP dataset,
@@ -19,6 +19,11 @@ path, a \code{SpatVector}, or an \code{sf} object. The default is \code{NULL}.}
 
 \item{update}{A logical value (default \code{FALSE}) specifying whether to
 recreate a previously saved \code{camReport} object.}
+
+\item{enrich_taxonomy}{A single logical value (default \code{TRUE}) allowing GBIF
+taxonomy enrichment when the optional \code{taxize} package is installed.
+Set to \code{FALSE} to prevent these network requests. This affects fresh
+imports; use \code{update = TRUE} to rebuild a previously cached object.}
 
 \item{...}{Additional arguments. These are currently reserved for future use.}
 }
@@ -75,20 +80,34 @@ Merely rerunning \code{status()} on the old object does not reread changed files
 when a study area is supplied, writes \code{study_area.map}. A ZIP input is
 extracted before reading. Use a writable copy of the input dataset, as in
 the examples, rather than an installed package directory. A cached object
-is reused when \code{update = FALSE}; changes to source files or optional inputs
-are not detected automatically. Use \code{update = TRUE} to rebuild it.
+is reused when \code{update = FALSE}. Lightweight file-size and modification-time
+checks warn if the four source CSV/JSON files were changed, added or removed
+in the dataset root or their recorded directories. The cache is still reused;
+use \code{update = TRUE} to rebuild it. Older caches without this metadata also
+warn because their freshness cannot be verified. No input contents are hashed
+or reread during this check. Changes that preserve both size and modification
+time, files in previously unknown nested directories, and changes to optional
+\code{habitat} or \code{study_area} inputs are not detected; rebuild explicitly for these.
 Only load datasets and saved R objects from sources you trust.
 }
 
 \section{Optional taxonomy enrichment}{
 
-In the current implementation, installing \code{taxize} enables GBIF taxonomy
-lookups during import. Species names are sent to GBIF to supplement class
-and order information. This can require an internet connection and affect
-import time and reproducibility; there is currently no per-call opt-out or
-request-timeout argument. Preserve the processed object and package versions
-used in an analysis, and consider this network behaviour before processing
-confidential species lists. Without \code{taxize}, this lookup is not performed.
+With \code{enrich_taxonomy = TRUE} and \code{taxize} installed, a fresh import sends
+scientific names to GBIF to supply class and missing order information.
+A message announces this network access. The default preserves the previous
+import behaviour; requests can affect import time, privacy and reproducibility.
+Use \code{enrich_taxonomy = FALSE} for offline or confidential species lists.
+No GBIF taxonomy request is made with that setting, or without \code{taxize}.
+No new timeout is imposed on the existing taxize workflow.
+
+Without enrichment, imported species names, families, orders and counts are
+retained, but taxonomic classes may be unavailable. Groups defined by class
+(for example \code{wild_mammals}, birds, reptiles or amphibians) may then be absent.
+Default
+order-based groups remain usable when the source supplies the relevant
+orders. This option does not remove taxonomy already present in a reused
+cache. Preserve the processed object and package versions used in analyses.
 }
 
 \section{Study areas that change over time}{
