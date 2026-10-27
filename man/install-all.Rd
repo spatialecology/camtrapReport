@@ -3,6 +3,7 @@
 \name{install_all}
 \alias{install_all}
 \alias{install_all,ANY-method}
+\alias{install_All}
 \alias{install_All,ANY-method}
 \title{Install packages required by camtrapReport}
 \usage{
@@ -10,6 +11,8 @@ install_all(pkgs = NULL, update = FALSE, github = TRUE,
   gitlab = FALSE, ...)
 
 \S4method{install_all}{ANY}(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
+
+install_All(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
 
 \S4method{install_All}{ANY}(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...)
 }
@@ -76,18 +79,20 @@ declaration <- grep(
 pkgs <- trimws(strsplit(
   sub("#| packages:", "", declaration, fixed = TRUE), ","
 )[[1]])
-pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+missing <- pkgs[
+  !vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)
+]
+missing
 
-# Package installation changes the user's R library, so these examples are
-# deliberately restricted to interactive sessions.
-if (interactive()) {
-install_all()
-install_all(pkgs = "readr")
-install_all(update = TRUE)
+# To install optional packages, run these commands manually:
+# install_all()
+# install_all(pkgs = "readr")
 
-# Reinstall the requested packages and also update their dependencies.
-install_all(update = TRUE, upgrade = TRUE)
-}
+# To reinstall packages:
+# install_all(update = TRUE)
+
+# To reinstall and update dependencies:
+# install_all(update = TRUE, upgrade = TRUE)
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}

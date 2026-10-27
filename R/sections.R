@@ -319,20 +319,31 @@ setMethod(
 
     if (!all(n %in% available)) {
       all_names <- .module_pool_info(x, report_type)$name
-      if (all(n %in% all_names)) {
-        message(
-          "\nSome specified sections are excluded because their test ",
-          "results were problematic."
+      
+      unknown <- unique(n[!n %in% all_names])
+      excluded <- unique(n[n %in% all_names & !n %in% available])
+      
+      if (length(unknown) > 0) {
+        warning(
+          "Unknown sections ignored: ",
+          paste(unknown, collapse = ", "),
+          ". Use section_names() to list available sections.",
+          call. = FALSE
         )
-      } else if (any(n %in% available)) {
+      }
+      
+      if (length(excluded) > 0) {
         message(
-          "\nSome specified section names are unknown and ignored. Use ",
-          "section_names() to get the correct names."
+          "Sections excluded because their test results were problematic: ",
+          paste(excluded, collapse = ", ")
         )
-      } else {
+      }
+      
+      if (!any(n %in% available)) {
         stop(
-          "None of the specified section names are known. Use ",
-          "section_names() to get the correct names of available sections."
+          "None of the specified sections are available. ",
+          "Use section_names() to list available sections.",
+          call. = FALSE
         )
       }
     }
