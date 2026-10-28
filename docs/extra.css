@@ -401,3 +401,22 @@ main .page-header { padding-top: 1rem; padding-bottom: 0.75rem; margin-bottom: 1
 
 /* Protect report diagrams from stretching beyond their aspect ratio. */
 .workflow-figure img, .template-article main img { height: auto; }
+/* Fix package name and version visibility in navbar */
+.navbar .navbar-brand,
+.navbar .navbar-brand:link,
+.navbar .navbar-brand:visited {
+  color: #183f44 !important;
+  font-weight: 750;
+}
+
+.navbar .navbar-brand small,
+.navbar .navbar-brand span,
+.navbar .navbar-text,
+.navbar .nav-text,
+.navbar .text-muted {
+  color: #52656b !important;
+}
+
+.navbar .navbar-brand:hover {
+  color: #137c73 !important;
+}

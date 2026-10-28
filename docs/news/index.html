@@ -139,7 +139,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.58" id="camtrapreport-1058">camtrapReport 1.0.58<a class="anchor" aria-label="anchor" href="#camtrapreport-1058"></a></h2>
-<ul><li>Renamed <code><a href="../reference/install-all.html">install_All()</a></code> to <code><a href="../reference/install-all.html">install_all()</a></code> for consistency with R naming conventions. <code><a href="../reference/install-all.html">install_All()</a></code> remains available as a deprecated compatibility alias for existing code.</li>
+<ul><li>Renamed <code><a href="../reference/install-All-legacy.html">install_All()</a></code> to <code><a href="../reference/install-all.html">install_all()</a></code> for consistency with R naming conventions. <code><a href="../reference/install-All-legacy.html">install_All()</a></code> remains available as a deprecated compatibility alias for existing code.</li>
 <li>Clarified the report-module architecture and contributor documentation, including the distinction from Shiny modules, the rationale for the Reference Class implementation, and the role of <code>.eval()</code> relative to <code>rlang</code>-style evaluation.</li>
 <li>Improved the README and package website with clearer descriptions and direct example outputs for the Data Status Check and Ecological Report.</li>
 <li>Added the rOpenSci Software Peer Review status badge to the README and package website.</li>
@@ -182,7 +182,7 @@
 <h2 class="pkg-version" data-toc-text="1.0.51" id="camtrapreport-1051">camtrapReport 1.0.51<a class="anchor" aria-label="anchor" href="#camtrapreport-1051"></a></h2>
 <ul><li>Made the coverage-test fixture independent of optional report-module packages and made Pandoc availability explicit in the coverage workflow.</li>
 <li>Added network-independent tests for taxonomy-lookup failure handling.</li>
-<li>Revised the documentation topic for <code><a href="../reference/install-all.html">install_All()</a></code> to avoid a case-insensitive filename collision on Windows.</li>
+<li>Revised the documentation topic for <code><a href="../reference/install-All-legacy.html">install_All()</a></code> to avoid a case-insensitive filename collision on Windows.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.50" id="camtrapreport-1050">camtrapReport 1.0.50<a class="anchor" aria-label="anchor" href="#camtrapreport-1050"></a></h2>
@@ -195,8 +195,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.48" id="camtrapreport-1048">camtrapReport 1.0.48<a class="anchor" aria-label="anchor" href="#camtrapreport-1048"></a></h2>
 <ul><li>Revised the package in response to the initial rOpenSci editor assessment.</li>
-<li>Updated <code><a href="../reference/install-all.html">install_All()</a></code> to delegate dependency resolution and installation to <code>pak</code>.</li>
-<li>Documented the opt-in role of <code><a href="../reference/install-all.html">install_All()</a></code> in discovering dependencies from bundled and user-provided report modules.</li>
+<li>Updated <code><a href="../reference/install-All-legacy.html">install_All()</a></code> to delegate dependency resolution and installation to <code>pak</code>.</li>
+<li>Documented the opt-in role of <code><a href="../reference/install-All-legacy.html">install_All()</a></code> in discovering dependencies from bundled and user-provided report modules.</li>
 <li>Split internal rendering, taxonomy, and spatial utilities into focused files without changing the public API.</li>
 <li>Replaced the earlier example fixture with a documented, relationship-preserving subset of the GMU8_LEUVEN Camtrap DP dataset.</li>
 <li>Removed contact email addresses from the example data because they are not required by examples or automated tests.</li>

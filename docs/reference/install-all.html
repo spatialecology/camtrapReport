@@ -67,12 +67,7 @@ packages used by optional report modules.</p>
 <span>  gitlab <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'ANY'</span></span>
-<span><span class="fu">install_all</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="cn">NULL</span>, update <span class="op">=</span> <span class="cn">FALSE</span>, github <span class="op">=</span> <span class="cn">TRUE</span>, gitlab <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">install_All</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="cn">NULL</span>, update <span class="op">=</span> <span class="cn">FALSE</span>, github <span class="op">=</span> <span class="cn">TRUE</span>, gitlab <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S4 method for class 'ANY'</span></span>
-<span><span class="fu">install_All</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="cn">NULL</span>, update <span class="op">=</span> <span class="cn">FALSE</span>, github <span class="op">=</span> <span class="cn">TRUE</span>, gitlab <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">install_all</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="cn">NULL</span>, update <span class="op">=</span> <span class="cn">FALSE</span>, github <span class="op">=</span> <span class="cn">TRUE</span>, gitlab <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -121,7 +116,7 @@ modified by users, and combines them with any additional packages supplied
 through <code>pkgs</code>. It then delegates resolution and installation to <code>pak</code>. The
 function is opt-in and is never called when the package is loaded or a report
 is rendered.</p>
-<p><code>install_All()</code> is retained as a deprecated compatibility alias. New code
+<p><code><a href="install-All-legacy.html">install_All()</a></code> is retained as a deprecated compatibility alias. New code
 should use <code>install_all()</code>.</p>
 <p>To inspect optional packages without installing anything, examine module
 YAML <code>#| packages:</code> declarations (see the module guide). Use
