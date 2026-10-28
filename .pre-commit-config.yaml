@@ -1,3 +1,4 @@
+
 # Pre-commit hooks for camtrapReport
 
 repos:
@@ -23,6 +24,14 @@ repos:
           paste(files[bad], collapse=', '), '\n');
           quit(status=1)
           }"
+        language: system
+        files: \.[Rr]$
+        types: [file]
+        pass_filenames: true
+
+      - id: check-r-style
+        name: Check R style
+        entry: Rscript --vanilla -e "files <- commandArgs(TRUE); results <- lapply(files, lintr::lint); print(results); if (any(lengths(results) > 0L)) quit(status=1)"
         language: system
         files: \.[Rr]$
         types: [file]

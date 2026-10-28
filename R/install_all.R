@@ -529,7 +529,15 @@ setMethod(
   }
 )
 
-#' @rdname install-all
+#' Legacy installation alias
+#'
+#' `install_All()` is retained for backward compatibility. Use
+#' [install_all()] for new code.
+#'
+#' @inheritParams install_all
+#' @return See [install_all()].
+#' @keywords internal
+#' @rdname install-All-legacy
 #' @aliases install_All
 #' @export
 setGeneric(
@@ -539,7 +547,7 @@ setGeneric(
   }
 )
 
-#' @rdname install-all
+#' @rdname install-All-legacy
 #' @aliases install_All,ANY-method
 setMethod(
   "install_All",

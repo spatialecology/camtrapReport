@@ -78,7 +78,7 @@ test_that("changed source size or mtime warns but preserves cached data", {
     result <- capture_report_conditions(camData(fixture$directory))
     expect_length(result$warnings, 1L)
     expect_match(
-      result$warnings, "Source CSV/JSON files have changed", fixed = TRUE
+      result$warnings, "Source data have changed since", fixed = TRUE
     )
     expect_match(result$warnings, "update = TRUE", fixed = TRUE)
     expect_identical(result$value$description, fixture$object$description)
@@ -102,7 +102,7 @@ test_that("added and removed core candidates warn without rebuilding", {
     result <- capture_report_conditions(camData(fixture$directory))
     expect_length(result$warnings, 1L)
     expect_match(
-      result$warnings, "Source CSV/JSON files have changed", fixed = TRUE
+      result$warnings, "Source data have changed since", fixed = TRUE
     )
     expect_identical(result$value$description, fixture$object$description)
     expect_identical(.camtrap_cache_bytes(fixture$cache), before)
@@ -232,6 +232,6 @@ test_that("changes after parsing do not become a falsely fresh snapshot", {
   expect_false(result$value)
   expect_length(result$warnings, 1L)
   expect_match(
-    result$warnings, "Source CSV/JSON files have changed", fixed = TRUE
+    result$warnings, "Source data have changed since", fixed = TRUE
   )
 })

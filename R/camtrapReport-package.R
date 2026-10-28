@@ -37,7 +37,6 @@
 #' @importFrom lubridate interval
 #' @export add_Module
 #' @export camData
-#' @export camR
 #' @export empty_trash
 #' @export gui
 #' @export info

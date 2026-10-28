@@ -1,20 +1,7 @@
-
 ---
 title: "Analytical Profiles"
 author: "Elham Ebrahimi"
-description: "Define and reuse analytical workflows across camera-trap monitoring projects and networks."
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Analytical Profiles}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-
----
-title: "Analytical Profiles"
-author: "Elham Ebrahimi"
-description: "Reproducible analytical workflows for camera-trap monitoring networks."
+description: "Define, document, and reuse reproducible analytical workflows specific to individual camera-trap monitoring networks and projects."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Analytical Profiles}
@@ -26,7 +13,7 @@ vignette: >
 
 Standardised sampling protocols and interoperable data do not guarantee comparable ecological estimates. Differences in analytical methods, parameter settings, and processing rules can affect results and their interpretation.
 
-**Analytical Profiles** provide reusable workflows tailored to the objectives and sampling protocols of individual monitoring networks or projects. Each profile brings together agreed analytical methods, assumptions, settings, and reporting conventions, supporting consistency across researchers, sites, and monitoring rounds.
+**Analytical Profiles** provide reusable workflows tailored to the objectives and sampling protocols of individual monitoring networks or projects. Each profile specifies a selection and ordering of analytical modules, supporting the consistent application of community-agreed methods and reporting conventions across researchers, sites, and monitoring rounds. Analytical settings and parameters are defined within the modules and report configuration.
 
 Profiles can reuse existing analytical modules or incorporate new ones, with methodological changes explicitly documented.
 
@@ -34,10 +21,9 @@ Profiles can reuse existing analytical modules or incorporate new ones, with met
 
 `camtrapReport` currently provides two profiles: `default`, for general ecological reporting, and `EOW`, for European Observatory of Wildlife–oriented reporting. Additional network-specific profiles based on community-agreed analytical workflows are under development.
 
-
 ## Generate a report
 
-First create a `camReport` object using `camData()` (see [Get started](../index.html)).
+First create a `camReport` object using `camData()` (see [Get Started](../index.html)).
 
 ```{r report-profiles, eval=FALSE}
 library(camtrapReport)
@@ -48,7 +34,6 @@ report(cm, view = TRUE)
 # EOW-oriented ecological report
 report(cm, profile = "EOW", view = TRUE, format = "PDF")
 ```
-
 
 ## Explore available modules
 
@@ -62,10 +47,31 @@ section_names(object = cm, profile = "EOW")
 
 Explore the [Module Catalog](module-catalog.html) for descriptions of available analytical and reporting modules.
 
+## Create and reuse a custom profile
+
+Custom profiles define reusable selections and ordering of report modules. For example, create a brief reporting template:
+
+```{r custom-profile, eval=FALSE}
+brief <- reportProfile(
+  name = "brief",
+  report = c("introduction", "results"),
+  status = c("abstract", "availability")
+)
+
+# Register and use the profile
+add_profile(cm, brief)
+report(cm, profile = "brief", view = FALSE)
+
+# Save and reuse with another dataset
+write_profile(brief, "brief.yml")
+add_profile(cm_new, read_profile("brief.yml"))
+report(cm_new, profile = "brief", view = FALSE)
+```
+
+Here, `cm` and `cm_new` are `camReport` objects created using `camData()` for different datasets. The saved YAML file preserves module selections for reuse across projects, enabling monitoring networks to develop and test reproducible workflows based on community-agreed methods and settings. See [`?reportProfile`](../reference/reportProfile.html) for further options.
+
 ## Contribute an Analytical Profile
 
-We invite camera-trap monitoring networks and research projects worldwide to contribute their established analytical workflows.
-
-Contributors should document their agreed analytical methods, assumptions, parameter settings, and reporting conventions. The `camtrapReport` development team can collaborate with them to implement and test these workflows as reusable Analytical Profiles, with methodological changes documented to support long-term reproducibility.
+Monitoring networks and research projects are welcome to contribute their established analytical workflows, including documented methods, assumptions, and parameter settings. The `camtrapReport` team can collaborate on testing, refinement, and potential integration as reusable Analytical Profiles.
 
 [**Propose a profile or discuss a collaboration**](https://github.com/spatialecology/camtrapReport/discussions).

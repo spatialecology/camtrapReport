@@ -109,9 +109,9 @@
   )
   if (changed) {
     warning(
-      "Source CSV/JSON files have changed since this camReport cache ",
-      "was created. The saved object is still being reused; ",
-      "use camData(..., update = TRUE) to rebuild it.",
+      "Source data have changed since this camReport object was cached. ",
+      "The existing cached object is being reused. ",
+      "Run camData(..., update = TRUE) to rebuild it.",
       call. = FALSE
     )
   } else if (is.null(current) || !.valid_camdata_source_metadata(current)) {

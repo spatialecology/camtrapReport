@@ -77,7 +77,7 @@ bundled_modules <- system.file(
   "reportSections",
   package = "camtrapReport"
 )
-module_dir <- file.path(getwd(), "reportSections")
+module_dir <- here::here("reportSections")
 
 if (!dir.exists(module_dir)) {
   dir.create(module_dir)

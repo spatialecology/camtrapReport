@@ -92,34 +92,16 @@ including a worked YAML example, see the
 
 ## Dependency policy
 
-Core dependencies in `Imports` are required for data input, object setup, the
-interactive interface, or report rendering. Both `data.table` and `dplyr` are
-used deliberately: the former supports keyed sequence aggregation and efficient
-table operations, while the latter provides the joins and column transformations
-used throughout the data-preparation and summary workflow.
+Core dependencies in `Imports` are required for data input, object setup, the interactive interface, or report rendering. Both `data.table` and `dplyr` are used deliberately: the former supports keyed sequence aggregation and efficient table operations, while the latter provides the joins and column transformations used throughout the data-preparation and summary workflow.
 
-Packages needed only for particular analytical or visual report sections should
-remain optional and must be declared within the module using `#| packages:`.
-`install_all()` discovers these declarations from the available YAML modules
-and passes the resulting package references to `pak`. It is an explicit opt-in
-operation and is never called at package load or report-render time. When adding
-or changing a module dependency, update its documentation and tests, and verify
-that a missing optional package produces a clear message rather than breaking
-unrelated sections.
+Packages needed only for particular analytical or visual report sections should remain optional and must be declared within the module using `#| packages:`. `install_all()` discovers these declarations from the available YAML modules and passes the resulting package references to `pak`. It is an explicit opt-in operation and is never called at package load or report-render time. When adding or changing a module dependency, update its documentation and tests, and verify that a missing optional package produces a clear message rather than breaking unrelated sections.
 
-The current `.require()` helper also attaches a package after checking its
-namespace, and selected report modules are loaded with `library()` during
-rendering. Existing modules may call unqualified functions, so these operations
-are part of the current execution contract and can affect `search()`. Replacing
-them with namespace checks alone requires a separate compatibility review;
-do not make that change as a lint fix. `.eval()` and the dedicated render
-environment do not isolate process-wide effects such as package attachment,
-network requests, options, or file writes.
+The internal `.require()` helper checks package availability using `requireNamespace()` and then attaches available packages using `require()`. Consequently, calls such as `camData()` may modify the user's `search()` path. This behavior is currently retained for compatibility with existing analytical components that may rely on unqualified functions from optional packages. Some report modules also use `library()` during rendering. Replacing package attachment with namespace-only checks requires compatibility testing across these workflows. Contributors should prefer explicitly qualified function calls in new code and avoid unnecessary package attachments.
 
-Only set minimum dependency versions when a required API or known
-incompatibility establishes the lower bound. Installed developer versions are
-not evidence of a minimum supported version. Describe and test any new
-version constraints separately from documentation changes.
+The `.eval()` helper and dedicated rendering environment do not isolate process-wide effects such as package attachment, network requests, options, or file writes.
+
+Only set minimum dependency versions when a required API or known incompatibility establishes the lower bound. Installed developer versions are not evidence of a minimum supported version. Describe and test any new version constraints separately from documentation changes.
+
 
 ## Coding conventions
 
