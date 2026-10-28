@@ -1,21 +1,21 @@
 /* Website theme only; generated ecological reports use separate assets.
    Responsive breakpoints follow Bootstrap: lg = 992px and sm = 576px. */
 :root {
-  --site-ink: #1c2b27;
-  --site-muted: #52645c;
-  --site-link: #146353;
-  --site-link-hover: #0c493f;
-  --site-forest: #123e35;
-  --site-paper: #fcfdfa;
-  --site-surface: #f0f5f1;
-  --site-code: #f1f4f4;
-  --site-line: #d5dfd8;
+  --site-ink: #23343b;
+  --site-muted: #61717b;
+  --site-link: #137c73;
+  --site-link-hover: #0e5956;
+  --site-forest: #183f44;
+  --site-paper: #ffffff;
+  --site-surface: #f2f8f7;
+  --site-code: #f7f9fa;
+  --site-line: #e1e9eb;
   --site-focus: #0f766e;
-  --site-nav-focus: #e6f0c5;
+  --site-nav-focus: #d1f7ec;
   --site-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --site-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --site-width: 75rem;
-  --site-measure: 75ch;
+  --site-width: 91rem;
+  --site-measure: 88ch;
   --site-radius: 0.4rem;
   --site-space-1: 0.25rem;
   --site-space-2: 0.5rem;
@@ -32,7 +32,7 @@ body {
   background: var(--site-paper);
   font-family: var(--site-font);
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 .container, .container-fluid { max-width: var(--site-width); }
@@ -97,7 +97,7 @@ main .status-badges {
 /* Bootstrap retains collapse, dropdown, search, and keyboard behavior. */
 .navbar.bg-primary {
   min-height: 3.8rem;
-  background-color: var(--site-forest) !important;
+  background-color: #137c73 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .navbar, .navbar[data-bs-theme="dark"] {
@@ -191,7 +191,7 @@ main .status-badges {
 }
 #toc a:hover, #toc a.active, #toc .active > a {
   color: var(--site-forest);
-  background: var(--site-surface);
+  background: transparent;
 }
 #toc a.active, #toc .active > a {
   box-shadow: -2px 0 0 var(--site-link);
@@ -302,7 +302,7 @@ footer {
 
 @media (min-width: 992px) {
   .template-home main, .template-article main, .template-reference main {
-    padding-right: var(--site-space-6);
+    padding-right: var(--site-space-3);
   }
   .template-home aside, .template-article aside, .template-reference aside {
     padding-top: var(--site-space-6);
@@ -353,3 +353,51 @@ footer {
     transition: none !important;
   }
 }
+
+/* Refinements for cleaner article layout and navigation. */
+@media (min-width: 992px) {
+  .template-article .container,
+  .template-article .container-fluid,
+  .template-reference .container,
+  .template-reference .container-fluid {
+    max-width: min(91rem, calc(100% - 3rem));
+  }
+  .template-article main,
+  .template-reference main { padding-right: 0.75rem; }
+}
+
+/* Consistent paragraph and heading rhythm. */
+main p, main li { line-height: 1.6; }
+main h2 { margin-top: 1.8rem; margin-bottom: 0.65rem; }
+main h3 { margin-top: 1.4rem; margin-bottom: 0.5rem; }
+main .page-header { padding-top: 1rem; padding-bottom: 0.75rem; margin-bottom: 1.5rem; }
+
+/* Quiet article metadata: retain credit on the authors page. */
+.template-article .page-header .author,
+.template-article .page-header .authors,
+.template-article .page-header .date { display: none; }
+
+/* Plain, compact table of contents. No filled active row. */
+#toc { font-size: 0.86rem; line-height: 1.35; }
+#toc h2 { font-size: 0.79rem; margin-bottom: 0.55rem; }
+#toc ul { border-left: 1px solid #e4ebec; }
+#toc a, #toc .nav-link {
+  padding: 0.25rem 0.55rem;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--site-muted);
+  font-weight: 400;
+  line-height: 1.4;
+}
+#toc a:hover, #toc a.active, #toc .active > a,
+#toc .nav-link.active {
+  background: transparent !important;
+  color: var(--site-link) !important;
+}
+#toc a.active, #toc .active > a {
+  box-shadow: -2px 0 0 var(--site-link);
+  font-weight: 600;
+}
+
+/* Protect report diagrams from stretching beyond their aspect ratio. */
+.workflow-figure img, .template-article main img { height: auto; }

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Analytical Report Profiles • camtrapReport</title>
+<title>Analytical Profiles • camtrapReport</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,15 +16,15 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Analytical Report Profiles">
-<meta name="description" content="Learn how to select, customise, export, and reuse analytical report profiles across camera-trap monitoring projects.">
-<meta property="og:description" content="Learn how to select, customise, export, and reuse analytical report profiles across camera-trap monitoring projects.">
+<meta property="og:title" content="Analytical Profiles">
+<meta name="description" content="Define and reuse analytical workflows across camera-trap monitoring projects and networks.">
+<meta property="og:description" content="Define and reuse analytical workflows across camera-trap monitoring projects and networks.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
@@ -59,8 +59,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-project" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Project</button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-project">
-<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose"><span class="fa fa-bug"></span> Report a bug</a></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions"><span class="fa fa-comments"></span> Ask a question</a></li>
+<li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/issues/new/choose">Report a bug</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/spatialecology/camtrapReport/discussions">Ask a question</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../authors.html">Authors</a></li>
     <li><a class="dropdown-item" href="../authors.html#citation">Citation</a></li>
@@ -83,7 +83,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Analytical Report Profiles</h1>
+      <h1>Analytical Profiles</h1>
                         <h4 data-toc-skip class="author">Elham
 Ebrahimi</h4>
             
@@ -95,236 +95,70 @@ Ebrahimi</h4>
     
     
 <div class="section level2">
-<h2 id="reuse-analytical-workflows">Reuse analytical workflows<a class="anchor" aria-label="anchor" href="#reuse-analytical-workflows"></a>
+<h2 id="reproducible-workflows-for-monitoring-networks">Reproducible workflows for monitoring networks<a class="anchor" aria-label="anchor" href="#reproducible-workflows-for-monitoring-networks"></a>
 </h2>
-<p>An <strong>Analytical Profile</strong> defines which modules run, in
-what order, and in which report. It helps standardise reporting across
-monitoring sites and years without duplicating modules. <strong>Profiles
-select modules; the modules and <code>camReport</code> settings define
-analytical methods and parameters.</strong></p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Profile</th>
-<th align="left">Reporting context</th>
-<th align="left">REM parameters</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left"><code>default</code></td>
-<td align="left">General ecological reporting</td>
-<td align="left">Pooled across years within species</td>
-</tr>
-<tr class="even">
-<td align="left"><code>EOW</code></td>
-<td align="left">European Observatory of Wildlife–oriented workflow</td>
-<td align="left">Estimated separately by species and year</td>
-</tr>
-</tbody>
-</table>
-<p>Select a profile suited to your sampling design and analytical
-objectives. Neither profile guarantees methodological validity or
-implies formal network endorsement.</p>
+<p>Standardised sampling protocols and interoperable data do not
+guarantee comparable ecological estimates. Differences in analytical
+methods, parameter settings, and processing rules can affect results and
+their interpretation.</p>
+<p><strong>Analytical Profiles</strong> provide reusable workflows
+tailored to the objectives and sampling protocols of individual
+monitoring networks or projects. Each profile brings together agreed
+analytical methods, assumptions, settings, and reporting conventions,
+supporting consistency across researchers, sites, and monitoring
+rounds.</p>
+<p>Profiles can reuse existing analytical modules or incorporate new
+ones, with methodological changes explicitly documented.</p>
 </div>
 <div class="section level2">
-<h2 id="understand-profiles-and-module-pools">Understand profiles and module pools<a class="anchor" aria-label="anchor" href="#understand-profiles-and-module-pools"></a>
+<h2 id="available-profiles">Available profiles<a class="anchor" aria-label="anchor" href="#available-profiles"></a>
 </h2>
-<p>Profiles reference modules from two pools: <code>report</code>
-(Ecological Report, <code>reportSections</code>) and <code>status</code>
-(Data Status Check, <code>statusSections</code>). For example,
-<code>report::introduction</code> and <code>status::spatial</code>
-explicitly identify their source pools; these are <strong>module
-references</strong>, not R namespace operators.</p>
-<p>A profile stores ordered module references and optional parent
-overrides—not datasets, module code, computed results, or package
-versions. Applying a profile rebuilds the selected report sections; make
-any one-off edits <strong>after</strong> applying it.</p>
+<p><code>camtrapReport</code> currently provides two profiles:
+<code>default</code>, for general ecological reporting, and
+<code>EOW</code>, for European Observatory of Wildlife–oriented
+reporting. Additional network-specific profiles based on
+community-agreed analytical workflows are under development.</p>
 </div>
 <div class="section level2">
-<h2 id="explore-available-profiles">1. Explore available profiles<a class="anchor" aria-label="anchor" href="#explore-available-profiles"></a>
+<h2 id="generate-a-report">Generate a report<a class="anchor" aria-label="anchor" href="#generate-a-report"></a>
 </h2>
-<p>Create <code>cm</code> with <code><a href="../reference/camData.html">camData()</a></code> as shown in <a href="https://spatialecology.github.io/camtrapReport/">Get Started</a>.
-The examples below illustrate independent operations and are not
-executed when building this vignette.</p>
+<p>First create a <code>camReport</code> object using
+<code><a href="../reference/camData.html">camData()</a></code> (see <a href="../index.html">Get
+started</a>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">profile_names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>, report_type <span class="op">=</span> <span class="st">"status"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, report_type <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></code></pre></div>
-<p>Use the <a href="module-catalog.html">Module Catalog</a> to inspect
-module requirements. <code><a href="../reference/section_names.html">section_names()</a></code> can show both report
-and status selections.</p>
+<span><span class="co"># General ecological report (default profile)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># EOW-oriented ecological report</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>, view <span class="op">=</span> <span class="cn">TRUE</span>, format <span class="op">=</span> <span class="st">"PDF"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="create-and-apply-a-profile">2. Create and apply a profile<a class="anchor" aria-label="anchor" href="#create-and-apply-a-profile"></a>
+<h2 id="explore-available-modules">Explore available modules<a class="anchor" aria-label="anchor" href="#explore-available-modules"></a>
 </h2>
-<p>Define an ordered selection for each output, register it, and
-generate the reports:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">brief</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">reportProfile</a></span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"brief"</span>,</span>
-<span>  description <span class="op">=</span> <span class="st">"A small report for a first inspection"</span>,</span>
-<span>  report <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"methods"</span><span class="op">)</span>,</span>
-<span>  status <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"spatial"</span>, <span class="st">"temporal"</span>, <span class="st">"availability"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">brief</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># List available profiles</span></span>
+<span><span class="fu"><a href="../reference/reportProfile.html">profile_names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"brief"</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"brief-report.html"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"brief"</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"brief-status.html"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><strong>Order matters:</strong> Parent sections must precede their
-children (for example, <code>methods</code> before
-<code>study_area</code>). Check the hierarchy with
-<code><a href="../reference/modules.html">list_Modules()</a></code>.</p>
+<span><span class="co"># Inspect the modules used by a profile</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span><span class="op">)</span></span></code></pre></div>
+<p>Explore the <a href="module-catalog.html">Module Catalog</a> for
+descriptions of available analytical and reporting modules.</p>
 </div>
 <div class="section level2">
-<h2 id="change-the-selected-sections">3. Change the selected sections<a class="anchor" aria-label="anchor" href="#change-the-selected-sections"></a>
+<h2 id="contribute-an-analytical-profile">Contribute an Analytical Profile<a class="anchor" aria-label="anchor" href="#contribute-an-analytical-profile"></a>
 </h2>
-<p>Pass the <strong>complete desired sequence</strong> to
-<code><a href="../reference/section_names.html">sections()</a></code>; ecological and status selections are edited
-separately.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"methods"</span>, <span class="st">"study_area"</span><span class="op">)</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"brief"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"brief"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The status selection is edited independently:</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"spatial"</span>, <span class="st">"availability"</span><span class="op">)</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"brief"</span>,</span>
-<span>  report_type <span class="op">=</span> <span class="st">"status"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Apply a profile before making changes directly to the active report
-tree; applying it again may replace those changes.</p>
-</div>
-<div class="section level2">
-<h2 id="combine-modules-from-both-pools">4. Combine modules from both pools<a class="anchor" aria-label="anchor" href="#combine-modules-from-both-pools"></a>
-</h2>
-<p>A profile can incorporate data-status modules into an ecological
-report. Explicit <code>source</code> and <code>parent</code> fields
-identify their origins and position; the <code>appendix_eow</code>
-module supports this example in both HTML and PDF.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">entries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"report"</span>, <span class="st">"report"</span>, <span class="st">"status"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
-<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"introduction"</span>, <span class="st">"appendix_eow"</span>, <span class="st">"spatial"</span>, <span class="st">"temporal"</span><span class="op">)</span>,</span>
-<span>  parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"appendix_eow"</span>, <span class="st">"appendix_eow"</span><span class="op">)</span>,</span>
-<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">reportProfile</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"combined"</span>, report <span class="op">=</span> <span class="va">entries</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">combined</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"combined"</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"combined-report.html"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Module names in a rendered selection must be unique, including across
-pools. Use qualified references or the <code>source</code> field when
-needed.</p>
-</div>
-<div class="section level2">
-<h2 id="save-and-share-profiles">5. Save and share profiles<a class="anchor" aria-label="anchor" href="#save-and-share-profiles"></a>
-</h2>
-<p>Export the <strong>current registered profile</strong>, rather than
-an outdated R variable, then import it into another
-<code>camReport</code> object.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">profile_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"brief-profile-"</span>, fileext <span class="op">=</span> <span class="st">".yml"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">write_profile</a></span><span class="op">(</span><span class="st">"brief"</span>, <span class="va">profile_file</span>, object <span class="op">=</span> <span class="va">cm</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">imported</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reportProfile.html">read_profile</a></span><span class="op">(</span><span class="va">profile_file</span><span class="op">)</span></span>
-<span><span class="va">imported</span></span>
-<span><span class="co"># For an object with no profile named "brief":</span></span>
-<span><span class="co"># add_profile(other_cm, imported)</span></span>
-<span><span class="co"># To deliberately replace the existing profile in cm:</span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">imported</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>A profile YAML file does <strong>not</strong> contain its modules.
-Recipients must register any required custom modules separately; see <a href="modules.html">Module Management</a>. Only use modules from trusted
-sources, as they may execute R code.</p>
-</div>
-<div class="section level2">
-<h2 id="generate-pdf-reports">6. Generate PDF reports<a class="anchor" aria-label="anchor" href="#generate-pdf-reports"></a>
-</h2>
-<p>PDF output uses optional <code>pagedown</code> and a supported
-Chrome/Edge browser. Some interactive or HTML-only modules may be
-excluded according to the registry’s <code>formats</code> setting.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"brief"</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"brief-report-pdf.pdf"</span><span class="op">)</span>,</span>
-<span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Check the resulting document and console messages; PDF and HTML may
-differ in section availability and presentation.</p>
-</div>
-<div class="section level2">
-<h2 id="troubleshooting-and-reproducibility">Troubleshooting and reproducibility<a class="anchor" aria-label="anchor" href="#troubleshooting-and-reproducibility"></a>
-</h2>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Issue</th>
-<th align="left">Check</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Missing section</td>
-<td align="left">Profile selection, module pool, parent hierarchy, and
-output format</td>
-</tr>
-<tr class="even">
-<td align="left">Missing figure or estimate</td>
-<td align="left">Required data, dependencies, filters, and method
-assumptions</td>
-</tr>
-<tr class="odd">
-<td align="left">Changes lost after selecting a profile</td>
-<td align="left">Apply the profile before editing individual attached
-sections</td>
-</tr>
-<tr class="even">
-<td align="left">Imported profile cannot locate a module</td>
-<td align="left">Register the referenced module in the receiving
-object’s pool</td>
-</tr>
-<tr class="odd">
-<td align="left">Different PDF and HTML outputs</td>
-<td align="left">Module <code>formats</code> flags and report
-messages</td>
-</tr>
-</tbody>
-</table>
-<p>Keep the profile YAML, custom modules, input-data provenance,
-analytical settings, and package versions together. Review the
-scientific interpretation of every output: <strong>successful rendering
-does not establish ecological validity</strong>.</p>
-<p>For available analyses, see the <a href="module-catalog.html">Module
-Catalog</a>. Propose new community workflows through <a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link">GitHub
-Discussions</a>.</p>
+<p>We invite camera-trap monitoring networks and research projects
+worldwide to contribute their established analytical workflows.</p>
+<p>Contributors should document their agreed analytical methods,
+assumptions, parameter settings, and reporting conventions. The
+<code>camtrapReport</code> development team can collaborate with them to
+implement and test these workflows as reusable Analytical Profiles, with
+methodological changes documented to support long-term
+reproducibility.</p>
+<p><a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link"><strong>Propose
+a profile or discuss a collaboration</strong></a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -1,3 +1,14 @@
+---
+title: "Package Overview"
+author: "Elham Ebrahimi"
+description: "Understand the architecture, reporting components, and scientific scope of camtrapReport."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
 ## A modular framework for camera-trap reporting
 
 Camera-trap monitoring generates extensive information on sampling effort, species detections, and wildlife communities. Translating these data into meaningful ecological evidence requires systematic quality assessment, appropriate analytical methods, and consistent reporting.
@@ -14,9 +25,6 @@ The [**Module Catalog**](module-catalog.html) documents available analyses, requ
 
 Users can select, reorder, and customise existing modules or develop new ones for specific research and monitoring objectives. See [Module Management](modules.html) for guidance on extending the framework.
 
-## Analytical Profiles: consistency without rigidity
-
-A common data standard does not guarantee comparable ecological estimates. Choices about filtering, aggregation, analytical methods, and parameters can still differ among studies.
 
 ## Analytical Profiles
 

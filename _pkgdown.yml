@@ -5,10 +5,10 @@ url: https://spatialecology.github.io/camtrapReport/
 template:
   bootstrap: 5
   bslib:
-    primary: "#146353"
-    secondary: "#52645c"
-    light: "#f0f5f1"
-    dark: "#123e35"
+    primary: "#168474"
+    secondary: "#64748b"
+    light: "#f8fbfa"
+    dark: "#153f3c"
     base_font: "system-ui"
     heading_font: "system-ui"
     code_font: "ui-monospace"
@@ -22,8 +22,8 @@ home:
     structure: [toc]
 
 navbar:
-  bg: primary
-  type: dark
+  bg: light
+  type: light
   structure:
     left:
       - home
@@ -71,10 +71,8 @@ navbar:
       text: Project
       menu:
         - text: Report a bug
-          icon: fa-bug
           href: https://github.com/spatialecology/camtrapReport/issues/new/choose
         - text: Ask a question
-          icon: fa-comments
           href: https://github.com/spatialecology/camtrapReport/discussions
         - text: -------
         - text: Authors
@@ -96,8 +94,8 @@ navbar:
 articles:
   - title: Guides
     desc: >
-      Practical guidance for importing data, assessing data status,
-      generating reports, and managing analytical modules and profiles.
+      Practical guides to data assessment, ecological reporting,
+      modules, and analytical profiles.
     contents:
       - 'matches("^Package-Overview$")'
       - 'matches("^articles/data-status-report$")'
@@ -107,7 +105,7 @@ articles:
 
   - title: Module Catalog
     desc: >
-      Searchable documentation of Data Status Check and Ecological Report modules.
+      Searchable descriptions of data-status and ecological-report modules.
     contents:
       - 'matches("^articles/module-catalog$")'
 
@@ -119,30 +117,22 @@ articles:
 
 reference:
   - title: Data input and metadata
-    desc: >
-      Import Camtrap DP data and manage report metadata.
     contents:
       - camData
       - info
 
   - title: Report generation
-    desc: >
-      Generate data-status and ecological reports or use the graphical interface.
     contents:
       - report
       - gui
 
   - title: Configure report contents
-    desc: >
-      Select report sections and configure reusable analytical profiles.
     contents:
       - section_names
       - reportProfile
       - updateReportSection
 
   - title: Module development and management
-    desc: >
-      Create, test, manage, and inspect report modules.
     contents:
       - reportSection
       - testSection
@@ -150,7 +140,5 @@ reference:
       - install_all
 
   - title: Core class
-    desc: >
-      Low-level documentation of the camReport class.
     contents:
       - camReport-classes
