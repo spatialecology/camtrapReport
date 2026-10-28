@@ -43,7 +43,7 @@ management and specialized ecological analysis.
 
 <p align="center">
 
-<img src="vignettes/figures/package-architecture.png"
+<img src="man/figures/package-architecture.png"
        width="900"
        alt="camtrapReport workflow from Camtrap DP data to Data Status Check and Ecological Report">
 <br> <em>Overview of the camtrapReport workflow, from standardized
@@ -80,17 +80,22 @@ dependencies for available modules, run:
 camtrapReport::install_all()
 ```
 
-Work directly in R or use the optional Shiny interface, `gui(cm)`.
-Report-generation time depends on dataset size and selected analyses.
+Use the R functions directly, or configure and generate reports through
+the optional Shiny interface, `gui(cm)`. Shiny is not needed to run the
+R workflow. Report-generation time depends on dataset size and selected
+analyses.
 
 ## Prepare the input
 
 Provide a [Camtrap DP](https://camtrap-dp.tdwg.org/) dataset as a
-directory or ZIP archive. Convert other formats to Camtrap DP before
-import (e.g., with [Biowatch](https://biowatch.earthtoolsmaker.org/) or
-a custom workflow). Check compliance with the [Camtrap DP
-specification](https://camtrap-dp.tdwg.org/); the Data Status Check is
-not a full schema validator.
+directory or ZIP archive. The main dataset cannot currently be supplied
+as in-memory R tables; optional habitat and study-area inputs can be R
+objects. Convert other formats to Camtrap DP before import (e.g., with
+[Biowatch](https://biowatch.earthtoolsmaker.org/) or a custom workflow).
+Check compliance with the [Camtrap DP
+specification](https://camtrap-dp.tdwg.org/) (including the meanings of
+observations and sequences); the Data Status Check is not a full schema
+validator.
 
 ## Quick start
 
@@ -134,7 +139,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomy enrichment sends scientific names to GBIF via taxize. Use enrich_taxonomy = FALSE to disable these network requests.
 #> Setup is done!
-#> Data loaded successfully in 34 sec.
+#> Data loaded successfully in 27 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -199,7 +204,10 @@ and methodological assumptions.
 
 Explore the [**Module
 Catalog**](https://spatialecology.github.io/camtrapReport/articles/module-catalog.html)
-for modules, methods, settings, and brief implementation details. Use
+to compare available modules in the Data Status Check, default (Global)
+and EOW reports, including methods, required inputs, and settings. Some
+sections depend on optional packages, data availability, or analytical
+prerequisites and may be absent from a particular report. Use
 `section_names()` to inspect available sections in R.
 
 ## Analytical Profiles
@@ -244,8 +252,9 @@ sections(cm, selected_sections)
 ### Customize report content
 
 Modules may combine predefined narrative templates, Camtrap DP metadata,
-and computed results. Review generated text before publication.
-Customize modules in a writable project directory rather than editing
+and computed results; this is where much of the report text originates.
+Review generated text before publication. Customize existing modules or
+add new ones in a writable project directory rather than editing
 installed package files; see [Module
 management](https://spatialecology.github.io/camtrapReport/articles/modules.html).
 

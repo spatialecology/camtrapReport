@@ -1,7 +1,7 @@
 ---
 title: "Ecological Report"
 author: "Elham Ebrahimi"
-description: "A guide to the Ecological Report produced by camtrapReport, including its structure, main modules, interpretation, and customisation options."
+description: "Generate and customise modular ecological reports from Camtrap DP data, and interpret their outputs responsibly."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Ecological Report}
@@ -16,10 +16,19 @@ resource_files:
   - figures/ecological-report/gallery/amsterdam-gallery.png
 ---
 
-## Purpose of the Ecological Report
+## From camera-trap data to ecological reporting
 
-The Ecological Report is the main interpretive output of `camtrapReport`. It brings processed camera-trap data together into a clear, scientific-style report with narrative text, tables, figures, and maps. The report summarises key information on study context, sampling effort, species detections, activity patterns, spatial patterns, and ecological trends. It provides a reproducible and modular workflow that automates much of the reporting process, helping researchers, conservation practitioners, and camera-trap users analyse, interpret, and communicate camera-trap data efficiently for conservation planning and decision-making.
+The **Ecological Report** integrates camera-trap data, sampling summaries, ecological analyses, maps, figures, and data-informed narratives into a reproducible, modular HTML report. Users can customise its content to suit different monitoring objectives, datasets, and analytical requirements.
 
+A [Data Status Check](data-status-report.html) is recommended before ecological analysis to identify potential data-quality issues.
+
+### Reporting workflow
+
+**Prepare → Check → Configure → Report**
+
+Import Camtrap DP data using `camData()`, assess data quality with `status()`, select relevant modules and analytical settings, and generate the Ecological Report using `report()`.
+
+The diagram shows how the selected modules contribute to report generation.
 
 <style>
 .figure .caption,
@@ -32,132 +41,81 @@ p.caption {
 }
 </style>
 
-```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow for generating an Ecological Report from camera-trap data using camtrapReport.", fig.alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
+```{r ecological-report-workflow, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Figure 1. Workflow from Camtrap DP inputs and report configuration to an Ecological Report.", fig.alt="Workflow for generating an Ecological Report from camera-trap data using camtrapReport."}
 knitr::include_graphics(
   "figures/ecological-report/ecological-report-workflow.png"
 )
 ```
 
 
-Figure 1 summarises the main workflow for generating an Ecological Report with `camtrapReport`. Camera-trap data are first loaded with `camData()`, creating an object that supports data preprocessing, manipulation, analysis, summarisation, and visualisation. This processed object is then passed to the `report()` function, which generates a complete HTML Ecological Report.
+### Generate your first report
 
+This example uses the bundled Camtrap DP dataset, habitat data, and study-area boundary. The dataset is copied to a writable folder to protect the installed package files.
 
 ```{r ecological-report-basic-code, eval=FALSE}
 library(camtrapReport)
 
-# Copy the bundled example dataset to a writable temporary directory
+# Prepare a writable copy of the example dataset
 example_root <- tempfile("camtrapReport-example-")
-dir.create(example_root, recursive = TRUE)
+dir.create(example_root)
 
-example_source <- system.file(
-  "external",
-  "dataset",
-  package = "camtrapReport",
-  mustWork = TRUE
+file.copy(
+  system.file("external", "dataset", package = "camtrapReport"),
+  example_root,
+  recursive = TRUE
 )
 
-copied <- file.copy(
-  from = example_source,
-  to = example_root,
-  recursive = TRUE,
-  copy.mode = FALSE
-)
-
-habitat <- utils::read.csv(
-  system.file(
-    "external",
-    "habitat",
-    "habitat.csv",
-    package = "camtrapReport",
-    mustWork = TRUE
-  )
+# Load supplementary data
+habitat <- read.csv(
+  system.file("external", "habitat", "habitat.csv",
+              package = "camtrapReport")
 )
 
 study_area <- system.file(
-  "external",
-  "study_area",
-  "study_area.shp",
-  package = "camtrapReport",
-  mustWork = TRUE
+  "external", "study_area", "study_area.shp",
+  package = "camtrapReport"
 )
 
-stopifnot(
-  isTRUE(copied),
-  dir.exists(file.path(example_root, "dataset")),
-  file.exists(study_area)
-)
-
-# Load the example camera-trap data and optional spatial inputs
+# Import data and generate reports
 cm <- camData(
   data = file.path(example_root, "dataset"),
   habitat = habitat,
-  study_area = study_area,
-  update = TRUE
+  study_area = study_area
 )
 
-# Generate the bundled standard Ecological Report
-# Review and install optional module requirements before the full report.
-report(
-  cm,
-  profile = "default",
-  filename = file.path(example_root, "ecological-report.html"),
-  view = TRUE
-)
+status(cm, view = FALSE)  # Assess data quality
+report(cm, view = TRUE)   # Generate and open the Ecological Report
 ```
 
-`report()` invisibly returns the path to the generated HTML file. By default,
-`report.html` and the intermediate `report.Rmd` file are written beside the
-writable input dataset. A specific file stem or a path inside an
-existing output directory can be supplied through `filename`:
+### Save the report
+
+By default, the report is saved to a temporary directory. Use `filename` to specify an output location and `view = FALSE` to generate the report without opening it.
 
 ```{r ecological-report-output-path, eval=FALSE}
-# In a project script, check that here::here() identifies your intended root.
-output_dir <- here::here("reports", "camtrapReport-ecological")
-dir.create(
-  output_dir,
-  recursive = TRUE,
-  showWarnings = FALSE
-)
+dir.create("reports", recursive = TRUE, showWarnings = FALSE)
 
 report_file <- report(
   cm,
-  filename = file.path(output_dir, "ecological_report_2026"),
+  filename = "reports/ecological_report_2026",
   view = FALSE
 )
 ```
 
-The resolved output and `.Rmd` paths are displayed before rendering. Existing
-files are protected by default: use a new stem for a retained report, or pass
-`overwrite = TRUE` only when you intend to replace them. A bare filename uses
-the object's existing dataset directory; a missing or invalid directory raises
-an error, never a silent fallback to the working directory. The GUI previews
-the destination and leaves overwrite consent unchecked. Its initial directory
-uses the optional `here` package's project root, or the dataset directory when
-`here` is unavailable. The core report functions do not use `here`.
+**Note:** Existing reports with the same filename may be overwritten. Use versioned filenames to preserve outputs from different monitoring rounds or analyses.
 
-The [README quick start](https://spatialecology.github.io/camtrapReport/)
-deliberately selects only the introduction, so it can run without the optional
-analysis packages. The full `default` and `EOW` profiles differ: EOW selects
-customised narrative and analyses and fits REM parameters separately by year;
-the standard profile uses pooled parameters. The report galleries below are
-illustrations from different datasets and configurations, rather than exact
-expected output from the small bundled example. Inspect a named selection
-with `section_names(object = cm, profile = "default")` or `"EOW"`.
+### Report content and customisation
 
-With `test = TRUE`, modules are tested and failing modules are excluded.
-Consequently, successful rendering can still produce an incomplete report.
-Read the module-test messages and resolve missing packages or inputs before
-treating a shortened report as a final analysis. `view = TRUE` requests a
-viewer after rendering; use `view = FALSE` to retain and inspect the output
-path if the local viewer causes problems.
+The Ecological Report supports analyses of sampling effort, species detections, richness, activity patterns, co-occurrence, habitat associations, and population density. **Available outputs depend on the selected modules, data, and analytical requirements.**
 
-<hr class="section-divider">
+Explanatory text draws on module templates, dataset metadata, and computed results; review it before sharing.
 
+Explore the [Module Catalog](module-catalog.html) for available analyses, [Analytical Profiles](profiles.html) for reusable configurations, and [Module Management](modules.html) for customisation.
 
-## Example Ecological Reports
+---
 
-Below are previews of Ecological Reports generated with `camtrapReport` for different camera-trap monitoring projects. Click a preview to open the corresponding complete report. Reports can also be generated locally from a Camtrap DP dataset using the workflow described above.
+## Explore example ecological reports
 
+Explore Ecological Reports from different monitoring projects. Select a preview to open the corresponding HTML report and see how analyses and outputs vary across datasets.
 
 <style>
 
@@ -373,78 +331,46 @@ Below are previews of Ecological Reports generated with `camtrapReport` for diff
 
 <hr class="section-divider">
 
-## Customising the Ecological Report
+## Configure the Ecological Report
 
-After the camera-trap data have been loaded with `camData()`, the resulting `camReport` object can be customised before generating the final Ecological Report. Users can adjust the report metadata, select the focal species group, define the monitoring period, apply filters, and control which report modules are included. These options allow the report to be tailored to different monitoring projects, study designs, and research aims.
+Customise report metadata, focal species groups, years, filters, and sections through the `camReport` object. **The following examples are independent**; adapt species, years, file paths, and settings to your own dataset.
 
+### Report metadata
 
-### Viewing and changing metadata
+Use `info()` to inspect and update report information, including titles, authors, institutional affiliations, and logos.
 
-The contents of the `camReport` object are extracted or inferred from the main camera-trap dataset. These metadata can be viewed and modified using the `info()` function.
-
-Use `info(cm)` to see all available metadata fields. Specific fields, such as the report title, subtitle, authors, institute, site name, or logo path, can also be retrieved individually. If needed, these fields can be updated before generating the final report using the following steps:
-
-
-```{r ecological-report-custom-metadata, eval=FALSE}
-# View all available metadata fields
+```{r ecological-report-metadata, eval=FALSE}
+# Inspect metadata
 info(cm)
 
-# Retrieve specific metadata fields
-info(cm, name = "title")
-info(cm, name = "subtitle")
-info(cm, name = "authors")
-info(cm, name = "institute")
-info(cm, name = "siteName")
-info(cm, name = "logoPath")
-
-# Update metadata fields
-info(cm, name = "title") <- "Camera-Trap Monitoring Report: Hoge Veluwe National Park, the Netherlands"
-info(cm, name = "subtitle") <- "Ecological insights from long-term camera-trap data"
+# Update selected fields
+info(cm, name = "title") <- "Wildlife Monitoring Report"
+info(cm, name = "subtitle") <- "Ecological assessment of camera-trap data"
 info(cm, name = "authors") <- c("Elham Ebrahimi", "Patrick Jansen")
-info(cm, name = "institute") <- "Utrecht University, the Netherlands"
+info(cm, name = "institute") <- "Utrecht University"
 info(cm, name = "siteName") <- "Hoge Veluwe National Park"
-
-# Optional: add an institute or project logo
-info(cm, name = "logoPath") <- "path_to_logo/UU_logo.png"
-
-# Check the updated metadata
-info(cm)
+info(cm, name = "logoPath") <- "path/to/logo.png"
 ```
 
+### Focus groups
 
-### Adjusting the focus group
+Focus the report on an available taxonomic or ecological group, or define a group of interest.
 
-The Ecological Report can be generated for a selected group of species, referred to as the `focus_group`. This allows users to focus the report on a particular taxonomic or ecological group, such as `large_mammals`, `wild_animals`, `birds`, `amphibians`, `domestic`, `human_observation`, or a custom-defined group.
-
-Users can also define a new group by assigning records based on one or more fields, including `scientificName`, `class`, `order`, and `observationType`.
-
-```{r ecological-report-focus-group, eval=FALSE}
-# Check the current focus group
-cm$setting$focus_groups
-
-# View available group definitions
+```{r ecological-report-focus-groups, eval=FALSE}
+# Explore available groups
 names(cm$group_definition)
 
-# Change the focus group
+# Select an existing group
 cm$set_focus_group(x = "birds")
-
-# Re-run setup after changing the focus group
 cm$setup()
 
-# Inspect the rules used to define existing groups
-cm$get_group("large_mammals")
-cm$get_group("wild_animals")
+# Inspect a group definition
 cm$get_group("birds")
-cm$get_group("amphibians")
 ```
 
-A custom focus group can also be created when users want to focus on a specific set of species or records. Before defining a new group, it is useful to check the species table to see which species are available in the dataset.
+To define a custom species group:
 
 ```{r ecological-report-custom-group, eval=FALSE}
-# Check the list of species available in the dataset
-cm$data_status$Species$Table
-
-# Add a new custom group
 cm$add_group(
   name = "target_species",
   x = list(
@@ -456,257 +382,60 @@ cm$add_group(
   )
 )
 
-# Use the new group as the focus group
 cm$set_focus_group(x = "target_species")
-
-# Re-run setup after changing group definitions and focus group
 cm$setup()
-
-# Check the updated focus group
-cm$setting$focus_groups
 ```
 
+### Monitoring years and filters
 
-### Selecting years and adjusting filters
-
-Reports can be generated for all available years in the dataset or for a selected monitoring period. This is useful when users want to focus on a specific time window, such as a single monitoring year or a multi-year period. The count filter can also be adjusted to control the minimum number of observations required for a species to be included in the report.
+Select the monitoring period and adjust the minimum observation-count filter to suit the analytical objectives.
 
 ```{r ecological-report-years-filters, eval=FALSE}
-# Check which years are available in the dataset
+# Inspect available years
 cm$extractYears()
 
-# Select a specific monitoring period
+# Select years and refresh the configuration
 cm$years <- 2023:2024
-
-# Re-run setup after changing the selected years
 cm$setup()
 
-# Check the current count filter
-cm$filterCount
-
-# Change the minimum number of observations required
+# Set the minimum observation count
 cm$filterCount <- 10
-
-# Generate the report using the selected years and filter settings
-report(
-  cm,
-  filename = file.path(output_dir, "ecological-report-selected-years.html"),
-  view = TRUE
-)
 ```
 
-### Selecting which sections are included
+Choose years present in the dataset and a threshold appropriate for your analysis.
 
-Users can also control which sections are included in the final report. This is useful when a shorter report is needed, or when some analyses are not relevant for a particular dataset.
+### Report sections
+
+Select the analyses and sections to include in the final report.
 
 ```{r ecological-report-select-sections, eval=FALSE}
-# View the sections currently available
+# Inspect available sections
+section_names()
 listReportSections(cm)
 
-# Show the whole module pool (including alternative EOW modules)
-section_names()
-
-# Inspect the standard profile, excluding one section
-section_names(profile = "default", exclude = "introduction")
-
-# Exclude multiple sections
-section_names(
-  profile = "default",
-  exclude = c("acknowledgements", "appendix")
-)
-
-# Keep only selected sections
-section_names(
-  profile = "default",
-  keep = c("introduction", "methods", "study_area")
-)
-
-# Example: include all sections except richness and co-occurrence
-selected_sections <- section_names(
-  profile = "default",
+# Exclude selected analyses
+selected <- section_names(
   exclude = c("richness", "co_occurrence")
 )
 
-# Check the selected section names
-selected_sections
-
-# Save the selection separately so the standard profile is unchanged
-selected_profile <- reportProfile(
-  name = "selected",
-  report = selected_sections
-)
-add_profile(cm, selected_profile)
+# Apply the configuration
+sections(cm, selected)
 
 # Generate the customised report
-report(
-  cm,
-  profile = "selected",
-  filename = file.path(output_dir, "ecological-report-selected.html"),
-  view = TRUE
-)
+report(cm, view = TRUE)
 
-# Generate the standard selection again when needed
-report(
-  cm,
-  profile = "default",
-  filename = file.path(output_dir, "ecological-report-default.html")
-)
+# To reset the section configuration, reapply the original profile
+# or a previously saved selection of sections.
 ```
 
-The full module pool can include alternatives with the same displayed role,
-such as `appendix` and `appendix_eow`. Select one profile or a deliberate subset
-rather than attaching the whole pool, which would include both alternatives.
+### Reuse and extend configurations
 
-### Reusing a report profile
+**Analytical Profiles** provide reusable selections of modules for different monitoring workflows. Analytical methods and settings are defined through the associated modules and report configuration. See [Analytical Profiles](profiles.html).
 
-A report profile records an ordered module selection while leaving the complete
-module pool unchanged. This is useful when the same package installation must
-produce different report types.
+To modify existing analyses or develop new modules, work in a writable project directory rather than editing installed package files. See [Module Management](modules.html).
 
-```{r ecological-report-profile, eval=FALSE}
-# List profiles registered in the object
-profile_names(cm)
+### Interpretation and reproducibility
 
-# Inspect and render a profile
-section_names(object = cm, profile = "EOW")
-report(
-  cm,
-  profile = "EOW",
-  filename = file.path(output_dir, "EOW-ecological-report.html"),
-  view = TRUE
-)
+Interpret outputs in light of sampling design, effort, detectability, and method-specific assumptions. Capture-based indices are not direct measures of abundance; density models require suitable data and parameterisation.
 
-# A PDF filename selects static PDF output
-report(
-  cm,
-  profile = "EOW",
-  filename = file.path(output_dir, "EOW-ecological-report-pdf.pdf")
-)
-```
-
-PDF output requires the optional `pagedown` package and Chrome or Edge. It is
-created by printing the HTML report so that existing HTML-oriented modules do
-not need a second implementation. Interactive maps and controls are static in
-the PDF.
-
-For a complete example of defining, editing, importing, and exporting a
-reusable selection, see the
-[Report profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html).
-
-### Report progress and slow rendering
-
-Apart from the resolved destination notice, HTML and PDF rendering is quiet
-by default. Enable optional console diagnostics
-when investigating slow rendering:
-
-```{r ecological-progress, eval=FALSE}
-options(camtrapReport.progress = TRUE)
-# Run report() or status(), then restore quiet rendering:
-options(camtrapReport.progress = FALSE)
-```
-
-When enabled, these messages identify construction, each module/chunk, knitr
-completion, HTML/Pandoc rendering, PDF conversion, and output opening.
-Completion lines show elapsed time and CPU time in the current R process.
-A high R CPU time can indicate computation; a low R CPU time does not identify
-a specific cause, because child processes, disk access, and network waits are
-not measured separately. These messages do not change calculations or appear
-in the report. Quiet mode does not suppress warnings, errors or notices about
-omitted content.
-
-If a run seems stalled, record the last started chunk and compare the same
-object and selection using distinct output filenames:
-
-```{r compare-report-formats, eval=FALSE}
-report(
-  cm, profile = "EOW",
-  filename = file.path(output_dir, "EOW-timing.html"), view = FALSE
-)
-report(
-  cm, profile = "EOW",
-  filename = file.path(output_dir, "EOW-timing-pdf.pdf"), view = FALSE
-)
-```
-
-Run cold and same-object warm comparisons separately: successfully fitted REM
-models can be reused from the object. The annual EOW analysis performs
-species-by-year work; its repetitions and methods have not been reduced for
-rendering speed. A previous run ending at `Rendering R Markdown report ...`
-without a generated-file message was still in knitr/HTML rendering, before
-PDF conversion or `view = TRUE` opening.
-
-Open an already completed file with `utils::browseURL(report_file)` to isolate
-viewer overhead. PDF printing has a 60-second timeout after browser startup;
-this is not a timeout on analytical computations. An error preserves the
-original failure rather than silently omitting analyses. Do not use
-`test = TRUE` as a performance workaround: its diagnostic recovery can exclude
-failed sections. After updating the package, restart R and reload the source
-data with `update = TRUE` before comparing versions.
-
-### Map backgrounds and offline use
-
-New report objects use the shared online fallback helper. An explicit offline
-setting, including one stored in an older object, is never overwritten:
-
-```{r ecological-basemap, eval=FALSE}
-cm$setting$map_basemap <- "openstreetmap"
-# For sensitive, disconnected or archived reports, disable all tile requests:
-cm$setting$map_basemap <- "offline"
-```
-
-For noncommercial research reports, the automatic order is **OpenStreetMap
-Standard → OpenStreetMap Germany → OpenTopoMap → neutral grid**. It works
-without an additional eligibility setting. Free access is subject to each
-operator's usage conditions; it is not unrestricted service capacity or a
-guarantee that geographic tiles will always load.
-
-Standard requires an actual HTTP Referer for web pages. A local `file://`
-report cannot send one and therefore starts with Germany rather than spoofing
-a header. Serve the report over HTTP(S), including a local HTTP server, to
-attempt Standard first. Tile requests reveal the viewed area to the provider;
-use offline mode for sensitive locations. France/HOT and Esri World Street
-Map are not part of the default chain: noncommercial research alone does not
-establish compliance with their public-site or licensing conditions.
-
-Fallback runs in the browser even after R exits, using actual `tileload` and
-`tileerror` events. One isolated error does not switch a working provider.
-At least three unavailable tiles and 75% failed coverage trigger failover once
-the current viewport settles. An eight-second deadline also advances a stalled
-provider if no useful tiles arrive or that failure threshold is reached;
-otherwise useful imagery is retained and outstanding requests are cancelled.
-Only one online background is active, and each provider is attempted at most
-once per failure cascade. If all fail, the neutral grid remains without
-stopping the report.
-Hidden/nested tabs resize when activated and do not prefetch unseen tiles.
-Markers, polygons, rasters, legends, extent, zoom and controls are retained.
-During printing, unfinished tiles use the neutral background; completed
-imagery can remain. Backgrounds paused only for printing resume afterwards;
-exhausted providers and explicit offline mode do not restart. The grid is not
-a downloaded tile archive.
-
-Read the [OSMF tile policy](https://operations.osmfoundation.org/policies/tiles/)
-and [OpenTopoMap usage conditions](https://opentopomap.org/about#verwendung).
-Both require visible attribution and prohibit excessive or bulk downloading;
-neither provides an uptime guarantee. The
-[German service conditions](https://openstreetmap.de/germanstyle/) restrict
-embedding to noncommercial use, with a small-use exception. The package retains
-visible credits for the active provider: OpenStreetMap contributors for
-Standard/Germany, or OpenStreetMap/SRTM/OpenTopoMap with the latter's CC-BY-SA
-licence. Retain these credits when exporting maps. A disconnected or blocked
-network can make all online backgrounds unavailable. The neutral grid keeps
-the ecological overlays readable in that case, but is not a geographic
-basemap.
-
-Existing explicit `"cartodb"` and `"esri"` settings remain for compatibility,
-with a neutral error fallback. They remain subject to the operators' terms.
-Esri use requires applicable
-[service licensing](https://www.esri.com/en-us/legal/terms/master-agreement);
-anonymous endpoint access is not itself a licence. CARTO's current raster service
-[requires an API key](https://github.com/CartoDB/basemap-styles/blob/master/README.md);
-the legacy keyless mode is not a promise of a licensed or unwatermarked service.
-The package does not add a credential-management API in this revision. Prefer
-offline mode for private data, archives or disconnected viewing.
-
-A generated report summarises the implemented checks and selected analyses. It does not establish that the survey design is suitable for a particular ecological question or that the data satisfy all assumptions of the selected methods. Outputs should be interpreted in relation to sampling effort, detectability, season, habitat, and method-specific assumptions.
-
-Together, these options allow users to generate Ecological Reports that are reproducible, flexible, and tailored to the aims of each camera-trap monitoring project.
+Missing outputs may reflect unmet prerequisites rather than ecological absence. Review methods and generated narratives, retain data and settings for reproducibility, and protect sensitive species locations when sharing. Consult the [Module Catalog](module-catalog.html) for module requirements.

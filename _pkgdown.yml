@@ -16,8 +16,8 @@ template:
 home:
   title: camtrapReport
   description: >
-    An R package for processing camera-trap data and generating
-    reproducible wildlife monitoring reports.
+    Reproducible data assessment and ecological reporting for
+    camera-trap monitoring using Camtrap DP.
   sidebar:
     structure: [toc]
 
@@ -27,11 +27,10 @@ navbar:
   structure:
     left:
       - home
-      - articles
-      - profiles
-      - modules
+      - guides
+      - catalog
+      - resources
       - reference
-
     right:
       - search
       - about
@@ -42,28 +41,27 @@ navbar:
       text: Get started
       href: index.html
 
-    articles:
+    guides:
       text: Guides
       menu:
         - text: Package Overview
           href: articles/Package-Overview.html
-
         - text: Data Status Check
           href: articles/data-status-report.html
-
         - text: Ecological Report
           href: articles/ecological-report.html
+        - text: Module Management
+          href: articles/modules.html
+        - text: Analytical Profiles
+          href: articles/profiles.html
 
-        - text: Resources and training
-          href: articles/resources.html
+    catalog:
+      text: Module Catalog
+      href: articles/module-catalog.html
 
-    profiles:
-      text: Profiles
-      href: articles/profiles.html
-
-    modules:
-      text: Modules
-      href: articles/modules.html
+    resources:
+      text: Resources
+      href: articles/resources.html
 
     reference:
       text: Reference
@@ -75,25 +73,18 @@ navbar:
         - text: Report a bug
           icon: fa-bug
           href: https://github.com/spatialecology/camtrapReport/issues/new/choose
-
         - text: Ask a question
           icon: fa-comments
           href: https://github.com/spatialecology/camtrapReport/discussions
-
         - text: -------
-
         - text: Authors
           href: authors.html
-
         - text: Citation
           href: authors.html#citation
-
         - text: License
           href: LICENSE.html
-
         - text: Contributing guide
           href: CONTRIBUTING.html
-
         - text: Code of conduct
           href: CODE_OF_CONDUCT.html
 
@@ -103,47 +94,47 @@ navbar:
       aria-label: GitHub repository
 
 articles:
-  - title: User guides
+  - title: Guides
     desc: >
-      Guides for importing camera-trap data, checking data quality,
-      generating ecological reports, and customising report modules.
+      Practical guidance for importing data, assessing data status,
+      generating reports, and managing analytical modules and profiles.
     contents:
-      - Package-Overview
-      - articles/data-status-report
-      - articles/ecological-report
-      - articles/profiles
-      - articles/modules
+      - 'matches("^Package-Overview$")'
+      - 'matches("^articles/data-status-report$")'
+      - 'matches("^articles/ecological-report$")'
+      - 'matches("^articles/modules$")'
+      - 'matches("^articles/profiles$")'
+
+  - title: Module Catalog
+    desc: >
+      Searchable documentation of Data Status Check and Ecological Report modules.
+    contents:
+      - 'matches("^articles/module-catalog$")'
 
   - title: Resources
     desc: >
-      Publications, workshops, and training resources related to
-      camtrapReport.
+      Publications, workshops, and training resources.
     contents:
-      - articles/resources
+      - 'matches("^articles/resources$")'
 
 reference:
   - title: Data input and metadata
     desc: >
-      Create a camReport object from Camtrap DP data and inspect or
-      update report metadata.
-
+      Import Camtrap DP data and manage report metadata.
     contents:
       - camData
       - info
 
   - title: Report generation
     desc: >
-      Generate the Data Status Check or Ecological Report, or use the
-      graphical interface.
-
+      Generate data-status and ecological reports or use the graphical interface.
     contents:
       - report
       - gui
 
   - title: Configure report contents
     desc: >
-      Inspect, select, and update sections and reusable report profiles.
-
+      Select report sections and configure reusable analytical profiles.
     contents:
       - section_names
       - reportProfile
@@ -151,9 +142,7 @@ reference:
 
   - title: Module development and management
     desc: >
-      Create, test, add, move, remove, restore, and inspect report
-      modules.
-
+      Create, test, manage, and inspect report modules.
     contents:
       - reportSection
       - testSection
@@ -162,9 +151,6 @@ reference:
 
   - title: Core class
     desc: >
-      Low-level documentation for the camReport class. Most users
-      should create camReport objects with camData() rather than
-      interacting with the class directly.
-
+      Low-level documentation of the camReport class.
     contents:
       - camReport-classes

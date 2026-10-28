@@ -1,7 +1,7 @@
 ---
 title: "Analytical Report Profiles"
 author: "Elham Ebrahimi"
-description: "Define, reuse, edit, and share ordered selections of ecological and data-status report modules."
+description: "Learn how to select, customise, export, and reuse analytical report profiles across camera-trap monitoring projects."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Analytical Report Profiles}
@@ -9,56 +9,27 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## A reusable workflow for each monitoring context
+## Reuse analytical workflows
 
-Common data formats do not guarantee comparable ecological results. Decisions
-about modules, parameter sharing, filters, and reporting can also differ among
-sites or monitoring rounds. A profile provides a reusable, ordered reporting
-workflow; its referenced modules and object settings carry the analytical
-methods and parameters. Review and version all three together.
+An **Analytical Profile** defines which modules run, in what order, and in which report. It helps standardise reporting across monitoring sites and years without duplicating modules. **Profiles select modules; the modules and `camReport` settings define analytical methods and parameters.**
 
-| Profile | Example context | REM parameter sharing |
-|---|---|---|
-| `default` | Standard ecological report | Pooled across years within species |
-| `EOW` | Customised European Observatory of Wildlife workflow | Fitted separately for each species and year |
+| Profile | Reporting context | REM parameters |
+|:--|:--|:--|
+| `default` | General ecological reporting | Pooled across years within species |
+| `EOW` | European Observatory of Wildlife–oriented workflow | Estimated separately by species and year |
 
-Neither profile establishes that a dataset satisfies every method's assumptions.
-The EOW example is not a claim of formal network endorsement. Pooled and annual
-parameters can yield different estimates; choose the approach appropriate to
-your survey and document it rather than expecting profiles to be interchangeable.
+Select a profile suited to your sampling design and analytical objectives. Neither profile guarantees methodological validity or implies formal network endorsement.
 
-## What a profile stores
+## Understand profiles and module pools
 
-A profile is a named, ordered selection of modules for `report()` and
-`status()`. It lets you reuse a reporting template without moving or copying
-the module files. It stores module names, their source pools, and optional
-parent overrides. It does not store input data, analytical results, package
-versions, or copies of the modules' code.
+Profiles reference modules from two pools: `report` (Ecological Report, `reportSections`) and `status` (Data Status Check, `statusSections`). For example, `report::introduction` and `status::spatial` explicitly identify their source pools; these are **module references**, not R namespace operators.
 
-There are two module pools in a `camReport` object:
+A profile stores ordered module references and optional parent overrides—not datasets, module code, computed results, or package versions. Applying a profile rebuilds the selected report sections; make any one-off edits **after** applying it.
 
-| Pool | Object field | Bundled source folder | Usual output |
-|---|---|---|---|
-| `report` | `cm$reportObjectElements$Modules` | `reportSections` | Ecological report |
-| `status` | `cm$reportObjectElements$Status_modules` | `statusSections` | Data Status Check |
+## 1. Explore available profiles
 
-`report::introduction` means the module named `introduction` in the ecological
-pool. `status::spatial` means the module named `spatial` in the data-status
-pool. These are module references, not R namespace calls. Unqualified names
-in a profile's `report` selection default to the `report` pool; those in its
-`status` selection default to the `status` pool.
+Create `cm` with `camData()` as shown in [Get Started](https://spatialecology.github.io/camtrapReport/). The examples below illustrate independent operations and are not executed when building this vignette.
 
-The attached report trees (`cm$reportObjects` and `cm$statusReportObjects`)
-are the current selections used for rendering. Applying a profile rebuilds
-the corresponding tree from the pools. This is why edits made only to an
-attached section should be made after selecting a profile and rendered
-without applying the profile again.
-
-## Inspect bundled profiles
-
-Use the `cm` created in the [README quick start](https://spatialecology.github.io/camtrapReport/).
-The following examples use temporary paths so they do not overwrite files in
-your project.
 
 ```{r inspect-profiles, eval=FALSE}
 library(camtrapReport)
@@ -69,21 +40,13 @@ section_names(object = cm, profile = "EOW", report_type = "status")
 section_names(object = cm, report_type = "all")
 ```
 
-The `default` profile selects the standard modules, including pooled
-multi-year REM parameters. `EOW` selects its customised modules, annual REM
-parameters, and selected status modules in the ecological appendix. Neither
-profile guarantees that the input data meet every selected method's
-requirements. Review the module definitions and optional dependencies first.
 
-`sections(cm, profile = "EOW")` lists that profile's selection. Supplying
-`n` edits it; passing `profile` to `report()` or `status()` applies it while
-rendering.
+Use the [Module Catalog](module-catalog.html) to inspect module requirements. `section_names()` can show both report and status selections.
 
-## Define and render a small profile
+## 2. Create and apply a profile
 
-This small profile uses only bundled modules. Its ecological report contains
-an introduction and methods heading, and its status report contains spatial,
-temporal, and data-availability checks.
+Define an ordered selection for each output, register it, and generate the reports:
+
 
 ```{r create-brief-profile, eval=FALSE}
 brief <- reportProfile(
@@ -108,15 +71,13 @@ status(
 )
 ```
 
-Keep a parent before its children. For example, `study_area` requires
-`methods`, and `captures` requires `results`. Profile application reports a
-missing or incorrectly ordered parent rather than silently creating one.
-Inspect the hierarchy with `list_Modules()`.
 
-## Edit a profile's selection
+**Order matters:** Parent sections must precede their children (for example, `methods` before `study_area`). Check the hierarchy with `list_Modules()`.
 
-Supply the complete desired order through `n`. This updates the profile in
-the current object; it does not change the bundled YAML definition.
+## 3. Change the selected sections
+
+Pass the **complete desired sequence** to `sections()`; ecological and status selections are edited separately.
+
 
 ```{r edit-brief-profile, eval=FALSE}
 sections(
@@ -135,12 +96,13 @@ sections(
 )
 ```
 
-## Include status modules in an ecological report
 
-A profile can select from either pool for either output. A `parent` override
-places the status sections below a report appendix without changing their
-shared YAML files. Here `appendix_eow` provides a non-tabbed appendix that
-supports both HTML and PDF output.
+Apply a profile before making changes directly to the active report tree; applying it again may replace those changes.
+
+## 4. Combine modules from both pools
+
+A profile can incorporate data-status modules into an ecological report. Explicit `source` and `parent` fields identify their origins and position; the `appendix_eow` module supports this example in both HTML and PDF.
+
 
 ```{r combined-profile, eval=FALSE}
 entries <- data.frame(
@@ -159,15 +121,13 @@ report(
 )
 ```
 
-Module names must be unique within each pool, and a rendered selection cannot
-contain two modules with the same name across pools. Supplying a module in
-`report = ...` does not change which pool it came from; the `source` field
-or qualified reference resolves that explicitly.
 
-## Share a profile
+Module names in a rendered selection must be unique, including across pools. Use qualified references or the `source` field when needed.
 
-Write the profile registered in the object after editing, rather than an
-older R variable that might still contain the original selection.
+## 5. Save and share profiles
+
+Export the **current registered profile**, rather than an outdated R variable, then import it into another `camReport` object.
+
 
 ```{r share-brief-profile, eval=FALSE}
 profile_file <- tempfile("brief-profile-", fileext = ".yml")
@@ -181,26 +141,13 @@ imported
 add_profile(cm, imported, overwrite = TRUE)
 ```
 
-The YAML can be versioned and shared alongside the relevant module files.
-Reading or registering a profile does not run or install its modules. Every
-referenced module must already be in the receiving object's source pool.
-A project folder containing custom YAML is not automatically imported by
-`read_profile()` or `camData()`. For custom modules, follow the explicit
-registration and attachment workflow in the
-[module guide](https://spatialecology.github.io/camtrapReport/articles/modules.html).
-In particular, `cm$addReportObject()` attaches a section to the current report
-tree; it does not register it in a profile's source pool.
 
-Inspect all shared modules before executing them. Their R code and embedded
-text expressions run with your R session's permissions. Retain the profile,
-module versions, source data, settings, and package versions to reproduce an
-analysis.
+A profile YAML file does **not** contain its modules. Recipients must register any required custom modules separately; see [Module Management](modules.html). Only use modules from trusted sources, as they may execute R code.
 
-## HTML and PDF compatibility
+## 6. Generate PDF reports
 
-HTML remains interactive. PDF prints the HTML report using optional
-`pagedown` and a supported Chrome or Edge browser. It omits the table of
-contents and expands printable tab panels in sequence. Use an explicit path:
+PDF output uses optional `pagedown` and a supported Chrome/Edge browser. Some interactive or HTML-only modules may be excluded according to the registry's `formats` setting.
+
 
 ```{r profile-pdf, eval=FALSE}
 report(
@@ -211,17 +158,19 @@ report(
 )
 ```
 
-The registry's `formats` column (`html`, `pdf`, or `both`) controls which
-selected modules can render. An incompatible module and children without an
-available parent are excluded for that output. Check the messages and the
-finished report; an HTML-only module is not automatically converted into a
-new PDF-compatible analysis. `list_Modules(tree = FALSE)` shows these flags.
 
-## Towards shared analytical practice
+Check the resulting document and console messages; PDF and HTML may differ in section availability and presentation.
 
-Projects can already share profiles alongside their required module files,
-settings, data provenance, and software versions. A curated community knowledge
-hub of reviewed workflows is a future direction, not an implemented service or
-guarantee of methodological consensus. To propose a reusable workflow, open an
-[issue](https://github.com/spatialecology/camtrapReport/issues) describing the
-monitoring context, assumptions, analytical choices, and required inputs.
+## Troubleshooting and reproducibility
+
+| Issue | Check |
+|:--|:--|
+| Missing section | Profile selection, module pool, parent hierarchy, and output format |
+| Missing figure or estimate | Required data, dependencies, filters, and method assumptions |
+| Changes lost after selecting a profile | Apply the profile before editing individual attached sections |
+| Imported profile cannot locate a module | Register the referenced module in the receiving object's pool |
+| Different PDF and HTML outputs | Module `formats` flags and report messages |
+
+Keep the profile YAML, custom modules, input-data provenance, analytical settings, and package versions together. Review the scientific interpretation of every output: **successful rendering does not establish ecological validity**.
+
+For available analyses, see the [Module Catalog](module-catalog.html). Propose new community workflows through [GitHub Discussions](https://github.com/spatialecology/camtrapReport/discussions).

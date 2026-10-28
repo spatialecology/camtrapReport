@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Package Overview • camtrapReport</title>
+<title> • camtrapReport</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,9 +16,7 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Package Overview">
-<meta name="description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
-<meta property="og:description" content="An overview of the camtrapReport workflow, core functionality, and the data quality checks and ecological reports it produces.">
+<meta property="og:title" content="">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -44,11 +42,12 @@
 <li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/resources.html">Resources and training</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module Management</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Analytical Profiles</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="../articles/profiles.html">Profiles</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/modules.html">Modules</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/module-catalog.html">Module Catalog</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -82,9 +81,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Package Overview</h1>
-                        <h4 data-toc-skip class="author">Elham
-Ebrahimi</h4>
+      <h1></h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/spatialecology/camtrapReport/blob/HEAD/vignettes/Package-Overview.Rmd" class="external-link"><code>vignettes/Package-Overview.Rmd</code></a></small>
@@ -94,401 +91,85 @@ Ebrahimi</h4>
     
     
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="a-modular-framework-for-camera-trap-reporting">A modular framework for camera-trap reporting<a class="anchor" aria-label="anchor" href="#a-modular-framework-for-camera-trap-reporting"></a>
 </h2>
-<p><code>camtrapReport</code> provides a reproducible workflow for
-turning standardised camera-trap data into structured ecological
-reports. It brings data-quality checks, ecological summaries,
-visualisation, and report generation together so that users can move
-from a Camtrap DP dataset to a documented report without having to
-assemble each step separately.</p>
-<p>The workflow starts with <code><a href="../reference/camData.html">camData()</a></code>, which creates a
-<code>camReport</code> object from the input data. The same object is
-then used to generate two main outputs:</p>
+<p>Camera-trap monitoring generates extensive information on sampling
+effort, species detections, and wildlife communities. Translating these
+data into meaningful ecological evidence requires systematic quality
+assessment, appropriate analytical methods, and consistent
+reporting.</p>
+<p><code>camtrapReport</code> brings these elements together in a
+<strong>modular, reproducible reporting framework</strong> built around
+the <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP standard</a>. It
+supports researchers, conservation practitioners, and monitoring
+networks working across sites, datasets, and monitoring periods.</p>
+<p>For installation and practical examples, see <a href="../index.html">Get Started</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="built-in-analyses-and-extensibility">Built-in analyses and extensibility<a class="anchor" aria-label="anchor" href="#built-in-analyses-and-extensibility"></a>
+</h2>
+<p><code>camtrapReport</code> provides modules for describing survey
+design and sampling effort, summarising species detections and
+capture-based indices, and exploring ecological patterns. Available
+analyses include species richness, accumulation curves, co-occurrence,
+activity patterns, habitat associations, spatial detection intensity,
+and Random Encounter Model (REM) density estimation.</p>
+<p>The <a href="module-catalog.html"><strong>Module Catalog</strong></a>
+documents available analyses, requirements, and settings. Report content
+depends on the selected modules, input data, and methodological
+assumptions.</p>
+<p>Users can select, reorder, and customise existing modules or develop
+new ones for specific research and monitoring objectives. See <a href="modules.html">Module Management</a> for guidance on extending the
+framework.</p>
+</div>
+<div class="section level2">
+<h2 id="analytical-profiles-consistency-without-rigidity">Analytical Profiles: consistency without rigidity<a class="anchor" aria-label="anchor" href="#analytical-profiles-consistency-without-rigidity"></a>
+</h2>
+<p>A common data standard does not guarantee comparable ecological
+estimates. Choices about filtering, aggregation, analytical methods, and
+parameters can still differ among studies.</p>
+</div>
+<div class="section level2">
+<h2 id="analytical-profiles">Analytical Profiles<a class="anchor" aria-label="anchor" href="#analytical-profiles"></a>
+</h2>
+<p>Standardised data do not necessarily produce comparable ecological
+estimates. Differences in filtering, analytical methods, and parameter
+settings can affect results across sites and monitoring periods.</p>
+<p><strong>Analytical Profiles</strong> support consistent reporting by
+defining reusable selections and ordering of modules. The underlying
+analytical methods and parameters remain specified by the modules and
+report settings.</p>
+<p><code>camtrapReport</code> includes default and EOW-oriented
+profiles, which can be adapted to different monitoring contexts. See the
+<a href="profiles.html">Analytical Profiles guide</a> for their
+configurations, assumptions, and use.</p>
+</div>
+<div class="section level2">
+<h2 id="explore-the-documentation">Explore the documentation<a class="anchor" aria-label="anchor" href="#explore-the-documentation"></a>
+</h2>
 <ul>
-<li>a <strong>Data Status Check</strong>, created with
-<code><a href="../reference/report.html">status()</a></code>, which helps users identify issues in the data
-before interpretation or analysis; and</li>
-<li>an <strong>Ecological Report</strong>, created with
-<code><a href="../reference/report.html">report()</a></code>, which combines selected analyses, figures,
-tables, maps, and explanatory text in a single document.</li>
+<li>
+<strong><a href="../index.html">Get Started</a></strong> —
+Installation and first steps.</li>
+<li>
+<strong><a href="data-status-report.html">Data Status
+Check</a></strong> — Data-quality assessment.</li>
+<li>
+<strong><a href="ecological-report.html">Ecological
+Report</a></strong> — Report generation and configuration.</li>
+<li>
+<strong><a href="module-catalog.html">Module Catalog</a></strong> —
+Available analyses and requirements.</li>
+<li>
+<strong><a href="modules.html">Module Management</a></strong> —
+Customising and extending modules.</li>
+<li>
+<strong><a href="profiles.html">Analytical Profiles</a></strong> —
+Reusable reporting configurations.</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="input-data">Input data<a class="anchor" aria-label="anchor" href="#input-data"></a>
-</h2>
-<p>The main input is a camera-trap dataset in <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP format</a>, supplied
-either as a ZIP archive or as an extracted Camtrap DP directory.</p>
-<p>Optional supporting data can also be provided. These include habitat
-information and a study-area boundary, which can be used in relevant
-summaries, maps, and ecological analyses.</p>
-<p><code>data</code> currently takes a file path, rather than an
-in-memory list or data frame. <code>habitat</code> accepts a data frame,
-and <code>study_area</code> accepts a spatial file,
-<code><a href="https://rspatial.github.io/terra/reference/SpatVector-class.html" class="external-link">terra::SpatVector</a></code>, or <code>sf</code> object. A Camtrap DP
-contains <code>datapackage.json</code> plus linked deployment, media,
-and observation tables. Deployments describe camera placements and their
-active periods; media rows describe photographs or videos; observations
-describe classifications derived from those media. An event (also called
-a sequence) groups related media within a time interval; it is not
-necessarily one photograph or one animal. See the <a href="https://camtrap-dp.tdwg.org/data/" class="external-link">standard’s field
-definitions</a>.</p>
-<p>There is no universal converter for arbitrary camera-trap tables in
-this package. Export Camtrap DP from the original management platform
-when possible, or map your tables and metadata to the <a href="https://camtrap-dp.tdwg.org/" class="external-link">Camtrap DP specification</a>. The <a href="https://inbo.github.io/camtrapdp/reference/index.html" class="external-link">camtrapdp
-package</a> supports reading, editing, and writing existing Camtrap DP
-objects. <code>camtrapReport</code>’s readiness checks do not replace
-the standard’s full <a href="https://camtrap-dp.tdwg.org/#validation" class="external-link">schema-validation
-workflow</a>.</p>
-<p>One <code>camReport</code> stores one study-area boundary. In the
-GUI, multiple uploads are the component files of one shapefile
-(<code>.shp</code>, <code>.shx</code>, <code>.dbf</code>,
-<code>.prj</code>, etc.), not a separate boundary for each year. When
-the boundary changes between years, use separate year-specific Camtrap
-DP subsets and objects with the matching boundary; use separate
-directories so their caches remain separate. The optional
-<code>camtrapdp::filter_deployments()</code> and
-<code>camtrapdp::write_camtrapdp()</code> functions can help prepare
-those subsets while preserving links to media and observations.</p>
-<div class="section level3">
-<h3 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a>
-</h3>
-<p><code>camData(..., enrich_taxonomy = TRUE)</code> preserves the
-previous default: when the optional <code>taxize</code> package is
-installed, a fresh import sends scientific names to GBIF to supplement
-taxonomic classes and missing orders. A message announces those
-requests. For offline work or confidential species lists, disable this
-enrichment explicitly:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/camData.html">camData</a></span><span class="op">(</span><span class="va">data_path</span>, update <span class="op">=</span> <span class="cn">TRUE</span>, enrich_taxonomy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>This disables GBIF taxonomy requests, not network operations in
-subsequently selected modules or map backgrounds. Imported names,
-families, supplied orders and observation counts are retained. When
-taxonomic classes are unavailable, automatically defined class-based
-groups such as <code>birds</code>, <code>reptiles</code>,
-<code>amphibians</code> and <code>wild_mammals</code> are not created.
-Their group summaries can therefore be absent, while order-based groups
-such as <code>large_mammals</code> remain usable when the source
-supplies the relevant orders. Reusing a cache does not remove enrichment
-already stored in that object; <code>update = TRUE</code> is needed to
-import again with a different setting.</p>
-</div>
-<div class="section level3">
-<h3 id="cached-inputs-and-re-importing">Cached inputs and re-importing<a class="anchor" aria-label="anchor" href="#cached-inputs-and-re-importing"></a>
-</h3>
-<p><code><a href="../reference/camData.html">camData()</a></code> saves the processed object as
-<code>__camReport_Object.rds</code> beside the extracted dataset. With
-the default <code>update = FALSE</code>, a later call using that
-directory still reuses the saved object. New caches include a
-lightweight snapshot of the four selected source files:
-<code>datapackage.json</code>, <code>deployments.csv</code>,
-<code>media.csv</code> and <code>observations.csv</code>. Their relative
-paths, sizes and modification times are recorded before parsing, so
-later changes during a long import do not become a falsely fresh
-post-import snapshot.</p>
-<p>On reuse, added or removed core-file candidates in the dataset root
-or known input directories, or changed source sizes/times, trigger an
-advisory warning. The cached object is still returned: it is not
-automatically rebuilt, deleted or rewritten. Older caches without a
-snapshot warn that freshness cannot be verified. After editing source
-data, rebuild explicitly with
-<code>camData(data_path, update = TRUE)</code> and resupply optional
-inputs and the intended taxonomy setting before regenerating
-reports.</p>
-<p>This is a metadata check, not content hashing or a full provenance
-guarantee. Same-size edits whose modification time is restored can be
-missed. It does not recursively search previously unknown nested
-directories, or detect changes to optional habitat data and study-area
-boundaries supplied separately. Use <code>update = TRUE</code> after
-changing those inputs even if no warning appears.</p>
-</div>
-<div class="section level3">
-<h3 id="bundled-example-data">Bundled example data<a class="anchor" aria-label="anchor" href="#bundled-example-data"></a>
-</h3>
-<p>The package includes a relationship-preserving subset of the
-GMU8_LEUVEN Camtrap DP dataset for examples, demonstrations, and
-automated tests. It contains eight derived camera locations, 87
-deployments, 15,492 retained media records, and 11,092 observation
-records. Bundled habitat data and a derived study-area boundary provide
-optional inputs for exercising those parts of the workflow. The subset
-is a software fixture and should not be used for ecological inference;
-its provenance and transformations are documented in
-<code>inst/external/README-Leuven-dataset.md</code> in the source
-repository.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="key-outputs">Key outputs<a class="anchor" aria-label="anchor" href="#key-outputs"></a>
-</h2>
-<div class="section level3">
-<h3 id="data-status-check">Data Status Check<a class="anchor" aria-label="anchor" href="#data-status-check"></a>
-</h3>
-<p>The Data Status Check is intended to help users inspect the quality
-and completeness of a dataset before moving on to ecological
-interpretation. It summarises issues such as missing information,
-annotation and validation status, temporal inconsistencies, spatial
-outliers, observation types, and other aspects of data readiness.</p>
-<p>It is generated with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-status.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The report is diagnostic rather than inferential: passing the checks
-does not mean that a sampling design is suitable for every ecological
-analysis. The check tables support user judgement; there is no computed
-overall quality grade or automatic gate preventing ecological report
-generation. Correct problems in the source Camtrap DP, recreate the
-object with <code>camData(data_path, update = TRUE)</code>, and rerun
-<code><a href="../reference/report.html">status()</a></code>. The report does not modify the source CSV/JSON
-records for you. <code><a href="../reference/camData.html">camData()</a></code> caches the processed object as
-<code>__camReport_Object.rds</code> and, when a boundary is supplied,
-<code>study_area.map</code> in the extracted dataset directory.</p>
-</div>
-<div class="section level3">
-<h3 id="ecological-report">Ecological Report<a class="anchor" aria-label="anchor" href="#ecological-report"></a>
-</h3>
-<p>The Ecological Report brings together selected ecological summaries,
-analyses, figures, tables, maps, and explanatory text in an
-article-style document.</p>
-<p>It is generated with:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-report.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The content of the report depends on the selected sections, available
-data, and analytical settings. Users can therefore adapt the report to
-the purpose and scope of a particular monitoring project.</p>
-<p>The standard profile uses pooled multi-year REM parameters. The EOW
-profile uses the <code>population_density_annual</code> module and
-estimates REM parameters independently for each species and sampling
-year. New report objects use an OpenStreetMap-first online background,
-with automatic fallback through OpenStreetMap Germany and OpenTopoMap,
-then a neutral grid if all fail. This default is intended for
-noncommercial research reports and needs no additional settings. Free
-access does not remove the services’ usage terms or attribution
-requirements, and online availability cannot be guaranteed. Existing
-explicit background settings are retained;
-<code>cm$setting$map_basemap &lt;- "offline"</code> disables tile
-requests. Local <code>file://</code> reports start with Germany because
-they cannot send Standard’s required web Referer; serve the HTML over
-HTTP(S) to try Standard first. A single bad tile does not discard a
-usable background. Each provider has a bounded loading deadline and is
-attempted at most once; ecological overlays and controls remain
-available when every provider fails. See the <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html#map-backgrounds-and-offline-use">map-background
-guide</a> for policies, attributions and explicit CARTO/Esri modes.</p>
-<p>Apart from the resolved-destination notice, HTML and PDF rendering is
-quiet by default. For troubleshooting, enable console-only progress and
-stage/chunk timings with
-<code>options(camtrapReport.progress = TRUE)</code>; set it to
-<code>FALSE</code> afterwards to return to normal rendering. Warnings,
-errors and notices about omitted content remain visible. These
-diagnostics do not change report content or analytical calculations.</p>
-<p>Shiny is used for the optional <code><a href="../reference/gui.html">gui()</a></code> interface; the
-code-based workflow does not need a running Shiny application. Optional
-analysis packages are declared by the YAML modules and can be installed
-through an explicit call to <code><a href="../reference/install-all.html">install_all()</a></code> after inspecting
-those requirements.</p>
-<p>The GUI initially suggests a valid project root returned by the
-optional <code>here</code> package, otherwise falling back to the
-object’s valid dataset directory. Check that this is your intended
-location and choose an existing output directory. It previews the
-resolved paths and does not change the R working directory. Its
-overwrite checkbox starts unchecked, protecting existing reports, R
-Markdown sources and saved objects until replacement is explicitly
-allowed.</p>
-<p>Both <code><a href="../reference/report.html">status()</a></code> and <code><a href="../reference/report.html">report()</a></code> create a
-rendered file together with the intermediate <code>.Rmd</code> source
-used to render it. The resolved paths are displayed before rendering.
-With a filename that contains no directory, the object’s existing
-dataset directory is used. Otherwise supply a filename including an
-existing output directory. An invalid directory is an error, not a
-reason to silently use <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code> or another location.</p>
-<p>Existing rendered output and the same-stem <code>.Rmd</code> file are
-protected by <code>overwrite = FALSE</code>, the default. Choose a new
-filename or explicitly set <code>overwrite = TRUE</code> to replace
-them. HTML and PDF outputs with the same stem share the
-<code>.Rmd</code> path, so use distinct stems when retaining both
-versions. A <code>.pdf</code> filename or <code>format = "pdf"</code>
-creates a static browser-printed PDF through the optional
-<code>pagedown</code> package; Chrome or Edge is also required. PDF
-reports do not include a table of contents. The module registry’s
-<code>formats</code> column identifies modules that support
-<code>html</code>, <code>pdf</code>, or <code>both</code>; report
-generation omits incompatible modules and dependent children for the
-requested output. Printable tabsets are expanded for PDF so every panel
-remains visible. Executed package examples copy the bundled data and
-write generated reports to temporary directories.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="working-with-the-camreport-object">Working with the <code>camReport</code> object<a class="anchor" aria-label="anchor" href="#working-with-the-camreport-object"></a>
-</h2>
-<p>The <code>camReport</code> object keeps the input data, metadata,
-settings, and report outputs together during the workflow. For most
-users, the important point is that the same object can be inspected,
-adjusted, and then used to regenerate reports with updated settings.</p>
-<p>For example, metadata can be viewed or changed with
-<code><a href="../reference/info.html">info()</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="st">"authors"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Elham Ebrahimi"</span>,</span>
-<span>  <span class="st">"Patrick Jansen"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Users can also change the taxonomic focus, select years, adjust
-filters, or choose which report sections should be included before
-regenerating the report.</p>
-</div>
-<div class="section level2">
-<h2 id="a-modular-reporting-workflow">A modular reporting workflow<a class="anchor" aria-label="anchor" href="#a-modular-reporting-workflow"></a>
-</h2>
-<p><code>camtrapReport</code> is modular in the sense that a report is
-assembled from separate sections rather than from one fixed template.
-Users can keep only the sections relevant to their data and reporting
-needs, and can omit or reorder sections when needed.</p>
-<p>For example:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Inspect available report sections</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Keep only selected sections</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
-<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"introduction"</span>,</span>
-<span>    <span class="st">"methods"</span>,</span>
-<span>    <span class="st">"study_area"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Apply the selection</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">n</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate the report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-selected-report.html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>For repeated report types, a named profile stores an ordered
-selection without moving or duplicating module YAML files:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Inspect bundled or user-registered profiles</span></span>
-<span><span class="fu"><a href="../reference/reportProfile.html">profile_names</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Apply a profile when rendering</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span></span>
-<span>  <span class="va">cm</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"default"</span>,</span>
-<span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"overview-default-report.html"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># A profile may also select status modules for the status report</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span>, report_type <span class="op">=</span> <span class="st">"status"</span><span class="op">)</span></span></code></pre></div>
-<p>The two module pools are the ecological modules in
-<code>reportSections</code> and the data-status modules in
-<code>statusSections</code>. Profile entries use
-<code>report::module</code> or <code>status::module</code> to identify a
-pool explicitly. This also allows selected status modules to be placed
-in an ecological report profile. See the <a href="https://spatialecology.github.io/camtrapReport/articles/profiles.html">Report
-profiles guide</a> for creating, applying, and sharing profiles.</p>
-<p>This makes it possible to use the same overall workflow for projects
-that differ in species, survey duration, spatial extent, available
-covariates, or reporting objectives.</p>
-<p>Users who want to develop or manage additional report modules can
-find more detail in the <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">Module
-management and extension</a> guide.</p>
-</div>
-<div class="section level2">
-<h2 id="reproducibility-interpretation-and-scope">Reproducibility, interpretation, and scope<a class="anchor" aria-label="anchor" href="#reproducibility-interpretation-and-scope"></a>
-</h2>
-<p><code>camtrapReport</code> supports reproducible reporting by
-applying a consistent workflow from data checking through ecological
-analysis to report generation. Analytical modules use established
-ecological and statistical methods, with default settings that provide a
-common starting point across camera-trap datasets.</p>
-<p>Because the workflow is modular, users can select relevant analyses
-and adjust module-specific settings, species groups, and thresholds
-according to their data, study design, and analytical objectives.
-Results should therefore be interpreted in relation to the
-characteristics of the dataset, sampling design, and assumptions of the
-selected methods.</p>
-<p>General guidance on recording computational environments and managing
-reproducible research workflows is available from the <a href="https://cran.r-project.org/view=ReproducibleResearch" class="external-link">Reproducible
-Research CRAN Task View</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="relationship-to-other-camera-trap-packages">Relationship to other camera-trap packages<a class="anchor" aria-label="anchor" href="#relationship-to-other-camera-trap-packages"></a>
-</h2>
-<p><code>camtrapReport</code> is intended to complement, rather than
-replace, existing camera-trap and ecological analysis packages.
-Different packages address different parts of the workflow.</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Area</th>
-<th>Examples</th>
-<th>Relationship to <code>camtrapReport</code>
-</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Standardised camera-trap data</td>
-<td><a href="https://inbo.github.io/camtrapdp/" class="external-link"><code>camtrapdp</code></a></td>
-<td>
-<code>camtrapReport</code> uses Camtrap DP as its main input
-format.</td>
-</tr>
-<tr class="even">
-<td>Data management and exploration</td>
-<td>
-<a href="https://doi.org/10.32614/CRAN.package.camtrapR" class="external-link"><code>camtrapR</code></a>,
-<a href="https://doi.org/10.32614/CRAN.package.ct" class="external-link"><code>ct</code></a>,
-<a href="https://inbo.github.io/camtraptor/" class="external-link"><code>camtraptor</code></a>
-</td>
-<td>These packages provide complementary tools for preparing, exploring,
-and summarising camera-trap data.</td>
-</tr>
-<tr class="odd">
-<td>Activity, diversity, abundance, and density analyses</td>
-<td>
-<a href="https://doi.org/10.32614/CRAN.package.activity" class="external-link"><code>activity</code></a>,
-<a href="https://doi.org/10.32614/CRAN.package.overlap" class="external-link"><code>overlap</code></a>,
-<a href="https://doi.org/10.32614/CRAN.package.iNEXT" class="external-link"><code>iNEXT</code></a>,
-<a href="https://github.com/MarcusRowcliffe/camtrapDensity" class="external-link"><code>camtrapDensity</code></a>,
-<a href="https://CRAN.R-project.org/package=Distance" class="external-link"><code>Distance</code></a>
-</td>
-<td>Specialised methods can support individual analyses used within a
-reporting workflow.</td>
-</tr>
-<tr class="even">
-<td>Hierarchical and spatial modelling</td>
-<td>
-<a href="https://doi.org/10.32614/CRAN.package.unmarked" class="external-link"><code>unmarked</code></a>,
-<a href="https://CRAN.R-project.org/package=secr" class="external-link"><code>secr</code></a>
-</td>
-<td>These packages provide specialised modelling frameworks outside the
-main reporting role of <code>camtrapReport</code>.</td>
-</tr>
-</tbody>
-</table>
-<p>The main role of <code>camtrapReport</code> is therefore not to
-reproduce every specialised method. Its focus is on bringing data
-checks, selected ecological analyses, visual outputs, metadata, and
-explanatory text together in a consistent report generated from a
-standardised dataset.</p>
-</div>
-<div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
-</h2>
-<p><code>camtrapReport</code> provides a structured workflow for moving
-from standardised camera-trap data to quality-checked and reproducible
-ecological reporting. Its modular design allows the workflow to be
-adapted to different datasets, monitoring objectives, and analytical
-needs.</p>
-<p>For more detail, see the <a href="https://spatialecology.github.io/camtrapReport/articles/data-status-report.html">Data
-Status Check</a>, <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html">Ecological
-Report</a>, and <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">Module
-management and extension</a> articles.</p>
+<p>For questions, ideas, and collaborations, visit <a href="https://github.com/spatialecology/camtrapReport/discussions" class="external-link">GitHub
+Discussions</a>. Use <a href="https://github.com/spatialecology/camtrapReport/issues" class="external-link">GitHub
+Issues</a> to report bugs or request features.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -238,6 +238,7 @@ An overview of the functionality of <code>camtrapReport</code>: An R package for
 
 ## Community and contact
 
-`camtrapReport` is developed for the camera-trap research and conservation community. Organisations, research teams, and camera-trap networks interested in arranging workshops, exploring collaboration opportunities, testing the package, or contributing new `camtrapReport` modules are welcome to get in touch.
+The `camtrapReport` development and scientific team welcomes contributions, feedback, and collaborations with researchers, conservation practitioners, organizations, and camera-trap monitoring networks worldwide.
 
-Contact [Elham Ebrahimi by email](mailto:e.ebrahimi@uu.nl) or connect via [LinkedIn](https://www.linkedin.com/in/elham-ebrahimi-90b519b8/).
+- [**GitHub Discussions**](https://github.com/spatialecology/camtrapReport/discussions) — Ask questions, exchange ideas, propose new modules or Analytical Profiles, and explore collaborations and training opportunities.
+- [**GitHub Issues**](https://github.com/spatialecology/camtrapReport/issues) — Report bugs, request features, or suggest improvements.

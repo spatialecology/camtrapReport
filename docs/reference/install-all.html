@@ -23,10 +23,11 @@ packages used by optional report modules."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/Package-Overview.html">Package Overview</a></li>
     <li><a class="dropdown-item" href="../articles/data-status-report.html">Data Status Check</a></li>
     <li><a class="dropdown-item" href="../articles/ecological-report.html">Ecological Report</a></li>
-    <li><a class="dropdown-item" href="../articles/resources.html">Resources and training</a></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module Management</a></li>
+    <li><a class="dropdown-item" href="../articles/profiles.html">Analytical Profiles</a></li>
   </ul></li>
-<li class="nav-item"><a class="nav-link" href="../articles/profiles.html">Profiles</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/modules.html">Modules</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/module-catalog.html">Module Catalog</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/resources.html">Resources</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -139,29 +140,31 @@ unless <code>upgrade = TRUE</code> is supplied through <code>...</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Inspect one module's optional packages without installing anything.</span></span>
-<span><span class="va">module_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"reportSections"</span>, <span class="st">"sampling.yml"</span>, package <span class="op">=</span> <span class="st">"camtrapReport"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">declaration</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span></span>
-<span>  <span class="st">"#| packages:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">module_file</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>  value <span class="op">=</span> <span class="cn">TRUE</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/trimws.html" class="external-link">trimws</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"#| packages:"</span>, <span class="st">""</span>, <span class="va">declaration</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">","</span></span>
-<span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">pkgs</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">pkgs</span>, <span class="va">requireNamespace</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
-<span></span>
-<span><span class="co"># Package installation changes the user's R library, so these examples are</span></span>
-<span><span class="co"># deliberately restricted to interactive sessions.</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span><span class="fu">install_all</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">install_all</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"readr"</span><span class="op">)</span></span>
-<span><span class="fu">install_all</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Reinstall the requested packages and also update their dependencies.</span></span>
-<span><span class="fu">install_all</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span>, upgrade <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect one module's optional packages without installing anything.</span></span></span>
+<span class="r-in"><span><span class="va">module_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"reportSections"</span>, <span class="st">"sampling.yml"</span>, package <span class="op">=</span> <span class="st">"camtrapReport"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">declaration</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"#| packages:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">module_file</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  value <span class="op">=</span> <span class="cn">TRUE</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/trimws.html" class="external-link">trimws</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"#| packages:"</span>, <span class="st">""</span>, <span class="va">declaration</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">","</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pkgs</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">pkgs</span>, <span class="va">requireNamespace</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Package installation changes the user's R library, so these examples are</span></span></span>
+<span class="r-in"><span><span class="co"># deliberately restricted to interactive sessions.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"readr"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reinstall the requested packages and also update their dependencies.</span></span></span>
+<span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span>, upgrade <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
