@@ -49,6 +49,10 @@ object can be referred to as \code{object} inside the code block.
 This function is useful for creating custom report modules or extending the
 default camtrapReport workflow with project-specific text, tables, figures,
 or analyses.
+
+Only use sections from sources you trust. Text interpolation as well as R
+chunks can execute code during testing or report generation, with the
+permissions of your R process. Sections are not sandboxed; see \link{modules}.
 }
 \examples{
 tx <- reportSection(

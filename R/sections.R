@@ -160,6 +160,8 @@ setGeneric(
 #'
 #' @return `section_names()` and `sections(x)` return character vectors.
 #'   `sections(x, n)` updates `x` and returns it invisibly.
+#'   Unknown names in a partially valid `sections(x, n)` selection are ignored
+#'   with a warning naming those sections. An entirely unknown selection errors.
 #'
 #' @seealso [reportProfile()], [report()], [status()], [listReportSections()]
 #' @family report sections
@@ -325,9 +327,11 @@ setMethod(
           "results were problematic."
         )
       } else if (any(n %in% available)) {
-        message(
-          "\nSome specified section names are unknown and ignored. Use ",
-          "section_names() to get the correct names."
+        warning(
+          "Unknown sections ignored: ",
+          toString(unique(n[!n %in% all_names])),
+          ". Use section_names() to get the correct names.",
+          call. = FALSE
         )
       } else {
         stop(

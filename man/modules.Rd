@@ -93,18 +93,19 @@ a list containing active and trashed modules. The other functions return
 information about the performed operation invisibly.
 }
 \description{
+\strong{Security:} Modules can execute arbitrary R code with the permissions of
+your R process during testing or report generation. Add and run only modules
+from sources you trust, and inspect their code, package declarations,
+network requests and file operations first. Modules are not sandboxed.
+}
+\details{
 Manage report modules in camtrapReport. These functions can be used to list
 existing modules, add new modules, move modules within the report structure,
 remove modules, restore deleted modules, and empty the module trash.
-}
-\details{
+
 camtrapReport uses a modular report architecture in which each report section
 is stored as a module. A module can contain section metadata, text,
 executable R code, required packages, and rendering settings.
-
-Because modules can execute arbitrary R code with the permissions of the
-current R process, only install modules from trusted sources and inspect
-their contents before running them.
 
 \code{add_Module()} adds a new YAML-defined module to a module registry. The
 module can optionally be inserted before or after an existing module.

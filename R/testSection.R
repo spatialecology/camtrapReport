@@ -191,6 +191,10 @@ setGeneric("testSection", function(x, object, view) {
 #' Render a `.textSection` object as a temporary HTML report to check whether
 #' the section text and code can be rendered successfully.
 #'
+#' **Security:** Testing executes the section's text interpolation and R code
+#' with your R process's permissions. Test only sections from sources you trust;
+#' this is not a sandbox or a security check. See [modules].
+#'
 #' This function is mainly used to test custom report sections before they are
 #' added to a full [`camReport`][camReport-classes] report. It checks whether
 #' the

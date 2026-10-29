@@ -265,21 +265,22 @@
 
 #' Install packages required by camtrapReport
 #'
-#' Install packages required for the full camtrapReport workflow, including
-#' packages used by optional report modules.
+#' Install packages in camtrapReport's module inventory and additional packages
+#' requested through `pkgs`.
 #'
 #' The function checks the package list used by camtrapReport and installs
 #' packages that are not currently available. Packages configured as GitHub
 #' or GitLab dependencies are installed from their corresponding repositories.
 #' All package installation is handled by [pak::pkg_install()].
 #'
-#' Unlike a direct call to `pak`, `install_all()` discovers the packages
-#' declared
-#' by the currently available YAML report modules, including modules added or
-#' modified by users, and combines them with any additional packages supplied
-#' through `pkgs`. It then delegates resolution and installation to `pak`. The
-#' function is opt-in and is never called when the package is loaded or a report
-#' is rendered.
+#' Unlike a direct call to `pak`, `install_all()` discovers package declarations
+#' in the installed report-module pool and any packaged configuration inventory.
+#' It does not inspect a project's copied module registry or an object's selected
+#' profile. Supply custom-module and other optional analytical requirements
+#' explicitly through `pkgs`; these are added to, not substituted for, the
+#' discovered inventory. It then delegates resolution and installation to `pak`.
+#' The function is opt-in and is never called when the package is loaded or a
+#' report is rendered.
 #'
 #' `install_All()` is retained as a deprecated compatibility alias. New code
 #' should use `install_all()`.

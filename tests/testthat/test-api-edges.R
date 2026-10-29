@@ -25,9 +25,9 @@ test_that("sections handles invalid, partial, and failed module selections", {
   current <- capture_expected_warning(sections(cm, 1), "should be character")
   expect_identical(current, known)
   expect_error(sections(cm, "unknown_section"), "None")
-  partial <- capture_expected_message(
+  partial <- capture_expected_warning(
     sections(cm, c(known[[1]], "unknown_section")),
-    "unknown and ignored"
+    "Unknown sections ignored: unknown_section"
   )
   expect_s4_class(partial, "camReport")
 })

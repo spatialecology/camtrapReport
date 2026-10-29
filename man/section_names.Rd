@@ -33,6 +33,8 @@ profile is being edited.}
 \value{
 \code{section_names()} and \code{sections(x)} return character vectors.
 \code{sections(x, n)} updates \code{x} and returns it invisibly.
+Unknown names in a partially valid \code{sections(x, n)} selection are ignored
+with a warning naming those sections. An entirely unknown selection errors.
 }
 \description{
 Get module names or update which sections are used by an ecological or

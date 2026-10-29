@@ -89,11 +89,11 @@ test_that("changed source size or mtime warns but preserves cached data", {
 test_that("added and removed core candidates warn without rebuilding", {
   for (change in c("added", "removed", "removed_directory")) {
     fixture <- .camtrap_cache_fixture(
-      nested = identical(change, "removed_directory")
+      nested = change %in% c("added", "removed_directory")
     )
     before <- .camtrap_cache_bytes(fixture$cache)
     if (identical(change, "added")) {
-      file.create(file.path(fixture$directory, "other-observations.csv"))
+      file.create(file.path(fixture$directory, "observations.csv"))
     } else if (identical(change, "removed")) {
       unlink(fixture$sources[1])
     } else {

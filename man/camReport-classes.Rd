@@ -32,7 +32,7 @@ of this class are usually created with \code{\link[=camData]{camData()}}. A \cod
 stores the camera-trap dataset, report metadata, processed summaries, report
 modules, status-report modules, and settings used for report generation.
 
-The exported \code{camR} object is the low-level Reference Class generator for
+The internal \code{camR} object is the low-level Reference Class generator for
 advanced use. Calling \code{camR$new()} creates an unprepared container; it does
 not import data or run the setup and data-status checks performed by
 \code{\link[=camData]{camData()}}. Use \code{\link[=camData]{camData()}} for the normal reporting workflow.
@@ -76,6 +76,21 @@ profile is pooled and the EOW profile is annual.
 the ecological report.
 \item \code{statusReportObjects}: Objects used to generate the data-status report.
 }
+}
+
+\section{Time zones and year boundaries}{
+
+Imported timestamps without an explicit offset are parsed as UTC. Setup uses
+UTC only if no explicit, existing or data-provided time-zone setting is
+available. A call such as \code{cm$setup(tz = "UTC")} does not reparse or shift
+stored timestamps; existing cached settings are otherwise preserved.
+
+Deployment subsets use the deployment's start year, including linked records
+after New Year. A year with no matching deployments raises an explicit error.
+Some annual summaries instead group observations by timestamp calendar year.
+These conventions may differ for deployments spanning New Year; the package
+does not automatically split effort or reallocate observations at the boundary.
+Review those cases before comparing annual results.
 }
 
 \section{Supporting classes}{

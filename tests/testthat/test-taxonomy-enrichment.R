@@ -121,7 +121,7 @@ test_that("camData forwards explicit and default taxonomy choices", {
   selection_state$selected <- NULL
   
   testthat::local_mocked_bindings(
-    .read_camdp = function(file, enrich_taxonomy) {
+    .read_camdp = function(file, enrich_taxonomy, overwrite = FALSE) {
       selection_state$selected <- enrich_taxonomy
       
       stop("Reader forwarding probe", call. = FALSE)

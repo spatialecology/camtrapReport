@@ -5,7 +5,8 @@
 \alias{camData}
 \title{Read camera-trap data in Camtrap DP format}
 \usage{
-camData(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...)
+camData(data, habitat, study_area, update, enrich_taxonomy = TRUE,
+  ..., overwrite = FALSE)
 }
 \arguments{
 \item{data}{A character string giving the path to a Camtrap DP dataset,
@@ -26,6 +27,11 @@ Set to \code{FALSE} to prevent these network requests. This affects fresh
 imports; use \code{update = TRUE} to rebuild a previously cached object.}
 
 \item{...}{Additional arguments. These are currently reserved for future use.}
+
+\item{overwrite}{A single logical value (default \code{FALSE}) allowing a ZIP
+input to replace archived files in an existing extraction directory.
+Other files in that directory are retained. This does not control reuse
+of a cached object when \code{data} is already a dataset directory; see \code{update}.}
 }
 \value{
 A \code{\link[=camReport-classes]{camReport}} object.
@@ -78,9 +84,15 @@ Merely rerunning \code{status()} on the old object does not reread changed files
 
 \code{camData()} writes \verb{__camReport_Object.rds} beside the extracted data and,
 when a study area is supplied, writes \code{study_area.map}. A ZIP input is
-extracted before reading. Use a writable copy of the input dataset, as in
-the examples, rather than an installed package directory. A cached object
-is reused when \code{update = FALSE}. Lightweight file-size and modification-time
+extracted before reading into a directory named after the ZIP file (without
+its extension) in the working directory. An existing target is rejected
+unless \code{overwrite = TRUE}. Explicit overwriting replaces archived members
+only; unrelated old files remain, and extraction is not transactional.
+A ZIP import reads the extracted files afresh and replaces the saved object
+only after a successful import. Use a writable copy of the input dataset, as
+in the examples, rather than an installed package directory. For directory
+inputs, a cached object is reused when \code{update = FALSE}. Lightweight
+file-size and modification-time
 checks warn if the four source CSV/JSON files were changed, added or removed
 in the dataset root or their recorded directories. The cache is still reused;
 use \code{update = TRUE} to rebuild it. Older caches without this metadata also
@@ -89,6 +101,13 @@ or reread during this check. Changes that preserve both size and modification
 time, files in previously unknown nested directories, and changes to optional
 \code{habitat} or \code{study_area} inputs are not detected; rebuild explicitly for these.
 Only load datasets and saved R objects from sources you trust.
+
+ZIP inventories are checked before extraction for unsafe or ambiguous paths
+and resource limits. The defaults are 100,000 entries (including directories)
+and 20 GiB of total declared uncompressed size. To adjust these limits, set
+\code{options(camtrapReport.max_zip_entries = 100000, camtrapReport.max_zip_bytes = 20 * 1024^3)} before import. Each limit must be
+a positive finite number. These checks are practical safeguards, not a
+security sandbox or complete protection against malicious archives.
 }
 
 \section{Optional taxonomy enrichment}{

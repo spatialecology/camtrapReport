@@ -48,6 +48,92 @@ devtools::check()
 
 Please make sure that all checks pass before submitting the pull request.
 
+## Optional development environment and local checks
+
+These tools are conveniences for contributors, not requirements for using
+`camtrapReport` or replacements for the cross-platform GitHub checks. They do
+not change package dependencies, `.eval()`, analytical settings or module code.
+No Git hook is installed by the package or merely by cloning the repository.
+
+### Developer container
+
+If you already use a Docker-compatible engine and an editor supporting
+[Dev Containers](https://containers.dev/), the optional `.devcontainer/`
+configuration provides a Linux development environment. Open a trusted
+checkout and choose **Reopen in Container** in your editor. This explicitly
+builds/downloads a large image; it does not install software on the host or
+change the package's runtime dependency declarations. The mounted checkout
+remains writable, so the container is not a sandbox for untrusted modules.
+
+The Dockerfile pins the official
+[Rocker geospatial R 4.6.1 image](https://hub.docker.com/r/rocker/geospatial/tags?name=4.6.1)
+by manifest digest, with Linux amd64 and arm64 variants verified in the
+registry on 27 October 2026. Its
+[official build source](https://github.com/rocker-org/rocker-versioned2/blob/master/dockerfiles/geospatial_4.6.1.Dockerfile)
+includes GDAL, GEOS, PROJ, Pandoc and developer tools; the small extension
+ensures command-line ZIP support and a writable container-user R library.
+Automatic formatting on save, paste and typing is disabled in the supplied
+editor settings. No post-create command installs package or module
+dependencies automatically.
+
+After opening the container, verify its tools before using it:
+
+```sh
+Rscript --vanilla -e 'print(R.version.string); print(sf::sf_extSoftVersion()); print(rmarkdown::pandoc_version()); print(Sys.which("zip")); stopifnot(requireNamespace("devtools", quietly = TRUE))'
+```
+
+Install the package's declared development dependencies only when you choose
+to do so, then run the tests:
+
+```r
+devtools::install_deps(dependencies = TRUE)
+testthat::test_local(stop_on_failure = TRUE)
+```
+
+Installing all optional analytical-module packages is a separate, deliberate
+choice; it is not part of container startup. PDF rendering additionally needs
+a supported Chrome/Edge installation; the container configuration does not
+claim to provide or test that browser. Preserve your data, package versions
+and analysis settings when reproducing a scientific result: an image pin
+alone does not lock later development-package installations or online services.
+
+The configuration and image metadata can be checked without Docker, but the
+image must still be built and exercised on a Docker-enabled system. Do not
+report a successful container build solely from JSON or Dockerfile validation.
+
+### Optional pre-commit checks
+
+The supplied `.pre-commit-config.yaml` uses local commands, not downloaded
+formatting hooks. Install the external
+[pre-commit tool](https://pre-commit.com/#install) separately if desired.
+Enabling it is an explicit action from the repository root:
+
+```sh
+pre-commit install
+pre-commit run --all-files
+```
+
+Only base-R syntax parsing of `R/` and `tests/` files runs at commit time.
+It does not evaluate those files, install R packages or rewrite source. The
+existing CI remains authoritative even if contributors do not install hooks.
+Two extra checks are available only when deliberately invoked:
+
+```sh
+# Requires the separately installed Jarl command on PATH; no --fix is used.
+pre-commit run --hook-stage manual --all-files jarl-check
+
+# Executes the test suite; requires the declared test dependencies.
+pre-commit run --hook-stage manual --all-files r-tests
+```
+
+Jarl's [official integration guide](https://jarl.etiennebacher.com/howto/precommit)
+also describes its upstream hook. This repository deliberately uses a local,
+manual-only `jarl check` command so that enabling hooks does not introduce
+automatic stylistic changes or silently fetch another linter version.
+Record `jarl --version` when reporting lint results. Tests execute R code,
+so run them only on a trusted checkout. No formatter, spelling checker,
+`.eval()` rewrite or automatic fix is enabled by this configuration.
+
 ## Architecture and report-module execution
 
 `camtrapReport` uses a modular, stateful architecture. The central `camReport`
@@ -92,16 +178,34 @@ including a worked YAML example, see the
 
 ## Dependency policy
 
-Core dependencies in `Imports` are required for data input, object setup, the interactive interface, or report rendering. Both `data.table` and `dplyr` are used deliberately: the former supports keyed sequence aggregation and efficient table operations, while the latter provides the joins and column transformations used throughout the data-preparation and summary workflow.
+Core dependencies in `Imports` are required for data input, object setup, the
+interactive interface, or report rendering. Both `data.table` and `dplyr` are
+used deliberately: the former supports keyed sequence aggregation and efficient
+table operations, while the latter provides the joins and column transformations
+used throughout the data-preparation and summary workflow.
 
-Packages needed only for particular analytical or visual report sections should remain optional and must be declared within the module using `#| packages:`. `install_all()` discovers these declarations from the available YAML modules and passes the resulting package references to `pak`. It is an explicit opt-in operation and is never called at package load or report-render time. When adding or changing a module dependency, update its documentation and tests, and verify that a missing optional package produces a clear message rather than breaking unrelated sections.
+Packages needed only for particular analytical or visual report sections should
+remain optional and must be declared within the module using `#| packages:`.
+`install_all()` discovers these declarations from the available YAML modules
+and passes the resulting package references to `pak`. It is an explicit opt-in
+operation and is never called at package load or report-render time. When adding
+or changing a module dependency, update its documentation and tests, and verify
+that a missing optional package produces a clear message rather than breaking
+unrelated sections.
 
-The internal `.require()` helper checks package availability using `requireNamespace()` and then attaches available packages using `require()`. Consequently, calls such as `camData()` may modify the user's `search()` path. This behavior is currently retained for compatibility with existing analytical components that may rely on unqualified functions from optional packages. Some report modules also use `library()` during rendering. Replacing package attachment with namespace-only checks requires compatibility testing across these workflows. Contributors should prefer explicitly qualified function calls in new code and avoid unnecessary package attachments.
+The current `.require()` helper also attaches a package after checking its
+namespace, and selected report modules are loaded with `library()` during
+rendering. Existing modules may call unqualified functions, so these operations
+are part of the current execution contract and can affect `search()`. Replacing
+them with namespace checks alone requires a separate compatibility review;
+do not make that change as a lint fix. `.eval()` and the dedicated render
+environment do not isolate process-wide effects such as package attachment,
+network requests, options, or file writes.
 
-The `.eval()` helper and dedicated rendering environment do not isolate process-wide effects such as package attachment, network requests, options, or file writes.
-
-Only set minimum dependency versions when a required API or known incompatibility establishes the lower bound. Installed developer versions are not evidence of a minimum supported version. Describe and test any new version constraints separately from documentation changes.
-
+Only set minimum dependency versions when a required API or known
+incompatibility establishes the lower bound. Installed developer versions are
+not evidence of a minimum supported version. Describe and test any new
+version constraints separately from documentation changes.
 
 ## Coding conventions
 

@@ -2,7 +2,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.69
+Version: 1.0.71
 Authors@R: c(
     person(
       given = "Elham",
@@ -31,7 +31,7 @@ Depends:
     R (>= 4.1.0)
 Imports:
     data.table (>= 1.14.0),
-    dplyr (>= 1.1.0),
+    dplyr (>= 1.1.1),
     shiny (>= 1.7.0),
     glue (>= 1.6.0),
     jsonlite (>= 1.8.0),

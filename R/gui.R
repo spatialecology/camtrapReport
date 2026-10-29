@@ -24,6 +24,8 @@ setGeneric("gui", function(object, launch.browser, max_upload_mb, ...) {
 #' Existing report, R Markdown, and saved-object files are protected unless
 #' the overwrite checkbox is selected. Generating output does not change the
 #' R working directory.
+#' ZIP imports have a separate, initially unchecked permission to overwrite an
+#' existing extraction directory; see [camData()] for its location and limits.
 #'
 #' @param object A [`camReport`][camReport-classes] object, usually created with
 #'   [camData()].
@@ -177,11 +179,17 @@ setMethod(
       return(NULL)
     }
 
-    out <- file.path(temp_dir, upload$name[1])
-
-    file.copy(from = upload$datapath[1], to = out, overwrite = TRUE)
-
-    normalizePath(out, winslash = "/", mustWork = FALSE)
+    .validate_gui_upload(upload, "zip")
+    d <- tempfile("upload_", tmpdir = temp_dir)
+    if (!dir.create(d)) stop("Could not create the upload directory.")
+    copied <- FALSE
+    on.exit(if (!copied) unlink(d, recursive = TRUE), add = TRUE)
+    out <- file.path(d, upload$name[1])
+    if (!file.copy(from = upload$datapath[1], to = out, overwrite = FALSE)) {
+      stop("Could not copy the uploaded ZIP file.", call. = FALSE)
+    }
+    copied <- TRUE
+    normalizePath(out, winslash = "/", mustWork = TRUE)
   }
 
   .copy_study_area_upload <- function(upload, temp_dir) {
@@ -189,29 +197,25 @@ setMethod(
       return(NULL)
     }
 
+    .validate_gui_upload(upload, c("shp", "shx", "dbf", "prj", "cpg"),
+                         multiple = TRUE)
+    shp <- grepl("\\.shp$", upload$name, ignore.case = TRUE)
+    stems <- tolower(sub("\\.[^.]+$", "", upload$name))
+    if (sum(shp) != 1L || length(unique(stems)) != 1L) {
+      stop("Upload one .shp file and matching sidecars with the same basename.",
+           call. = FALSE)
+    }
     d <- tempfile("study_area_", tmpdir = temp_dir)
-    dir.create(d, recursive = TRUE, showWarnings = FALSE)
-
-    for (i in seq_len(nrow(upload))) {
-      file.copy(
-        from = upload$datapath[i],
-        to = file.path(d, upload$name[i]),
-        overwrite = TRUE
-      )
+    if (!dir.create(d)) stop("Could not create the study-area directory.")
+    copied <- FALSE
+    on.exit(if (!copied) unlink(d, recursive = TRUE), add = TRUE)
+    if (!all(file.copy(upload$datapath, file.path(d, upload$name),
+                       overwrite = FALSE))) {
+      stop("Could not copy the uploaded study-area files.", call. = FALSE)
     }
-
-    shp <- list.files(
-      d,
-      pattern = "\\.shp$",
-      full.names = TRUE,
-      ignore.case = TRUE
-    )
-
-    if (length(shp) == 0) {
-      return(NULL)
-    }
-
-    shp <- normalizePath(shp[1], winslash = "/", mustWork = FALSE)
+    copied <- TRUE
+    shp <- normalizePath(file.path(d, upload$name[shp]), winslash = "/",
+                         mustWork = TRUE)
 
     if (requireNamespace("terra", quietly = TRUE)) {
       return(.safe(terra::vect(shp), shp))
@@ -229,6 +233,7 @@ setMethod(
     }
 
     if (!is.null(upload)) {
+      .validate_gui_upload(upload, "csv")
       return(utils::read.csv(upload$datapath, stringsAsFactors = FALSE))
     }
 
@@ -239,7 +244,12 @@ setMethod(
     path <- trimws(path %||% "")
 
     if (nzchar(path)) {
-      return(normalizePath(path, winslash = "/", mustWork = TRUE))
+      path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+      if (!dir.exists(path) && !.isZip(path)) {
+        stop("Choose a ZIP file or an extracted dataset directory.",
+             call. = FALSE)
+      }
+      return(path)
     }
 
     if (!is.null(upload)) {
@@ -538,6 +548,18 @@ setMethod(
           "data_zip",
           "Or upload Camtrap DP ZIP file",
           accept = ".zip"
+        ),
+
+        shiny::checkboxInput(
+          "overwrite_dataset",
+          "Allow overwriting an existing ZIP extraction directory",
+          value = FALSE
+        ),
+
+        shiny::helpText(
+          "ZIP files extract to a folder named after the archive in R's ",
+          "working directory. Unrelated old files are retained. This ",
+          "permission is separate from overwriting report output."
         ),
 
         shiny::textInput(
@@ -976,40 +998,30 @@ setMethod(
 
       on.exit(shiny::removeModal(), add = TRUE)
 
-      habitat <- tryCatch(
+      cm <- tryCatch(
         {
-          .read_habitat(
+          habitat <- .read_habitat(
             upload = input$habitat_csv,
             path = input$habitat_csv_path
           )
-        },
-        error = function(e) {
-          shiny::showNotification(
-            paste("Could not read habitat CSV:", conditionMessage(e)),
-            type = "error",
-            duration = 10
+          study_area <- .copy_study_area_upload(
+            input$study_area_files,
+            session_temp_dir
           )
-          NULL
-        }
-      )
-
-      study_area <- .copy_study_area_upload(
-        input$study_area_files,
-        session_temp_dir
-      )
-
-      cm <- tryCatch(
-        {
+          overwrite_dataset <- !dir.exists(zip_path) && .isZip(zip_path) &&
+            isTRUE(input$overwrite_dataset)
           if (!is.null(study_area)) {
             camData(
               data = zip_path,
               habitat = habitat,
-              study_area = study_area
+              study_area = study_area,
+              overwrite = overwrite_dataset
             )
           } else {
             camData(
               data = zip_path,
-              habitat = habitat
+              habitat = habitat,
+              overwrite = overwrite_dataset
             )
           }
         },

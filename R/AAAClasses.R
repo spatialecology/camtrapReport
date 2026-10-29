@@ -13,7 +13,7 @@
 #' stores the camera-trap dataset, report metadata, processed summaries, report
 #' modules, status-report modules, and settings used for report generation.
 #'
-#' The exported `camR` object is the low-level Reference Class generator for
+#' The internal `camR` object is the low-level Reference Class generator for
 #' advanced use. Calling `camR$new()` creates an unprepared container; it does
 #' not import data or run the setup and data-status checks performed by
 #' [camData()]. Use [camData()] for the normal reporting workflow.
@@ -54,6 +54,19 @@
 #' * `reportObjectElements`: Report modules and related objects used to generate
 #'   the ecological report.
 #' * `statusReportObjects`: Objects used to generate the data-status report.
+#'
+#' @section Time zones and year boundaries:
+#' Imported timestamps without an explicit offset are parsed as UTC. Setup uses
+#' UTC only if no explicit, existing or data-provided time-zone setting is
+#' available. A call such as `cm$setup(tz = "UTC")` does not reparse or shift
+#' stored timestamps; existing cached settings are otherwise preserved.
+#'
+#' Deployment subsets use the deployment's start year, including linked records
+#' after New Year. A year with no matching deployments raises an explicit error.
+#' Some annual summaries instead group observations by timestamp calendar year.
+#' These conventions may differ for deployments spanning New Year; the package
+#' does not automatically split effort or reallocate observations at the boundary.
+#' Review those cases before comparing annual results.
 #'
 #' @section Supporting classes:
 #' camtrapReport also defines supporting classes and class unions used

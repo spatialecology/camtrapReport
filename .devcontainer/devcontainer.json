@@ -1,13 +1,18 @@
 {
-  "name": "camtrapReport Development",
-  "image": "rocker/geospatial:4.4.3",
-  "postCreateCommand": "Rscript -e \"if (!requireNamespace('pak', quietly = TRUE)) install.packages('pak', repos='https://cloud.r-project.org'); pak::local_install(dependencies = TRUE)\"",
+  "name": "camtrapReport development (R 4.6.1)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "rstudio",
+  "overrideCommand": true,
   "customizations": {
     "vscode": {
-      "extensions": [
-        "REditorSupport.r",
-        "GitHub.copilot"
-      ]
+      "extensions": ["REditorSupport.r"],
+      "settings": {
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false
+      }
     }
   }
 }

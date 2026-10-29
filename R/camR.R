@@ -688,6 +688,14 @@ camR <- setRefClass(
       # .crop: projected study_area used to crop the density map
       #---------
 
+      if (!requireNamespace("spatstat", quietly = TRUE)) {
+        stop(
+          "Package 'spatstat' is required for spatial density. ",
+          "Install it with install.packages('spatstat') and retry.",
+          call. = FALSE
+        )
+      }
+
       if (is.null(x)) {
         x <- .self$species_summary_by_location(
           year = year,
@@ -950,6 +958,12 @@ camR <- setRefClass(
       }
 
       if (!.require("camtrapDensity")) {
+        warning(
+          'The "camtrapDensity" package is not installed; it is required ',
+          "for REM parameter estimation. ",
+          "Install it from https://camera-traps.r-universe.dev and retry.",
+          call. = FALSE
+        )
         return(NULL)
       }
 
@@ -1365,7 +1379,7 @@ camR <- setRefClass(
           if (!is.null(.self$data$settings$tz)) {
             .self$setting$tz <- .self$data$settings$tz
           } else {
-            .self$setting$tz <- "CET"
+            .self$setting$tz <- "UTC"
           }
         }
       } else {
@@ -3427,6 +3441,10 @@ camR <- setRefClass(
     },
     get_data_subset = function(year = 2023) {
       .w <- which(.self$data$deployments$Year == year)
+      if (length(.w) == 0L) {
+        stop("No deployments found for year ", toString(year), ".",
+             call. = FALSE)
+      }
       if (length(.w) > 0) {
         .d <- list()
         .d$deployments <- .self$data$deployments[.w, ]

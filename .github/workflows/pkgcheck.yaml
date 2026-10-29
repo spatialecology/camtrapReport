@@ -49,5 +49,7 @@ jobs:
 
       - name: Run pkgcheck
         uses: ropensci-review-tools/pkgcheck-action@main
+        env:
+          R_PROFILE_USER: /github/workspace/.github/pkgcheck-profile.R
         with:
           ref: ""

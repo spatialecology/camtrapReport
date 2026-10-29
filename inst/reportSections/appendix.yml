@@ -12,7 +12,7 @@ code: |
     favoImgs <- object$data$media |>
       dplyr::filter(favourite == TRUE) |>
       left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') |>
-      left_join(dplyr::select(object$data$taxonomy, c(taxonID, vernacularNames.eng, scientificName)), by = "taxonID") |>
+      left_join(dplyr::select(object$data$taxonomy, taxonID, dplyr::any_of("vernacularNames.eng"), scientificName), by = "taxonID") |>
       group_by(scientificName)
     
     .downloadable <- FALSE

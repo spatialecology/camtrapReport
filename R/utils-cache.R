@@ -2,15 +2,11 @@
 # contents are read or hashed, and cache reuse never rewrites the saved object.
 .camdata_source_candidates <- function(directory, paths) {
   directories <- unique(c(".", dirname(paths)))
-  pattern <- paste(
-    c("observations.csv", "deployments.csv", "media.csv", "datapackage.json"),
-    collapse = "|"
-  )
   candidates <- unlist(lapply(directories, function(path) {
     entries <- list.files(
-      file.path(directory, path), pattern = pattern,
-      ignore.case = TRUE, all.files = TRUE, recursive = FALSE
+      file.path(directory, path), all.files = TRUE, recursive = FALSE
     )
+    entries <- entries[tolower(entries) %in% .camdp_core_files()]
     if (identical(path, ".")) entries else file.path(path, entries)
   }), use.names = FALSE)
   sort(unique(candidates))

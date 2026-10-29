@@ -360,6 +360,10 @@ setGeneric(
 #' default camtrapReport workflow with project-specific text, tables, figures,
 #' or analyses.
 #'
+#' Only use sections from sources you trust. Text interpolation as well as R
+#' chunks can execute code during testing or report generation, with the
+#' permissions of your R process. Sections are not sandboxed; see [modules].
+#'
 #' @param name A character string giving a unique name for the report section.
 #' @param title A character string giving the section title displayed in the
 #'   report. The default is `""`.

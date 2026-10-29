@@ -1,38 +1,30 @@
-
-# Pre-commit hooks for camtrapReport
-
+# Optional local checks. Nothing installs Git hooks automatically.
+# No formatter, --fix option, spell checker or source rewriting is configured.
+minimum_pre_commit_version: "3.2.0"
+default_stages: [pre-commit]
+exclude: ^(docs|pkgdown)/
 repos:
   - repo: local
     hooks:
-      - id: check-r-syntax
-        name: Check R syntax
-        entry: Rscript --vanilla -e "invisible(lapply(commandArgs(TRUE), function(f) parse(file=f)))"
+      - id: r-parse
+        name: Parse R source and tests (no edits)
         language: system
-        files: \.[Rr]$
-        types: [file]
-        pass_filenames: true
-
-      - id: check-debug-statements
-        name: Check for debugging statements
         entry: >-
-          Rscript --vanilla -e "files <- commandArgs(TRUE);
-          bad <- vapply(files, function(f)
-          any(grepl('browser[(]|debug[(]|debugonce[(]',
-          readLines(f, warn=FALSE))), logical(1));
-          if (any(bad)) {
-          cat('Debugging statements found in:',
-          paste(files[bad], collapse=', '), '\n');
-          quit(status=1)
-          }"
+          Rscript --vanilla -e
+          'invisible(lapply(commandArgs(trailingOnly = TRUE), function(file) parse(file = file)))'
+        files: ^(R|tests)/.*\.[Rr]$
+      - id: jarl-check
+        name: Jarl checks (manual, no fixes)
         language: system
-        files: \.[Rr]$
-        types: [file]
-        pass_filenames: true
-
-      - id: check-r-style
-        name: Check R style
-        entry: Rscript --vanilla -e "files <- commandArgs(TRUE); results <- lapply(files, lintr::lint); print(results); if (any(lengths(results) > 0L)) quit(status=1)"
+        entry: jarl check
+        files: \.(R|r|Rmd|rmd|qmd)$
+        stages: [manual]
+      - id: r-tests
+        name: Testthat suite (manual)
         language: system
-        files: \.[Rr]$
-        types: [file]
-        pass_filenames: true
+        entry: >-
+          Rscript --vanilla -e
+          'testthat::test_local(stop_on_failure = TRUE)'
+        pass_filenames: false
+        always_run: true
+        stages: [manual]

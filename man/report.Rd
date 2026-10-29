@@ -61,6 +61,12 @@ Existing report or \code{.Rmd} files are protected unless \code{overwrite = TRUE
 Supply a new \code{filename} for each retained report; use \code{\link[=tempfile]{tempfile()}} for a
 preview.
 
+Selected module packages are checked and then attached with \code{library()}
+during rendering. This can change the session's search path. The rendering
+environment is not a separate R process or a sandbox. Namespace-only loading
+would break modules that use unqualified functions, so attachment is retained
+for compatibility. Run only modules from sources you trust.
+
 \code{view = TRUE} opens the completed file after rendering; it does not select
 different modules or dependencies. To inspect a file that was already
 generated, call \code{utils::browseURL(report_file)} instead of rendering it again.

@@ -176,7 +176,10 @@
       for (i in seq_len(.w)) {
         vernacular_name <- vapply(
           x,
-          function(z) names(z$vernacularNames)[i],
+          function(z) {
+            language <- names(z$vernacularNames)[i]
+            if (length(language)) language else NA_character_
+          },
           character(1)
         )
         n[i] <- names(sort(table(vernacular_name), decreasing = TRUE))[1]
@@ -242,8 +245,11 @@
 #--------
 
 .read_camdp <- function(
-  file, path = NULL, tz = "", enrich_taxonomy = TRUE
+  file, path = NULL, tz = "", enrich_taxonomy = TRUE, overwrite = FALSE
 ) {
+  if (!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) {
+    stop("'overwrite' must be TRUE or FALSE.", call. = FALSE)
+  }
   if (!.require("jsonlite")) {
     stop("The jsonlite package is not installed; please install it first.")
   }
@@ -259,26 +265,30 @@
   .d <- list()
 
   if (.isZip(file)) {
+    manifest <- tryCatch(
+      utils::unzip(file, list = TRUE),
+      error = function(e) {
+        stop("Could not read the ZIP archive: ", conditionMessage(e),
+             call. = FALSE)
+      }
+    )
+    .validate_camdp_zip_manifest(manifest)
+    zip_stem <- sub("\\.zip$", "", basename(file), ignore.case = TRUE)
+    if (!nzchar(zip_stem) || zip_stem %in% c(".", "..")) {
+      stop("The ZIP filename must have a nonempty dataset name.",
+           call. = FALSE)
+    }
     if (!is.null(path) && is.character(path)) {
       .path <- file.path(
         path.expand(path),
-        gsub(
-          basename(file),
-          pattern = ".zip",
-          replacement = "",
-          ignore.case = TRUE
-        )
+        zip_stem
       )
     } else {
-      .path <- gsub(
-        basename(file),
-        pattern = ".zip",
-        replacement = "",
-        ignore.case = TRUE
-      )
+      .path <- zip_stem
     }
 
-    file <- utils::unzip(file, exdir = .path)
+    .check_camdp_zip_destination(.path, manifest$Name, overwrite)
+    file <- utils::unzip(file, exdir = .path, overwrite = overwrite)
   } else if (dir.exists(file)) {
     core_files <- c(
       "datapackage.json",
@@ -309,46 +319,16 @@
     stop("The specified input is not a zip file or a directory.")
   }
 
-  .input_files <- vapply(
-    c("observations.csv", "deployments.csv", "media.csv", "datapackage.json"),
-    function(pattern) {
-      matching <- file[grepl(pattern, file, ignore.case = TRUE)]
-      if (length(matching)) matching[1] else NA_character_
-    },
-    character(1), USE.NAMES = FALSE
-  )
-  .source_metadata <- if (!anyNA(.input_files)) {
-    .capture_camdata_source_metadata(.path, .input_files)
-  } else {
-    NULL
+  .input_files <- .camdp_input_files(file)
+  if (any(!file.exists(.input_files) | dir.exists(.input_files))) {
+    stop("The required Camtrap DP resources must be existing regular files.",
+         call. = FALSE)
   }
-  .w <- grepl("observations.csv", file, ignore.case = TRUE)
-  if (any(.w)) {
-    .d$observations <- as.data.frame(data.table::fread(file[.w][1], tz = tz))
-  } else {
-    stop("observations.csv is not available in the dataset.")
-  }
-
-  .w <- grepl("deployments.csv", file, ignore.case = TRUE)
-  if (any(.w)) {
-    .d$deployments <- as.data.frame(data.table::fread(file[.w][1], tz = tz))
-  } else {
-    stop("deployments.csv is not available in the dataset.")
-  }
-
-  .w <- grepl("media.csv", file, ignore.case = TRUE)
-  if (any(.w)) {
-    .d$media <- as.data.frame(data.table::fread(file[.w][1], tz = tz))
-  } else {
-    stop("media.csv is not available in the dataset.")
-  }
-
-  .w <- grepl("datapackage.json", file, ignore.case = TRUE)
-  if (any(.w)) {
-    .js <- jsonlite::read_json(file[.w][1])
-  } else {
-    stop("datapackage.json is not available in the dataset.")
-  }
+  .source_metadata <- .capture_camdata_source_metadata(.path, .input_files)
+  .d$observations <- as.data.frame(data.table::fread(.input_files[1], tz = tz))
+  .d$deployments <- as.data.frame(data.table::fread(.input_files[2], tz = tz))
+  .d$media <- as.data.frame(data.table::fread(.input_files[3], tz = tz))
+  .js <- jsonlite::read_json(.input_files[4])
 
   if ("deploymentStart" %in% names(.d$deployments)) {
     .d$deployments$deploymentStart <- .parse_cam_datetime(
@@ -731,7 +711,8 @@
 #--------
 setGeneric(
   "camData",
-  function(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...) {
+  function(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...,
+           overwrite = FALSE) {
     methods::standardGeneric("camData")
   }
 )
@@ -814,6 +795,10 @@ setGeneric(
 #'   Set to `FALSE` to prevent these network requests. This affects fresh
 #'   imports; use `update = TRUE` to rebuild a previously cached object.
 #' @param ... Additional arguments. These are currently reserved for future use.
+#' @param overwrite A single logical value (default `FALSE`) allowing a ZIP
+#'   input to replace archived files in an existing extraction directory.
+#'   Other files in that directory are retained. This does not control reuse
+#'   of a cached object when `data` is already a dataset directory; see `update`.
 #'
 #' @details
 #' `data` currently accepts a file-system path, not an in-memory data frame or
@@ -846,9 +831,15 @@ setGeneric(
 #' @section Files and cache reuse:
 #' `camData()` writes `__camReport_Object.rds` beside the extracted data and,
 #' when a study area is supplied, writes `study_area.map`. A ZIP input is
-#' extracted before reading. Use a writable copy of the input dataset, as in
-#' the examples, rather than an installed package directory. A cached object
-#' is reused when `update = FALSE`. Lightweight file-size and modification-time
+#' extracted before reading into a directory named after the ZIP file (without
+#' its extension) in the working directory. An existing target is rejected
+#' unless `overwrite = TRUE`. Explicit overwriting replaces archived members
+#' only; unrelated old files remain, and extraction is not transactional.
+#' A ZIP import reads the extracted files afresh and replaces the saved object
+#' only after a successful import. Use a writable copy of the input dataset, as
+#' in the examples, rather than an installed package directory. For directory
+#' inputs, a cached object is reused when `update = FALSE`. Lightweight
+#' file-size and modification-time
 #' checks warn if the four source CSV/JSON files were changed, added or removed
 #' in the dataset root or their recorded directories. The cache is still reused;
 #' use `update = TRUE` to rebuild it. Older caches without this metadata also
@@ -857,6 +848,14 @@ setGeneric(
 #' time, files in previously unknown nested directories, and changes to optional
 #' `habitat` or `study_area` inputs are not detected; rebuild explicitly for these.
 #' Only load datasets and saved R objects from sources you trust.
+#'
+#' ZIP inventories are checked before extraction for unsafe or ambiguous paths
+#' and resource limits. The defaults are 100,000 entries (including directories)
+#' and 20 GiB of total declared uncompressed size. To adjust these limits, set
+#' `options(camtrapReport.max_zip_entries = 100000,
+#' camtrapReport.max_zip_bytes = 20 * 1024^3)` before import. Each limit must be
+#' a positive finite number. These checks are practical safeguards, not a
+#' security sandbox or complete protection against malicious archives.
 #'
 #' @section Optional taxonomy enrichment:
 #' With `enrich_taxonomy = TRUE` and `taxize` installed, a fresh import sends
@@ -887,7 +886,8 @@ setGeneric(
 #' @seealso [report()], [status()], [info()], [gui()]
 #' @family camtrapReport data
 #'
-#' @usage camData(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...)
+#' @usage camData(data, habitat, study_area, update, enrich_taxonomy = TRUE,
+#'   ..., overwrite = FALSE)
 #' @rdname camData
 #' @aliases camData
 #' @keywords spatial species camera-trap
@@ -918,7 +918,7 @@ setMethod(
   signature(data = "character"),
   function(
     data, habitat, study_area = NULL, update = FALSE,
-    enrich_taxonomy = TRUE, ...
+    enrich_taxonomy = TRUE, ..., overwrite = FALSE
   ) {
     if (missing(update)) {
       update <- FALSE
@@ -926,9 +926,15 @@ setMethod(
     if (missing(enrich_taxonomy)) {
       enrich_taxonomy <- TRUE
     }
+    if (missing(overwrite)) {
+      overwrite <- FALSE
+    }
     if (!is.logical(enrich_taxonomy) || length(enrich_taxonomy) != 1L ||
         is.na(enrich_taxonomy)) {
       stop("'enrich_taxonomy' must be TRUE or FALSE.", call. = FALSE)
+    }
+    if (!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) {
+      stop("'overwrite' must be TRUE or FALSE.", call. = FALSE)
     }
 
     if (dir.exists(data) && !update) {
@@ -958,7 +964,8 @@ setMethod(
       study_area <- NULL
     }
 
-    .d <- .read_camdp(data, enrich_taxonomy = enrich_taxonomy)
+    .d <- .read_camdp(data, enrich_taxonomy = enrich_taxonomy,
+                     overwrite = overwrite)
     .source_metadata <- .d$source_file_metadata
 
     cm <- camR$new()

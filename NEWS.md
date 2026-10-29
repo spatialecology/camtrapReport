@@ -1,4 +1,51 @@
-# camtrapReport 1.0.69 (development version)
+# camtrapReport 1.0.71 (development version)
+
+- Added explicit warnings naming unknown sections in partially valid report
+  selections, without changing which valid sections are attached.
+- Applied the approved UTC fallback and missing-deployment-year error while
+  retaining explicitly configured zones, timestamp instants and year allocation.
+- Added narrowly scoped input and optional-dependency diagnostics with regression
+  coverage; scientific methods and the `.eval()` architecture remain unchanged.
+- Validate ZIP paths, duplicate entries and exact Camtrap DP resource names before
+  extraction; ignore backup suffixes and reject ambiguous core inputs.
+- Added `camData(..., overwrite = FALSE)` to protect existing ZIP extraction
+  folders, with a separate opt-in control in the GUI. Matching extracted files
+  can be replaced explicitly; unrelated files are not deleted.
+- Added documented, adjustable ZIP inventory limits of 100,000 entries and
+  20 GiB declared uncompressed data, plus upload-name and copy-failure guards.
+- Corrected the `install_all()` inventory documentation without changing its
+  installation behavior; project-module requirements can be added via `pkgs`.
+- Configured the official pkgcheck Docker action's R session with the declared
+  R-universe repository so pak can resolve optional `camtrapDensity`. All five
+  audited analytical packages remain in Suggests; no check is disabled.
+- Corrected the dplyr minimum to 1.1.1, which introduced the already-used join
+  `relationship` argument, and synchronized dependency/version metadata.
+- README files and vignettes are intentionally unchanged; related manual
+  documentation proposals accompany the reviewer-response revision.
+
+# camtrapReport 1.0.70
+
+- Promoted the trusted-source warning to the first description paragraph of
+  the module-management help, including `add_Module()`. Module testing and
+  report generation execute real R code with the current user's permissions;
+  no sandbox or change to the evaluation architecture is implied.
+- Made the original appendix tolerate an absent optional English-name column,
+  retaining scientific names and the existing favourite-image selection.
+- Fixed taxonomy import when mixed vernacular-name languages include a taxon
+  without names, retaining the existing language-selection algorithm.
+- Changed only the missing-time-zone fallback in `setup()` from CET to UTC,
+  consistent with input parsing. Explicit, existing and data-provided zones
+  are preserved; stored timestamps are not reinterpreted or shifted.
+- Replaced `get_data_subset()`'s silent `NULL` for years without deployments
+  with an actionable error. Valid-year subsets and year assignment are unchanged.
+- Added focused optional-name and December-to-January boundary regressions.
+  Cross-year scientific allocation is not redesigned by these tests.
+- Added an optional digest-pinned Rocker developer container and check-only
+  pre-commit configuration, excluded from the source package. Formatting is
+  not automatic; Jarl and testthat hooks are manual. Package dependencies,
+  the `.eval()` architecture and existing CI workflows are unchanged.
+
+# camtrapReport 1.0.69
 
 - Added `camData(enrich_taxonomy = FALSE)` to disable GBIF taxonomy requests.
   The default remains `TRUE` for compatibility; fresh enrichment announces

@@ -41,6 +41,8 @@ Choose an existing directory explicitly before saving output.
 Existing report, R Markdown, and saved-object files are protected unless
 the overwrite checkbox is selected. Generating output does not change the
 R working directory.
+ZIP imports have a separate, initially unchecked permission to overwrite an
+existing extraction directory; see \code{\link[=camData]{camData()}} for its location and limits.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
