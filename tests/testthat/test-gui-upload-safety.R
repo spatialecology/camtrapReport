@@ -55,7 +55,10 @@ test_that("ZIP upload copies are unique and copy failures leave no output", {
   expect_identical(basename(first), "data.zip")
   expect_identical(readLines(first), "First upload")
   expect_identical(readLines(second), "Second upload")
-  expect_true(startsWith(first, paste0(normalizePath(root), "/")))
+  expect_true(startsWith(
+    normalizePath(first, winslash = "/", mustWork = TRUE),
+    paste0(normalizePath(root, winslash = "/", mustWork = TRUE), "/")
+  ))
   before <- list.files(root, all.files = TRUE)
   assign("file.copy", function(...) FALSE, envir = helpers$env)
   expect_error(helpers$copy_zip(upload, root), "Could not copy", fixed = TRUE)
