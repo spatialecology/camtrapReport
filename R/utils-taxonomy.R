@@ -40,7 +40,7 @@
 .taxonomy_lookup_stage <- function(code, env) {
   state <- new.env(parent = emptyenv())
   state$problem <- FALSE
-  
+
   value <- tryCatch(
     withCallingHandlers(
       .eval(code, env),
@@ -57,7 +57,7 @@
       NULL
     }
   )
-  
+
   list(value = value, problem = state$problem)
 }
 
