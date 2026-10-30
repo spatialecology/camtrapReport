@@ -13,7 +13,7 @@ rendering."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,6 +135,13 @@ directories cause an error rather than falling back to a different location.
 Existing report or <code>.Rmd</code> files are protected unless <code>overwrite = TRUE</code>.
 Supply a new <code>filename</code> for each retained report; use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile()</a></code> for a
 preview.</p>
+<p>Selected module packages are checked with <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> without
+automatically attaching them. Bundled modules qualify external functions;
+custom modules that relied on automatic attachment must use <code>package::fun()</code>
+or otherwise manage their own dependencies explicitly. Module code can still
+change the search path or other process-wide state. The rendering environment
+is not a separate R process or a sandbox. Run only modules from sources you
+trust.</p>
 <p><code>view = TRUE</code> opens the completed file after rendering; it does not select
 different modules or dependencies. To inspect a file that was already
 generated, call <code>utils::browseURL(report_file)</code> instead of rendering it again.
@@ -170,8 +177,9 @@ interrupted by that timeout.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/pandoc_available.html" class="external-link">pandoc_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># A small import example; see the vignettes for full analytical reports.</span></span></span>
 <span class="r-in"><span><span class="va">source_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="st">"external"</span>, <span class="st">"dataset"</span>, package <span class="op">=</span> <span class="st">"camtrapReport"</span></span></span>
+<span class="r-in"><span>  <span class="st">"external"</span>, <span class="st">"example-small"</span>, package <span class="op">=</span> <span class="st">"camtrapReport"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">example_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"camtrapReport-example-"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
@@ -192,16 +200,16 @@ interrupted by that timeout.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">example_dataset</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The camReport object is being created...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 6.6 MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 164.4 KB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomy enrichment sends scientific names to GBIF via taxize. Use enrich_taxonomy = FALSE to disable these network requests.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomic class is unavailable for 10 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 27 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 7 sec.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The report sections are updated.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Report output: C:/Users/ebrah010/AppData/Local/Temp/RtmpAXTJOJ/camtrapReport-report-9cf4131d7ffe.html</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> R Markdown source: C:/Users/ebrah010/AppData/Local/Temp/RtmpAXTJOJ/camtrapReport-report-9cf4131d7ffe.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Report output: C:/Users/ebrah010/AppData/Local/Temp/Rtmpu4DeAb/camtrapReport-report-8b7877facb7.html</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> R Markdown source: C:/Users/ebrah010/AppData/Local/Temp/Rtmpu4DeAb/camtrapReport-report-8b7877facb7.Rmd</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

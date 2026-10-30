@@ -1,0 +1,9 @@
+deploymentID,locationID,locationName,latitude,longitude,coordinateUncertainty,deploymentStart,deploymentEnd,setupBy,cameraID,cameraModel,cameraDelay,cameraHeight,cameraDepth,cameraTilt,cameraHeading,detectionDistance,timestampIssues,baitUse,featureType,habitat,deploymentGroups,deploymentTags,deploymentComments
+de67b3c8-ad36-4bc9-b678-46514fb7da93,LEUVEN_1304,LEUVEN_1304,50.821,4.649,177,2018-03-26T10:05:50Z,2018-04-30T06:50:35Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+a85fbb25-f4e6-4389-a5d9-516c03a71f7e,LEUVEN_930,LEUVEN_930,50.805,4.634,177,2018-03-26T10:28:20Z,2018-04-28T07:42:45Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+58ff388c-32a2-4442-8c55-78f214bba617,LEUVEN_1473,LEUVEN_1473,50.829,4.636,177,2018-07-03T06:05:19Z,2018-08-08T04:58:45Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+362fa106-39f6-43a3-a487-f8d8a933acb1,LEUVEN_1713,LEUVEN_1713,50.845,4.649,177,2018-08-07T04:48:52Z,2018-09-17T09:24:02Z,Jim Casaer,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+478c3632-d338-443d-898e-4a5a9f63165b,LEUVEN_416,LEUVEN_416,50.769,4.638,177,2018-08-08T10:36:14Z,2018-09-10T08:39:23Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+54ef5979-bfd5-4adb-8dfa-85a3c78c35cc,LEUVEN_881,LEUVEN_881,50.803,4.635,177,2018-08-08T13:19:11Z,2018-09-10T06:23:25Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,
+d5f9bd58-c491-47eb-8bb6-e08bfc66d720,LEUVEN_1210,LEUVEN_1210,50.816,4.674,177,2018-09-08T13:58:07Z,2018-10-27T15:44:34Z,Kathleen Vanhuyse,,,0,0.5,,,,15.0,,,,,,Meerdaal West,
+8425d809-35fa-41ac-ab86-df8c9217bc7f,LEUVEN_1434,LEUVEN_1434,50.828,4.638,177,2018-09-12T14:46:37Z,2018-10-22T06:14:42Z,Niko Boone,,,0,0.5,,,,15.0,,,,,,Dijlevallei,

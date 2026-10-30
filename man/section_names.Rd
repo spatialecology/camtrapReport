@@ -56,8 +56,9 @@ section_names(profile = "default")
 section_names(report_type = "all")
 
 \donttest{
+# Section selection needs only a small imported dataset.
 source_dataset <- system.file(
-  "external", "dataset", package = "camtrapReport"
+  "external", "example-small", package = "camtrapReport"
 )
 example_dataset <- tempfile("camtrapReport-example-")
 dir.create(example_dataset)

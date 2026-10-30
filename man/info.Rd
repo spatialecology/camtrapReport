@@ -58,9 +58,10 @@ dataset or the bundled YAML files.
 }
 \examples{
 \donttest{
+# Use the small dataset to demonstrate metadata access and editing.
 source_dataset <- system.file(
   "external",
-  "dataset",
+  "example-small",
   package = "camtrapReport"
 )
 example_dataset <- tempfile("camtrapReport-example-")

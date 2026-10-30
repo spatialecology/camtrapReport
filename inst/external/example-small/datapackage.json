@@ -1,0 +1,314 @@
+{
+  "name": "gmu8_leuven_camtrapreport_api_example",
+  "profile": "https://rs.gbif.org/data-packages/camtrap-dp/1.0/profile/camtrap-dp-profile.json",
+  "title": "Small Leuven subset for camtrapReport API examples",
+  "description": "The earliest deployment at each of the eight bundled Leuven locations, retaining up to the first 32 complete events per deployment in event-start order and all linked observations and available media metadata. This intentionally small subset demonstrates data import, metadata and section manipulation; it is not suitable for ecological inference or density estimation. The full bundled dataset remains available for analytical workflows.",
+  "sources": [
+    {
+      "path": "https://www.agouti.eu",
+      "title": "Agouti",
+      "version": "v4"
+    }
+  ],
+  "licenses": [
+    {
+      "name": "CC0-1.0",
+      "scope": "data"
+    },
+    {
+      "name": "CC-BY-4.0",
+      "scope": "media"
+    }
+  ],
+  "created": "2026-08-17T11:22:33Z",
+  "contributors": [
+    {
+      "title": "Jim Casaer",
+      "firstName": "Jim",
+      "lastName": "Casaer",
+      "path": "https://orcid.org/0000-0001-6788-5876",
+      "role": "principalInvestigator",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Niko Boone",
+      "firstName": "Niko",
+      "lastName": "Boone",
+      "path": "https://orcid.org/0000-0001-7334-2819",
+      "role": "principalInvestigator",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Jan Vercammen",
+      "firstName": "Jan",
+      "lastName": "Vercammen",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Sander Devisscher",
+      "firstName": "Sander",
+      "lastName": "Devisscher",
+      "path": "https://orcid.org/0000-0003-2015-5731",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Lynn Pallemaerts",
+      "firstName": "Lynn",
+      "lastName": "Pallemaerts",
+      "path": "https://orcid.org/0000-0002-5034-5416",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Anneleen Rutten",
+      "firstName": "Anneleen",
+      "lastName": "Rutten",
+      "path": "https://orcid.org/0000-0002-4025-5265",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Martijn Bollen",
+      "firstName": "Martijn",
+      "lastName": "Bollen",
+      "path": "https://orcid.org/0000-0002-1621-6258",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Peter Desmet",
+      "firstName": "Peter",
+      "lastName": "Desmet",
+      "path": "https://orcid.org/0000-0002-8442-8025",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Sanne Govaert",
+      "firstName": "Sanne",
+      "lastName": "Govaert",
+      "path": "https://orcid.org/0000-0002-8939-1305",
+      "role": "contributor",
+      "organization": "Research Institute for Nature and Forest (INBO)"
+    },
+    {
+      "title": "Research Institute for Nature and Forest (INBO)",
+      "path": "https://www.inbo.be",
+      "role": "rightsHolder"
+    }
+  ],
+  "resources": [
+    {
+      "name": "deployments",
+      "profile": "tabular-data-resource",
+      "encoding": "UTF-8",
+      "format": "csv",
+      "schema": "http://rs.gbif.org/data-packages/camtrap-dp/1.0/table-schemas/deployments.json",
+      "path": "deployments.csv"
+    },
+    {
+      "name": "media",
+      "profile": "tabular-data-resource",
+      "encoding": "UTF-8",
+      "format": "csv",
+      "schema": "http://rs.gbif.org/data-packages/camtrap-dp/1.0/table-schemas/media.json",
+      "path": "media.csv"
+    },
+    {
+      "name": "observations",
+      "profile": "tabular-data-resource",
+      "encoding": "UTF-8",
+      "format": "csv",
+      "schema": "http://rs.gbif.org/data-packages/camtrap-dp/1.0/table-schemas/observations.json",
+      "path": "observations.csv"
+    }
+  ],
+  "version": "2",
+  "keywords": [
+    "camera traps",
+    "ungulates",
+    "roe deer",
+    "wild boar",
+    "mammals",
+    "birds",
+    "wildlife management",
+    "invasive alien species",
+    "Flanders",
+    "Belgium",
+    "Nationaal Park Brabantse Wouden",
+    "GMU8",
+    "LifeWatch",
+    "European Observatory of Wildlife (EOW)",
+    "Long Term Ecological Research Network (LTER)",
+    "camtrapReport",
+    "software testing",
+    "derived subset"
+  ],
+  "image": "https://api.agouti.eu/uploads/project-images/20180430144018-IMG_0612.JPG",
+  "bibliographicCitation": "Casaer J, Boone N, Vercammen J, Devisscher S, Pallemaerts L, Rutten A, Bollen M, Desmet P, Govaert S (2025). GMU8_LEUVEN - Camera trap observations in natural habitats south of Leuven (Belgium). Version 1. Camtrap DP dataset. https://ipt.inbo.be/resource?r=gmu8_leuven&amp;v=1",
+  "project": {
+    "id": "91e1e104-a296-461e-af79-eeb6cb3e6c7f",
+    "title": "GMU8_LEUVEN",
+    "description": "This project monitors natural habitats south of Leuven (Belgium). It mainly focuses on the interaction between human activities (e.g. recreation, hunting) and the population dynamics as well as geographical and temporal distribution of roe deer (Capreolus capreolus) and wild boar (Sus scrofa). .",
+    "path": "https://agouti.eu/#/explore/project/91e1e104-a296-461e-af79-eeb6cb3e6c7f",
+    "samplingDesign": "systematicRandom",
+    "captureMethod": [
+      "timeLapse",
+      "activityDetection"
+    ],
+    "observationLevel": [
+      "media",
+      "event"
+    ],
+    "individualAnimals": false
+  },
+  "coordinatePrecision": 0.001,
+  "spatial": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          4.634,
+          50.769
+        ],
+        [
+          4.674,
+          50.769
+        ],
+        [
+          4.674,
+          50.845
+        ],
+        [
+          4.634,
+          50.845
+        ],
+        [
+          4.634,
+          50.769
+        ]
+      ]
+    ]
+  },
+  "temporal": {
+    "start": "2018-03-26",
+    "end": "2018-10-27"
+  },
+  "taxonomic": [
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/MLQ5",
+      "scientificName": "Bos taurus",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Bovidae",
+      "vernacularNames": {
+        "eng": "cattle",
+        "nld": "koe"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/QSF3",
+      "scientificName": "Capreolus capreolus",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Cervidae",
+      "vernacularNames": {
+        "eng": "roe deer",
+        "nld": "ree"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/YNHJ",
+      "scientificName": "Corvus corone",
+      "taxonRank": "species",
+      "order": "Passeriformes",
+      "family": "Corvidae",
+      "vernacularNames": {
+        "eng": "carrion crow",
+        "nld": "zwarte kraai"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3B2C2",
+      "scientificName": "Erinaceus europaeus",
+      "taxonRank": "species",
+      "order": "Erinaceomorpha",
+      "family": "Erinaceidae",
+      "vernacularNames": {
+        "eng": "European hedgehog",
+        "nld": "egel"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/3DXV3",
+      "scientificName": "Felis catus",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Felidae",
+      "vernacularNames": {
+        "eng": "domestic cat",
+        "nld": "kat"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/44QYC",
+      "scientificName": "Mustela putorius",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Mustelidae",
+      "vernacularNames": {
+        "eng": "European polecat",
+        "nld": "bunzing"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/4FWMN",
+      "scientificName": "Phasianus colchicus",
+      "taxonRank": "species",
+      "order": "Galliformes",
+      "family": "Phasianidae",
+      "vernacularNames": {
+        "eng": "common pheasant",
+        "nld": "fazant"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/79Y2K",
+      "scientificName": "Sciurus vulgaris",
+      "taxonRank": "species",
+      "order": "Rodentia",
+      "family": "Sciuridae",
+      "vernacularNames": {
+        "eng": "red squirrel",
+        "nld": "rode eekhoorn"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/53HGR",
+      "scientificName": "Sus scrofa",
+      "taxonRank": "species",
+      "order": "Artiodactyla",
+      "family": "Suidae",
+      "vernacularNames": {
+        "eng": "wild boar",
+        "nld": "everzwijn"
+      }
+    },
+    {
+      "taxonID": "https://www.checklistbank.org/dataset/COL2023/taxon/5BSG3",
+      "scientificName": "Vulpes vulpes",
+      "taxonRank": "species",
+      "order": "Carnivora",
+      "family": "Canidae",
+      "vernacularNames": {
+        "eng": "red fox",
+        "nld": "vos"
+      }
+    }
+  ],
+  "gbifIngestion": {
+    "observationLevel": "event"
+  }
+}

@@ -1,5 +1,8 @@
 # camtrapReport 1.0.72 (development version)
 
+- Use a documented chronological subset for import and report-editing examples,
+  avoiding repeated REM initialization; retain the full analytical dataset.
+- Require exact equality in the EOW table regression's deterministic fixture.
 - Preserve original module indices when cached test results mix untested,
   passing, and failing modules; exclude all modules when all cached tests fail.
 - Correct the documented taxonomy default, report destinations, overwrite

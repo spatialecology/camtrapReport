@@ -280,8 +280,9 @@ setGeneric(
 #' @examples
 #' \donttest{
 #' if (rmarkdown::pandoc_available()) {
+#' # A small import example; see the vignettes for full analytical reports.
 #' source_dataset <- system.file(
-#'   "external", "dataset", package = "camtrapReport"
+#'   "external", "example-small", package = "camtrapReport"
 #' )
 #' example_dataset <- tempfile("camtrapReport-example-")
 #' dir.create(example_dataset)

@@ -77,9 +77,10 @@ appending text, and adding or updating R code chunks.
 }
 \examples{
 \donttest{
+# Use the small dataset to demonstrate editing an existing section.
 source_dataset <- system.file(
   "external",
-  "dataset",
+  "example-small",
   package = "camtrapReport"
 )
 example_dataset <- tempfile("camtrapReport-example-")

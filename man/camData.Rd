@@ -161,9 +161,12 @@ boundary, or supply a custom module with an explicit year-to-boundary mapping.
 
 \examples{
 \donttest{
+# Small import demonstration, not data for ecological inference.
+# The larger analytical example is in system.file("external", "dataset",
+# package = "camtrapReport"); see the vignettes for its complete workflow.
 source_dataset <- system.file(
   "external",
-  "dataset",
+  "example-small",
   package = "camtrapReport"
 )
 example_dataset <- tempfile("camtrapReport-example-")

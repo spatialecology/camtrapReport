@@ -25,11 +25,13 @@ test_that("EOW displays annual parameters without altering their estimates", {
   output <- capture.output(eval(parse(text = module$code), env))
   expect_true(any(grepl("Year-specific REM parameter", output, fixed = TRUE)))
   expect_true(any(grepl("Vulpes vulpes", output, fixed = TRUE)))
-  expect_identical(state$calls, list(list("Vulpes vulpes", "annual", 999L, 42L)))
-  expect_equal(env$estimates_rem, expected)
-  expect_equal(env$parameter_table$Estimate,
-               expected$estimate[match(env$parameter_table$Parameter,
-                                       expected$Metric)])
+  expect_identical(
+    state$calls, list(list("Vulpes vulpes", "annual", 999L, 42L))
+  )
+  expect_identical(env$estimates_rem, expected)
+  expect_identical(env$parameter_table$Estimate,
+                   expected$estimate[match(env$parameter_table$Parameter,
+                                           expected$Metric)])
   expect_named(env$parameter_table,
                c("Species", "Year", "Parameter", "Estimate",
                  "Standard error", "Unit", "Sample size"))
