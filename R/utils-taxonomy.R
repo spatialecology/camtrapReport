@@ -38,19 +38,27 @@
 
 # Aggregate third-party conditions without printing submitted species names.
 .taxonomy_lookup_stage <- function(code, env) {
-  problem <- FALSE
-  value <- tryCatch(withCallingHandlers(
-    .eval(code, env),
-    warning = function(w) {
-      problem <<- TRUE
-      invokeRestart("muffleWarning")
-    },
-    message = function(m) invokeRestart("muffleMessage")
-  ), error = function(e) {
-    problem <<- TRUE
-    NULL
-  })
-  list(value = value, problem = problem)
+  state <- new.env(parent = emptyenv())
+  state$problem <- FALSE
+  
+  value <- tryCatch(
+    withCallingHandlers(
+      .eval(code, env),
+      warning = function(w) {
+        state$problem <- TRUE
+        invokeRestart("muffleWarning")
+      },
+      message = function(m) {
+        invokeRestart("muffleMessage")
+      }
+    ),
+    error = function(e) {
+      state$problem <- TRUE
+      NULL
+    }
+  )
+  
+  list(value = value, problem = state$problem)
 }
 
 .getMissingTaxon_GBIF <- function(x) {
