@@ -50,6 +50,7 @@ jobs:
       - name: Run pkgcheck
         uses: ropensci-review-tools/pkgcheck-action@main
         env:
+          # Configure repositories and apply the CI Markdown formatter workaround.
           R_PROFILE_USER: /github/workspace/.github/pkgcheck-profile.R
         with:
           ref: ""
