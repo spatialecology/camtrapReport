@@ -8,8 +8,6 @@ code: |
   #| setting: echo=FALSE, results="asis", warning=FALSE, message=FALSE, fig.width=13.5, fig.height=11, out.width="100%", fig.align="center", dpi=150
   #| packages: ggplot2, dplyr, activity, overlap
   
-  library(ggplot2)
-  library(dplyr)
   
   if (!requireNamespace("activity", quietly = TRUE)) {
     

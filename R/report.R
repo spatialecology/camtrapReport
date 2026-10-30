@@ -215,11 +215,13 @@ setGeneric(
 #' Supply a new `filename` for each retained report; use [tempfile()] for a
 #' preview.
 #'
-#' Selected module packages are checked and then attached with `library()`
-#' during rendering. This can change the session's search path. The rendering
-#' environment is not a separate R process or a sandbox. Namespace-only loading
-#' would break modules that use unqualified functions, so attachment is retained
-#' for compatibility. Run only modules from sources you trust.
+#' Selected module packages are checked with `requireNamespace()` without
+#' automatically attaching them. Bundled modules qualify external functions;
+#' custom modules that relied on automatic attachment must use `package::fun()`
+#' or otherwise manage their own dependencies explicitly. Module code can still
+#' change the search path or other process-wide state. The rendering environment
+#' is not a separate R process or a sandbox. Run only modules from sources you
+#' trust.
 #'
 #' `view = TRUE` opens the completed file after rendering; it does not select
 #' different modules or dependencies. To inspect a file that was already

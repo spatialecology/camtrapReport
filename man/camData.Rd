@@ -5,7 +5,7 @@
 \alias{camData}
 \title{Read camera-trap data in Camtrap DP format}
 \usage{
-camData(data, habitat, study_area, update, enrich_taxonomy = TRUE,
+camData(data, habitat, study_area, update, enrich_taxonomy = FALSE,
   ..., overwrite = FALSE)
 }
 \arguments{
@@ -21,9 +21,9 @@ path, a \code{SpatVector}, or an \code{sf} object. The default is \code{NULL}.}
 \item{update}{A logical value (default \code{FALSE}) specifying whether to
 recreate a previously saved \code{camReport} object.}
 
-\item{enrich_taxonomy}{A single logical value (default \code{TRUE}) allowing GBIF
+\item{enrich_taxonomy}{A single logical value (default \code{FALSE}) allowing GBIF
 taxonomy enrichment when the optional \code{taxize} package is installed.
-Set to \code{FALSE} to prevent these network requests. This affects fresh
+Only explicit \code{TRUE} permits these network requests. This affects fresh
 imports; use \code{update = TRUE} to rebuild a previously cached object.}
 
 \item{...}{Additional arguments. These are currently reserved for future use.}
@@ -112,21 +112,42 @@ security sandbox or complete protection against malicious archives.
 
 \section{Optional taxonomy enrichment}{
 
-With \code{enrich_taxonomy = TRUE} and \code{taxize} installed, a fresh import sends
-scientific names to GBIF to supply class and missing order information.
-A message announces this network access. The default preserves the previous
-import behaviour; requests can affect import time, privacy and reproducibility.
-Use \code{enrich_taxonomy = FALSE} for offline or confidential species lists.
-No GBIF taxonomy request is made with that setting, or without \code{taxize}.
-No new timeout is imposed on the existing taxize workflow.
+The default \code{enrich_taxonomy = FALSE} never initiates GBIF taxonomy requests,
+whether or not \code{taxize} is installed. With explicit \code{enrich_taxonomy = TRUE}
+and \code{taxize} installed, a fresh import sends scientific names to GBIF to fill
+missing class and order information. A message announces this network access.
+Requests can affect import time, privacy and reproducibility. Source-provided
+names, identifiers and valid classifications are retained; external results
+fill only missing values after an unambiguous identifier and name match.
+Existing normalization of taxon-ID URLs to their last path component is
+unchanged; the original metadata remain available in \code{object$info$json}.
+Ambiguous, unmatched or incomplete results remain missing, with a concise
+warning that does not list the species inventory. Optional lookup failures
+do not prevent import of the underlying data.
+
+No package-level timeout or complete-operation time limit is imposed.
+The supported \code{taxize} lookup stages do not offer one consistently verified
+end-to-end timeout interface; R's global \code{timeout} option is not a guarantee
+for these HTTP requests. For predictable offline operation, leave enrichment
+disabled and supply adequate taxonomy in \code{datapackage.json}.
 
 Without enrichment, imported species names, families, orders and counts are
-retained, but taxonomic classes may be unavailable. Groups defined by class
+retained, including classes when supplied in the source. Taxonomic classes
+may otherwise be unavailable. Groups defined by class
 (for example \code{wild_mammals}, birds, reptiles or amphibians) may then be absent.
+Setup reports missing classifications; existing mammal-count summaries can
+be incomplete and must not be interpreted as ecological absence. Explicit
+class-based capture requests require available class metadata with a verified
+match when classification is incomplete; otherwise they stop with a clear
+error. Partial metadata with verified matches produces a warning.
 Default
 order-based groups remain usable when the source supplies the relevant
 orders. This option does not remove taxonomy already present in a reused
-cache. Preserve the processed object and package versions used in analyses.
+cache. Reusing \verb{__camReport_Object.rds} does not query GBIF, even if the
+enrichment setting changes; use \code{update = TRUE} to rebuild with that setting.
+This is a processed-object cache, not a cache of individual GBIF responses.
+Remote taxonomy can change between fresh lookups. Preserve the source data,
+processed object and package versions used in analyses.
 }
 
 \section{Study areas that change over time}{

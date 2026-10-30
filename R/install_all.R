@@ -541,13 +541,6 @@ setMethod(
 #' @rdname install-All-legacy
 #' @aliases install_All
 #' @export
-#'
-#' @examples
-#' # Deprecated compatibility alias; prefer install_all().
-#' # Installation is intentionally not performed in non-interactive checks.
-#' if (interactive()) {
-#'   install_All()
-#' }
 setGeneric(
   "install_All",
   function(pkgs = NULL, update = FALSE, github = TRUE, gitlab = FALSE, ...) {

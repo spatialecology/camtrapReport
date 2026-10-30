@@ -193,13 +193,14 @@ or changing a module dependency, update its documentation and tests, and verify
 that a missing optional package produces a clear message rather than breaking
 unrelated sections.
 
-The current `.require()` helper also attaches a package after checking its
-namespace, and selected report modules are loaded with `library()` during
-rendering. Existing modules may call unqualified functions, so these operations
-are part of the current execution contract and can affect `search()`. Replacing
-them with namespace checks alone requires a separate compatibility review;
-do not make that change as a lint fix. `.eval()` and the dedicated render
-environment do not isolate process-wide effects such as package attachment,
+The `.require()` helper and generated module setup chunks check namespaces
+without automatically attaching packages. Qualify external function calls in
+bundled and custom modules with their verified namespaces, including calls
+constructed as strings. Package declarations do not provide unqualified names.
+Custom modules relying on the previous automatic attachment need an explicit
+namespace update; do not silently rewrite user code or add hidden attachment.
+`.eval()` and the dedicated render environment do not isolate process-wide
+effects explicitly performed by module code, such as package attachment,
 network requests, options, or file writes.
 
 Only set minimum dependency versions when a required API or known

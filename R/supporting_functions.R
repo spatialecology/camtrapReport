@@ -534,6 +534,31 @@
     y <- y[keep, , drop = FALSE]
   }
 
+  if (!is.null(class) && nrow(y) > 0L) {
+    missing_class <- if ("class" %in% names(y)) {
+      is.na(y$class) | !nzchar(trimws(as.character(y$class)))
+    } else {
+      rep(TRUE, nrow(y))
+    }
+    if (all(missing_class) ||
+        (any(missing_class) && !any(y$class %in% class))) {
+      stop(
+        "Class-based captures require taxonomic class information. ",
+        "Supply source classifications or explicitly enable GBIF enrichment ",
+        "and rebuild with update = TRUE.",
+        call. = FALSE
+      )
+    }
+    if (any(missing_class)) {
+      warning(
+        "Taxonomic class is missing for some records; class-based capture ",
+        "results may be incomplete. Missing classification is not ecological ",
+        "absence.",
+        call. = FALSE
+      )
+    }
+  }
+
   if (!is.null(class) && "class" %in% names(y)) {
     class <- intersect(class, unique(stats::na.omit(y[["class"]])))
 
@@ -1496,13 +1521,13 @@
   z <- na.omit(z)
   if (dynamic) {
     series <- .eval(
-      'xts(z$nrCams, order.by = z$time, tz = "GMT")',
+      'xts::xts(z$nrCams, order.by = z$time, tz = "GMT")',
       env = environment()
     )
     .eval(
-      "dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |>
-      dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
-      dyRangeSelector()",
+      "dygraphs::dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |>
+      dygraphs::dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |>
+      dygraphs::dyRangeSelector()",
       env = environment()
     )
   } else {

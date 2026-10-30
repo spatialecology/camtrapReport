@@ -1415,12 +1415,12 @@
 
     if (.require("spatstat")) {
       win <- .eval(
-        "owin(xrange = xr, yrange = yr)",
+        "spatstat.geom::owin(xrange = xr, yrange = yr)",
         env = environment()
       )
 
       ppp_obj <- .eval(
-        "ppp(
+        "spatstat.geom::ppp(
           x = coords_xy[['longitude']],
           y = coords_xy[['latitude']],
           window = win
@@ -1429,12 +1429,12 @@
       )
 
       qtest <- .eval(
-        "quadrat.test(ppp_obj, nx = 3, ny = 3)",
+        "spatstat.explore::quadrat.test(ppp_obj, nx = 3, ny = 3)",
         env = environment()
       )
 
       kres <- .eval(
-        "Kest(ppp_obj, correction = 'iso')",
+        "spatstat.explore::Kest(ppp_obj, correction = 'iso')",
         env = environment()
       )
 

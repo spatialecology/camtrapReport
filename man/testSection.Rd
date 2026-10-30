@@ -34,6 +34,11 @@ the
 section text, R Markdown chunk settings, required packages, and R code can be
 rendered successfully.
 
+Declared module packages are checked for availability without being attached
+to the R search path. Use explicit calls such as \code{dplyr::filter()} in custom
+module code instead of relying on the previously automatic attachment of
+declared packages. This requirement also applies when rendering full reports.
+
 The \code{object} argument is only needed when the R code in the section refers to
 a \code{camReport} object.
 }

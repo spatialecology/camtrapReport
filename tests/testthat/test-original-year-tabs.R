@@ -7,6 +7,21 @@ year_tab_test_code <- function(file) {
 
 year_tab_test_expression <- function(x) {
   if (!is.call(x) && !is.expression(x)) return(x)
+  # Namespace qualification must still exercise the existing controlled fits,
+  # plots and failure simulations instead of bypassing those fixture bindings.
+  namespace_mocks <- list(
+    dplyr = c("transmute", "mutate", "left_join"),
+    iNEXT = c("iNEXT", "ggiNEXT"),
+    ggplot2 = c("theme_minimal", "theme", "element_blank", "element_line",
+                "element_text", "labs", "scale_color_manual",
+                "scale_fill_manual", "scale_x_continuous",
+                "scale_y_continuous", "coord_cartesian", "guides",
+                "guide_legend")
+  )
+  if (is.call(x) && identical(x[[1]], as.name("::")) &&
+      as.character(x[[3]]) %in% namespace_mocks[[as.character(x[[2]])]]) {
+    return(x[[3]])
+  }
   if (is.call(x) && identical(x[[1]], as.name("::")) &&
       as.character(x[[2]]) %in% c("leaflet", "htmltools", "tidyr", "grid")) {
     return(as.name(paste0("mock_", x[[2]], "_", x[[3]])))

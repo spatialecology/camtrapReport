@@ -11,9 +11,9 @@ code: |
   # Filter media with favorites
     favoImgs <- object$data$media |>
       dplyr::filter(favourite == TRUE) |>
-      left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') |>
-      left_join(dplyr::select(object$data$taxonomy, taxonID, dplyr::any_of("vernacularNames.eng"), scientificName), by = "taxonID") |>
-      group_by(scientificName)
+      dplyr::left_join(dplyr::select(object$data$observations, c(sequenceID, taxonID)), by = "sequenceID",relationship = 'many-to-many') |>
+      dplyr::left_join(dplyr::select(object$data$taxonomy, taxonID, dplyr::any_of("vernacularNames.eng"), scientificName), by = "taxonID") |>
+      dplyr::group_by(scientificName)
     
     .downloadable <- FALSE
     
@@ -21,12 +21,12 @@ code: |
       if (!is.null(object$setting$focus_groups)) {
         favoImgs <- favoImgs |>
           dplyr::filter(scientificName %in% object$get_speciesNames(object$setting$focus_groups)) |>
-          sample_n(1) |>
-          ungroup()
+          dplyr::sample_n(1) |>
+          dplyr::ungroup()
       } else {
         favoImgs <- favoImgs |>
-          sample_n(1) |>
-          ungroup()
+          dplyr::sample_n(1) |>
+          dplyr::ungroup()
       }
       
       #--------
@@ -35,7 +35,7 @@ code: |
         #--------
         #------
         # CSS for Lightbox Effect 
-        HTML('
+        htmltools::HTML('
         <style>
     /* Lightbox effect */
     .lightbox {
@@ -94,9 +94,9 @@ code: |
               e <- try(download.file(.pic_link, .pic_fn, mode = "wb",quiet = TRUE),silent = TRUE)
               if (!inherits(e,'try-error')) {
                 # Resize and save locally
-                image_read(.pic_fn) |>
-                  image_scale("600") |>
-                  image_write(path =  .pic_fn)
+                magick::image_read(.pic_fn) |>
+                  magick::image_scale("600") |>
+                  magick::image_write(path =  .pic_fn)
                 
                 .downloadable <- TRUE
               }
@@ -123,7 +123,7 @@ code: |
             ", captured at different camera locations within this study site.\n"
           ))
           
-          HTML(html_output)
+          htmltools::HTML(html_output)
         } else {
           cat("As the user did not provide access to their favourite images, no images were selected for the appendix.")
         }

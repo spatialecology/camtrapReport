@@ -215,5 +215,8 @@ test_that("available spatial dependency keeps existing evaluation unchanged", {
     "Existing point-pattern evaluation sentinel.",
     fixed = TRUE
   )
-  expect_identical(state$evaluated, "owin(xrange = xr, yrange = yr)")
+  expect_identical(
+    state$evaluated,
+    "spatstat.geom::owin(xrange = xr, yrange = yr)"
+  )
 })

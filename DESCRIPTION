@@ -2,7 +2,7 @@
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
-Version: 1.0.71
+Version: 1.0.72
 Authors@R: c(
     person(
       given = "Elham",
@@ -49,6 +49,8 @@ Suggests:
     taxize,
     lutz,
     spatstat,
+    spatstat.geom,
+    spatstat.explore,
     camtrapDensity,
     suncalc,
     here

@@ -1,5 +1,5 @@
 
-test_that("taxonomy enrichment defaults preserve the previous import path", {
+test_that("taxonomy enrichment requires explicit consent and preserves data", {
   path <- camtrap_test_dataset()
   require_package <- .require
   
@@ -35,9 +35,15 @@ test_that("taxonomy enrichment defaults preserve the previous import path", {
   expect_null(query_state$queried)
   expect_length(offline$messages, 0L)
   
-  # Default import should invoke GBIF enrichment.
+  # The default is offline even when taxize is available.
+  default <- capture_report_conditions(.read_camdp(path))
+  expect_null(query_state$queried)
+  expect_identical(default$value$data, offline$value$data)
+  expect_length(default$messages, 0L)
+
+  # Only explicit consent invokes GBIF enrichment.
   online <- capture_report_conditions(
-    .read_camdp(path)
+    .read_camdp(path, enrich_taxonomy = TRUE)
   )
   
   expect_setequal(
@@ -96,10 +102,9 @@ test_that("offline import does not even check or invoke taxize", {
     .package = "camtrapReport"
   )
   
-  value <- .read_camdp(
-    camtrap_test_dataset(),
-    enrich_taxonomy = FALSE
-  )
+  value <- .read_camdp(camtrap_test_dataset())
+  explicit <- .read_camdp(camtrap_test_dataset(), enrich_taxonomy = FALSE)
+  expect_identical(value$data, explicit$data)
   
   expect_true(
     nrow(value$data$observations) > 0L
@@ -119,6 +124,7 @@ test_that("offline import does not even check or invoke taxize", {
 test_that("camData forwards explicit and default taxonomy choices", {
   selection_state <- new.env(parent = emptyenv())
   selection_state$selected <- NULL
+  original_reader <- .read_camdp
   
   testthat::local_mocked_bindings(
     .read_camdp = function(file, enrich_taxonomy, overwrite = FALSE) {
@@ -131,7 +137,7 @@ test_that("camData forwards explicit and default taxonomy choices", {
   
   path <- camtrap_test_dataset()
   
-  # Default should enable taxonomy enrichment.
+  # Default must not enable taxonomy enrichment.
   expect_error(
     suppressMessages(
       camData(path, update = TRUE)
@@ -142,16 +148,16 @@ test_that("camData forwards explicit and default taxonomy choices", {
   
   expect_identical(
     selection_state$selected,
-    TRUE
+    FALSE
   )
   
-  # Explicit FALSE should disable enrichment.
+  # Explicit TRUE authorizes enrichment.
   expect_error(
     suppressMessages(
       camData(
         path,
         update = TRUE,
-        enrich_taxonomy = FALSE
+        enrich_taxonomy = TRUE
       )
     ),
     "Reader forwarding probe",
@@ -160,8 +166,14 @@ test_that("camData forwards explicit and default taxonomy choices", {
   
   expect_identical(
     selection_state$selected,
-    FALSE
+    TRUE
   )
+
+  expect_error(
+    suppressMessages(camData(path, update = TRUE, enrich_taxonomy = FALSE)),
+    "Reader forwarding probe", fixed = TRUE
+  )
+  expect_identical(selection_state$selected, FALSE)
   
   # Invalid arguments must be rejected.
   for (invalid in list(
@@ -169,6 +181,11 @@ test_that("camData forwards explicit and default taxonomy choices", {
   )) {
     expect_error(
       camData(path, enrich_taxonomy = invalid),
+      "'enrich_taxonomy' must be TRUE or FALSE",
+      fixed = TRUE
+    )
+    expect_error(
+      original_reader(path, enrich_taxonomy = invalid),
       "'enrich_taxonomy' must be TRUE or FALSE",
       fixed = TRUE
     )

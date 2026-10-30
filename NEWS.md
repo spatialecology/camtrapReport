@@ -1,4 +1,24 @@
-# camtrapReport 1.0.71 (development version)
+# camtrapReport 1.0.72 (development version)
+
+- Dependency checks and generated report/module-test setup chunks now load
+  namespaces without automatically attaching packages. Bundled modules use
+  verified namespaces; custom modules relying on automatic attachment must
+  qualify their external calls. The `.eval()` architecture is unchanged.
+- GBIF enrichment is now explicitly opt-in (`enrich_taxonomy = FALSE`), including
+  the GUI. Preserve source taxonomy and fill missing classes/orders only after
+  reliable matches; warn concisely for incomplete or failed lookups. Cached
+  processed objects are reused unchanged. Timeout limitations are documented.
+- Declare the already-required spatstat component providers of point-pattern
+  functions as optional dependencies; the umbrella package remains optional.
+- Added regression tests and baseline comparisons for namespace-only imports,
+  module rendering, source-taxonomy integrity, consent and cache reuse.
+- Setup now explains when class-based summaries may be incomplete. Explicit
+  class-based capture requests stop if class metadata is unavailable or no
+  verified match exists in incomplete metadata, rather than silently returning
+  unfiltered counts, and warn for partial metadata with verified matches.
+  Existing grouping definitions, filters and numerical methods are unchanged.
+
+# camtrapReport 1.0.71
 
 - Added explicit warnings naming unknown sections in partially valid report
   selections, without changing which valid sections are attached.

@@ -141,7 +141,7 @@
     integer(1)
   )
 
-  if (all(w == 0)) {
+  result <- if (all(w == 0)) {
     dplyr::bind_rows(lapply(x, function(z) {
       .x <- strsplit(z$taxonID, "/", fixed = TRUE)[[1]]
 
@@ -154,6 +154,9 @@
         taxonRank = z$taxonRank,
         stringsAsFactors = FALSE
       )
+
+      source_class <- .taxonomy_scalar(z$class)
+      if (!is.na(source_class)) .x$class <- source_class
 
       if (length(z$vernacularNames) > 0) {
         .x[["vernacularNames"]] <- z$vernacularNames
@@ -214,6 +217,8 @@
       .x$scientificName <- z$scientificName
       .x$family <- z$family
       .x$order <- z$order
+      source_class <- .taxonomy_scalar(z$class)
+      if (!is.na(source_class)) .x$class <- source_class
       .x$taxonRank <- z$taxonRank
 
       if (length(z$vernacularNames) > 0) {
@@ -240,13 +245,34 @@
   } else {
     data.frame()
   }
+
+  # Preserve additional classification ranks, not arbitrary observation fields.
+  ranks <- c("kingdom", "phylum", "subphylum", "superclass", "subclass",
+             "infraclass", "superorder", "suborder", "infraorder",
+             "superfamily", "subfamily", "tribe", "subtribe", "genus",
+             "subgenus", "specificEpithet", "infraspecificEpithet",
+             "taxonomicStatus")
+  extra <- intersect(ranks, unique(unlist(lapply(x, names))))
+  for (field in extra) {
+    values <- lapply(x, function(z) z[[field]])
+    if (all(vapply(values, function(z) {
+      is.null(z) || (is.atomic(z) && length(z) == 1L)
+    }, logical(1)))) {
+      result[[field]] <- vapply(values, .taxonomy_scalar, character(1))
+    }
+  }
+  result
 }
 
 #--------
 
 .read_camdp <- function(
-  file, path = NULL, tz = "", enrich_taxonomy = TRUE, overwrite = FALSE
+  file, path = NULL, tz = "", enrich_taxonomy = FALSE, overwrite = FALSE
 ) {
+  if (!is.logical(enrich_taxonomy) || length(enrich_taxonomy) != 1L ||
+      is.na(enrich_taxonomy)) {
+    stop("'enrich_taxonomy' must be TRUE or FALSE.", call. = FALSE)
+  }
   if (!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) {
     stop("'overwrite' must be TRUE or FALSE.", call. = FALSE)
   }
@@ -668,25 +694,24 @@
     .d$taxonomy$order[.d$taxonomy$order == ""] <- NA
   }
 
-  if (isTRUE(enrich_taxonomy) && .require("taxize")) {
-    message(
-      "Taxonomy enrichment sends scientific names to GBIF via taxize. ",
-      "Use enrich_taxonomy = FALSE to disable these network requests."
-    )
-    .w <- .getMissingTaxon_GBIF(
-      .d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)]
-    )
-
-    for (i in seq_len(nrow(.w))) {
-      w <- which(.d$taxonomy$scientificName == .w$scientificName[i])
-      .d$taxonomy[w, "class"] <- .w$class[i]
-
-      if (is.na(.d$taxonomy[w, "order"])) {
-        .d$taxonomy[w, "order"] <- .w$order[i]
-      }
+  if (isTRUE(enrich_taxonomy)) {
+    if (.require("taxize")) {
+      message(
+        "Taxonomy enrichment sends scientific names to GBIF via taxize. ",
+        "Use enrich_taxonomy = FALSE to disable these network requests."
+      )
+      .w <- .getMissingTaxon_GBIF(
+        .d$taxonomy$scientificName[!is.na(.d$taxonomy$scientificName)]
+      )
+      .d$taxonomy <- .fill_missing_taxonomy(.d$taxonomy, .w)
+    } else {
+      warning(
+        "GBIF taxonomy enrichment was requested but 'taxize' is not ",
+        "installed; source taxonomy has been retained. Install 'taxize' ",
+        "and rerun with update = TRUE to enrich a cached dataset.",
+        call. = FALSE
+      )
     }
-
-    rm(.w, w)
   }
 
   if ("taxonID" %in% names(.d$observations)) {
@@ -711,7 +736,7 @@
 #--------
 setGeneric(
   "camData",
-  function(data, habitat, study_area, update, enrich_taxonomy = TRUE, ...,
+  function(data, habitat, study_area, update, enrich_taxonomy = FALSE, ...,
            overwrite = FALSE) {
     methods::standardGeneric("camData")
   }
@@ -790,9 +815,9 @@ setGeneric(
 #'   path, a `SpatVector`, or an `sf` object. The default is `NULL`.
 #' @param update A logical value (default `FALSE`) specifying whether to
 #'   recreate a previously saved `camReport` object.
-#' @param enrich_taxonomy A single logical value (default `TRUE`) allowing GBIF
+#' @param enrich_taxonomy A single logical value (default `FALSE`) allowing GBIF
 #'   taxonomy enrichment when the optional `taxize` package is installed.
-#'   Set to `FALSE` to prevent these network requests. This affects fresh
+#'   Only explicit `TRUE` permits these network requests. This affects fresh
 #'   imports; use `update = TRUE` to rebuild a previously cached object.
 #' @param ... Additional arguments. These are currently reserved for future use.
 #' @param overwrite A single logical value (default `FALSE`) allowing a ZIP
@@ -858,21 +883,42 @@ setGeneric(
 #' security sandbox or complete protection against malicious archives.
 #'
 #' @section Optional taxonomy enrichment:
-#' With `enrich_taxonomy = TRUE` and `taxize` installed, a fresh import sends
-#' scientific names to GBIF to supply class and missing order information.
-#' A message announces this network access. The default preserves the previous
-#' import behaviour; requests can affect import time, privacy and reproducibility.
-#' Use `enrich_taxonomy = FALSE` for offline or confidential species lists.
-#' No GBIF taxonomy request is made with that setting, or without `taxize`.
-#' No new timeout is imposed on the existing taxize workflow.
+#' The default `enrich_taxonomy = FALSE` never initiates GBIF taxonomy requests,
+#' whether or not `taxize` is installed. With explicit `enrich_taxonomy = TRUE`
+#' and `taxize` installed, a fresh import sends scientific names to GBIF to fill
+#' missing class and order information. A message announces this network access.
+#' Requests can affect import time, privacy and reproducibility. Source-provided
+#' names, identifiers and valid classifications are retained; external results
+#' fill only missing values after an unambiguous identifier and name match.
+#' Existing normalization of taxon-ID URLs to their last path component is
+#' unchanged; the original metadata remain available in `object$info$json`.
+#' Ambiguous, unmatched or incomplete results remain missing, with a concise
+#' warning that does not list the species inventory. Optional lookup failures
+#' do not prevent import of the underlying data.
+#'
+#' No package-level timeout or complete-operation time limit is imposed.
+#' The supported `taxize` lookup stages do not offer one consistently verified
+#' end-to-end timeout interface; R's global `timeout` option is not a guarantee
+#' for these HTTP requests. For predictable offline operation, leave enrichment
+#' disabled and supply adequate taxonomy in `datapackage.json`.
 #'
 #' Without enrichment, imported species names, families, orders and counts are
-#' retained, but taxonomic classes may be unavailable. Groups defined by class
+#' retained, including classes when supplied in the source. Taxonomic classes
+#' may otherwise be unavailable. Groups defined by class
 #' (for example `wild_mammals`, birds, reptiles or amphibians) may then be absent.
+#' Setup reports missing classifications; existing mammal-count summaries can
+#' be incomplete and must not be interpreted as ecological absence. Explicit
+#' class-based capture requests require available class metadata with a verified
+#' match when classification is incomplete; otherwise they stop with a clear
+#' error. Partial metadata with verified matches produces a warning.
 #' Default
 #' order-based groups remain usable when the source supplies the relevant
 #' orders. This option does not remove taxonomy already present in a reused
-#' cache. Preserve the processed object and package versions used in analyses.
+#' cache. Reusing `__camReport_Object.rds` does not query GBIF, even if the
+#' enrichment setting changes; use `update = TRUE` to rebuild with that setting.
+#' This is a processed-object cache, not a cache of individual GBIF responses.
+#' Remote taxonomy can change between fresh lookups. Preserve the source data,
+#' processed object and package versions used in analyses.
 #'
 #' @section Study areas that change over time:
 #' `study_area` accepts one boundary per object. Multiple Shiny uploads are
@@ -886,7 +932,7 @@ setGeneric(
 #' @seealso [report()], [status()], [info()], [gui()]
 #' @family camtrapReport data
 #'
-#' @usage camData(data, habitat, study_area, update, enrich_taxonomy = TRUE,
+#' @usage camData(data, habitat, study_area, update, enrich_taxonomy = FALSE,
 #'   ..., overwrite = FALSE)
 #' @rdname camData
 #' @aliases camData
@@ -918,13 +964,13 @@ setMethod(
   signature(data = "character"),
   function(
     data, habitat, study_area = NULL, update = FALSE,
-    enrich_taxonomy = TRUE, ..., overwrite = FALSE
+    enrich_taxonomy = FALSE, ..., overwrite = FALSE
   ) {
     if (missing(update)) {
       update <- FALSE
     }
     if (missing(enrich_taxonomy)) {
-      enrich_taxonomy <- TRUE
+      enrich_taxonomy <- FALSE
     }
     if (missing(overwrite)) {
       overwrite <- FALSE

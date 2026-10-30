@@ -26,6 +26,9 @@ setGeneric("gui", function(object, launch.browser, max_upload_mb, ...) {
 #' R working directory.
 #' ZIP imports have a separate, initially unchecked permission to overwrite an
 #' existing extraction directory; see [camData()] for its location and limits.
+#' GBIF taxonomy enrichment is also initially unchecked. Selecting it permits
+#' sending scientific names to GBIF when importing fresh data with `taxize`
+#' installed. Loading an existing processed-object cache does not enrich it.
 #'
 #' @param object A [`camReport`][camReport-classes] object, usually created with
 #'   [camData()].
@@ -562,6 +565,19 @@ setMethod(
           "permission is separate from overwriting report output."
         ),
 
+        shiny::checkboxInput(
+          "enrich_taxonomy",
+          "Enrich missing taxonomy using GBIF (optional taxize package)",
+          value = FALSE
+        ),
+
+        shiny::helpText(
+          "Opting in sends scientific names to GBIF for fresh imports. ",
+          "Source classifications are retained. Existing processed-object ",
+          "caches are reused unchanged; use camData(update = TRUE, ",
+          "enrich_taxonomy = TRUE) in R to rebuild an existing cache."
+        ),
+
         shiny::textInput(
           "habitat_csv_path",
           "Optional habitat CSV path",
@@ -1015,12 +1031,14 @@ setMethod(
               data = zip_path,
               habitat = habitat,
               study_area = study_area,
+              enrich_taxonomy = isTRUE(input$enrich_taxonomy),
               overwrite = overwrite_dataset
             )
           } else {
             camData(
               data = zip_path,
               habitat = habitat,
+              enrich_taxonomy = isTRUE(input$enrich_taxonomy),
               overwrite = overwrite_dataset
             )
           }

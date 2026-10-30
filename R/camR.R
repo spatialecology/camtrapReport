@@ -122,7 +122,7 @@
 .make_package_loader_chunk <- function(
   pkgs,
   core = "knitr",
-  attach_packages = TRUE
+  attach_packages = FALSE
 ) {
   pkgs <- unique(c(.normalize_packages(core), .normalize_packages(pkgs)))
 
@@ -741,7 +741,7 @@ camR <- setRefClass(
             }
             .ww <- max(.ww)
             .ww <- .ww + (.ww * 0.1)
-            .crop <- buffer(.crop, .ww)
+            .crop <- terra::buffer(.crop, .ww)
           }
         }
 
@@ -784,19 +784,25 @@ camR <- setRefClass(
       yr[1] <- yr[1] - .w
       yr[2] <- yr[2] + .w
       #------
-      .win <- .eval("owin(xrange = xr, yrange = yr)", env = environment())
+      .win <- .eval(
+        "spatstat.geom::owin(xrange = xr, yrange = yr)",
+        env = environment()
+      )
       .ppp_obj <- .eval(
-        "ppp(x = x$x, y=x$y,window= .win,marks=x$total_observations)",
+        paste0(
+          "spatstat.geom::ppp(x = x$x, y=x$y,window= .win,",
+          "marks=x$total_observations)"
+        ),
         env = environment()
       )
       den <- density(.ppp_obj, weights = x$total_observations)
       den$v <- den$v / max(den$v, na.rm = TRUE)
       r <- rast(den)
-      crs(r) <- .crs
+      terra::crs(r) <- .crs
       names(r) <- 'spatial_density'
       #----
       if (!is.null(.crop)) {
-        r <- crop(r, .crop, mask = TRUE)
+        r <- terra::crop(r, .crop, mask = TRUE)
       }
       r
     },
@@ -2154,6 +2160,23 @@ camR <- setRefClass(
       # reportObjects fields remain transient trees assembled for rendering.
       .self$reportObjectElements$Profiles <- .read_profiles()
 
+      .taxonomy <- .self$data$taxonomy
+      .recorded <- .taxonomy$scientificName %in%
+        .self$data$observations$scientificName &
+        grepl(" ", .taxonomy$scientificName, fixed = TRUE)
+      .missing_class <- is.na(.taxonomy$class) |
+        !nzchar(trimws(as.character(.taxonomy$class)))
+      .n_missing <- sum(.recorded & .missing_class)
+      if (.n_missing > 0L) {
+        message(
+          "Taxonomic class is unavailable for ", .n_missing,
+          " recorded taxa. Class-dependent groups and mammal counts may be ",
+          "incomplete; missing classification does not indicate ecological ",
+          "absence. Supply source classifications or explicitly enable GBIF ",
+          "enrichment and rebuild with update = TRUE."
+        )
+      }
+
       message('Setup is done!')
     },
     show = function() {
@@ -3487,7 +3510,9 @@ camR <- setRefClass(
       render_env <- .make_render_env(.self)
 
       module_pkgs <- .collect_module_packages(.self$reportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
+      pkg_chunk <- .make_package_loader_chunk(
+        module_pkgs, core = "knitr", attach_packages = FALSE
+      )
 
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)
@@ -3585,7 +3610,9 @@ output:
       render_env <- .make_render_env(.self)
 
       module_pkgs <- .collect_module_packages(.self$statusReportObjects)
-      pkg_chunk <- .make_package_loader_chunk(module_pkgs, core = "knitr")
+      pkg_chunk <- .make_package_loader_chunk(
+        module_pkgs, core = "knitr", attach_packages = FALSE
+      )
 
       style_block <- .report_css_block()
       logo_block <- .report_logo_block(.self$logoPath)

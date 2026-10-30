@@ -24,7 +24,8 @@ test_that("taxonomy lookup helpers handle identifier lookup failures", {
     .package = "camtrapReport"
   )
 
-  gbif <- .getMissingTaxon_GBIF("Vulpes vulpes")
+  expect_warning(gbif <- .getMissingTaxon_GBIF("Vulpes vulpes"),
+                 "incomplete for 1 of 1", fixed = TRUE)
   ncbi <- .getMissingTaxon_NCBI("Vulpes vulpes")
 
   expect_named(gbif, c("scientificName", "class", "order"))

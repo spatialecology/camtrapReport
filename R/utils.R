@@ -73,28 +73,7 @@
     return(FALSE)
   }
 
-  if (!requireNamespace(x, quietly = TRUE)) {
-    return(FALSE)
-  }
-
-  ok <- suppressWarnings(
-    suppressMessages(
-      suppressPackageStartupMessages(
-        # Module code may use unqualified functions, so optional module
-        # dependencies must be attached after their namespaces are verified.
-        # nolint start
-        require(
-          x,
-          character.only = TRUE,
-          quietly = TRUE,
-          warn.conflicts = FALSE
-        )
-        # nolint end
-      )
-    )
-  )
-
-  isTRUE(ok)
+  isTRUE(requireNamespace(x, quietly = TRUE))
 }
 
 #--------

@@ -6,7 +6,7 @@ text: "Sampling effort refers to the total number of camera trap operational day
 code: |
   #| name: camera_locations_leaflet
   #| setting: echo=FALSE,results="asis",message=FALSE, warning=FALSE
-  #| packages: dygraphs, xts, dplyr, htmlwidgets
+  #| packages: dygraphs, xts, dplyr, htmlwidgets, htmltools
   
   
   .camera_summary_text <- lapply(seq_len(nrow(object$camera_stats)), function(i) {
@@ -75,9 +75,9 @@ code: |
   
   # Generate Dygraph
   plot_test <- .plot_effort(object) |>
-    dyAxis("x", label = "Time") |>
-    dyAxis("y", label = "Active Camera Count") |>
-    dyOptions(fillGraph = TRUE, colors = "#033800FF") |>
+    dygraphs::dyAxis("x", label = "Time") |>
+    dygraphs::dyAxis("y", label = "Active Camera Count") |>
+    dygraphs::dyOptions(fillGraph = TRUE, colors = "#033800FF") |>
     dygraphs::dyRangeSelector()
   
   # Check if the plot is valid
@@ -88,12 +88,12 @@ code: |
     htmlwidgets::saveWidget(plot_test, file = temp_file, selfcontained = TRUE)
     
     # Embed iframe inside a **plain gray box (no shadow)**
-    tags$div(
+    htmltools::tags$div(
       style = "border: 1px solid #ccc; 
              background-color: #f0f0f0; 
              padding: 15px; 
              border-radius: 5px;",
-      tags$iframe(
+      htmltools::tags$iframe(
         srcdoc = paste(readLines(temp_file), collapse = "\n"),
         width = "100%", height = "500px",
         style = "border: none;"

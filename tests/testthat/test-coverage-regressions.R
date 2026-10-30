@@ -201,13 +201,16 @@ test_that("taxonomy helpers can be tested without remote services", {
   classification <- function(database) {
     if (identical(database, "gbif")) {
       return(list(
-        first = data.frame(
-          rank = c("kingdom", "phylum", "class", "order"),
-          name = c("Animalia", "Chordata", "Mammalia", "Carnivora"),
+        `1` = data.frame(
+          rank = c("kingdom", "phylum", "class", "order", "species"),
+          name = c("Animalia", "Chordata", "Mammalia", "Carnivora",
+                   "Species one"),
+          id = c("11", "12", "13", "14", "1"),
           stringsAsFactors = FALSE
         ),
-        second = data.frame(
+        `2` = data.frame(
           name = c("Animalia", "Chordata", "Aves", "Passeriformes"),
+          id = c("21", "22", "23", "2"),
           stringsAsFactors = FALSE
         )
       ))
@@ -230,9 +233,14 @@ test_that("taxonomy helpers can be tested without remote services", {
     .require = function(...) TRUE,
     .eval = function(code, env) {
       if (grepl("get_gbifid|get_uid", code)) {
+        identifiers <- if (grepl("get_gbifid", code)) {
+          as.character(match(env$.name, c("Species one", "Species two")))
+        } else {
+          c("1", "2")
+        }
         return(
           data.frame(
-            ids = c("1", "2"),
+            ids = identifiers,
             stringsAsFactors = FALSE
           )
         )
@@ -245,11 +253,15 @@ test_that("taxonomy helpers can be tested without remote services", {
     .package = "camtrapReport"
   )
   
-  gbif <- .getMissingTaxon_GBIF(c("Species one", "Species two"))
+  expect_warning(
+    gbif <- .getMissingTaxon_GBIF(c("Species one", "Species two")),
+    "incomplete for 1 of 2", fixed = TRUE
+  )
   ncbi <- .getMissingTaxon_NCBI(c("Species one", "Species two"))
   
-  expect_identical(gbif$class, c("Mammalia", "Aves"))
-  expect_identical(gbif$order, c("Carnivora", "Passeriformes"))
+  # Row positions are not evidence of taxonomic rank.
+  expect_identical(gbif$class, c("Mammalia", NA_character_))
+  expect_identical(gbif$order, c("Carnivora", NA_character_))
   expect_identical(ncbi$class, c("Mammalia", NA_character_))
   expect_identical(ncbi$order, c("Carnivora", NA_character_))
 })
@@ -273,7 +285,8 @@ test_that("taxonomy helpers return safe failures from mocked lookups", {
     },
     .package = "camtrapReport"
   )
-  gbif <- .getMissingTaxon_GBIF("Toy species")
+  expect_warning(gbif <- .getMissingTaxon_GBIF("Toy species"),
+                 "incomplete for 1 of 1", fixed = TRUE)
   ncbi <- .getMissingTaxon_NCBI("Toy species")
   expect_true(is.na(gbif$class))
   expect_true(is.na(ncbi$order))

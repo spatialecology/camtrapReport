@@ -32,11 +32,4 @@ See \code{\link[=install_all]{install_all()}}.
 \code{install_All()} is retained for backward compatibility. Use
 \code{\link[=install_all]{install_all()}} for new code.
 }
-\examples{
-# Deprecated compatibility alias; prefer install_all().
-# Installation is intentionally not performed in non-interactive checks.
-if (interactive()) {
-  install_All()
-}
-}
 \keyword{internal}

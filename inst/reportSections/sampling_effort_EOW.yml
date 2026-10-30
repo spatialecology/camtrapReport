@@ -34,13 +34,13 @@ code: |
       
       if (dynamic) {
           series <- .eval(
-              'xts(z$nrCams, order.by = z$time, tz = "GMT")',
+              'xts::xts(z$nrCams, order.by = z$time, tz = "GMT")',
               env = environment()
           )
           .eval(
-              "dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |>
-        dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |> 
-        dyRangeSelector()",
+              "dygraphs::dygraph(series, main = main, xlab = xlab, ylab = ylab, ...) |>
+        dygraphs::dyOptions(fillGraph = TRUE, fillAlpha = 0.4) |>
+        dygraphs::dyRangeSelector()",
               env = environment()
           )
       } else {

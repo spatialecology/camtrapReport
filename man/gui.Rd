@@ -43,6 +43,9 @@ the overwrite checkbox is selected. Generating output does not change the
 R working directory.
 ZIP imports have a separate, initially unchecked permission to overwrite an
 existing extraction directory; see \code{\link[=camData]{camData()}} for its location and limits.
+GBIF taxonomy enrichment is also initially unchecked. Selecting it permits
+sending scientific names to GBIF when importing fresh data with \code{taxize}
+installed. Loading an existing processed-object cache does not enrich it.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
