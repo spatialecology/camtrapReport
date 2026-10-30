@@ -3462,7 +3462,20 @@ camR <- setRefClass(
         # The caller inspects .added to determine whether insertion succeeded.
       }
     },
-    get_data_subset = function(year = 2023) {
+    # Subset data by deployment-start year.
+    #
+    # The `year` argument selects deployments using the `Year` field,
+    # which is derived from the deployment start date.
+    #
+    # All associated media, observations, sequences, locations, and
+    # taxonomy records are retained without temporal filtering.
+    # Consequently, deployments spanning calendar-year boundaries
+    # remain intact, including observations recorded in subsequent years.
+    #
+    # This function returns deployment-start-year subsets rather than
+    # strict calendar-year subsets. Other analyses may use observation
+    # timestamps directly to define annual records.
+    get_data_subset = function(year = 2023) {  
       .w <- which(.self$data$deployments$Year == year)
       if (length(.w) == 0L) {
         stop("No deployments found for year ", toString(year), ".",
