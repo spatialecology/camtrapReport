@@ -20,3 +20,5 @@
 ^Meta$
 ^\.pre-commit-config\.yaml$
 ^\.devcontainer$
+^Veluwe-2026$
+^Package[.]Rproj$

@@ -32,4 +32,11 @@ See \code{\link[=install_all]{install_all()}}.
 \code{install_All()} is retained for backward compatibility. Use
 \code{\link[=install_all]{install_all()}} for new code.
 }
+\examples{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+# Compatibility alias: installs optional module dependencies.
+# Prefer install_all() in new scripts.
+install_All()
+\dontshow{\}) # examplesIf}
+}
 \keyword{internal}

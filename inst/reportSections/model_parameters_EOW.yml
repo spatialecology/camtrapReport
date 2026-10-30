@@ -64,13 +64,13 @@ code: |
       ) |>
       dplyr::arrange(.data$Species, .data$Year, .data$Parameter)
 
-    # print(knitr::kable(
-    #   parameter_table,
-    #   caption = paste0(
-    #     "Year-specific REM parameter and density estimates. ",
-    #     "Each species-year was fitted independently."
-    #   ),
-    #   row.names = FALSE
-    # ))
+    print(knitr::kable(
+      parameter_table,
+      caption = paste0(
+        "Year-specific REM parameter and density estimates. ",
+        "Each species-year was fitted independently."
+      ),
+      row.names = FALSE
+    ))
   }
 ---

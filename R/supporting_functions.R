@@ -1750,11 +1750,9 @@
   #------
   if (!all(is.na(cm$reportObjectElements$Modules_info$tested))) {
     .w <- cm$reportObjectElements$Modules_info$tested
-    .w <- sort(c(which(is.na(.w)), which(.w[!is.na(.w)])))
-    if (length(.w) > 0) {
-      .w <- cm$reportObjectElements$Modules_info$name[.w]
-      n <- n[n %in% .w]
-    }
+    .w <- which(is.na(.w) | .w)
+    .w <- cm$reportObjectElements$Modules_info$name[.w]
+    n <- n[n %in% .w]
   }
   #---------
   mods <- cm$reportObjectElements$Modules[n]
@@ -1785,11 +1783,9 @@
   #------
   if (!all(is.na(cm$reportObjectElements$Status_modules_info$tested))) {
     .w <- cm$reportObjectElements$Status_modules_info$tested
-    .w <- sort(c(which(is.na(.w)), which(.w[!is.na(.w)])))
-    if (length(.w) > 0) {
-      .w <- cm$reportObjectElements$Status_modules_info$name[.w]
-      n <- n[n %in% .w]
-    }
+    .w <- which(is.na(.w) | .w)
+    .w <- cm$reportObjectElements$Status_modules_info$name[.w]
+    n <- n[n %in% .w]
   }
   #---------
   mods <- cm$reportObjectElements$Status_modules[n]

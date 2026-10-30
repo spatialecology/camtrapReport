@@ -106,9 +106,7 @@ test_that("offline import does not even check or invoke taxize", {
   explicit <- .read_camdp(camtrap_test_dataset(), enrich_taxonomy = FALSE)
   expect_identical(value$data, explicit$data)
   
-  expect_true(
-    nrow(value$data$observations) > 0L
-  )
+  expect_gt(nrow(value$data$observations), 0L)
   
   expect_true(
     all(is.na(value$data$taxonomy$class))

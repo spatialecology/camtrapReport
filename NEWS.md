@@ -1,5 +1,15 @@
 # camtrapReport 1.0.72 (development version)
 
+- Preserve original module indices when cached test results mix untested,
+  passing, and failing modules; exclude all modules when all cached tests fail.
+- Correct the documented taxonomy default, report destinations, overwrite
+  protection, profile-specific selection examples, and module source links.
+- Add a guarded example for the legacy installer. Existing public names and
+  ecological calculations are retained.
+- Restore display of the computed EOW annual REM parameter table and clarify
+  the default REM narrative's description of encounter rate and detection
+  geometry. Estimators, fitted values and parameters are unchanged.
+
 - Dependency checks and generated report/module-test setup chunks now load
   namespaces without automatically attaching packages. Bundled modules use
   verified namespaces; custom modules relying on automatic attachment must

@@ -222,7 +222,7 @@ test_that("changes after parsing do not become a falsely fresh snapshot", {
     original_size
   )
   expect_false(identical(unname(file.info(source)$size), original_size))
-  expect_true(length(imported$json$taxonomic) > 0L)
+  expect_gt(length(imported$json$taxonomic), 0L)
 
   object <- camR$new()
   object$info$source_file_metadata <- snapshot

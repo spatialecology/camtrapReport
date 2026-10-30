@@ -29,10 +29,11 @@ First create a `camReport` object using `camData()` (see [Get Started](../index.
 library(camtrapReport)
 
 # General ecological report (default profile)
-report(cm, view = TRUE)
+report(cm, filename = "ecological_default", view = TRUE)
 
 # EOW-oriented ecological report
-report(cm, profile = "EOW", view = TRUE, format = "PDF")
+report(cm, filename = "ecological_EOW", profile = "EOW",
+       view = TRUE, format = "PDF")
 ```
 
 ## Explore available modules
@@ -60,7 +61,7 @@ brief <- reportProfile(
 
 # Register and use the profile
 add_profile(cm, brief)
-report(cm, profile = "brief", view = FALSE)
+report(cm, filename = "ecological_brief", profile = "brief", view = FALSE)
 
 # Save and reuse with another dataset
 write_profile(brief, "brief.yml")

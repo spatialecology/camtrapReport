@@ -89,7 +89,7 @@ report(cm, view = TRUE)   # Generate and open the Ecological Report
 
 ### Save the report
 
-By default, the report is saved to a temporary directory. Use `filename` to specify an output location and `view = FALSE` to generate the report without opening it.
+By default, the report is saved in `cm$info$directory`, the object's data directory. Use `filename` to specify an output location and `view = FALSE` to generate the report without opening it. The destination directory must already exist.
 
 ```{r ecological-report-output-path, eval=FALSE}
 dir.create("reports", recursive = TRUE, showWarnings = FALSE)
@@ -101,7 +101,7 @@ report_file <- report(
 )
 ```
 
-**Note:** Existing reports with the same filename may be overwritten. Use versioned filenames to preserve outputs from different monitoring rounds or analyses.
+**Note:** Existing output files and intermediate R Markdown sources are protected by default (`overwrite = FALSE`). Use distinct filenames for different reports, or set `overwrite = TRUE` explicitly when replacement is intended.
 
 ### Report content and customisation
 
@@ -410,19 +410,20 @@ Select the analyses and sections to include in the final report.
 
 ```{r ecological-report-select-sections, eval=FALSE}
 # Inspect available sections
-section_names()
+section_names(object = cm, profile = "default")
 listReportSections(cm)
 
 # Exclude selected analyses
 selected <- section_names(
+  object = cm, profile = "default",
   exclude = c("richness", "co_occurrence")
 )
 
 # Apply the configuration
-sections(cm, selected)
+sections(cm, selected, profile = "default")
 
 # Generate the customised report
-report(cm, view = TRUE)
+report(cm, filename = "ecological_custom", view = TRUE)
 
 # To reset the section configuration, reapply the original profile
 # or a previously saved selection of sections.

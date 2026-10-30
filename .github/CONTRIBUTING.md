@@ -216,6 +216,7 @@ so that contributions are easier to review.
 
 Some exported function names use camel case or underscores because they are part
 of the established public API. Keep those names for backward compatibility.
+Use `snake_case` for new exported functions.
 Use clear, consistent names for new internal helpers and avoid renaming existing
 functions as part of an unrelated change.
 

@@ -2,7 +2,8 @@ test_that("the default module loader checks namespaces without attachment", {
   loader <- .make_package_loader_chunk(
     c("knitr", "dplyr, knitr", "dplyr"), core = "knitr"
   )
-  expect_identical(report_test_loader_packages(strsplit(loader, "\n")[[1L]]),
+  expect_identical(report_test_loader_packages(
+    strsplit(loader, "\n", fixed = TRUE)[[1L]]),
                    c("knitr", "dplyr"))
   expect_no_match(loader, "library\\(|require\\(|attach\\(")
 

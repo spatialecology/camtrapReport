@@ -250,7 +250,8 @@ test_that("failed annual accumulation fits stay in their own year tabs", {
     envir = context$env
   ))
   expect_identical(year_tab_test_headings(output), c("Comparison", "2025", "2022"))
-  error_line <- grep("iNEXT failed for year 2022: known annual failure", output)
+  error_line <- grep("iNEXT failed for year 2022: known annual failure",
+                     output, fixed = TRUE)
   expect_length(error_line, 1L)
   expect_gt(error_line, grep("^### 2022 ", output))
 })

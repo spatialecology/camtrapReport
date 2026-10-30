@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -164,9 +164,9 @@ camtrapReport
 <span><span class="co">#&gt; The camReport object is being created...</span></span>
 <span><span class="co">#&gt; Dataset size: 6.6 MB.</span></span>
 <span><span class="co">#&gt; File size looks modest, but full object creation may still take several minutes depending on the number of records.</span></span>
-<span><span class="co">#&gt; Taxonomy enrichment sends scientific names to GBIF via taxize. Use enrich_taxonomy = FALSE to disable these network requests.</span></span>
+<span><span class="co">#&gt; Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span></span>
 <span><span class="co">#&gt; Setup is done!</span></span>
-<span><span class="co">#&gt; Data loaded successfully in 28 sec.</span></span>
+<span><span class="co">#&gt; Data loaded successfully in 30 sec.</span></span>
 <span><span class="co">#&gt; camReport object is ready for GMU8 LEUVEN.</span></span>
 <span></span>
 <span><span class="va">cm</span></span>
@@ -247,7 +247,7 @@ camtrapReport
 </h2>
 <p>A completed <strong>Data Status Check</strong> does not establish suitability for ecological inference. Interpret results in light of sampling effort, detectability, spatial and temporal coverage, and method-specific assumptions.</p>
 <p>Retain source data, additional inputs, selected modules, analytical settings, and package versions for reproducibility. Review maps and outputs for sensitive species locations before sharing.</p>
-<p><strong>Taxonomy enrichment:</strong> By default, <code><a href="reference/camData.html">camData()</a></code> may send species names to GBIF to fill missing classifications. Set <code>enrich_taxonomy = FALSE</code> to disable these requests when importing; use <code>update = TRUE</code> to rebuild an existing cache with the revised setting. Missing classifications can affect taxonomic-group filters. See <code><a href="reference/camData.html">?camData</a></code>.</p>
+<p><strong>Taxonomy enrichment:</strong> <code><a href="reference/camData.html">camData()</a></code> defaults to <code>enrich_taxonomy = FALSE</code> and makes no GBIF requests. Set <code>enrich_taxonomy = TRUE</code> explicitly to send species names to GBIF and fill missing classifications; existing source classifications are preserved. Use <code>update = TRUE</code> to rebuild an existing cache with the revised setting. Missing classifications can affect taxonomic-group filters. See <code><a href="reference/camData.html">?camData</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="example-data-provenance">Example-data provenance<a class="anchor" aria-label="anchor" href="#example-data-provenance"></a>

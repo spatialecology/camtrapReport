@@ -540,6 +540,10 @@ setMethod(
 #' @keywords internal
 #' @rdname install-All-legacy
 #' @aliases install_All
+#' @examplesIf interactive()
+#' # Compatibility alias: installs optional module dependencies.
+#' # Prefer install_all() in new scripts.
+#' install_All()
 #' @export
 setGeneric(
   "install_All",

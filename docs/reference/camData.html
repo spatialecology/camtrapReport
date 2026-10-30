@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,8 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">camData</span><span class="op">(</span><span class="va">data</span>, <span class="va">habitat</span>, <span class="va">study_area</span>, <span class="va">update</span>, enrich_taxonomy <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">camData</span><span class="op">(</span><span class="va">data</span>, <span class="va">habitat</span>, <span class="va">study_area</span>, <span class="va">update</span>, enrich_taxonomy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -88,14 +89,21 @@ recreate a previously saved <code>camReport</code> object.</p></dd>
 
 
 <dt id="arg-enrich-taxonomy">enrich_taxonomy<a class="anchor" aria-label="anchor" href="#arg-enrich-taxonomy"></a></dt>
-<dd><p>A single logical value (default <code>TRUE</code>) allowing GBIF
+<dd><p>A single logical value (default <code>FALSE</code>) allowing GBIF
 taxonomy enrichment when the optional <code>taxize</code> package is installed.
-Set to <code>FALSE</code> to prevent these network requests. This affects fresh
+Only explicit <code>TRUE</code> permits these network requests. This affects fresh
 imports; use <code>update = TRUE</code> to rebuild a previously cached object.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments. These are currently reserved for future use.</p></dd>
+
+
+<dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
+<dd><p>A single logical value (default <code>FALSE</code>) allowing a ZIP
+input to replace archived files in an existing extraction directory.
+Other files in that directory are retained. This does not control reuse
+of a cached object when <code>data</code> is already a dataset directory; see <code>update</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -137,9 +145,15 @@ Merely rerunning <code><a href="report.html">status()</a></code> on the old obje
 
 <p><code>camData()</code> writes <code>__camReport_Object.rds</code> beside the extracted data and,
 when a study area is supplied, writes <code>study_area.map</code>. A ZIP input is
-extracted before reading. Use a writable copy of the input dataset, as in
-the examples, rather than an installed package directory. A cached object
-is reused when <code>update = FALSE</code>. Lightweight file-size and modification-time
+extracted before reading into a directory named after the ZIP file (without
+its extension) in the working directory. An existing target is rejected
+unless <code>overwrite = TRUE</code>. Explicit overwriting replaces archived members
+only; unrelated old files remain, and extraction is not transactional.
+A ZIP import reads the extracted files afresh and replaces the saved object
+only after a successful import. Use a writable copy of the input dataset, as
+in the examples, rather than an installed package directory. For directory
+inputs, a cached object is reused when <code>update = FALSE</code>. Lightweight
+file-size and modification-time
 checks warn if the four source CSV/JSON files were changed, added or removed
 in the dataset root or their recorded directories. The cache is still reused;
 use <code>update = TRUE</code> to rebuild it. Older caches without this metadata also
@@ -148,25 +162,51 @@ or reread during this check. Changes that preserve both size and modification
 time, files in previously unknown nested directories, and changes to optional
 <code>habitat</code> or <code>study_area</code> inputs are not detected; rebuild explicitly for these.
 Only load datasets and saved R objects from sources you trust.</p>
+<p>ZIP inventories are checked before extraction for unsafe or ambiguous paths
+and resource limits. The defaults are 100,000 entries (including directories)
+and 20 GiB of total declared uncompressed size. To adjust these limits, set
+<code>options(camtrapReport.max_zip_entries = 100000, camtrapReport.max_zip_bytes = 20 * 1024^3)</code> before import. Each limit must be
+a positive finite number. These checks are practical safeguards, not a
+security sandbox or complete protection against malicious archives.</p>
     </div>
     <div class="section level2">
     <h2 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a></h2>
 
 
-<p>With <code>enrich_taxonomy = TRUE</code> and <code>taxize</code> installed, a fresh import sends
-scientific names to GBIF to supply class and missing order information.
-A message announces this network access. The default preserves the previous
-import behaviour; requests can affect import time, privacy and reproducibility.
-Use <code>enrich_taxonomy = FALSE</code> for offline or confidential species lists.
-No GBIF taxonomy request is made with that setting, or without <code>taxize</code>.
-No new timeout is imposed on the existing taxize workflow.</p>
+<p>The default <code>enrich_taxonomy = FALSE</code> never initiates GBIF taxonomy requests,
+whether or not <code>taxize</code> is installed. With explicit <code>enrich_taxonomy = TRUE</code>
+and <code>taxize</code> installed, a fresh import sends scientific names to GBIF to fill
+missing class and order information. A message announces this network access.
+Requests can affect import time, privacy and reproducibility. Source-provided
+names, identifiers and valid classifications are retained; external results
+fill only missing values after an unambiguous identifier and name match.
+Existing normalization of taxon-ID URLs to their last path component is
+unchanged; the original metadata remain available in <code>object$info$json</code>.
+Ambiguous, unmatched or incomplete results remain missing, with a concise
+warning that does not list the species inventory. Optional lookup failures
+do not prevent import of the underlying data.</p>
+<p>No package-level timeout or complete-operation time limit is imposed.
+The supported <code>taxize</code> lookup stages do not offer one consistently verified
+end-to-end timeout interface; R's global <code>timeout</code> option is not a guarantee
+for these HTTP requests. For predictable offline operation, leave enrichment
+disabled and supply adequate taxonomy in <code>datapackage.json</code>.</p>
 <p>Without enrichment, imported species names, families, orders and counts are
-retained, but taxonomic classes may be unavailable. Groups defined by class
+retained, including classes when supplied in the source. Taxonomic classes
+may otherwise be unavailable. Groups defined by class
 (for example <code>wild_mammals</code>, birds, reptiles or amphibians) may then be absent.
+Setup reports missing classifications; existing mammal-count summaries can
+be incomplete and must not be interpreted as ecological absence. Explicit
+class-based capture requests require available class metadata with a verified
+match when classification is incomplete; otherwise they stop with a clear
+error. Partial metadata with verified matches produces a warning.
 Default
 order-based groups remain usable when the source supplies the relevant
 orders. This option does not remove taxonomy already present in a reused
-cache. Preserve the processed object and package versions used in analyses.</p>
+cache. Reusing <code>__camReport_Object.rds</code> does not query GBIF, even if the
+enrichment setting changes; use <code>update = TRUE</code> to rebuild with that setting.
+This is a processed-object cache, not a cache of individual GBIF responses.
+Remote taxonomy can change between fresh lookups. Preserve the source data,
+processed object and package versions used in analyses.</p>
     </div>
     <div class="section level2">
     <h2 id="study-areas-that-change-over-time">Study areas that change over time<a class="anchor" aria-label="anchor" href="#study-areas-that-change-over-time"></a></h2>
@@ -203,9 +243,9 @@ boundary, or supply a custom module with an explicit year-to-boundary mapping.</
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The camReport object is being created...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 6.6 MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomy enrichment sends scientific names to GBIF via taxize. Use enrich_taxonomy = FALSE to disable these network requests.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 44 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 39 sec.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span></span></span>

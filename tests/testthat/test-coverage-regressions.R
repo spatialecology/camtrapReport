@@ -233,7 +233,7 @@ test_that("taxonomy helpers can be tested without remote services", {
     .require = function(...) TRUE,
     .eval = function(code, env) {
       if (grepl("get_gbifid|get_uid", code)) {
-        identifiers <- if (grepl("get_gbifid", code)) {
+        identifiers <- if (grepl("get_gbifid", code, fixed = TRUE)) {
           as.character(match(env$.name, c("Species one", "Species two")))
         } else {
           c("1", "2")

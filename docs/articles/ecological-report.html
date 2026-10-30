@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -175,9 +175,10 @@ protect the installed package files.</p>
 <div class="section level3">
 <h3 id="save-the-report">Save the report<a class="anchor" aria-label="anchor" href="#save-the-report"></a>
 </h3>
-<p>By default, the report is saved to a temporary directory. Use
-<code>filename</code> to specify an output location and
-<code>view = FALSE</code> to generate the report without opening it.</p>
+<p>By default, the report is saved in <code>cm$info$directory</code>,
+the object’s data directory. Use <code>filename</code> to specify an
+output location and <code>view = FALSE</code> to generate the report
+without opening it. The destination directory must already exist.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"reports"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -186,9 +187,11 @@ protect the installed package files.</p>
 <span>  filename <span class="op">=</span> <span class="st">"reports/ecological_report_2026"</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><strong>Note:</strong> Existing reports with the same filename may be
-overwritten. Use versioned filenames to preserve outputs from different
-monitoring rounds or analyses.</p>
+<p><strong>Note:</strong> Existing output files and intermediate R
+Markdown sources are protected by default
+(<code>overwrite = FALSE</code>). Use distinct filenames for different
+reports, or set <code>overwrite = TRUE</code> explicitly when
+replacement is intended.</p>
 </div>
 <div class="section level3">
 <h3 id="report-content-and-customisation">Report content and customisation<a class="anchor" aria-label="anchor" href="#report-content-and-customisation"></a>
@@ -542,19 +545,20 @@ your analysis.</p>
 <p>Select the analyses and sections to include in the final report.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect available sections</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/updateReportSection.html">listReportSections</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Exclude selected analyses</span></span>
 <span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/section_names.html">section_names</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"default"</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"richness"</span>, <span class="st">"co_occurrence"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Apply the configuration</span></span>
-<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/section_names.html">sections</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">selected</span>, profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the customised report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"ecological_custom"</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># To reset the section configuration, reapply the original profile</span></span>
 <span><span class="co"># or a previously saved selection of sections.</span></span></code></pre></div>

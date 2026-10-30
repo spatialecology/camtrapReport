@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,10 +130,11 @@ Started</a>).</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># General ecological report (default profile)</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"ecological_default"</span>, view <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># EOW-oriented ecological report</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>, view <span class="op">=</span> <span class="cn">TRUE</span>, format <span class="op">=</span> <span class="st">"PDF"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"ecological_EOW"</span>, profile <span class="op">=</span> <span class="st">"EOW"</span>,</span>
+<span>       view <span class="op">=</span> <span class="cn">TRUE</span>, format <span class="op">=</span> <span class="st">"PDF"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="explore-available-modules">Explore available modules<a class="anchor" aria-label="anchor" href="#explore-available-modules"></a>
@@ -161,7 +162,7 @@ modules. For example, create a brief reporting template:</p>
 <span></span>
 <span><span class="co"># Register and use the profile</span></span>
 <span><span class="fu"><a href="../reference/reportProfile.html">add_profile</a></span><span class="op">(</span><span class="va">cm</span>, <span class="va">brief</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, profile <span class="op">=</span> <span class="st">"brief"</span>, view <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/report.html">report</a></span><span class="op">(</span><span class="va">cm</span>, filename <span class="op">=</span> <span class="st">"ecological_brief"</span>, profile <span class="op">=</span> <span class="st">"brief"</span>, view <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Save and reuse with another dataset</span></span>
 <span><span class="fu"><a href="../reference/reportProfile.html">write_profile</a></span><span class="op">(</span><span class="va">brief</span>, <span class="st">"brief.yml"</span><span class="op">)</span></span>
