@@ -19,7 +19,8 @@ test_that("availability checks never attach packages", {
 })
 
 
-test_that("spatial density preserves its weighted calculation without attachment", {
+test_that(
+  "spatial density preserves its weighted calculation without attachment", {
   skip_if_not_installed("spatstat")
   before <- search()
   object <- methods::new("camReport")
@@ -210,6 +211,7 @@ test_that("dynamic effort keeps package-qualified evaluation and settings", {
   expect_match(recorded$code[2L], "fillGraph = TRUE, fillAlpha = 0.4",
                fixed = TRUE)
   expect_identical(actual,
-                   list(title = "Survey effort", xlab = "time", ylab = "Cameras"))
+                   list(title = "Survey effort", xlab = "time",
+                     ylab = "Cameras"))
   expect_identical(search(), before)
 })

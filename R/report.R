@@ -225,7 +225,8 @@ setGeneric(
 #'
 #' `view = TRUE` opens the completed file after rendering; it does not select
 #' different modules or dependencies. To inspect a file that was already
-#' generated, call `utils::browseURL(report_file)` instead of rendering it again.
+#' generated, call `utils::browseURL(report_file)` instead of rendering it
+#' again.
 #' A failure in the R Markdown `setup` chunk commonly reports a missing package
 #' required by the selected modules. Read that original error before using
 #' `test = TRUE`: recovery tests only the attached selection, preserves its

@@ -88,7 +88,8 @@ test_that("selected module loader names missing packages without installing", {
 })
 
 
-test_that("missing REM dependency warns but preserves NULL and cached results", {
+test_that(
+  "missing REM dependency warns but preserves NULL and cached results", {
   object <- methods::new("camReport")
   state <- new.env(parent = emptyenv())
   state$checked <- character()

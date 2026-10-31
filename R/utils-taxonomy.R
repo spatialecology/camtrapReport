@@ -64,9 +64,12 @@
 .getMissingTaxon_GBIF <- function(x) {
   x <- unique(as.character(x))
   x <- x[!is.na(x) & nzchar(trimws(x))]
-  result <- data.frame(scientificName = x, class = rep(NA_character_, length(x)),
-                       order = rep(NA_character_, length(x)),
-                       stringsAsFactors = FALSE)
+  result <- data.frame(
+    scientificName = x,
+    class = rep(NA_character_, length(x)),
+    order = rep(NA_character_, length(x)),
+    stringsAsFactors = FALSE
+  )
   if (!length(x)) return(result)
   if (!.require("taxize")) {
     stop("The taxize package is required for GBIF taxonomic lookup.")

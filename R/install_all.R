@@ -275,7 +275,8 @@
 #'
 #' Unlike a direct call to `pak`, `install_all()` discovers package declarations
 #' in the installed report-module pool and any packaged configuration inventory.
-#' It does not inspect a project's copied module registry or an object's selected
+#' It does not inspect a project's copied module registry or an object's
+#' selected
 #' profile. Supply custom-module and other optional analytical requirements
 #' explicitly through `pkgs`; these are added to, not substituted for, the
 #' discovered inventory. It then delegates resolution and installation to `pak`.
@@ -296,16 +297,7 @@
 #' Dependencies are upgraded only when required by the requested packages,
 #' unless `upgrade = TRUE` is supplied through `...`.
 #'
-#' @param pkgs An optional character vector of additional package names.
-#'   The default is `NULL`.
-#' @param update A logical value. If `TRUE`, optional packages are
-#'   force-reinstalled. The default is `FALSE`.
-#' @param github A logical value (default `TRUE`) specifying whether packages
-#'   configured in GitHub repositories are included.
-#' @param gitlab A logical value (default `FALSE`) specifying whether packages
-#'   configured in GitLab repositories are included.
-#' @param ... Additional named arguments passed to [pak::pkg_install()],
-#'   such as `lib`, `ask`, `dependencies`, or `upgrade`.
+#' @template install-arguments
 #'
 #' @return Called for its side effects. The function returns `NULL` invisibly.
 #'
@@ -535,7 +527,7 @@ setMethod(
 #' `install_All()` is retained for backward compatibility. Use
 #' [install_all()] for new code.
 #'
-#' @inheritParams install_all
+#' @template install-arguments
 #' @return See [install_all()].
 #' @keywords internal
 #' @rdname install-All-legacy

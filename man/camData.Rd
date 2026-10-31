@@ -31,7 +31,8 @@ imports; use \code{update = TRUE} to rebuild a previously cached object.}
 \item{overwrite}{A single logical value (default \code{FALSE}) allowing a ZIP
 input to replace archived files in an existing extraction directory.
 Other files in that directory are retained. This does not control reuse
-of a cached object when \code{data} is already a dataset directory; see \code{update}.}
+of a cached object when \code{data} is already a dataset directory; see
+\code{update}.}
 }
 \value{
 A \code{\link[=camReport-classes]{camReport}} object.
@@ -99,7 +100,8 @@ use \code{update = TRUE} to rebuild it. Older caches without this metadata also
 warn because their freshness cannot be verified. No input contents are hashed
 or reread during this check. Changes that preserve both size and modification
 time, files in previously unknown nested directories, and changes to optional
-\code{habitat} or \code{study_area} inputs are not detected; rebuild explicitly for these.
+\code{habitat} or \code{study_area} inputs are not detected; rebuild explicitly for
+these.
 Only load datasets and saved R objects from sources you trust.
 
 ZIP inventories are checked before extraction for unsafe or ambiguous paths
@@ -134,7 +136,8 @@ disabled and supply adequate taxonomy in \code{datapackage.json}.
 Without enrichment, imported species names, families, orders and counts are
 retained, including classes when supplied in the source. Taxonomic classes
 may otherwise be unavailable. Groups defined by class
-(for example \code{wild_mammals}, birds, reptiles or amphibians) may then be absent.
+(for example \code{wild_mammals}, birds, reptiles or amphibians) may then be
+absent.
 Setup reports missing classifications; existing mammal-count summaries can
 be incomplete and must not be interpreted as ecological absence. Explicit
 class-based capture requests require available class metadata with a verified
@@ -156,7 +159,8 @@ processed object and package versions used in analyses.
 the component files of a shapefile (\code{.shp}, \code{.shx}, \code{.dbf}, \code{.prj}, etc.),
 not a set of year-specific boundaries. For different survey footprints,
 prepare separate year-specific datasets and objects with the corresponding
-boundary, or supply a custom module with an explicit year-to-boundary mapping.
+boundary, or supply a custom module with an explicit year-to-boundary
+mapping.
 }
 
 \examples{

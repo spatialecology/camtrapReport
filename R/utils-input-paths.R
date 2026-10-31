@@ -59,9 +59,13 @@
   unsafe <- !nzchar(paths) | grepl("^(/|[A-Za-z]:)", paths) |
     grepl("\\", paths, fixed = TRUE) |
     grepl("(^|/)\\.\\.(/|$)", paths) | grepl("[[:cntrl:]:]", paths)
-  unsafe <- unsafe | vapply(strsplit(paths, "/", fixed = TRUE), function(parts) {
-    any(.unsafe_windows_filename(parts[!parts %in% c("", ".")]))
-  }, logical(1))
+  unsafe <- unsafe | vapply(
+    strsplit(paths, "/", fixed = TRUE),
+    function(parts) {
+      any(.unsafe_windows_filename(parts[!parts %in% c("", ".")]))
+    },
+    logical(1)
+  )
   if (any(unsafe)) {
     stop("The ZIP archive contains an unsafe file path: ",
          toString(paths[unsafe]), call. = FALSE)

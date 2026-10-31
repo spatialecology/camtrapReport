@@ -130,7 +130,8 @@ year_tab_test_env <- function(years, aggregate = TRUE) {
       years = names(x), data = x, q = q, datatype = datatype,
       draw = stats::runif(1L)
     )
-    list(iNextEst = list(size_based = data.frame(m = c(4, 8), qD.UCL = c(2, 3))))
+    list(iNextEst = list(size_based = data.frame(m = c(4, 8), qD.UCL = c(2,
+      3))))
   }
   env$ggiNEXT <- function(...) list(layers = list())
   for (name in c("theme_minimal", "theme", "element_blank", "element_line",
@@ -173,7 +174,8 @@ test_that("original modules put aggregates before descending year tabs", {
   for (years in list(2024, c(2023, 2025, 2022))) {
     for (file in files) {
       result <- run_year_tab_test_module(file, years)
-      aggregate <- if (file == "species_accumulation.yml") "Comparison" else "Total"
+      aggregate <- if (
+        file == "species_accumulation.yml") "Comparison" else "Total"
       expect_identical(
         year_tab_test_headings(result$output),
         c(aggregate, as.character(sort(years, decreasing = TRUE))),
@@ -193,7 +195,8 @@ test_that("unavailable aggregates do not invent a Total analysis", {
   expect_false(any(grepl(".active", result$output, fixed = TRUE)))
 
   result <- run_year_tab_test_module("species_accumulation.yml", 2024)
-  expect_identical(year_tab_test_headings(result$output), c("Comparison", "2024"))
+  expect_identical(year_tab_test_headings(result$output), c("Comparison",
+    "2024"))
   expect_true(any(grepl(
     "Not enough valid year-level data to compare", result$output, fixed = TRUE
   )))
@@ -249,7 +252,8 @@ test_that("failed annual accumulation fits stay in their own year tabs", {
     )[[1L]])),
     envir = context$env
   ))
-  expect_identical(year_tab_test_headings(output), c("Comparison", "2025", "2022"))
+  expect_identical(year_tab_test_headings(output), c("Comparison", "2025",
+    "2022"))
   error_line <- grep("iNEXT failed for year 2022: known annual failure",
                      output, fixed = TRUE)
   expect_length(error_line, 1L)

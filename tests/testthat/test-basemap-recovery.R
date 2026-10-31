@@ -57,14 +57,16 @@ test_that("default online sources are ordered and need no extra settings", {
     all_sources, function(source) nzchar(source$attribution), logical(1)
   )))
   expect_false(any(vapply(
-    all_sources, function(source) isTRUE(source$requiresPublicWebsite), logical(1)
+    all_sources, function(source) isTRUE(source$requiresPublicWebsite),
+      logical(1)
   )))
   cartodb <- .report_basemap_sources("cartodb")[[1]]
   expect_match(cartodb$url, "{r}.png", fixed = TRUE)
   expect_identical(cartodb$subdomains, "abcd")
 })
 
-test_that("browser tile recovery tolerates isolated and partial tile failures", {
+test_that(
+  "browser tile recovery tolerates isolated and partial tile failures", {
   node <- Sys.which("node")
   skip_if(!nzchar(node), "Node.js is needed for this optional JS runtime test")
   script <- test_path("fixtures", "basemap-runtime-test.js")

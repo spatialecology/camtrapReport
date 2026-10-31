@@ -392,7 +392,7 @@ setGeneric(
 #' project-specific needs, including changing section titles, replacing or
 #' appending text, and adding or updating R code chunks.
 #'
-#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @template camreport-x
 #' @param section A single character string giving the name or title of the
 #'   report section to update.
 #' @param text An optional character value used to update the text body of the

@@ -43,7 +43,8 @@ test_that("ZIP inventories reject unsafe paths before extracting", {
 })
 
 test_that("ZIP inventories reject duplicates and ambiguous core resources", {
-  for (path in c("observations.csv", "./observations.csv", "OBSERVATIONS.CSV")) {
+  for (path in c("observations.csv", "./observations.csv",
+    "OBSERVATIONS.CSV")) {
     expect_error(.validate_camdp_zip_manifest(camdp_test_manifest(path)),
                  "duplicate file or directory paths", fixed = TRUE)
   }
@@ -99,7 +100,8 @@ test_that("ZIP resource limits have safe adjustable defaults", {
   expect_identical(.validate_camdp_zip_manifest(camdp_test_manifest()),
                     camdp_test_manifest())
 
-  for (name in c("camtrapReport.max_zip_entries", "camtrapReport.max_zip_bytes")) {
+  for (name in c("camtrapReport.max_zip_entries",
+    "camtrapReport.max_zip_bytes")) {
     for (value in list(0, -1, Inf, NA_real_, "400", TRUE, c(1, 2))) {
       options(stats::setNames(list(value), name))
       expect_error(.validate_camdp_zip_manifest(camdp_test_manifest()),
@@ -137,7 +139,8 @@ test_that("ZIP limits and existing-target guards run before extraction", {
   expect_identical(state$extractions, 0L)
 })
 
-test_that("camData forwards the named-only overwrite flag without shifting API", {
+test_that(
+  "camData forwards the named-only overwrite flag without shifting API", {
   expect_identical(tail(names(formals(camData)), 2), c("...", "overwrite"))
   state <- new.env(parent = emptyenv())
   state$overwrites <- logical()
@@ -212,7 +215,8 @@ test_that("ZIP stems are anchored and ordinary ZIP data match folder imports", {
   zip_file <- tempfile("survey.zip.notes-", fileext = ".ZIP")
   output <- tempfile("camtrapReport-zip-output-")
   dir.create(output)
-  on.exit(unlink(c(zip_file, output), recursive = TRUE, force = TRUE), add = TRUE)
+  on.exit(unlink(c(zip_file, output), recursive = TRUE, force = TRUE),
+    add = TRUE)
   writeLines("Retained ancillary file", file.path(directory, "ancillary.txt"))
   invisible(capture.output(utils::zip(
     zip_file, file.path(directory, c(.camdp_core_files(), "ancillary.txt")),
@@ -226,7 +230,8 @@ test_that("ZIP stems are anchored and ordinary ZIP data match folder imports", {
   expect_true(file.exists(file.path(actual$directory, "ancillary.txt")))
   expect_false(dir.exists(file.path(".", stem)))
 
-  writeLines("Retain unrelated old files", file.path(actual$directory, "old.txt"))
+  writeLines("Retain unrelated old files", file.path(actual$directory,
+    "old.txt"))
   archived_file <- file.path(actual$directory, "ancillary.txt")
   writeLines("Old archived member", archived_file)
   expect_error(.read_camdp(zip_file, path = output, enrich_taxonomy = FALSE),

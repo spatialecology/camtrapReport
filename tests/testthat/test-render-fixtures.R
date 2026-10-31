@@ -10,7 +10,8 @@ test_that("math-free fixture rendering preserves arguments and conditions", {
     ))
   }
   render <- math_free_html_fixture_renderer(renderer)
-  original_options <- list(toc = TRUE, self_contained = TRUE, mathjax = "default")
+  original_options <- list(toc = TRUE, self_contained = TRUE,
+    mathjax = "default")
   env <- new.env(parent = baseenv())
   value <- withVisible(render(
     "fixture.Rmd", "html_document", "fixture.html",
@@ -30,14 +31,17 @@ test_that("math-free fixture rendering preserves arguments and conditions", {
   expect_error(render("error"), "original fixture error", fixed = TRUE)
 })
 
-test_that("math-free fixture bindings are local and leave math defaults intact", {
+test_that(
+  "math-free fixture bindings are local and leave math defaults intact", {
   original_render <- rmarkdown::render
   original_default <- formals(rmarkdown::html_document)$mathjax
   local({
     local_math_free_html_fixture()
     expect_false(identical(rmarkdown::render, original_render))
-    expect_identical(environment(rmarkdown::render), environment(original_render))
-    expect_identical(formals(rmarkdown::html_document)$mathjax, original_default)
+    expect_identical(environment(rmarkdown::render),
+      environment(original_render))
+    expect_identical(formals(rmarkdown::html_document)$mathjax,
+      original_default)
   })
   expect_identical(rmarkdown::render, original_render)
   expect_identical(formals(rmarkdown::html_document)$mathjax, original_default)

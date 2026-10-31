@@ -11,7 +11,7 @@ object."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">camtrapReport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.69</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.72</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,7 +109,12 @@ The output directory initially uses the project root from the optional
 Choose an existing directory explicitly before saving output.
 Existing report, R Markdown, and saved-object files are protected unless
 the overwrite checkbox is selected. Generating output does not change the
-R working directory.</p>
+R working directory.
+ZIP imports have a separate, initially unchecked permission to overwrite an
+existing extraction directory; see <code><a href="camData.html">camData()</a></code> for its location and limits.
+GBIF taxonomy enrichment is also initially unchecked. Selecting it permits
+sending scientific names to GBIF when importing fresh data with <code>taxize</code>
+installed. Loading an existing processed-object cache does not enrich it.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -41,7 +41,8 @@ All package installation is handled by \code{\link[pak:pkg_install]{pak::pkg_ins
 
 Unlike a direct call to \code{pak}, \code{install_all()} discovers package declarations
 in the installed report-module pool and any packaged configuration inventory.
-It does not inspect a project's copied module registry or an object's selected
+It does not inspect a project's copied module registry or an object's
+selected
 profile. Supply custom-module and other optional analytical requirements
 explicitly through \code{pkgs}; these are added to, not substituted for, the
 discovered inventory. It then delegates resolution and installation to \code{pak}.

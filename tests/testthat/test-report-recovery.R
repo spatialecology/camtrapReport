@@ -187,7 +187,8 @@ test_that("recovery reuses tests of unchanged pool modules", {
   expect_identical(recovery_module_names(cm$reportObjects), original)
 })
 
-test_that("recovery tests edited and custom modules without altering the pool", {
+test_that(
+  "recovery tests edited and custom modules without altering the pool", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   edited <- cm$reportObjectElements$Modules$introduction
   edited@txt <- "User-edited introduction."

@@ -19,7 +19,8 @@ test_that("both source-taxonomy paths preserve classes and other ranks", {
   }
 })
 
-test_that("fresh public and internal defaults consistently prohibit GBIF lookup", {
+test_that(
+  "fresh public and internal defaults consistently prohibit GBIF lookup", {
   expect_identical(formals(methods::getGeneric("camData"))$enrich_taxonomy,
                    FALSE)
   method <- methods::selectMethod("camData", "character")
@@ -27,21 +28,25 @@ test_that("fresh public and internal defaults consistently prohibit GBIF lookup"
   expect_identical(formals(.read_camdp)$enrich_taxonomy, FALSE)
 })
 
-test_that("import preserves complete source taxonomy and all observation tables", {
+test_that(
+  "import preserves complete source taxonomy and all observation tables", {
   path <- copy_camtrap_test_dataset()
   before <- .read_camdp(path)
   metadata_path <- file.path(path, "datapackage.json")
   metadata <- jsonlite::read_json(metadata_path, simplifyVector = FALSE)
   bird_orders <- c("Accipitriformes", "Anseriformes", "Pelecaniformes",
-                   "Columbiformes", "Passeriformes", "Piciformes", "Galliformes")
+                   "Columbiformes", "Passeriformes", "Piciformes",
+                     "Galliformes")
   for (i in seq_along(metadata$taxonomic)) {
     metadata$taxonomic[[i]]$class <- if (
       metadata$taxonomic[[i]]$order %in% bird_orders
     ) "Aves" else "Mammalia"
   }
-  jsonlite::write_json(metadata, metadata_path, auto_unbox = TRUE, pretty = TRUE)
+  jsonlite::write_json(metadata, metadata_path, auto_unbox = TRUE,
+    pretty = TRUE)
   local_mocked_bindings(
-    .getMissingTaxon_GBIF = function(...) stop("Default import must be offline"),
+    .getMissingTaxon_GBIF = function(
+      ...) stop("Default import must be offline"),
     .package = "camtrapReport"
   )
   old_search <- search()
@@ -76,7 +81,8 @@ test_that("import preserves complete source taxonomy and all observation tables"
   expect_identical(external$value$data, value$data)
 })
 
-test_that("external taxonomy fills missing ranks without replacing source data", {
+test_that(
+  "external taxonomy fills missing ranks without replacing source data", {
   source <- data.frame(
     scientificName = c("Species one", "Species two", "Species three"),
     taxonID = c("1", "2", "3"), class = c("Mammalia", NA, ""),
@@ -143,7 +149,8 @@ test_that("GBIF ranks require a matching identifier, name and explicit rank", {
   expect_identical(search(), before)
 })
 
-test_that("partial GBIF failures retain successful matches without leaking names", {
+test_that(
+  "partial GBIF failures retain successful matches without leaking names", {
   local_mocked_bindings(
     .require = function(...) TRUE,
     .eval = function(code, env) {
@@ -165,7 +172,8 @@ test_that("partial GBIF failures retain successful matches without leaking names
   expect_identical(value$value$class, c("Mammalia", NA_character_))
   expect_length(value$warnings, 1L)
   expect_match(value$warnings, "incomplete for 1 of 2", fixed = TRUE)
-  expect_false(grepl("Private unavailable species", value$warnings, fixed = TRUE))
+  expect_false(grepl("Private unavailable species", value$warnings,
+    fixed = TRUE))
   expect_length(value$messages, 0L)
 })
 
@@ -286,7 +294,8 @@ test_that("cached objects are reused without lookup after a consent change", {
   saveRDS(object, file.path(directory, "__camReport_Object.rds"))
   local_mocked_bindings(
     .read_camdp = function(...) stop("Cached input must not be reimported"),
-    .getMissingTaxon_GBIF = function(...) stop("Cached input must not query GBIF"),
+    .getMissingTaxon_GBIF = function(
+      ...) stop("Cached input must not query GBIF"),
     .check_camdata_cache_metadata = function(...) invisible(NULL),
     .package = "camtrapReport"
   )

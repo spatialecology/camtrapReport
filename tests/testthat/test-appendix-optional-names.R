@@ -55,7 +55,8 @@ test_that("the actual appendix module accepts missing optional English names", {
   }
 })
 
-test_that("appendix favourite selection and scientific names remain unchanged", {
+test_that(
+  "appendix favourite selection and scientific names remain unchanged", {
   first <- appendix_test_expressions()[[1L]]
   expect_identical(first[[1L]], as.name("<-"))
   expect_identical(first[[2L]], as.name("favoImgs"))

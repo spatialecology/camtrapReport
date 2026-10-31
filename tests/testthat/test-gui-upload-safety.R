@@ -28,10 +28,12 @@ test_that("uploaded filenames and extensions are checked on the server", {
   upload$name <- "data.ZIP"
   expect_identical(.validate_gui_upload(upload, "zip"), upload)
   upload$datapath <- tempfile()
-  expect_error(.validate_gui_upload(upload, "zip"), "temporary files are missing",
+  expect_error(.validate_gui_upload(upload, "zip"),
+    "temporary files are missing",
                fixed = TRUE)
   upload$datapath <- tempdir()
-  expect_error(.validate_gui_upload(upload, "zip"), "temporary files are missing",
+  expect_error(.validate_gui_upload(upload, "zip"),
+    "temporary files are missing",
                fixed = TRUE)
   upload <- data.frame(name = c("shape.shp", "SHAPE.SHP"), datapath = source)
   expect_error(.validate_gui_upload(upload, "shp", multiple = TRUE),
@@ -161,7 +163,8 @@ test_that("invalid GUI optional uploads stop import and show a notification", {
   })
 })
 
-test_that("GUI ZIP extraction overwrite is explicit and separate from outputs", {
+test_that(
+  "GUI ZIP extraction overwrite is explicit and separate from outputs", {
   helpers <- gui_upload_test_helpers()
   root <- tempfile("camtrapReport-gui-zip-routing-")
   dir.create(root)

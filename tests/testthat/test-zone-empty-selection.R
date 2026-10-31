@@ -104,6 +104,7 @@ test_that("valid year subsets retain their table shape, row order and values", {
   actual <- cm$get_data_subset(year)
 
   expect_named(actual, names(expected))
-  for (name in names(expected)) expect_identical(actual[[name]], expected[[name]])
+  for (name in names(expected)) expect_identical(actual[[name]],
+    expected[[name]])
   expect_identical(cm$data, before)
 })

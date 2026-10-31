@@ -65,7 +65,8 @@
 #' after New Year. A year with no matching deployments raises an explicit error.
 #' Some annual summaries instead group observations by timestamp calendar year.
 #' These conventions may differ for deployments spanning New Year; the package
-#' does not automatically split effort or reallocate observations at the boundary.
+#' does not automatically split effort or reallocate observations at the
+#' boundary.
 #' Review those cases before comparing annual results.
 #'
 #' @section Supporting classes:

@@ -29,7 +29,8 @@ test_that("report and module render paths use namespace checks consistently", {
   skip_if_not(rmarkdown::pandoc_available())
   local_math_free_html_fixture()
   cm <- camtrap_test_report()$copy(shallow = FALSE)
-  expected <- dplyr::count(cm$data$observations, scientificName, name = "records")
+  expected <- dplyr::count(cm$data$observations, scientificName,
+    name = "records")
   section <- reportSection(
     name = "namespaced_counts", title = "Namespaced species counts",
     packages = c("dplyr", "knitr", "dplyr"),
@@ -56,7 +57,8 @@ test_that("report and module render paths use namespace checks consistently", {
   expect_identical(report_test_loader_packages(rmd), c("knitr", "dplyr"))
   html <- paste(readLines(output, warn = FALSE), collapse = "\n")
   html <- gsub("[[:space:]]+", " ", html)
-  expect_match(html, paste("Verified observation count:", sum(expected$records)),
+  expect_match(html, paste("Verified observation count:",
+    sum(expected$records)),
                fixed = TRUE)
   expect_true(all(vapply(expected$scientificName, function(name) {
     grepl(name, html, fixed = TRUE)
@@ -70,7 +72,8 @@ test_that("report and module render paths use namespace checks consistently", {
   rmd <- readLines(file.path(directory, "status.Rmd"), warn = FALSE)
   expect_no_match(paste(rmd, collapse = "\n"),
                   "library\\(|require\\(|attach\\(")
-  expect_identical(report_test_loader_packages(rmd), c("knitr", "base", "dplyr"))
+  expect_identical(report_test_loader_packages(rmd), c("knitr", "base",
+    "dplyr"))
   html <- paste(readLines(output, warn = FALSE), collapse = "\n")
   html <- gsub("[[:space:]]+", " ", html)
   expect_match(html, "Spatial summary of camera-trap locations", fixed = TRUE)

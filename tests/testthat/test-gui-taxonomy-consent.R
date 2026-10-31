@@ -13,7 +13,8 @@ test_that("GUI GBIF enrichment requires an explicitly checked control", {
   local_mocked_bindings(
     camData = function(data, habitat, enrich_taxonomy, ...) {
       state$consent <- c(state$consent, enrich_taxonomy)
-      state$study_area <- c(state$study_area, "study_area" %in% names(list(...)))
+      state$study_area <- c(state$study_area,
+        "study_area" %in% names(list(...)))
       NULL
     },
     .package = "camtrapReport"
@@ -43,6 +44,7 @@ test_that("GUI GBIF enrichment requires an explicitly checked control", {
   ui <- paste(as.character(get("ui", envir = env, inherits = FALSE)),
               collapse = "")
   expect_match(ui, 'id="enrich_taxonomy"', fixed = TRUE)
-  checkbox <- regmatches(ui, regexpr('<input[^>]*id="enrich_taxonomy"[^>]*>', ui))
+  checkbox <- regmatches(ui,
+    regexpr('<input[^>]*id="enrich_taxonomy"[^>]*>', ui))
   expect_false(grepl("checked", checkbox, fixed = TRUE))
 })

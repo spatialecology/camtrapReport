@@ -50,7 +50,7 @@ setGeneric(
 #' Edits to report text affect the object; they do not rewrite the original
 #' dataset or the bundled YAML files.
 #'
-#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @template camreport-x
 #' @param name A character vector naming fields to retrieve, or a single
 #'   character string naming the field to update. When omitted from `info()`,
 #'   the default report-information fields are returned.

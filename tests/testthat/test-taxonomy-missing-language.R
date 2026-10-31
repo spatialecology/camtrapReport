@@ -2,7 +2,8 @@ missing_language_test_taxa <- function() {
   taxa <- lapply(seq_len(3L), function(i) {
     list(
       taxonID = paste0("https://example.invalid/taxon/", i),
-      scientificName = c("Vulpes vulpes", "Capreolus capreolus", "Meles meles")[i],
+      scientificName = c("Vulpes vulpes", "Capreolus capreolus",
+        "Meles meles")[i],
       family = c("Canidae", "Cervidae", "Mustelidae")[i],
       order = c("Carnivora", "Artiodactyla", "Carnivora")[i],
       taxonRank = "species"
@@ -35,7 +36,8 @@ test_that("missing vernacular languages preserve existing taxonomy selection", {
   }
 })
 
-test_that("complete vernacular mappings retain their original language values", {
+test_that(
+  "complete vernacular mappings retain their original language values", {
   taxa <- missing_language_test_taxa()[1:2]
   taxa[[1L]]$vernacularNames <- list(eng = "Red fox", nld = "Vos")
   taxa[[2L]]$vernacularNames <- list(eng = "Roe deer", nld = "Ree")

@@ -1,4 +1,5 @@
-test_that("status narrative retains the qualitative guide without false grading", {
+test_that(
+  "status narrative retains the qualitative guide without false grading", {
   root <- system.file("statusSections", package = "camtrapReport")
   abstract <- .read_section_module(file.path(root, "abstract.yml"))
   conclusion <- .read_section_module(file.path(root, "conclusion.yml"))

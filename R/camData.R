@@ -823,7 +823,8 @@ setGeneric(
 #' @param overwrite A single logical value (default `FALSE`) allowing a ZIP
 #'   input to replace archived files in an existing extraction directory.
 #'   Other files in that directory are retained. This does not control reuse
-#'   of a cached object when `data` is already a dataset directory; see `update`.
+#'   of a cached object when `data` is already a dataset directory; see
+#' `update`.
 #'
 #' @details
 #' `data` currently accepts a file-system path, not an in-memory data frame or
@@ -871,7 +872,8 @@ setGeneric(
 #' warn because their freshness cannot be verified. No input contents are hashed
 #' or reread during this check. Changes that preserve both size and modification
 #' time, files in previously unknown nested directories, and changes to optional
-#' `habitat` or `study_area` inputs are not detected; rebuild explicitly for these.
+#' `habitat` or `study_area` inputs are not detected; rebuild explicitly for
+#' these.
 #' Only load datasets and saved R objects from sources you trust.
 #'
 #' ZIP inventories are checked before extraction for unsafe or ambiguous paths
@@ -905,7 +907,8 @@ setGeneric(
 #' Without enrichment, imported species names, families, orders and counts are
 #' retained, including classes when supplied in the source. Taxonomic classes
 #' may otherwise be unavailable. Groups defined by class
-#' (for example `wild_mammals`, birds, reptiles or amphibians) may then be absent.
+#' (for example `wild_mammals`, birds, reptiles or amphibians) may then be
+#' absent.
 #' Setup reports missing classifications; existing mammal-count summaries can
 #' be incomplete and must not be interpreted as ecological absence. Explicit
 #' class-based capture requests require available class metadata with a verified
@@ -925,7 +928,8 @@ setGeneric(
 #' the component files of a shapefile (`.shp`, `.shx`, `.dbf`, `.prj`, etc.),
 #' not a set of year-specific boundaries. For different survey footprints,
 #' prepare separate year-specific datasets and objects with the corresponding
-#' boundary, or supply a custom module with an explicit year-to-boundary mapping.
+#' boundary, or supply a custom module with an explicit year-to-boundary
+#' mapping.
 #'
 #' @return A [`camReport`][camReport-classes] object.
 #'

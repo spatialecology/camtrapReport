@@ -200,7 +200,8 @@ test_that("viewer progress surrounds only opening a completed report", {
                         captured$messages, fixed = TRUE)))
 })
 
-test_that("routine stage progress is quiet by default without hiding conditions", {
+test_that(
+  "routine stage progress is quiet by default without hiding conditions", {
   previous <- options(camtrapReport.progress = NULL)
   on.exit(options(previous), add = TRUE)
   expect_false(.report_progress_enabled())

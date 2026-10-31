@@ -153,7 +153,7 @@ setGeneric(
 #' @param profile An optional profile name or `reportProfile` object.
 #' @param report_type Which output selection to use: `"report"`, `"status"`,
 #'   or, for `section_names()`, `"all"`.
-#' @param x A [`camReport`][camReport-classes] object created by [camData()].
+#' @template camreport-x
 #' @param n An optional character vector of modules to include. Qualified names
 #'   such as `"status::spatial"` can select from the other module pool when a
 #'   profile is being edited.

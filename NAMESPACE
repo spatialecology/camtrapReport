@@ -27,7 +27,6 @@ export(updateReportSection)
 export(write_profile)
 exportClasses(camReport)
 exportClasses(reportProfile)
-import(methods)
 importFrom(data.table,data.table)
 importFrom(dplyr,
   bind_rows,
@@ -57,6 +56,18 @@ importFrom(graphics,
   text
 )
 importFrom(lubridate,interval)
+importFrom(methods,
+  new,
+  representation,
+  setClass,
+  setClassUnion,
+  setGeneric,
+  setMethod,
+  setOldClass,
+  setRefClass,
+  setReplaceMethod,
+  signature
+)
 importFrom(stats,
   cor,
   cov,

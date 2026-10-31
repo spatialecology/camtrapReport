@@ -27,7 +27,8 @@ test_that("module attachment preserves original test-result indices", {
         .check_parent = function(n) NULL,
         .package = "camtrapReport"
       )
-      attached <- if (kind == "report") cm$reportObjects else cm$statusReportObjects
+      attached <- if (kind == "report") cm$reportObjects else
+        cm$statusReportObjects
       expect_identical(
         unname(unlist(attached)),
         if (all(!is.na(tested) & !tested)) NULL else
