@@ -35,7 +35,7 @@ test_that("source snapshots contain sorted lightweight relative metadata", {
   expect_named(snapshot, c("version", "files", "candidates"))
   expect_identical(snapshot$version, 1L)
   expect_named(snapshot$files, c("path", "size", "mtime"))
-  expect_identical(snapshot$files$path, paste0("source/", c(
+  expect_identical(snapshot$files$path, file.path("source", c(
     "datapackage.json", "deployments.csv", "media.csv", "observations.csv"
   )))
   expect_type(snapshot$files$size, "double")

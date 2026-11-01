@@ -243,7 +243,7 @@ test_that("bundled report maps use shared OSM-first backgrounds", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
 
   expect_identical(cm$setting$map_basemap, "openstreetmap")
-  expect_true(is.function(cm$add_report_basemap))
+  expect_type(cm$add_report_basemap, "closure")
 
   report_modules <- system.file(
     "reportSections",
@@ -323,7 +323,7 @@ test_that("legacy cached objects receive the current basemap method", {
   upgraded <- .upgrade_camreport_class(legacy)
 
   expect_s4_class(upgraded, "camReport")
-  expect_true(is.function(upgraded$add_report_basemap))
+  expect_type(upgraded$add_report_basemap, "closure")
   expect_identical(upgraded$siteName, legacy$siteName)
   expect_identical(upgraded$setting, legacy$setting)
 })

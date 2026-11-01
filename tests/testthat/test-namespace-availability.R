@@ -53,7 +53,7 @@ test_that(
   expect_identical(as.vector(terra::ext(actual)),
                    as.vector(terra::ext(reference)))
   expect_identical(dim(actual), dim(reference))
-  expect_identical(names(actual), "spatial_density")
+  expect_named(actual, "spatial_density")
   expect_identical(terra::crs(actual), terra::crs("EPSG:3857"))
   expect_identical(search(), before)
 })

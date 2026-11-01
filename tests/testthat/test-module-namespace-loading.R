@@ -60,9 +60,8 @@ test_that("report and module render paths use namespace checks consistently", {
   expect_match(html, paste("Verified observation count:",
     sum(expected$records)),
                fixed = TRUE)
-  expect_true(all(vapply(expected$scientificName, function(name) {
-    grepl(name, html, fixed = TRUE)
-  }, logical(1))))
+  expect_true(all(vapply(expected$scientificName, grepl, logical(1),
+                         x = html, fixed = TRUE)))
 
   # This is the actual bundled spatial-summary module, not a text-only stand-in.
   spatial <- cm$reportObjectElements$Status_modules$spatial

@@ -154,7 +154,7 @@ test_that("progress composes custom hooks without adding cache option keys", {
   ))
   expect_identical(readLines(counter, warn = FALSE), "x")
   expect_identical(state$labels, rep("cached_progress", 2L))
-  expect_identical(names(knitr::opts_hooks$get()),
+  expect_named(knitr::opts_hooks$get(),
                    names(c(saved_options, list(cache = NULL, label = NULL))))
 })
 

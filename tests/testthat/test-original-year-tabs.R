@@ -50,7 +50,7 @@ year_tab_test_env <- function(years, aggregate = TRUE) {
   locations$Habitat_Type <- "Forest"
   locations$Year_List <- as.character(locations$Year)
   locations$BaitUse_List <- "No"
-  locations$Species_List <- paste(species, collapse = ", ")
+  locations$Species_List <- paste0(species, collapse = ", ")
   locations$CaptureMethod_List <- "motionDetection"
   locations$Total_Photos <- 12L
   locations$Classify_By_List <- "Example observer"
@@ -163,7 +163,7 @@ run_year_tab_test_module <- function(file, years, aggregate = TRUE) {
 }
 
 year_tab_test_headings <- function(output, level = 3L) {
-  marker <- paste(rep("#", level), collapse = "")
+  marker <- strrep("#", level)
   lines <- grep(paste0("^", marker, " "), output, value = TRUE)
   trimws(sub("[[:space:]]*[{].*$", "", substring(lines, level + 2L)))
 }
@@ -233,7 +233,7 @@ test_that("accumulation display changes preserve model and palette order", {
   expect_true(all(vapply(fits, function(x) {
     identical(x$datatype, "incidence_freq")
   }, logical(1))))
-  expect_identical(names(result$env$year_cols), c("2022", "2023", "2025"))
+  expect_named(result$env$year_cols, c("2022", "2023", "2025"))
   expect_identical(
     unname(result$env$year_cols), c("#4477AA", "#66CCEE", "#228833")
   )

@@ -22,7 +22,7 @@ test_that("missing vernacular languages preserve existing taxonomy selection", {
     input[[3L]]$vernacularNames <- missing
     result <- .get_Taxonomic_DF(input)
     expect_identical(nrow(result), 3L)
-    expect_identical(names(result), names(normal))
+    expect_named(result, names(normal))
     expect_identical(result[1:2, , drop = FALSE], normal)
     expect_identical(result$taxonID, as.character(seq_len(3L)))
     expect_identical(result$scientificName,
