@@ -47,6 +47,19 @@ jobs:
             --file "${RUNNER_TEMP}/_github_home/.gitconfig" \
             --add safe.directory /github/workspace
 
+      - name: Free disk space for pkgcheck Docker image
+        shell: bash
+        run: |
+          echo "Disk space before cleanup:"
+          df -h /
+
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          echo "Disk space after cleanup:"
+          df -h /
+
       - name: Run pkgcheck
         uses: ropensci-review-tools/pkgcheck-action@main
         env:
