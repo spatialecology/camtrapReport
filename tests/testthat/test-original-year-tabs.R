@@ -50,7 +50,7 @@ year_tab_test_env <- function(years, aggregate = TRUE) {
   locations$Habitat_Type <- "Forest"
   locations$Year_List <- as.character(locations$Year)
   locations$BaitUse_List <- "No"
-  locations$Species_List <- paste0(species, collapse = ", ")
+  locations$Species_List <- toString(species)
   locations$CaptureMethod_List <- "motionDetection"
   locations$Total_Photos <- 12L
   locations$Classify_By_List <- "Example observer"

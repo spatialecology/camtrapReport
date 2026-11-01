@@ -1,4 +1,5 @@
-test_that("report classes retain dispatch and independent copies after RDS reuse", {
+test_that(
+  "report classes retain dispatch and independent copies after RDS reuse", {
   original <- camtrap_test_report()$copy(shallow = FALSE)
   original$siteName <- "Original study"
   profile <- reportProfile("roundtrip", report = c("introduction", "methods"))

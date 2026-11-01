@@ -154,7 +154,8 @@
 #' Bundled profiles are registered in each object created by [camData()]. User
 #' profiles can be registered with `add_profile()` and shared as YAML files
 #' with `read_profile()` and `write_profile()`.
-#' See the [report-profile guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html)
+#' See the [report-profile guide](
+#'   https://spatialecology.github.io/camtrapReport/articles/profiles.html)
 #' for a reusable custom profile and cross-library appendix example.
 #'
 #' @param name A non-empty profile name.

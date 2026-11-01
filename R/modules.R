@@ -1605,7 +1605,8 @@ setGeneric(
 #' replaced during package updates. Copy `reportSections` to a writable project
 #' directory first, then pass that copied directory to `add_Module()` and the
 #' other management functions. See the
-#' [module guide](https://spatialecology.github.io/camtrapReport/articles/modules.html).
+#' [module guide](
+#'   https://spatialecology.github.io/camtrapReport/articles/modules.html).
 #'
 #' YAML modules contain executable R code. Add and run only modules from
 #' trusted sources; inspect their code, package declarations, network requests,

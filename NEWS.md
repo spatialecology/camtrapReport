@@ -1,4 +1,14 @@
-# camtrapReport 1.0.72 (development version)
+# camtrapReport 1.0.73 (development version)
+
+- Apply small good-practice cleanups without changing the public API,
+  dependencies, `.eval()` architecture or scientific calculations: preserve
+  NA-safe cache checks, simplify fixed test text and wrap documentation links.
+- Correct overview-vignette navigation to use website URLs that also work from
+  installed documentation, removing the invalid parent-relative homepage link.
+- Retain strict Boolean identity assertions and helpers called from YAML;
+  defer structural refactoring and function removal for separate assessment.
+
+# camtrapReport 1.0.72
 
 - Use a documented chronological subset for import and report-editing examples,
   avoiding repeated REM initialization; retain the full analytical dataset.

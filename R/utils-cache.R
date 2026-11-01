@@ -29,7 +29,7 @@
   }
   paths <- sort(unique(substring(input_files, nchar(prefix) + 1L)))
   details <- file.info(file.path(directory, paths))
-  if (any(details$isdir %in% TRUE)) {
+  if (any(details$isdir, na.rm = TRUE)) {
     stop("Source-file metadata requires files rather than directories.")
   }
   list(
