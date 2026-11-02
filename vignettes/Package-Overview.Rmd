@@ -15,15 +15,15 @@ Camera-trap monitoring generates extensive information on sampling effort, speci
 
 `camtrapReport` brings these elements together in a **modular, reproducible reporting framework** built around the [Camtrap DP standard](https://camtrap-dp.tdwg.org/). It supports researchers, conservation practitioners, and monitoring networks working across sites, datasets, and monitoring periods.
 
-For installation and practical examples, see [Get Started](../index.html).
+For installation and practical examples, see [Get Started](https://spatialecology.github.io/camtrapReport/).
 
 ## Built-in analyses and extensibility
 
 `camtrapReport` provides modules for describing survey design and sampling effort, summarising species detections and capture-based indices, and exploring ecological patterns. Available analyses include species richness, accumulation curves, co-occurrence, activity patterns, habitat associations, spatial detection intensity, and Random Encounter Model (REM) density estimation.
 
-The [**Module Catalog**](module-catalog.html) documents available analyses, requirements, and settings. Report content depends on the selected modules, input data, and methodological assumptions.
+The [**Module Catalog**](https://spatialecology.github.io/camtrapReport/articles/module-catalog.html) documents available analyses, requirements, and settings. Report content depends on the selected modules, input data, and methodological assumptions.
 
-Users can select, reorder, and customise existing modules or develop new ones for specific research and monitoring objectives. See [Module Management](modules.html) for guidance on extending the framework.
+Users can select, reorder, and customise existing modules or develop new ones for specific research and monitoring objectives. See [Module Management](https://spatialecology.github.io/camtrapReport/articles/modules.html) for guidance on extending the framework.
 
 
 ## Analytical Profiles
@@ -32,15 +32,15 @@ Standardised data do not necessarily produce comparable ecological estimates. Di
 
 **Analytical Profiles** support consistent reporting by defining reusable selections and ordering of modules. The underlying analytical methods and parameters remain specified by the modules and report settings.
 
-`camtrapReport` includes default and EOW-oriented profiles, which can be adapted to different monitoring contexts. See the [Analytical Profiles guide](profiles.html) for their configurations, assumptions, and use.
+`camtrapReport` includes default and EOW-oriented profiles, which can be adapted to different monitoring contexts. See the [Analytical Profiles guide](https://spatialecology.github.io/camtrapReport/articles/profiles.html) for their configurations, assumptions, and use.
 
 ## Explore the documentation
 
-- **[Get Started](../index.html)** — Installation and first steps.
-- **[Data Status Check](data-status-report.html)** — Data-quality assessment.
-- **[Ecological Report](ecological-report.html)** — Report generation and configuration.
-- **[Module Catalog](module-catalog.html)** — Available analyses and requirements.
-- **[Module Management](modules.html)** — Customising and extending modules.
-- **[Analytical Profiles](profiles.html)** — Reusable reporting configurations.
+- **[Get Started](https://spatialecology.github.io/camtrapReport/)** — Installation and first steps.
+- **[Data Status Check](https://spatialecology.github.io/camtrapReport/articles/data-status-report.html)** — Data-quality assessment.
+- **[Ecological Report](https://spatialecology.github.io/camtrapReport/articles/ecological-report.html)** — Report generation and configuration.
+- **[Module Catalog](https://spatialecology.github.io/camtrapReport/articles/module-catalog.html)** — Available analyses and requirements.
+- **[Module Management](https://spatialecology.github.io/camtrapReport/articles/modules.html)** — Customising and extending modules.
+- **[Analytical Profiles](https://spatialecology.github.io/camtrapReport/articles/profiles.html)** — Reusable reporting configurations.
 
 For questions, ideas, and collaborations, visit [GitHub Discussions](https://github.com/spatialecology/camtrapReport/discussions). Use [GitHub Issues](https://github.com/spatialecology/camtrapReport/issues) to report bugs or request features.
