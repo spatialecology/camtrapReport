@@ -27,7 +27,7 @@
 #'   segments text axis image polygon
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cor cov density quantile na.omit predict setNames time
-#' @importFrom utils read.csv install.packages unzip head remove.packages tail
+#' @importFrom utils read.csv unzip head tail
 #'   timestamp
 #' @importFrom glue glue
 #' @importFrom data.table data.table

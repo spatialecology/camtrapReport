@@ -3,10 +3,10 @@ name: "conclusion"
 title: "# Conclusion {.unnumbered}"
 parent: null
 text: |
-  Based on results across the five key areas - Spatial, Temporal, Data Availability, Validation, and Annotation - assess whether the dataset needs further correction before ecological interpretation. Also review the Observation Types by Capture Method chapter when included in your profile.
+  The checklist above summarizes the results of the data quality checks. Identified issues should be reviewed in relation to the intended analyses; not all warnings necessarily require correction.
 
-  Use the qualitative descriptions in the Abstract as a user-assessed guide: Perfect for checks reviewed without identified issues, Acceptable for minor issues requiring assessment, and Needs Improvement for major issues requiring correction. No overall classification is calculated by this report; in particular, it does not label every dataset Acceptable or automatically prevent report generation.
+  Perfect, Acceptable, and Needs Improvement are qualitative descriptions provided to guide users in evaluating data quality. No overall classification is calculated by this report.
 
-  Investigate missing or inconsistent records and document any corrections or exclusions. After editing source data, reload them with `camData(..., update = TRUE)` and rerun `status()`. Retain the corrected inputs, selected modules, settings, and package versions with your analysis. A successful report does not establish that the survey design or data meet the assumptions of the selected ecological methods.
+  It is recommended to resolve relevant data issues and document any corrections or exclusions. After modifying the source data, reload them using `camData(..., update = TRUE)` and rerun `status()` before proceeding with `report()`. A successfully generated report does not establish that the dataset meets the assumptions of the selected ecological analyses.
 code: null
 ---
