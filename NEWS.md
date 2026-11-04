@@ -1,4 +1,14 @@
-# camtrapReport 1.0.73 (development version)
+# camtrapReport 1.0.73
+
+- Submission safety: folder imports no longer write implicit cache or study-area
+  files. Named `path` and `cache_file` settings use the existing `camData(...)`
+  interface for explicit ZIP extraction and cache persistence. ZIP imports now
+  require a chosen extraction directory; old directory caches remain readable.
+- Omitted report filenames now create temporary previews. Module mutations
+  require a copied registry, and module inspection does not create trash files.
+- GUI ZIP imports use an explicitly selected output directory; saved spatial
+  boundaries are packed for reuse. GUI and installer examples require opt-in.
+ (development version)
 
 - Apply small good-practice cleanups without changing the public API,
   dependencies, `.eval()` architecture or scientific calculations: preserve

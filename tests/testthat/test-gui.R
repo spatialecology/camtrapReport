@@ -15,7 +15,7 @@ test_that("the GUI app is built and exposes its read-only server outputs", {
     expect_gt(length(output$species_table), 0L)
     expect_gt(length(output$sections_ui), 0L)
     expect_gt(length(output$section_edit_select_ui), 0L)
-    expect_match(output$section_list, "name")
+    expect_match(output$section_summary, "sections included")
     expect_match(output$cm_summary, cm$siteName, fixed = TRUE)
   })
 })
@@ -217,7 +217,7 @@ test_that("GUI saving rejects missing directories and protects existing RDS", {
   })
 })
 
-test_that("GUI output defaults use optional here only at the UI layer", {
+test_that("GUI output requires a deliberate directory selection", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
   root <- tempfile("camtrapReport-gui-project-")
   dir.create(root)
@@ -235,14 +235,24 @@ test_that("GUI output defaults use optional here only at the UI layer", {
     expect_identical(code, "here::here()")
     root
   }, envir = app_env)
-  expect_identical(default_output(cm), root)
+  expect_identical(default_output(cm), "")
 
   assign("requireNamespace", function(...) FALSE, envir = app_env)
-  expect_identical(default_output(cm),
-                   normalizePath(cm$info$directory, winslash = "/"))
+  expect_identical(default_output(cm), "")
   cm$info$directory <- NULL
   expect_identical(default_output(cm), "")
   expect_identical(default_output(NULL), "")
+})
+
+test_that("GUI metadata refresh is safe outside a reactive consumer", {
+  cm <- camtrap_test_report()
+  app <- .camtrapReport_gui_app(cm)
+  callback <- NULL
+  shiny::testServer(app$serverFuncSource(), {
+    session$flushReact()
+    callback <<- refresh_inputs
+  })
+  expect_no_error(callback(cm))
 })
 
 test_that("GUI metadata refresh preserves an explicit output directory", {

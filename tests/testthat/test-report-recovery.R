@@ -28,6 +28,8 @@ recovery_renderer <- function(state) {
 
 test_that("report recovery keeps only the attached default selection", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   original <- recovery_module_names(cm$reportObjects)
   cm$reportObjectElements$Modules_info$tested <- NA
   state <- recovery_state()
@@ -50,6 +52,8 @@ test_that("report recovery keeps only the attached default selection", {
 
 test_that("report recovery preserves custom attached module ordering", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   cm$reportObjects <- list()
   selected <- c("methods", "study_area", "introduction")
   for (name in selected) {
@@ -75,6 +79,8 @@ test_that("report recovery preserves custom attached module ordering", {
 
 test_that("recovery retains attached EOW status modules and skips orphans", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   suppressMessages(sections(
     cm,
     n = sections(cm, profile = "EOW"),
@@ -115,6 +121,8 @@ test_that("recovery retains attached EOW status modules and skips orphans", {
 
 test_that("explicit-profile recovery removes descendants of failed parents", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   state <- recovery_state()
 
   testthat::with_mocked_bindings(
@@ -138,6 +146,8 @@ test_that("explicit-profile recovery removes descendants of failed parents", {
 
 test_that("PDF recovery tests only modules compatible with PDF", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   original <- recovery_module_names(cm$reportObjects)
   cm$reportObjectElements$Modules_info$tested <- NA
   state <- recovery_state()
@@ -163,6 +173,8 @@ test_that("PDF recovery tests only modules compatible with PDF", {
 
 test_that("recovery reuses tests of unchanged pool modules", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   suppressMessages(sections(cm, c("introduction", "methods", "study_area")))
   original <- recovery_module_names(cm$reportObjects)
   info <- cm$reportObjectElements$Modules_info
@@ -190,6 +202,8 @@ test_that("recovery reuses tests of unchanged pool modules", {
 test_that(
   "recovery tests edited and custom modules without altering the pool", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   edited <- cm$reportObjectElements$Modules$introduction
   edited@txt <- "User-edited introduction."
   cm$reportObjects <- list(
@@ -223,6 +237,8 @@ test_that(
 
 test_that("recovery stops cleanly when all selected roots fail", {
   cm <- camtrap_test_report()$copy(shallow = FALSE)
+  # Recovery tests exercise module selection, not optional REM estimators.
+  assign("prepare_REM", function(...) invisible(cm), envir = cm)
   suppressMessages(sections(cm, c("methods", "study_area")))
   original <- recovery_module_names(cm$reportObjects)
   cm$reportObjectElements$Modules_info$tested <- NA

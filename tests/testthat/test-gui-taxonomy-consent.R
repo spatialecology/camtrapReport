@@ -25,6 +25,7 @@ test_that("GUI GBIF enrichment requires an explicitly checked control", {
 
   shiny::testServer(server, {
     session$setInputs(data_zip_path = zip_path, habitat_csv_path = "",
+                      output_dir = root,
                       load_cm = 1)
     session$flushReact()
     expect_identical(state$consent, FALSE)

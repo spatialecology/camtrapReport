@@ -18,12 +18,19 @@ setGeneric("gui", function(object, launch.browser, max_upload_mb, ...) {
 #'
 #' The GUI can be used with an existing `camReport` object and provides an
 #' interactive alternative to configuring reports directly in R.
-#' The output directory initially uses the project root from the optional
-#' `here` package when available, otherwise the object's dataset directory.
-#' Choose an existing directory explicitly before saving output.
+#' Choose an existing output directory explicitly before loading ZIP data or
+#' saving output. ZIP data are extracted there so saved objects retain their
+#' source paths across R sessions.
 #' Existing report, R Markdown, and saved-object files are protected unless
 #' the overwrite checkbox is selected. Generating output does not change the
-#' R working directory.
+#' R working directory. On local Windows sessions, Browse opens R's native
+#' folder chooser; manual path entry remains available on every platform.
+#' The Sections tab edits the loaded source narrative without evaluating its
+#' placeholders or replacing code-generated content. Reset restores the text
+#' present when the dataset was loaded into the GUI. Save the current object
+#' as RDS to retain edits to included sections. Excluded sections retain their
+#' edits only for the current GUI session. Focus-group choices come from the data;
+#' missing taxonomy is explained without automatically contacting GBIF.
 #' ZIP imports have a separate, initially unchecked permission to overwrite an
 #' existing extraction directory; see [camData()] for its location and limits.
 #' GBIF taxonomy enrichment is also initially unchecked. Selecting it permits
@@ -48,7 +55,8 @@ setGeneric("gui", function(object, launch.browser, max_upload_mb, ...) {
 #' @rdname gui
 #' @aliases gui
 #'
-#' @examplesIf interactive()
+#' @examplesIf interactive() && identical(Sys.getenv("CAMTRAPREPORT_RUN_GUI_EXAMPLE"), "true")
+#' # Set CAMTRAPREPORT_RUN_GUI_EXAMPLE=true deliberately to launch this example.
 #' source_dataset <- system.file(
 #'   "external",
 #'   "dataset",
@@ -121,8 +129,8 @@ setMethod(
   `%||%` <- function(x, y) {
     if (
       is.null(x) ||
-        length(x) == 0 ||
-        (length(x) == 1 && is.na(x))
+      length(x) == 0 ||
+      (length(x) == 1 && is.na(x))
     ) {
       y
     } else {
@@ -135,29 +143,26 @@ setMethod(
   }
 
   .default_output_dir <- function(cm) {
-    if (requireNamespace("here", quietly = TRUE)) {
-      project <- .safe(.eval("here::here()"), NULL)
-      if (is.character(project) && length(project) == 1L && !is.na(project) &&
-          nzchar(project) && dir.exists(project)) {
-        return(normalizePath(project, winslash = "/", mustWork = TRUE))
-      }
-    }
-    path <- .safe(cm$info$directory, NULL)
-    if (is.character(path) && length(path) == 1L && !is.na(path) &&
-        nzchar(path) && dir.exists(path)) {
-      normalizePath(path, winslash = "/", mustWork = TRUE)
-    } else {
-      ""
-    }
+    ""
   }
 
   .output_directory <- function(path) {
     path <- trimws(path %||% "")
-    if (length(path) != 1L || !nzchar(path) || !dir.exists(path)) {
+    if (length(path) != 1L || is.na(path) || !nzchar(path) || !dir.exists(path)) {
       stop("Choose an existing output directory before saving or rendering.",
            call. = FALSE)
     }
+    .check_output_directory(path)
     normalizePath(path, winslash = "/", mustWork = TRUE)
+  }
+
+  .choose_output_directory <- function(default = "") {
+    if (.Platform$OS.type != "windows") {
+      stop("Folder browsing is available on local Windows sessions. ",
+           "Enter an existing path manually on this system.", call. = FALSE)
+    }
+    chooser <- getExportedValue("utils", "choose.dir")
+    chooser(default = default, caption = "Choose report output directory")
   }
 
   .check_gui_report_output <- function(cm, out_dir, stem, overwrite) {
@@ -313,32 +318,74 @@ setMethod(
     invisible(cm)
   }
 
-  .get_all_sections <- function(cm = NULL) {
-    out <- character()
-
-    if (!is.null(cm)) {
-      out <- .safe(section_names(cm), character())
+  # Keep the loaded tree (including runtime/custom sections) and offer other
+  # available modules without replacing the loaded sections with registry copies.
+  .filter_section_tree <- function(tree, keep) {
+    if (inherits(tree, ".textSection")) {
+      return(if (tree@name %in% keep) tree else NULL)
     }
-
-    if (length(out) == 0) {
-      out <- .safe(section_names(), character())
-    }
-
-    if (length(out) == 0 && !is.null(cm)) {
-      out <- .safe(sections(cm), character())
-    }
-
-    unique(as.character(out))
+    if (!is.list(tree)) return(tree)
+    out <- lapply(tree, .filter_section_tree, keep = keep)
+    out[!vapply(out, is.null, logical(1))]
   }
 
-  .get_included_sections <- function(cm) {
-    out <- .safe(sections(cm), character())
-
-    if (length(out) == 0) {
-      out <- .get_all_sections(cm)
+  .gui_section_tree <- function(cm) {
+    if (is.null(cm)) return(list())
+    editor <- cm$copy(shallow = TRUE)
+    available <- .available_pool_names(cm, "report")
+    extra <- setdiff(available, .reportSection_catalog(cm$reportObjects)$name)
+    for (name in extra) {
+      before <- editor$reportObjects
+      # Use the existing attachment method for hierarchy and heading levels.
+      # A module whose parent is unavailable must not replace a custom tree.
+      tryCatch(editor$addReportObject(.module_pool(cm, "report")[[name]]),
+               error = function(e) { editor$reportObjects <- before })
     }
+    editor$reportObjects
+  }
 
-    unique(as.character(out))
+  .section_choices <- function(tree) {
+    catalog <- .reportSection_catalog(tree)
+    labels <- ifelse(nzchar(catalog$title), catalog$title, catalog$name)
+    labels <- paste0(ifelse(catalog$parent == ".root", "",
+                            paste0(catalog$parent, " / ")),
+                     labels, " [", catalog$name, "]")
+    stats::setNames(catalog$name, labels)
+  }
+
+  .gui_section <- function(tree, name) {
+    hit <- .matchReportSection(.reportSection_catalog(tree), name, by = "name")
+    nodes <- .flatten_attached_sections(tree)
+    nodes[[which(vapply(nodes, function(x) identical(x@name, hit$name), logical(1)))]]
+  }
+
+  .select_gui_sections <- function(cm, tree, selected) {
+    catalog <- .reportSection_catalog(tree)
+    if (!all(selected %in% catalog$name)) stop("The section selection is no longer available.")
+    if (!length(selected)) stop("Select at least one section.")
+    # Selecting a child also requires its ancestors. Resolve dependencies in
+    # the GUI rather than silently dropping a user's selected sections.
+    # Follow the catalogue hierarchy without rebuilding the edited tree.
+    requested <- unique(selected)
+    repeat {
+      parents <- catalog$parent[match(selected, catalog$name)]
+      parents <- parents[!is.na(parents) & parents %in% catalog$name]
+      next_selected <- unique(c(selected, parents))
+      if (length(next_selected) == length(selected)) break
+      selected <- next_selected
+    }
+    selected <- catalog$name[catalog$name %in% selected]
+    cm$reportObjects <- .filter_section_tree(tree, selected)
+    invisible(setdiff(selected, requested))
+  }
+
+  .edit_gui_section <- function(cm, tree, name, text) {
+    # The existing editor handles only attached sections. Give it a shallow
+    # object copy with the GUI tree so excluded sections can also be edited.
+    editor <- cm$copy(shallow = TRUE)
+    editor$reportObjects <- tree
+    updateReportSection(editor, section = name, text = text)
+    editor$reportObjects
   }
 
   .unique_values <- function(cm, field) {
@@ -358,8 +405,7 @@ setMethod(
 
       x <- as.character(df[[field]])
       x <- x[!is.na(x)]
-      x <- trimws(x)
-      x <- x[nzchar(x)]
+      x <- x[nzchar(trimws(x))]
       x
     }))
 
@@ -560,8 +606,8 @@ setMethod(
         ),
 
         shiny::helpText(
-          "ZIP files extract to a folder named after the archive in R's ",
-          "working directory. Unrelated old files are retained. This ",
+          "ZIP files extract to a folder named after the archive in the ",
+          "selected output directory. Unrelated old files are retained. This ",
           "permission is separate from overwriting report output."
         ),
 
@@ -762,6 +808,7 @@ setMethod(
               shiny::h3("Include / exclude report sections"),
 
               shiny::uiOutput("sections_ui"),
+              shiny::helpText("Selecting a child automatically includes its required parent sections. To exclude a parent and its children, remove the children too."),
 
               shiny::actionButton(
                 "apply_sections",
@@ -776,30 +823,23 @@ setMethod(
 
               shiny::uiOutput("section_edit_select_ui"),
 
-              shiny::textAreaInput(
-                "section_new_text",
-                "New text",
-                rows = 8,
-                placeholder = "Write replacement or additional text here..."
+              shiny::uiOutput("section_text_ui"),
+              shiny::p(
+                "Edit the source narrative, keeping placeholders such as {siteName} ",
+                "where dynamic values are wanted. Figures, tables and generated ",
+                "content remain intact. Save changes before switching sections."
               ),
-
-              shiny::checkboxInput(
-                "section_append",
-                "Append text instead of replacing existing text",
-                value = FALSE
-              ),
-
               shiny::actionButton(
-                "apply_section_text",
-                "Update section text",
-                class = "btn btn-success"
-              )
-            ),
-
-            shiny::div(
-              class = "card",
-              shiny::h3("Current section list"),
-              shiny::verbatimTextOutput("section_list")
+                "apply_section_text", "Save section text", class = "btn btn-success"
+              ),
+              shiny::actionButton("reset_section_text", "Reset to original"),
+              shiny::helpText(
+                "Reset restores the text present when this dataset was loaded into ",
+                "the GUI. Save the current camReport object as RDS to retain ",
+                "included sections. Edits to excluded sections last only for ",
+                "this GUI session."
+              ),
+              shiny::textOutput("section_summary")
             )
           ),
 
@@ -824,6 +864,11 @@ setMethod(
                 )
               ),
 
+              shiny::actionButton("browse_output_dir", "Browse for folder..."),
+              shiny::helpText(
+                "Browse opens a folder chooser on the Windows computer running R. ",
+                "For remote or other-platform sessions, enter a path manually."
+              ),
               shiny::verbatimTextOutput("output_paths"),
 
               shiny::checkboxInput(
@@ -861,11 +906,33 @@ setMethod(
       unlink(session_temp_dir, recursive = TRUE, force = TRUE)
     })
     #---
+    initial_tree <- .gui_section_tree(object)
     rv <- shiny::reactiveValues(
-      cm = object
+      cm = object, revision = 0L,
+      section_tree = initial_tree, original_sections = initial_tree
     )
 
+    touch_object <- function(cm) {
+      rv$cm <- cm
+      # camReport is a reference object: assignment alone need not invalidate UI.
+      rv$revision <- shiny::isolate(rv$revision) + 1L
+    }
+
+    shiny::observeEvent(input$browse_output_dir, {
+      tryCatch({
+        current <- input$output_dir %||% ""
+        chosen <- .choose_output_directory(if (dir.exists(current)) current else "")
+        if (is.null(chosen) || length(chosen) == 0L ||
+            (length(chosen) == 1L && (is.na(chosen) || !nzchar(chosen)))) return()
+        chosen <- .output_directory(chosen)
+        shiny::updateTextInput(session, "output_dir", value = chosen)
+      }, error = function(e) {
+        shiny::showNotification(conditionMessage(e), type = "error", duration = 10)
+      })
+    })
+
     cm_current <- shiny::reactive({
+      rv$revision
       shiny::validate(
         shiny::need(!is.null(rv$cm), "Please load a Camtrap-DP zip file first.")
       )
@@ -876,7 +943,7 @@ setMethod(
     refresh_inputs <- function(cm) {
       inf <- .get_info(cm)
 
-      if (!nzchar(trimws(input$output_dir %||% ""))) {
+      if (!nzchar(trimws(shiny::isolate(input$output_dir) %||% ""))) {
         shiny::updateTextInput(
           session, "output_dir", value = .default_output_dir(cm)
         )
@@ -967,14 +1034,14 @@ setMethod(
       }
 
       if (!is.null(input$sections_keep)) {
-        sections(cm, n = input$sections_keep)
+        .select_gui_sections(cm, rv$section_tree, input$sections_keep)
       }
 
       if (isTRUE(run_setup)) {
         cm$setup()
       }
 
-      rv$cm <- cm
+      touch_object(cm)
 
       invisible(cm)
     }
@@ -1032,6 +1099,7 @@ setMethod(
               habitat = habitat,
               study_area = study_area,
               enrich_taxonomy = isTRUE(input$enrich_taxonomy),
+              path = if (.isZip(zip_path)) .output_directory(input$output_dir) else NULL,
               overwrite = overwrite_dataset
             )
           } else {
@@ -1039,6 +1107,7 @@ setMethod(
               data = zip_path,
               habitat = habitat,
               enrich_taxonomy = isTRUE(input$enrich_taxonomy),
+              path = if (.isZip(zip_path)) .output_directory(input$output_dir) else NULL,
               overwrite = overwrite_dataset
             )
           }
@@ -1054,7 +1123,9 @@ setMethod(
       )
 
       if (!is.null(cm)) {
-        rv$cm <- cm
+        rv$section_tree <- .gui_section_tree(cm)
+        rv$original_sections <- rv$section_tree
+        touch_object(cm)
         refresh_inputs(cm)
 
         shiny::showNotification(
@@ -1074,6 +1145,7 @@ setMethod(
     })
 
     output$object_status <- shiny::renderUI({
+      rv$revision
       if (is.null(rv$cm)) {
         shiny::div(
           class = "status-missing",
@@ -1157,7 +1229,7 @@ setMethod(
         {
           cm$set_focus_group(x = input$existing_group)
           cm$setup()
-          rv$cm <- cm
+          touch_object(cm)
 
           shiny::showNotification(
             paste("Focus group updated to:", input$existing_group),
@@ -1183,19 +1255,28 @@ setMethod(
       )
 
       if (length(vals) == 0) {
-        return(shiny::p("No values found for this field."))
+        return(shiny::p(
+          "No recorded values are available for this field. Taxonomic class or ",
+          "order may be absent from the source data. Supply source taxonomy or ",
+          "explicitly opt in to enrichment when reimporting; this selector ",
+          "does not query GBIF."
+        ))
       }
 
-      shiny::selectizeInput(
+      shiny::tagList(shiny::selectizeInput(
         "group_values",
         "Values included in this group",
         choices = vals,
         selected = character(),
         multiple = TRUE,
         options = list(
-          placeholder = "Select one or more values"
+          placeholder = "Search and select one or more values", create = FALSE
         )
-      )
+      ), shiny::helpText(
+        "Values come from the loaded dataset. Missing or blank values are ",
+        "omitted; absent taxonomy does not mean a species is absent. ",
+        "No GBIF lookup is performed."
+      ))
     })
 
     shiny::observeEvent(input$add_focus_group, {
@@ -1205,21 +1286,26 @@ setMethod(
       field <- input$group_field %||% "scientificName"
       vals <- input$group_values %||% character()
 
-      shiny::validate(
-        shiny::need(nzchar(nm), "Please provide a focus group name."),
-        shiny::need(length(vals) > 0, "Please select at least one value.")
-      )
-
       rule <- list()
       rule[[field]] <- vals
 
       tryCatch(
         {
+          if (!nzchar(nm)) stop("Please provide a focus group name.")
+          if (!field %in% c("class", "order", "scientificName", "observationType")) {
+            stop("Choose a supported grouping field.")
+          }
+          if (!length(vals)) stop("Please select at least one value.")
+          if (!all(vals %in% .unique_values(cm, field))) {
+            stop("Select values from the current field and dataset.")
+          }
           cm$add_group(name = nm, x = rule)
+          # The existing setter validates against the computed group summary.
+          cm$setup()
           cm$set_focus_group(x = nm)
           cm$setup()
 
-          rv$cm <- cm
+          touch_object(cm)
 
           shiny::showNotification(
             paste0("Focus group '", nm, "' added and selected."),
@@ -1242,111 +1328,103 @@ setMethod(
 
     output$sections_ui <- shiny::renderUI({
       cm <- cm_current()
-
-      all_sec <- .get_all_sections(cm)
-      included <- .get_included_sections(cm)
-
-      if (length(all_sec) == 0) {
-        return(shiny::p("No report sections found."))
-      }
-
-      shiny::checkboxGroupInput(
-        "sections_keep",
-        "Sections included in the ecological report",
-        choices = all_sec,
-        selected = included
+      shiny::selectizeInput(
+        "sections_keep", "Sections included in the ecological report",
+        choices = .section_choices(rv$section_tree),
+        selected = .reportSection_catalog(cm$reportObjects)$name,
+        multiple = TRUE, options = list(plugins = list("remove_button"))
       )
     })
 
     output$section_edit_select_ui <- shiny::renderUI({
-      cm <- cm_current()
-
-      all_sec <- .get_all_sections(cm)
-
-      if (length(all_sec) == 0) {
-        return(shiny::p("No editable sections found."))
+      cm_current()
+      choices <- .section_choices(rv$section_tree)
+      if (!length(choices)) return(shiny::p("No report sections are available."))
+      selected <- shiny::isolate(input$section_to_edit)
+      if (length(selected) != 1L || is.na(selected) || !selected %in% choices) {
+        selected <- unname(choices[1])
       }
+      shiny::selectInput("section_to_edit", "Section to edit",
+                         choices = choices, selected = selected)
+    })
 
-      shiny::selectInput(
-        "section_to_edit",
-        "Section to edit",
-        choices = all_sec
+    output$section_text_ui <- shiny::renderUI({
+      shiny::req(input$section_to_edit)
+      section <- tryCatch(.gui_section(rv$section_tree, input$section_to_edit),
+                          error = function(e) NULL)
+      if (is.null(section)) return(shiny::p(
+        "This section cannot be identified uniquely. Use unique section names ",
+        "with the existing report-section functions before editing."
+      ))
+      shiny::tagList(
+        shiny::div(style = "display:none;",
+                   shiny::textInput("section_editor_name", NULL, value = section@name)),
+        shiny::textAreaInput("section_new_text", "Source text (Markdown)",
+                             value = .collapse_section_text(section@txt), rows = 10, width = "100%")
       )
     })
 
     shiny::observeEvent(input$apply_sections, {
       cm <- cm_current()
-
-      tryCatch(
-        {
-          sections(cm, n = input$sections_keep %||% character())
-          rv$cm <- cm
-
-          shiny::showNotification(
-            "Section selection updated.",
-            type = "message"
-          )
-        },
-        error = function(e) {
-          shiny::showNotification(
-            paste("Could not update sections:", conditionMessage(e)),
-            type = "error",
-            duration = 10
-          )
-        }
-      )
+      tryCatch({
+        added <- .select_gui_sections(cm, rv$section_tree,
+                                      input$sections_keep %||% character())
+        touch_object(cm)
+        shiny::showNotification(if (length(added)) {
+          paste0("Section selection updated. Required parent section(s) added: ",
+                 paste(added, collapse = ", "), ".")
+        } else {
+          "Section selection updated."
+        }, type = "message")
+      }, error = function(e) {
+        shiny::showNotification(conditionMessage(e), type = "error", duration = 10)
+      })
     })
+
+    save_section_text <- function(reset = FALSE) {
+      cm <- cm_current()
+      name <- input$section_to_edit %||% ""
+      if (!nzchar(name) || !identical(input$section_editor_name, name)) {
+        stop("Wait for the selected section's text to load before saving.")
+      }
+      .gui_section(rv$section_tree, name) # Reject ambiguous targets before editing.
+      if (reset) {
+        original <- .gui_section(rv$original_sections, name)
+        tree <- .updateReportSection_tree(rv$section_tree, name, function(sec) {
+          sec@txt <- original@txt
+          sec
+        })
+      } else {
+        text <- input$section_new_text
+        if (!is.character(text) || length(text) != 1L || is.na(text)) {
+          stop("The section text has not loaded yet.")
+        }
+        tree <- .edit_gui_section(cm, rv$section_tree, name, text)
+      }
+      included <- .reportSection_catalog(cm$reportObjects)$name
+      .select_gui_sections(cm, tree, included)
+      rv$section_tree <- tree
+      touch_object(cm)
+      shiny::showNotification(if (reset) "Original section text restored." else
+        "Section text saved in this session; include it when saving the object.",
+        type = "message")
+    }
 
     shiny::observeEvent(input$apply_section_text, {
-      cm <- cm_current()
-
-      shiny::validate(
-        shiny::need(
-          nzchar(input$section_to_edit %||% ""),
-          "Please select a section."
-        ),
-        shiny::need(
-          nzchar(input$section_new_text %||% ""),
-          "Please write some text."
-        )
-      )
-
-      tryCatch(
-        {
-          updateReportSection(
-            cm,
-            section = input$section_to_edit,
-            text = input$section_new_text,
-            append_text = isTRUE(input$section_append)
-          )
-
-          rv$cm <- cm
-
-          shiny::showNotification(
-            "Section text updated.",
-            type = "message"
-          )
-        },
-        error = function(e) {
-          shiny::showNotification(
-            paste("Could not update section text:", conditionMessage(e)),
-            type = "error",
-            duration = 10
-          )
-        }
-      )
+      tryCatch(save_section_text(), error = function(e) {
+        shiny::showNotification(conditionMessage(e), type = "error", duration = 10)
+      })
+    })
+    shiny::observeEvent(input$reset_section_text, {
+      tryCatch(save_section_text(reset = TRUE), error = function(e) {
+        shiny::showNotification(conditionMessage(e), type = "error", duration = 10)
+      })
     })
 
-    output$section_list <- shiny::renderPrint({
+    output$section_summary <- shiny::renderText({
       cm <- cm_current()
-
-      out <- .safe(listReportSections(cm), NULL)
-
-      if (is.null(out)) {
-        sections(cm)
-      } else {
-        out
-      }
+      paste(length(.reportSection_catalog(cm$reportObjects)$name),
+            "sections included. Text edits do not change installed module files.")
     })
 
     output$cm_summary <- shiny::renderPrint({
@@ -1361,18 +1439,36 @@ setMethod(
         years = .safe(cm$years, NA),
         filterCount = .safe(cm$filterCount, NA),
         focus_group = .safe(cm$setting$focus_groups, NA),
-        included_sections = .safe(sections(cm), NA),
+        included_sections = .safe(.reportSection_catalog(cm$reportObjects)$name, NA),
         n_species = nrow(.species_table(cm))
       )
     })
 
     output$output_paths <- shiny::renderText({
-      out_dir <- .output_directory(input$output_dir)
+      path <- trimws(input$output_dir %||% "")
+
+      if (!nzchar(path)) {
+        return("Select an output directory to preview report paths.")
+      }
+
+      out_dir <- tryCatch(
+        .output_directory(path),
+        error = function(e) NULL
+      )
+
+      if (is.null(out_dir)) {
+        return("Please select a valid, writable output directory.")
+      }
+
       paste(file.path(out_dir, c(
-        "report.html", "report.Rmd", "data_status.html", "data_status.Rmd",
+        "report.html",
+        "report.Rmd",
+        "data_status.html",
+        "data_status.Rmd",
         "camtrapReport_gui_object.rds"
       )), collapse = "\n")
     })
+
 
     shiny::observeEvent(input$save_cm, {
       tryCatch({
@@ -1383,7 +1479,8 @@ setMethod(
                "checkbox or choose another output directory.", call. = FALSE)
         }
         cm <- apply_gui_settings(run_setup = FALSE)
-        saveRDS(cm, out_file)
+        .save_camreport_cache(cm, out_file,
+                              overwrite = isTRUE(input$overwrite_outputs))
         shiny::showNotification(
           paste("Saved:", out_file), type = "message", duration = 8
         )

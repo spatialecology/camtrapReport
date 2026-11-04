@@ -351,7 +351,7 @@ test_that("public module wrappers dispatch without changing package files", {
   expect_false(calls$added[[1]]$test)
   expect_true(calls$added[[2]]$test)
   
-  expect_silent(move_Module("results", parent = ".root"))
+  expect_silent(move_Module("results", parent = ".root", dir = tempdir()))
   expect_identical(remove_Module("results", recursive = FALSE), "deleted")
   expect_identical(restore_Module("results", test = FALSE), "restored")
   expect_identical(empty_trash(name = "results", id = "batch"), "purged")

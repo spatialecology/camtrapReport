@@ -89,7 +89,7 @@ report(cm, view = TRUE)   # Generate and open the Ecological Report
 
 ### Save the report
 
-By default, the report is saved in `cm$info$directory`, the object's data directory. Use `filename` to specify an output location and `view = FALSE` to generate the report without opening it. The destination directory must already exist.
+By default, the report is saved to a unique file in the R session temporary directory. Use `filename` to specify an output location and `view = FALSE` to generate the report without opening it. The destination directory must already exist.
 
 ```{r ecological-report-output-path, eval=FALSE}
 dir.create("reports", recursive = TRUE, showWarnings = FALSE)

@@ -297,6 +297,8 @@ write_profile <- function(profile, file, overwrite = FALSE, object = NULL) {
     stop("The profile output directory does not exist: ", parent_dir)
   }
 
+  .check_output_directory(parent_dir)
+
   lines <- c(
     "---",
     paste0("name: ", .yaml_string(profile@name)),

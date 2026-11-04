@@ -11,43 +11,19 @@ code: |
 
   density_tabs_rendered <- FALSE
   
-  if (
-    !exists("estimates_rem") ||
-      is.null(estimates_rem) ||
-      !"parameterScope" %in% names(estimates_rem) ||
-      !all(estimates_rem$parameterScope == "annual")
-  ) {
-    
-    spn <- object$get_speciesNames(object$setting$focus_groups)
-    spn <- unique(spn[!is.na(spn) & nzchar(spn)])
-    
-    rem_list <- list()
-    
-    if (length(spn) > 0) {
-      for (sp in spn) {
-        tmp <- try(
-          object$get_REM(
-            sp,
-            parameter_scope = "annual",
-            reps = 999L,
-            seed = 42L
-          ),
-          silent = TRUE
-        )
-        
-        if (!inherits(tmp, "try-error") && !is.null(tmp) && length(tmp) > 0) {
-          tmp_df <- try(dplyr::bind_rows(tmp), silent = TRUE)
-          
-          if (!inherits(tmp_df, "try-error") && is.data.frame(tmp_df) && nrow(tmp_df) > 0) {
-            rem_list[[sp]] <- tmp_df
-          }
-        }
-      }
-    }
-    
-    estimates_rem <- dplyr::bind_rows(rem_list)
-  }
-  
+  # Preparation is performed by report() before knitting. Never fit in a module.
+  spn <- unique(as.character(object$get_speciesNames(object$setting$focus_groups)))
+  spn <- spn[!is.na(spn) & nzchar(spn)]
+  rem_list <- lapply(spn, function(sp) {
+    object$get_REM(
+      sp, parameter_scope = "annual",
+      reps = if (is.null(object$setting$eow_rem_reps)) 999L else object$setting$eow_rem_reps,
+      seed = if (is.null(object$setting$eow_rem_seed)) 42L else object$setting$eow_rem_seed,
+      fit = FALSE
+    )
+  })
+  estimates_rem <- dplyr::bind_rows(unlist(rem_list, recursive = FALSE))
+
   if (exists("estimates_rem") && !is.null(estimates_rem) && nrow(estimates_rem) > 0) {
     
     density_data <- estimates_rem |>

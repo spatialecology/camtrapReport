@@ -123,9 +123,9 @@ child modules are also moved to the trash.
 \code{list_Modules()} lists active modules and can optionally include deleted
 modules stored in the trash.
 
-Supply \code{dir} when changing modules. If it is omitted, these functions use
-the installed package's module directory, which may be read-only and is
-replaced during package updates. Copy \code{reportSections} to a writable project
+Supply \code{dir} when changing modules. If it is omitted, the
+bundled registry is available for reading only. Copy \code{reportSections}
+to a writable project
 directory first, then pass that copied directory to \code{add_Module()} and the
 other management functions. See the
 \href{https://spatialecology.github.io/camtrapReport/articles/modules.html}{module guide}.

@@ -68,7 +68,6 @@ setGeneric(
 #' @aliases info info<-
 #'
 #' @examples
-#' \donttest{
 #' # Use the small dataset to demonstrate metadata access and editing.
 #' source_dataset <- system.file(
 #'   "external",
@@ -107,7 +106,7 @@ setGeneric(
 #' )
 #'
 #' unlink(example_dataset, recursive = TRUE, force = TRUE)
-#' }
+
 setMethod(
   "info",
   signature(x = "camReport"),

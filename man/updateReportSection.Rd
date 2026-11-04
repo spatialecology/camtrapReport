@@ -76,7 +76,6 @@ project-specific needs, including changing section titles, replacing or
 appending text, and adding or updating R code chunks.
 }
 \examples{
-\donttest{
 # Use the small dataset to demonstrate editing an existing section.
 source_dataset <- system.file(
   "external",
@@ -117,7 +116,6 @@ updated_catalog[
 ]
 
 unlink(example_dataset, recursive = TRUE, force = TRUE)
-}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=reportSection]{reportSection()}}, \code{\link[=info]{info()}}

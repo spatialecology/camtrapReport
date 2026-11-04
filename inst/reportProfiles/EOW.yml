@@ -14,7 +14,6 @@ report:
   - "report::captures"
   - "report::abundance_trends_eow"
   - "report::population_density_annual"
-  - "report::model_parameters_eow"
   - "report::population_densities_eow"
   - "report::activity_patterns_eow"
   - "report::acknowledgements"

@@ -1,6 +1,7 @@
 test_that("get_REM returns existing stored results without refitting", {
   original <- camtrap_test_report()
   report <- original$copy(shallow = FALSE)
+  .sync_rem_cache(report)
 
   candidate_species <- unique(
     as.character(
@@ -64,6 +65,7 @@ test_that("get_REM returns existing stored results without refitting", {
 test_that("get_REM returns existing yearly results", {
   original <- camtrap_test_report()
   report <- original$copy(shallow = FALSE)
+  .sync_rem_cache(report)
 
   candidate_species <- unique(
     as.character(
@@ -135,6 +137,7 @@ test_that("get_REM returns existing yearly results", {
 test_that("annual REM results use an independent cache namespace", {
   original <- camtrap_test_report()
   report <- original$copy(shallow = FALSE)
+  .sync_rem_cache(report)
   candidate_species <- unique(
     as.character(report$observed_counts$scientificName)
   )
@@ -180,7 +183,8 @@ test_that("annual REM results use an independent cache namespace", {
     species,
     parameter_scope = "annual",
     reps = 999L,
-    seed = 42L
+    seed = 42L,
+    fit = FALSE
   )
 
   expect_named(result, display_name)

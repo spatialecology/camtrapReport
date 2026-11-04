@@ -57,7 +57,6 @@ Edits to report text affect the object; they do not rewrite the original
 dataset or the bundled YAML files.
 }
 \examples{
-\donttest{
 # Use the small dataset to demonstrate metadata access and editing.
 source_dataset <- system.file(
   "external",
@@ -96,7 +95,6 @@ info(
 )
 
 unlink(example_dataset, recursive = TRUE, force = TRUE)
-}
 }
 \seealso{
 \code{\link[=camData]{camData()}}, \code{\link[=report]{report()}}, \code{\link[=status]{status()}}, \code{\link[=updateReportSection]{updateReportSection()}}

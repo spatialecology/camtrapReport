@@ -138,6 +138,7 @@
       formats = "both",
       stringsAsFactors = FALSE
     )
+    .check_output_directory(dir)
     utils::write.csv(info, path, row.names = FALSE)
     return(info)
   }
@@ -444,7 +445,8 @@
     }
   }
 
-  if (write_info && length(added_to_info) > 0L) {
+  if (write_info && !.is_package_directory(module_dir) &&
+      length(added_to_info) > 0L) {
     utils::write.csv(info, info_path, row.names = FALSE)
   }
 
@@ -480,7 +482,7 @@
   object = NULL,
   formats = NULL
 ) {
-  module_dir <- .section_dir(package = package, dir = dir)
+  module_dir <- .writable_module_dir(package, dir)
   .trash_dir(module_dir, create = TRUE)
   info_path <- .modules_info_path(module_dir)
   info <- .read_modules_info(module_dir, level0 = level0)
@@ -595,13 +597,11 @@
 }
 
 .read_trash_index <- function(module_dir) {
-  td <- .trash_dir(module_dir, create = TRUE)
+  td <- .trash_dir(module_dir, create = FALSE)
   p <- .trash_index_path(td)
 
   if (!file.exists(p)) {
-    idx <- .empty_trash_index()
-    utils::write.csv(idx, p, row.names = FALSE)
-    return(idx)
+    return(.empty_trash_index())
   }
 
   out <- utils::read.csv(p, stringsAsFactors = FALSE)
@@ -734,7 +734,7 @@
   package = "camtrapReport",
   dir = NULL
 ) {
-  module_dir <- .section_dir(package = package, dir = dir)
+  module_dir <- .writable_module_dir(package, dir)
   info <- .read_modules_info(module_dir)
   trash_idx <- .read_trash_index(module_dir)
   trash_dir <- .trash_dir(module_dir, create = TRUE)
@@ -856,7 +856,7 @@
   ),
   test = TRUE
 ) {
-  module_dir <- .section_dir(package = package, dir = dir)
+  module_dir <- .writable_module_dir(package, dir)
   info <- .read_modules_info(module_dir, level0 = level0)
   trash_idx <- .read_trash_index(module_dir)
   trash_dir <- .trash_dir(module_dir, create = TRUE)
@@ -1225,7 +1225,7 @@
   package = "camtrapReport",
   dir = NULL
 ) {
-  module_dir <- .section_dir(package = package, dir = dir)
+  module_dir <- .writable_module_dir(package, dir)
   idx <- .read_trash_index(module_dir)
   trash_dir <- .trash_dir(module_dir, create = TRUE)
 
@@ -1600,9 +1600,9 @@ setGeneric(
 #' modules stored in the trash.
 #'
 #' @details
-#' Supply `dir` when changing modules. If it is omitted, these functions use
-#' the installed package's module directory, which may be read-only and is
-#' replaced during package updates. Copy `reportSections` to a writable project
+#' Supply `dir` when changing modules. If it is omitted, the
+#' bundled registry is available for reading only. Copy `reportSections`
+#' to a writable project
 #' directory first, then pass that copied directory to `add_Module()` and the
 #' other management functions. See the
 #' [module guide](
@@ -1783,7 +1783,7 @@ setMethod(
       dir <- NULL
     }
 
-    .module_dir <- .section_dir(package = "camtrapReport", dir = dir)
+    .module_dir <- .writable_module_dir("camtrapReport", dir)
     info_path <- .modules_info_path(.module_dir)
     info <- .read_modules_info(.module_dir, level0 = level0)
     info <- .resequence_info(info)
@@ -2006,3 +2006,13 @@ setMethod(
 )
 
 #--------
+
+.writable_module_dir <- function(package = "camtrapReport", dir = NULL) {
+  if (is.null(dir)) {
+    stop("Supply 'dir' for a copied module registry; bundled modules are read-only.",
+         call. = FALSE)
+  }
+  directory <- .section_dir(package, dir)
+  .check_output_directory(directory)
+  directory
+}

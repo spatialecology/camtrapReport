@@ -42,6 +42,27 @@ appendix_test_environment <- function(object) {
   env
 }
 
+test_that("appendix downloads use temporary storage without changing source data", {
+  object <- appendix_test_fixture(favourite = TRUE)
+  root <- tempfile("camtrapReport-appendix-source-")
+  dir.create(root)
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  object$info <- list(directory = root)
+  env <- new.env(parent = asNamespace("camtrapReport"))
+  env$object <- object
+  destinations <- character()
+  env$download.file <- function(url, destfile, ...) {
+    destinations <<- c(destinations, destfile)
+    stop("Offline fixture")
+  }
+  invisible(capture.output(eval(appendix_test_expressions(), envir = env)))
+  on.exit(unlink(env$.picture_dir, recursive = TRUE), add = TRUE)
+  expect_length(destinations, 1L)
+  expect_true(startsWith(normalizePath(dirname(destinations), winslash = "/"),
+                        paste0(normalizePath(tempdir(), winslash = "/"), "/")))
+  expect_length(list.files(root, all.files = TRUE, no.. = TRUE), 0L)
+})
+
 test_that("the actual appendix module accepts missing optional English names", {
   code <- appendix_test_expressions()
   for (english in c(TRUE, FALSE)) {

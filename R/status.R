@@ -14,13 +14,13 @@ setMethod(
   signature(object = "camReport"),
   function(
     object,
-    filename = "data_status",
+    filename = NULL,
     view = FALSE,
     profile = NULL,
     format = c("html", "pdf"),
     overwrite = FALSE
   ) {
-    if (missing(filename)) filename <- "data_status"
+    if (missing(filename)) filename <- NULL
     if (missing(view)) view <- FALSE
     if (missing(profile)) profile <- NULL
     format_missing <- missing(format)

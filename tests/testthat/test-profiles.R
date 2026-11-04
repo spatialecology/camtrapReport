@@ -4,10 +4,11 @@ test_that("bundled profiles select ordered modules from both pools", {
   expect_setequal(profile_names(cm), c("default", "EOW"))
 
   eow <- sections(cm, profile = "EOW")
-  expect_length(eow, 22L)
+  expect_length(eow, 21L)
   expect_true("report::location_eow" %in% eow)
   expect_true("report::population_density_annual" %in% eow)
   expect_false("report::population_density" %in% eow)
+  expect_false("report::model_parameters_eow" %in% eow)
   expect_true("status::spatial" %in% eow)
 
   report_pool_before <- names(cm$reportObjectElements$Modules)
@@ -31,7 +32,7 @@ test_that("bundled profiles select ordered modules from both pools", {
   expect_identical(
     find_test_report_section(
       cm$reportObjects,
-      "model_parameters_eow"
+      "population_densities_eow"
     )@parent,
     "population_density_annual"
   )

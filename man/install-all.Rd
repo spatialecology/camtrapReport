@@ -78,8 +78,8 @@ pkgs <- trimws(strsplit(
 pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
 
 # Package installation changes the user's R library, so these examples are
-# deliberately restricted to interactive sessions.
-if (interactive()) {
+# enabled only by a deliberate environment-variable opt-in.
+if (interactive() && identical(Sys.getenv("CAMTRAPREPORT_INSTALL_EXAMPLE"), "true")) {
 install_all()
 install_all(pkgs = "readr")
 install_all(update = TRUE)

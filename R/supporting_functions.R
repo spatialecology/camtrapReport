@@ -1809,7 +1809,7 @@
     ),
     package = "camtrapReport",
     dir = .module_dir,
-    write_info = TRUE
+    write_info = FALSE
   )
 
   unique(unlist(lapply(mods, function(x) {

@@ -146,7 +146,7 @@ test_that(
   state$overwrites <- logical()
   original_read <- .read_camdp
   local_mocked_bindings(
-    .read_camdp = function(file, enrich_taxonomy, overwrite) {
+    .read_camdp = function(file, enrich_taxonomy, overwrite, path = NULL) {
       state$overwrites <- c(state$overwrites, overwrite)
       stop("Import reached", call. = FALSE)
     }

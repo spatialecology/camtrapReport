@@ -50,9 +50,9 @@ test_that("report handles NULL and empty filenames", {
     test = FALSE
   )
 
-  expect_identical(
+  expect_match(
     basename(output_null),
-    "report.html"
+    "^camtrapReport-report-.*\\.html$"
   )
 
   expect_true(
@@ -67,14 +67,18 @@ test_that("report handles NULL and empty filenames", {
     overwrite = TRUE
   )
 
-  expect_identical(
+  expect_match(
     basename(output_empty),
-    "report.html"
+    "^camtrapReport-report-.*\\.html$"
   )
 
   expect_true(
     file.exists(output_empty)
   )
+  expect_identical(dirname(output_null), normalise_test_path(tempdir()))
+  expect_identical(dirname(output_empty), normalise_test_path(tempdir()))
+  expect_false(identical(output_null, output_empty))
+  expect_length(list.files(output_dir), 0L)
 })
 
 
@@ -109,9 +113,9 @@ test_that("status handles NULL and empty filenames", {
     view = FALSE
   )
 
-  expect_identical(
+  expect_match(
     basename(output_null),
-    "data_status.html"
+    "^camtrapReport-data_status-.*\\.html$"
   )
 
   expect_true(
@@ -125,14 +129,18 @@ test_that("status handles NULL and empty filenames", {
     overwrite = TRUE
   )
 
-  expect_identical(
+  expect_match(
     basename(output_empty),
-    "data_status.html"
+    "^camtrapReport-data_status-.*\\.html$"
   )
 
   expect_true(
     file.exists(output_empty)
   )
+  expect_identical(dirname(output_null), normalise_test_path(tempdir()))
+  expect_identical(dirname(output_empty), normalise_test_path(tempdir()))
+  expect_false(identical(output_null, output_empty))
+  expect_length(list.files(output_dir), 0L)
 })
 
 

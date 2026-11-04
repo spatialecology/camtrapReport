@@ -17,7 +17,7 @@ status(object, filename, view, profile, format, overwrite = FALSE)
 
 \item{filename}{An optional output filename or path. A \code{.html} or \code{.pdf}
 extension selects the format when \code{format} is omitted. Without an
-extension, the defaults are \code{"report"} and \code{"data_status"}.}
+extension, \code{.html} is appended. Omitted filenames use temporary output.}
 
 \item{view}{A logical value (default \code{FALSE}) specifying whether to open the
 generated report.}
@@ -54,7 +54,8 @@ shown by \code{\link[=list_Modules]{list_Modules()}} records module compatibilit
 
 Output includes the rendered \code{.html} or \code{.pdf} file and an \code{.Rmd} source
 file with the same stem. The resolved paths are displayed before rendering.
-A filename without a directory uses the object's existing dataset directory;
+An omitted or empty filename uses a unique R-session temporary file.
+An explicitly supplied filename without a directory uses the object's existing dataset directory;
 otherwise supply a filename including an existing output directory. Invalid
 directories cause an error rather than falling back to a different location.
 Existing report or \code{.Rmd} files are protected unless \code{overwrite = TRUE}.
@@ -85,6 +86,17 @@ structure explicitly. \code{section_names()} without a profile lists the complet
 available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 \code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
+
+EOW annual REM estimates are prepared before rendering and cached in \code{object}.
+To prepare them explicitly, call \code{object$prepare_REM()}. Preparation uses
+999 replicates and seed 42 by default; configure \code{object$setting$eow_rem_reps}
+and \code{object$setting$eow_rem_seed} to override these EOW-specific settings.
+Completed species-year fits are reused, including after \code{saveRDS()} and
+\code{readRDS()}. Missing fits are retried at the next preparation, with a warning
+identifying unavailable species-years. Changes to source tables invalidate
+the REM caches; \code{camData(..., update = TRUE)} creates a fresh object.
+Annual preparation is not performed during ordinary data import. General
+reports retain pooled REM parameters and their existing defaults.
 
 Apart from the destination notice, rendering is quiet by default. Set
 \code{options(camtrapReport.progress = TRUE)}

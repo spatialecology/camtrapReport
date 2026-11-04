@@ -33,7 +33,7 @@ See \code{\link[=install_all]{install_all()}}.
 \code{\link[=install_all]{install_all()}} for new code.
 }
 \examples{
-\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && identical(Sys.getenv("CAMTRAPREPORT_INSTALL_EXAMPLE"), "true")) withAutoprint(\{ # examplesIf}
 # Compatibility alias: installs optional module dependencies.
 # Prefer install_all() in new scripts.
 install_All()

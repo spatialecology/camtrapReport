@@ -442,7 +442,6 @@ setGeneric(
 #' @aliases listReportSections,camReport-method
 #'
 #' @examples
-#' \donttest{
 #' # Use the small dataset to demonstrate editing an existing section.
 #' source_dataset <- system.file(
 #'   "external",
@@ -483,7 +482,6 @@ setGeneric(
 #' ]
 #'
 #' unlink(example_dataset, recursive = TRUE, force = TRUE)
-#' }
 setMethod(
   "updateReportSection",
   signature(x = "camReport"),

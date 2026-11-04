@@ -25,8 +25,9 @@ code: |
         object$get_REM(
           sp,
           parameter_scope = "annual",
-          reps = 999L,
-          seed = 42L
+          reps = if (is.null(object$setting$eow_rem_reps)) 999L else object$setting$eow_rem_reps,
+          seed = if (is.null(object$setting$eow_rem_seed)) 42L else object$setting$eow_rem_seed,
+          fit = FALSE
         ),
         silent = TRUE
       )

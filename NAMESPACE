@@ -93,9 +93,7 @@ importFrom(terra,
 )
 importFrom(utils,
   head,
-  install.packages,
   read.csv,
-  remove.packages,
   tail,
   timestamp,
   unzip

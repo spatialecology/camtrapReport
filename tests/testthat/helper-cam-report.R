@@ -172,6 +172,7 @@ camtrap_test_report <- function() {
       suppressMessages(
         camData(
           dataset,
+          cache_file = file.path(dataset, "__camReport_Object.rds"),
           update = TRUE
         )
       ),

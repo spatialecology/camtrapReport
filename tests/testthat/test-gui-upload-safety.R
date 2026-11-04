@@ -175,7 +175,8 @@ test_that(
   state$overwrites <- logical()
   state$paths <- character()
   local_mocked_bindings(
-    camData = function(data, habitat, overwrite, ...) {
+    camData = function(data, habitat, overwrite, path, ...) {
+      expect_identical(path, if (.isZip(data)) normalizePath(root, winslash = "/") else NULL)
       state$overwrites <- c(state$overwrites, overwrite)
       state$paths <- c(state$paths, data)
       NULL
@@ -184,6 +185,7 @@ test_that(
   )
   shiny::testServer(helpers$app$serverFuncSource(), {
     session$setInputs(data_zip_path = zip_path, habitat_csv_path = "",
+                      output_dir = root,
                       overwrite_outputs = TRUE, load_cm = 1)
     session$flushReact()
     expect_identical(state$overwrites, FALSE)

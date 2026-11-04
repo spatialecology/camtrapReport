@@ -179,7 +179,6 @@ setGeneric(
 #' section_names(profile = "default")
 #' section_names(report_type = "all")
 #'
-#' \donttest{
 #' # Section selection needs only a small imported dataset.
 #' source_dataset <- system.file(
 #'   "external", "example-small", package = "camtrapReport"
@@ -195,7 +194,6 @@ setGeneric(
 #' sections(cm, profile = "default")
 #' cm <- sections(cm, c("introduction", "methods"))
 #' unlink(example_dataset, recursive = TRUE, force = TRUE)
-#' }
 setMethod(
   "section_names",
   signature(keep = "ANY"),

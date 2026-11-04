@@ -26,10 +26,14 @@ taxonomy enrichment when the optional \code{taxize} package is installed.
 Only explicit \code{TRUE} permits these network requests. This affects fresh
 imports; use \code{update = TRUE} to rebuild a previously cached object.}
 
-\item{...}{Additional arguments. These are currently reserved for future use.}
+\item{...}{Named persistence settings: \code{path} is an existing parent directory
+for ZIP extraction (required for ZIP inputs); \code{cache_file} is an explicit
+\code{.rds} filename for saving or reusing the processed object. Both default to
+\code{NULL}. Other arguments remain reserved. No positional arguments are added.}
 
 \item{overwrite}{A single logical value (default \code{FALSE}) allowing a ZIP
 input to replace archived files in an existing extraction directory.
+Also permits replacing an explicit \code{cache_file} when rebuilding.
 Other files in that directory are retained. This does not control reuse
 of a cached object when \code{data} is already a dataset directory; see
 \code{update}.}
@@ -50,9 +54,9 @@ If habitat information is provided, it is linked to camera locations and
 used in habitat-related summaries. If a study-area boundary is provided, it
 is stored with the object and used in spatial summaries where relevant.
 
-The \code{camReport} object is saved within an extracted dataset directory as
-\verb{__camReport_Object.rds}. A later call using that directory reuses the saved
-object unless \code{update = TRUE}, in which case the object is recreated.
+Imports do not save a cache unless \code{cache_file} is supplied through \code{...}.
+Existing \verb{__camReport_Object.rds} directory caches are still reused unless
+\code{update = TRUE}; they are never overwritten implicitly.
 
 \code{data} currently accepts a file-system path, not an in-memory data frame or
 list. A dataset directory contains \code{datapackage.json}, \code{deployments.csv},
@@ -83,16 +87,22 @@ Merely rerunning \code{status()} on the old object does not reread changed files
 }
 \section{Files and cache reuse}{
 
-\code{camData()} writes \verb{__camReport_Object.rds} beside the extracted data and,
-when a study area is supplied, writes \code{study_area.map}. A ZIP input is
-extracted before reading into a directory named after the ZIP file (without
-its extension) in the working directory. An existing target is rejected
-unless \code{overwrite = TRUE}. Explicit overwriting replaces archived members
-only; unrelated old files remain, and extraction is not transactional.
-A ZIP import reads the extracted files afresh and replaces the saved object
-only after a successful import. Use a writable copy of the input dataset, as
-in the examples, rather than an installed package directory. For directory
-inputs, a cached object is reused when \code{update = FALSE}. Lightweight
+Folder imports do not write beside the source data. Study areas remain in
+memory; existing \code{study_area.map} files are left untouched. ZIP imports require
+an explicit \code{path}, extracting into a subdirectory named after the archive.
+Choose persistent storage when retaining objects across sessions. Existing
+extraction targets require \code{overwrite = TRUE}; unrelated files remain and
+extraction is not transactional. Package installation directories are rejected.
+
+Use \code{camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))}
+to save an object explicitly. An existing cache is reused unless \code{update = TRUE};
+rebuilding also requires \code{overwrite = TRUE}. Study areas are packed into the
+saved object and restored by \code{camData(data_dir, cache_file = ...)}. The GUI's
+Save object action also packs study areas. Keep the source dataset at its
+recorded location for image access and source freshness checks.
+Legacy directory caches remain readable when no \code{cache_file} is supplied.
+To replace one explicitly, supply its full filename as \code{cache_file}, together
+with \verb{update = TRUE, overwrite = TRUE}. Lightweight
 file-size and modification-time
 checks warn if the four source CSV/JSON files were changed, added or removed
 in the dataset root or their recorded directories. The cache is still reused;

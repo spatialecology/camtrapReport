@@ -19,7 +19,7 @@
 }
 
 .rem_analysis_signature <- function() {
-  "rem-v2-annual-scope-individual-count"
+  "rem-v3-source-aware-cache"
 }
 
 .normalize_rem_scope <- function(x = NULL) {
@@ -39,12 +39,13 @@
 ) {
   parameter_scope <- .normalize_rem_scope(parameter_scope)
 
-  if (identical(parameter_scope, "pooled")) {
+  if (identical(parameter_scope, "pooled") &&
+      identical(as.integer(reps), 10L) && identical(as.integer(seed), 42L)) {
     return(species)
   }
 
   paste(
-    "annual",
+    parameter_scope,
     species,
     as.character(year)[1],
     paste0("reps=", as.integer(reps)[1]),
@@ -67,12 +68,13 @@
     paste0(species, "_", year)
   }
 
-  if (identical(parameter_scope, "pooled")) {
+  if (identical(parameter_scope, "pooled") &&
+      identical(as.integer(reps), 10L) && identical(as.integer(seed), 42L)) {
     return(result_name)
   }
 
   paste(
-    "annual",
+    parameter_scope,
     result_name,
     paste0("reps=", as.integer(reps)[1]),
     paste0("seed=", as.integer(seed)[1]),
@@ -917,7 +919,22 @@ camR <- setRefClass(
       parameter_scope <- .normalize_rem_scope(parameter_scope)
       reps <- as.integer(reps)[1]
       seed <- as.integer(seed)[1]
-      analysis_data <- if (is.null(data)) .self$data else data
+      .validate_rem_settings(reps, seed)
+      .sync_rem_cache(.self)
+      analysis_data <- if (!is.null(data)) {
+        data
+      } else if (identical(parameter_scope, "annual") && !is.null(year)) {
+        .self$get_data_subset(year)
+      } else {
+        .self$data
+      }
+      # Explicit noncanonical subsets must not read or replace object caches.
+      cacheable <- is.null(data) || identical(
+        .rem_source(analysis_data),
+        .rem_source(if (identical(parameter_scope, "annual") && !is.null(year)) {
+          .self$get_data_subset(year)
+        } else .self$data)
+      )
       cache_key <- .rem_parameter_key(
         sp,
         parameter_scope = parameter_scope,
@@ -927,12 +944,12 @@ camR <- setRefClass(
       )
 
       if (activity_only) {
-        if (is.list(.self$.rem_params[[cache_key]])) {
+        if (cacheable && is.list(.self$.rem_params[[cache_key]])) {
           return(.self$.rem_params[[cache_key]])
         }
 
         if (
-          is.null(.self$.act_models[[cache_key]]) ||
+          !cacheable || is.null(.self$.act_models[[cache_key]]) ||
             !is.list(.self$.act_models[[cache_key]])
         ) {
           x <- try(
@@ -949,7 +966,7 @@ camR <- setRefClass(
           )
 
           if (!inherits(x, "try-error")) {
-            .self$.act_models[[cache_key]] <- x
+            if (cacheable) .self$.act_models[[cache_key]] <- x
             return(x)
           }
         } else {
@@ -959,7 +976,7 @@ camR <- setRefClass(
         return(NULL)
       }
 
-      if (is.list(.self$.rem_params[[cache_key]])) {
+      if (cacheable && is.list(.self$.rem_params[[cache_key]])) {
         return(.self$.rem_params[[cache_key]])
       }
 
@@ -1012,7 +1029,7 @@ camR <- setRefClass(
       )
 
       if (!inherits(x, "try-error")) {
-        .self$.rem_params[[cache_key]] <- x
+        if (cacheable) .self$.rem_params[[cache_key]] <- x
         return(x)
       }
 
@@ -1037,6 +1054,7 @@ camR <- setRefClass(
       }
       reps <- as.integer(reps)[1]
       seed <- as.integer(seed)[1]
+      .sync_rem_cache(.self)
 
       if (!is.finite(reps) || reps < 1L) {
         stop("'reps' must be a positive integer.")
@@ -1105,8 +1123,17 @@ camR <- setRefClass(
       .density_estimate_list <- list()
 
       for (year in .self$years) {
+        result_key <- .rem_result_key(sp, year, parameter_scope, reps, seed)
+        if (identical(parameter_scope, "annual") &&
+            .rem_cached(.self$rem[[.g]][[result_key]])) {
+          .density_estimate_list[[result_key]] <- .self$rem[[.g]][[result_key]]
+          next
+        }
         dat <- .self$get_data_subset(year = year)
         if (nrow(dat$observations) == 0) {
+          .self$info$rem_empty_years <- unique(c(
+            .self$info$rem_empty_years, as.character(year)
+          ))
           next
         }
 
@@ -1181,7 +1208,7 @@ camR <- setRefClass(
 
       if (length(.self$.any_data_for_rem) == 0) {
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
-      } else {
+      } else if (!identical(parameter_scope, "annual")) {
         .self$.any_data_for_rem[sp] <- FALSE
       }
 
@@ -1191,7 +1218,8 @@ camR <- setRefClass(
       .sp,
       parameter_scope = NULL,
       reps = NULL,
-      seed = NULL
+      seed = NULL,
+      fit = TRUE
     ) {
       if (length(.sp) > 1) {
         stop(
@@ -1212,8 +1240,11 @@ camR <- setRefClass(
       }
       reps <- as.integer(reps)[1]
       seed <- as.integer(seed)[1]
+      .validate_rem_settings(reps, seed)
+      .sync_rem_cache(.self)
 
-      if (length(.self$.any_data_for_rem) == 0) {
+      if (identical(parameter_scope, "annual") ||
+          length(.self$.any_data_for_rem) == 0) {
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
       } else if (!.sp %in% names(.self$.any_data_for_rem)) {
         .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
@@ -1223,7 +1254,10 @@ camR <- setRefClass(
         .sp %in% names(.self$.any_data_for_rem) &&
         isTRUE(.self$.any_data_for_rem[[.sp]])
 
-      if (!has_rem_data) {
+      if (!has_rem_data && isTRUE(fit)) {
+        if (identical(parameter_scope, "annual")) {
+          return(NULL)
+        }
         .tmp <- .self$.get_REM_Param(
           .sp,
           activity_only = TRUE,
@@ -1267,7 +1301,12 @@ camR <- setRefClass(
         available <- names(.self$rem[[.g]])
       }
 
-      if (!any(storage_names %in% available)) {
+      needs_fit <- if (identical(parameter_scope, "annual")) {
+        length(.rem_missing_years(.self, .sp, reps, seed)) > 0L
+      } else {
+        !any(storage_names %in% available)
+      }
+      if (isTRUE(fit) && needs_fit) {
         fit_ok <- .self$fit_REM(
           .sp,
           parameter_scope = parameter_scope,
@@ -1288,6 +1327,43 @@ camR <- setRefClass(
       out <- .self$rem[[.g]][storage_names[keep]]
       names(out) <- display_names[keep]
       out
+    },
+    prepare_REM = function(sp = NULL, reps = NULL, seed = NULL) {
+      "Prepare independent annual REM estimates for EOW before rendering."
+      settings <- .eow_rem_settings(.self)
+      if (is.null(reps)) reps <- settings$reps
+      if (is.null(seed)) seed <- settings$seed
+      reps <- as.integer(reps)[1]
+      seed <- as.integer(seed)[1]
+      .validate_rem_settings(reps, seed)
+      .sync_rem_cache(.self)
+      if (is.null(sp)) {
+        sp <- .self$get_speciesNames(.self$setting$focus_groups)
+      }
+      sp <- unique(as.character(sp))
+      sp <- sp[!is.na(sp) & nzchar(sp)]
+      eligible <- .any_data_for_rem(.self$data)
+      sp <- sp[sp %in% names(eligible)[!is.na(eligible) & eligible]]
+      announced <- FALSE
+      for (species in sp) {
+        if (!length(.rem_missing_years(.self, species, reps, seed))) next
+        if (!announced) {
+          message(
+            "[camtrapReport] Calculating annual REM estimates for the EOW profile.\n",
+            "[camtrapReport] Models are fitted separately for each species and year.\n",
+            "[camtrapReport] This step may take several minutes."
+          )
+          announced <- TRUE
+        }
+        .self$get_REM(species, parameter_scope = "annual", reps = reps, seed = seed)
+        missing_years <- .rem_missing_years(.self, species, reps, seed)
+        if (length(missing_years)) {
+          warning("Annual REM estimates unavailable for ", species, " in ",
+                  toString(missing_years), ". These fits will be retried on the next preparation.",
+                  call. = FALSE)
+        }
+      }
+      invisible(.self)
     },
     add_report_basemap = function(
       map,
@@ -2126,7 +2202,7 @@ camR <- setRefClass(
         ),
         package = "camtrapReport",
         dir = .module_dir,
-        write_info = TRUE
+        write_info = FALSE
       )
 
       .self$reportObjectElements$Modules <- mods
@@ -2149,7 +2225,7 @@ camR <- setRefClass(
         ),
         package = "camtrapReport",
         dir = .module_dir,
-        write_info = TRUE
+        write_info = FALSE
       )
 
       .self$reportObjectElements$Status_modules <- mods

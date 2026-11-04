@@ -310,8 +310,11 @@
         zip_stem
       )
     } else {
-      .path <- zip_stem
+      stop("ZIP import requires an explicit extraction parent directory: ",
+           "camData(data, path = output_dir). Use a persistent directory ",
+           "to keep saved objects usable across R sessions.", call. = FALSE)
     }
+    .check_output_directory(dirname(.path))
 
     .check_camdp_zip_destination(.path, manifest$Name, overwrite)
     file <- utils::unzip(file, exdir = .path, overwrite = overwrite)
@@ -743,11 +746,12 @@ setGeneric(
 )
 
 .upgrade_camreport_class <- function(x) {
-  has_basemap_method <- tryCatch(
-    is.function(x$add_report_basemap),
+  has_current_methods <- tryCatch(
+    is.function(x$add_report_basemap) && is.function(x$prepare_REM) &&
+      "fit" %in% names(formals(x$get_REM)),
     error = function(e) FALSE
   )
-  if (isTRUE(has_basemap_method)) {
+  if (isTRUE(has_current_methods)) {
     return(x)
   }
 
@@ -784,7 +788,38 @@ setGeneric(
     x$rem <- list()
     x$.rem_params <- list()
     x$.act_models <- list()
+    x$.any_data_for_rem <- logical()
+    x$info$rem_cache_source <- NULL
+    x$info$rem_empty_years <- character()
     x$info$rem_analysis_signature <- current_signature
+
+    # Migrate only the bundled annual modules in previously saved objects.
+    # Preserve user profiles and the General module library.
+    eow <- x$reportObjectElements$Profiles$EOW
+    if (inherits(eow, "reportProfile")) {
+      eow@report <- eow@report[eow@report$module != "model_parameters_eow", , drop = FALSE]
+      x$reportObjectElements$Profiles$EOW <- eow
+    }
+    for (file in c("pop_densities_EOW.yml", "model_parameters_EOW.yml")) {
+      module <- .read_yml(system.file("reportSections", file, package = "camtrapReport"))
+      if (module@name %in% names(x$reportObjectElements$Modules)) {
+        x$reportObjectElements$Modules[[module@name]] <- module
+      }
+    }
+    # A saved object may already have the old EOW selection attached.
+    refresh_annual <- function(sections) {
+      if (inherits(sections, ".textSection")) {
+        if (identical(sections@name, "model_parameters_eow")) return(NULL)
+        if (identical(sections@name, "population_densities_eow")) {
+          return(x$reportObjectElements$Modules$population_densities_eow)
+        }
+        return(sections)
+      }
+      if (!is.list(sections)) return(sections)
+      sections <- lapply(sections, refresh_annual)
+      sections[!vapply(sections, is.null, logical(1))]
+    }
+    x$reportObjects <- refresh_annual(x$reportObjects)
   }
 
   x
@@ -803,9 +838,9 @@ setGeneric(
 #' used in habitat-related summaries. If a study-area boundary is provided, it
 #' is stored with the object and used in spatial summaries where relevant.
 #'
-#' The `camReport` object is saved within an extracted dataset directory as
-#' `__camReport_Object.rds`. A later call using that directory reuses the saved
-#' object unless `update = TRUE`, in which case the object is recreated.
+#' Imports do not save a cache unless `cache_file` is supplied through `...`.
+#' Existing `__camReport_Object.rds` directory caches are still reused unless
+#' `update = TRUE`; they are never overwritten implicitly.
 #'
 #' @param data A character string giving the path to a Camtrap DP dataset,
 #'   provided as a ZIP file or an extracted dataset directory.
@@ -819,9 +854,13 @@ setGeneric(
 #'   taxonomy enrichment when the optional `taxize` package is installed.
 #'   Only explicit `TRUE` permits these network requests. This affects fresh
 #'   imports; use `update = TRUE` to rebuild a previously cached object.
-#' @param ... Additional arguments. These are currently reserved for future use.
+#' @param ... Named persistence settings: `path` is an existing parent directory
+#'   for ZIP extraction (required for ZIP inputs); `cache_file` is an explicit
+#'   `.rds` filename for saving or reusing the processed object. Both default to
+#'   `NULL`. Other arguments remain reserved. No positional arguments are added.
 #' @param overwrite A single logical value (default `FALSE`) allowing a ZIP
 #'   input to replace archived files in an existing extraction directory.
+#'   Also permits replacing an explicit `cache_file` when rebuilding.
 #'   Other files in that directory are retained. This does not control reuse
 #'   of a cached object when `data` is already a dataset directory; see
 #' `update`.
@@ -855,16 +894,22 @@ setGeneric(
 #' Merely rerunning `status()` on the old object does not reread changed files.
 #'
 #' @section Files and cache reuse:
-#' `camData()` writes `__camReport_Object.rds` beside the extracted data and,
-#' when a study area is supplied, writes `study_area.map`. A ZIP input is
-#' extracted before reading into a directory named after the ZIP file (without
-#' its extension) in the working directory. An existing target is rejected
-#' unless `overwrite = TRUE`. Explicit overwriting replaces archived members
-#' only; unrelated old files remain, and extraction is not transactional.
-#' A ZIP import reads the extracted files afresh and replaces the saved object
-#' only after a successful import. Use a writable copy of the input dataset, as
-#' in the examples, rather than an installed package directory. For directory
-#' inputs, a cached object is reused when `update = FALSE`. Lightweight
+#' Folder imports do not write beside the source data. Study areas remain in
+#' memory; existing `study_area.map` files are left untouched. ZIP imports require
+#' an explicit `path`, extracting into a subdirectory named after the archive.
+#' Choose persistent storage when retaining objects across sessions. Existing
+#' extraction targets require `overwrite = TRUE`; unrelated files remain and
+#' extraction is not transactional. Package installation directories are rejected.
+#'
+#' Use `camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))`
+#' to save an object explicitly. An existing cache is reused unless `update = TRUE`;
+#' rebuilding also requires `overwrite = TRUE`. Study areas are packed into the
+#' saved object and restored by `camData(data_dir, cache_file = ...)`. The GUI's
+#' Save object action also packs study areas. Keep the source dataset at its
+#' recorded location for image access and source freshness checks.
+#' Legacy directory caches remain readable when no `cache_file` is supplied.
+#' To replace one explicitly, supply its full filename as `cache_file`, together
+#' with `update = TRUE, overwrite = TRUE`. Lightweight
 #' file-size and modification-time
 #' checks warn if the four source CSV/JSON files were changed, added or removed
 #' in the dataset root or their recorded directories. The cache is still reused;
@@ -990,12 +1035,43 @@ setMethod(
       stop("'overwrite' must be TRUE or FALSE.", call. = FALSE)
     }
 
-    if (dir.exists(data) && !update) {
+    # Named persistence settings use the existing dots without changing S4
+    # formals or positional argument matching.
+    extra <- list(...)
+    path <- extra[["path"]]
+    cache_file <- extra[["cache_file"]]
+    if (!is.logical(update) || length(update) != 1L || is.na(update)) {
+      stop("'update' must be TRUE or FALSE.", call. = FALSE)
+    }
+    if (!is.null(path)) {
+      if (!is.character(path) || length(path) != 1L || is.na(path) ||
+          !nzchar(path)) stop("'path' must be an existing directory.", call. = FALSE)
+      path <- path.expand(path)
+      .check_output_directory(path)
+    }
+    if (!is.null(cache_file)) {
+      cache_file <- .check_cache_file(cache_file, overwrite = TRUE, read_only = TRUE)
+      reuse <- !update && file.exists(cache_file)
+      cache_file <- .check_cache_file(cache_file, overwrite = reuse || overwrite,
+                                      read_only = reuse)
+      if (reuse) {
+        cm <- .read_camreport_cache(cache_file)
+        source_dir <- if (dir.exists(data)) data else cm$info$directory
+        .check_camdata_cache_metadata(cm, source_dir)
+        cm <- .upgrade_camreport_analysis(cm)
+        if (is.null(cm$reportObjectElements$Profiles)) {
+          cm$reportObjectElements$Profiles <- .read_profiles()
+        }
+        return(cm)
+      }
+    }
+
+    if (is.null(cache_file) && dir.exists(data) && !update) {
       if ("__camreport_object.rds" %in% tolower(dir(data))) {
         file <- dir(data, full.names = TRUE)
         .w <- grepl("__camReport_Object.rds", file, ignore.case = TRUE)
         if (any(.w)) {
-          cm <- readRDS(file[.w][1])
+          cm <- .read_camreport_cache(file[.w][1])
           .check_camdata_cache_metadata(cm, data)
           cm <- .upgrade_camreport_analysis(cm)
           if (is.null(cm$reportObjectElements$Profiles)) {
@@ -1017,7 +1093,7 @@ setMethod(
       study_area <- NULL
     }
 
-    .d <- .read_camdp(data, enrich_taxonomy = enrich_taxonomy,
+    .d <- .read_camdp(data, path = path, enrich_taxonomy = enrich_taxonomy,
                      overwrite = overwrite)
     .source_metadata <- .d$source_file_metadata
 
@@ -1034,8 +1110,6 @@ setMethod(
     }
 
     if (!is.null(study_area)) {
-      study_area_file <- file.path(cm$info$directory, "study_area.map")
-
       if (is.character(study_area)) {
         if (file.exists(study_area)) {
           .v <- try(terra::vect(study_area), silent = TRUE)
@@ -1043,8 +1117,7 @@ setMethod(
           if (inherits(.v, "try-error")) {
             warning("The specified study_area file could not be read.")
           } else {
-            terra::saveRDS(.v, study_area_file)
-            cm$study_area$path <- study_area_file
+            cm$study_area$path <- normalizePath(study_area, winslash = "/")
             cm$study_area$object <- .v
             rm(.v)
           }
@@ -1053,12 +1126,8 @@ setMethod(
         }
       } else if (inherits(study_area, "SpatVector")) {
         cm$study_area$object <- study_area
-        terra::saveRDS(study_area, study_area_file)
-        cm$study_area$path <- study_area_file
       } else if (inherits(study_area, "sf")) {
         cm$study_area$object <- terra::vect(study_area)
-        terra::saveRDS(cm$study_area$object, study_area_file)
-        cm$study_area$path <- study_area_file
       } else {
         warning(
           "study_area was ignored; it should be a filename or a spatial object."
@@ -1192,10 +1261,9 @@ setMethod(
     .camdata_done_message(.camdata_start_time, cm$siteName)
 
     cm$info$source_file_metadata <- .source_metadata
-    saveRDS(
-      cm,
-      file.path(cm$info$directory, "__camReport_Object.rds")
-    )
+    if (!is.null(cache_file)) {
+      .save_camreport_cache(cm, cache_file, overwrite = overwrite)
+    }
 
     cm
   }

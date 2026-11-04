@@ -80,14 +80,15 @@ code: |
     </style>
     ')
         #-------
-        if (!dir.exists(paste0(object$info$directory,"/_camtrap_pictures"))) {
-          dir.create(paste0(object$info$directory,"/_camtrap_pictures"))
-        }
+        .picture_dir <- tempfile("camtrapReport-pictures-")
+        dir.create(.picture_dir)
         #-----
         .fn <- favoImgs$fileName
         html_output <- '<div class="image-container">'
         for (i in seq_along(.fn)) {
-          .pic_fn <- normalizePath(paste0(object$info$directory,"/_camtrap_pictures/",.fn[i]))
+          .pic_fn <- file.path(.picture_dir, paste0(i, ".jpg"))
+          .cached_picture <- file.path(object$info$directory, "_camtrap_pictures", .fn[i])
+          if (file.exists(.cached_picture)) .pic_fn <- .cached_picture
           if (!file.exists(.pic_fn)) {
             .pic_link <- favoImgs$filePath[i]
             if (grepl("^https?://", .pic_link)) {

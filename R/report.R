@@ -26,7 +26,7 @@ setGeneric(
 ) {
   if (is.null(filename) || length(filename) == 0L || is.na(filename[1]) ||
       !nzchar(filename[1])) {
-    filename <- default_name
+    filename <- tempfile(paste0("camtrapReport-", default_name, "-"))
   }
   filename <- as.character(filename)[1]
 
@@ -81,6 +81,7 @@ setGeneric(
       call. = FALSE
     )
   }
+  .check_output_directory(supplied_dir)
   out_dir <- normalizePath(supplied_dir, winslash = "/", mustWork = TRUE)
 
   list(
@@ -208,7 +209,8 @@ setGeneric(
 #' @details
 #' Output includes the rendered `.html` or `.pdf` file and an `.Rmd` source
 #' file with the same stem. The resolved paths are displayed before rendering.
-#' A filename without a directory uses the object's existing dataset directory;
+#' An omitted or empty filename uses a unique R-session temporary file.
+#' An explicitly supplied filename without a directory uses the object's existing dataset directory;
 #' otherwise supply a filename including an existing output directory. Invalid
 #' directories cause an error rather than falling back to a different location.
 #' Existing report or `.Rmd` files are protected unless `overwrite = TRUE`.
@@ -240,6 +242,17 @@ setGeneric(
 #' a profile's selection. Reread corrected source files with
 #' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
 #'
+#' EOW annual REM estimates are prepared before rendering and cached in `object`.
+#' To prepare them explicitly, call `object$prepare_REM()`. Preparation uses
+#' 999 replicates and seed 42 by default; configure `object$setting$eow_rem_reps`
+#' and `object$setting$eow_rem_seed` to override these EOW-specific settings.
+#' Completed species-year fits are reused, including after `saveRDS()` and
+#' `readRDS()`. Missing fits are retried at the next preparation, with a warning
+#' identifying unavailable species-years. Changes to source tables invalidate
+#' the REM caches; `camData(..., update = TRUE)` creates a fresh object.
+#' Annual preparation is not performed during ordinary data import. General
+#' reports retain pooled REM parameters and their existing defaults.
+#'
 #' Apart from the destination notice, rendering is quiet by default. Set
 #' `options(camtrapReport.progress = TRUE)`
 #' to show console progress for module construction, individual chunks, HTML
@@ -254,7 +267,7 @@ setGeneric(
 #'   [camData()].
 #' @param filename An optional output filename or path. A `.html` or `.pdf`
 #'   extension selects the format when `format` is omitted. Without an
-#'   extension, the defaults are `"report"` and `"data_status"`.
+#'   extension, `.html` is appended. Omitted filenames use temporary output.
 #' @param view A logical value (default `FALSE`) specifying whether to open the
 #'   generated report.
 #' @param test A logical value (default `FALSE`). If `TRUE`, ecological report
@@ -309,14 +322,14 @@ setMethod(
   signature(object = "camReport"),
   function(
     object,
-    filename = "report",
+    filename = NULL,
     view = FALSE,
     test = FALSE,
     profile = NULL,
     format = c("html", "pdf"),
     overwrite = FALSE
   ) {
-    if (missing(filename)) filename <- "report"
+    if (missing(filename)) filename <- NULL
     if (missing(view)) view <- FALSE
     if (missing(test)) test <- FALSE
     if (missing(profile)) profile <- NULL
@@ -348,6 +361,12 @@ setMethod(
       report_type = "report",
       format = destination$format
     )
+
+    attached <- .flatten_attached_sections(object$reportObjects)
+    annual_modules <- c("population_densities_eow", "model_parameters_eow")
+    if (any(vapply(attached, function(x) x@name %in% annual_modules, logical(1)))) {
+      .with_report_stage("Annual REM preparation", object$prepare_REM())
+    }
 
     html_file <- if (identical(destination$format, "html")) {
       destination$output

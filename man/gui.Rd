@@ -35,12 +35,19 @@ data-status or ecological reports.
 
 The GUI can be used with an existing \code{camReport} object and provides an
 interactive alternative to configuring reports directly in R.
-The output directory initially uses the project root from the optional
-\code{here} package when available, otherwise the object's dataset directory.
-Choose an existing directory explicitly before saving output.
+Choose an existing output directory explicitly before loading ZIP data or
+saving output. ZIP data are extracted there so saved objects retain their
+source paths across R sessions.
 Existing report, R Markdown, and saved-object files are protected unless
 the overwrite checkbox is selected. Generating output does not change the
-R working directory.
+R working directory. On local Windows sessions, Browse opens R's native
+folder chooser; manual path entry remains available on every platform.
+The Sections tab edits the loaded source narrative without evaluating its
+placeholders or replacing code-generated content. Reset restores the text
+present when the dataset was loaded into the GUI. Save the current object
+as RDS to retain edits to included sections. Excluded sections retain their
+edits only for the current GUI session. Focus-group choices come from the data;
+missing taxonomy is explained without automatically contacting GBIF.
 ZIP imports have a separate, initially unchecked permission to overwrite an
 existing extraction directory; see \code{\link[=camData]{camData()}} for its location and limits.
 GBIF taxonomy enrichment is also initially unchecked. Selecting it permits
@@ -48,7 +55,8 @@ sending scientific names to GBIF when importing fresh data with \code{taxize}
 installed. Loading an existing processed-object cache does not enrich it.
 }
 \examples{
-\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && identical(Sys.getenv("CAMTRAPREPORT_RUN_GUI_EXAMPLE"), "true")) withAutoprint(\{ # examplesIf}
+# Set CAMTRAPREPORT_RUN_GUI_EXAMPLE=true deliberately to launch this example.
 source_dataset <- system.file(
   "external",
   "dataset",
