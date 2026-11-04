@@ -247,12 +247,16 @@ test_that("GUI output requires a deliberate directory selection", {
 test_that("GUI metadata refresh is safe outside a reactive consumer", {
   cm <- camtrap_test_report()
   app <- .camtrapReport_gui_app(cm)
-  callback <- NULL
+
+  state <- new.env(parent = emptyenv())
+  state$callback <- NULL
+
   shiny::testServer(app$serverFuncSource(), {
     session$flushReact()
-    callback <<- refresh_inputs
+    state$callback <- refresh_inputs
   })
-  expect_no_error(callback(cm))
+
+  expect_no_error(state$callback(cm))
 })
 
 test_that("GUI metadata refresh preserves an explicit output directory", {
