@@ -1346,7 +1346,7 @@
       "lutz::tz_lookup_coords(
         total_unique_locations_df[['latitude']],
         total_unique_locations_df[['longitude']],
-        method = 'accurate',
+        method = 'fast',
         warn = FALSE
       )",
       env = environment()
