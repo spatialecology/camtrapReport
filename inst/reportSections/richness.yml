@@ -10,8 +10,7 @@ code: |
   
   study_areaSHP <- NULL
   
-  if (!is.null(object$study_area) && !is.null(object$study_area$path)) {
-    object$study_area$object <- readRDS(object$study_area$path)
+  if (inherits(object$study_area$object, "SpatVector")) {
     study_areaSHP <- terra::project(object$study_area$object, "epsg:4326")
   }
   

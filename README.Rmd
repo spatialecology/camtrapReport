@@ -47,7 +47,7 @@ options(
 
 A `camReport` object brings together input data, settings, and reusable reporting modules. Users can select and customize sections, or develop modules and Analytical Profiles for particular monitoring workflows. The package complements, rather than replaces, tools for camera-trap data management and specialized ecological analysis.
 
-The optional graphical interface (`gui()`) is designed to make these workflows accessible to users with different levels of programming experience. Shiny is used only for this interface; code-based workflows using `camData()`, `report()`, and `status()` do not require launching Shiny.
+The optional graphical interface `gui()` is designed to make these workflows accessible to users with different levels of programming experience. Shiny is used only for this interface; code-based workflows using `camData()`, `report()`, and `status()` do not require launching Shiny.
 
 <p align="center">
   <img src="man/figures/package-architecture.png"
@@ -171,6 +171,9 @@ report_file <- report(
   cm,
   view = FALSE
 )
+if (inherits(report_file, "try-error")) {
+  stop(as.character(report_file), call. = FALSE)
+}
 ```
 
 [**View example Ecological Report**](https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html)

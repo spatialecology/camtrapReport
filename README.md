@@ -157,7 +157,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.
 #> Setup is done!
-#> Data loaded successfully in 42 sec.
+#> Data loaded successfully in 23 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -175,17 +175,20 @@ cm
 habitat and study-area inputs support additional formats; see `?camData`
 for details.
 
-**Generated files:** Folder imports are read-only by default. To retain a processed
-object, use `camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))`.
-Reopen it with the same call; rebuilding requires `update = TRUE, overwrite = TRUE`.
-Legacy `__camReport_Object.rds` caches remain readable. Study areas are kept in
-memory and packed into explicitly saved caches; no `study_area.map` is created.
-ZIP imports require an explicit existing extraction parent directory:
+**Generated files:** Folder imports are read-only by default. To retain
+a processed object, use
+`camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))`.
+Reopen it with the same call; rebuilding requires
+`update = TRUE, overwrite = TRUE`. Legacy `__camReport_Object.rds`
+caches remain readable. Study areas are kept in memory and packed into
+explicitly saved caches; no `study_area.map` is created. ZIP imports
+require an explicit existing extraction parent directory:
 `camData("survey.zip", path = output_dir, cache_file = file.path(output_dir, "analysis.rds"))`.
-Keep extracted data in persistent storage so saved objects retain their source
-and image paths across R sessions. Report calls without a filename produce
-temporary previews; supply a filename to retain an output. In the GUI, select
-the output directory before loading a ZIP or saving results.
+Keep extracted data in persistent storage so saved objects retain their
+source and image paths across R sessions. Report calls without a
+filename produce temporary previews; supply a filename to retain an
+output. In the GUI, select the output directory before loading a ZIP or
+saving results.
 
 ### Generate a Data Status Check
 
@@ -213,6 +216,9 @@ report_file <- report(
   cm,
   view = FALSE
 )
+if (inherits(report_file, "try-error")) {
+  stop(as.character(report_file), call. = FALSE)
+}
 ```
 
 [**View example Ecological
