@@ -150,8 +150,9 @@ without opening it. To specify an output location:</p>
 <span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"reports"</span>, <span class="st">"data_status_2026"</span><span class="op">)</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><strong>Note:</strong> Existing files with the same name may be
-overwritten.</p>
+<p><strong>Note:</strong> Existing report and R Markdown files are
+protected unless <code>overwrite = TRUE</code> is supplied explicitly.
+Omitted filenames create temporary previews.</p>
 <div class="section level3">
 <h3 id="interpret-and-act-on-findings">Interpret and act on findings<a class="anchor" aria-label="anchor" href="#interpret-and-act-on-findings"></a>
 </h3>

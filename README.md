@@ -41,7 +41,7 @@ modules and Analytical Profiles for particular monitoring workflows. The
 package complements, rather than replaces, tools for camera-trap data
 management and specialized ecological analysis.
 
-The optional graphical interface (`gui()`) is designed to make these
+The optional graphical interface `gui()` is designed to make these
 workflows accessible to users with different levels of programming
 experience. Shiny is used only for this interface; code-based workflows
 using `camData()`, `report()`, and `status()` do not require launching
@@ -118,9 +118,9 @@ completeness and consistency but does not replace schema validation.
 ## Quick start
 
 The example uses a bundled subset of **GMU8_LEUVEN**, with habitat data
-and a study-area boundary. Input files are copied to a writable
-temporary directory because processing may create files alongside the
-dataset.
+and a study-area boundary. Input files are copied to a temporary
+directory so the example can run independently of the installed package
+files.
 
 ``` r
 library(camtrapReport)
@@ -157,7 +157,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.
 #> Setup is done!
-#> Data loaded successfully in 23 sec.
+#> Data loaded successfully in 25 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -175,20 +175,36 @@ cm
 habitat and study-area inputs support additional formats; see `?camData`
 for details.
 
-**Generated files:** Folder imports are read-only by default. To retain
-a processed object, use
-`camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))`.
-Reopen it with the same call; rebuilding requires
+### File storage and caching
+
+By default, `camData()` reads folder-based datasets without modifying
+the input files or creating a cache. To save the processed object for
+reuse, specify `cache_file`. Two alternative input methods are shown
+below:
+
+``` r
+# From a folder
+cm <- camData(
+  "path/to/dataset",
+  cache_file = "path/to/output/analysis.rds"
+)
+
+# Alternatively, from a ZIP archive
+cm <- camData(
+  "path/to/dataset.zip",
+  path = "path/to/output",
+  cache_file = "path/to/output/analysis.rds"
+)
+```
+
+The output directory must already exist. To reuse a saved object,
+provide the same `cache_file`; to rebuild it, use
 `update = TRUE, overwrite = TRUE`. Legacy `__camReport_Object.rds`
-caches remain readable. Study areas are kept in memory and packed into
-explicitly saved caches; no `study_area.map` is created. ZIP imports
-require an explicit existing extraction parent directory:
-`camData("survey.zip", path = output_dir, cache_file = file.path(output_dir, "analysis.rds"))`.
-Keep extracted data in persistent storage so saved objects retain their
-source and image paths across R sessions. Report calls without a
-filename produce temporary previews; supply a filename to retain an
-output. In the GUI, select the output directory before loading a ZIP or
-saving results.
+caches remain readable. For ZIP imports, keep the extracted files in a
+persistent directory to preserve source and image paths across sessions.
+To retain generated reports, specify an output filename; otherwise,
+outputs are temporary. In the GUI, select an output directory before
+importing ZIP files or saving results.
 
 ### Generate a Data Status Check
 

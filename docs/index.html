@@ -97,7 +97,7 @@ camtrapReport
 <strong>Ecological Report</strong> — integrates selected ecological analyses, figures, tables, maps, and automatically generated explanatory text informed by the data, metadata, and analytical results.</li>
 </ul>
 <p>A <code>camReport</code> object brings together input data, settings, and reusable reporting modules. Users can select and customize sections, or develop modules and Analytical Profiles for particular monitoring workflows. The package complements, rather than replaces, tools for camera-trap data management and specialized ecological analysis.</p>
-<p>The optional graphical interface (<code><a href="reference/gui.html">gui()</a></code>) is designed to make these workflows accessible to users with different levels of programming experience. Shiny is used only for this interface; code-based workflows using <code><a href="reference/camData.html">camData()</a></code>, <code><a href="reference/report.html">report()</a></code>, and <code><a href="reference/report.html">status()</a></code> do not require launching Shiny.</p>
+<p>The optional graphical interface <code><a href="reference/gui.html">gui()</a></code> is designed to make these workflows accessible to users with different levels of programming experience. Shiny is used only for this interface; code-based workflows using <code><a href="reference/camData.html">camData()</a></code>, <code><a href="reference/report.html">report()</a></code>, and <code><a href="reference/report.html">status()</a></code> do not require launching Shiny.</p>
 <p align="center">
 <img src="reference/figures/package-architecture.png" width="900" alt="camtrapReport workflow from Camtrap DP data to Data Status Check and Ecological Report"><br><em> Overview of the camtrapReport workflow, from standardized camera-trap data to automated reporting. See the <a href="https://spatialecology.github.io/camtrapReport/articles/data-status-report.html">Data Status Check</a>, <a href="https://spatialecology.github.io/camtrapReport/articles/ecological-report.html">Ecological Report</a>, and <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">Module Management</a> guides for the corresponding components of the workflow. </em>
 </p>
@@ -130,7 +130,7 @@ camtrapReport
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>The example uses a bundled subset of <strong>GMU8_LEUVEN</strong>, with habitat data and a study-area boundary. Input files are copied to a writable temporary directory because processing may create files alongside the dataset.</p>
+<p>The example uses a bundled subset of <strong>GMU8_LEUVEN</strong>, with habitat data and a study-area boundary. Input files are copied to a temporary directory so the example can run independently of the installed package files.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spatialecology.github.io/camtrapReport/">camtrapReport</a></span><span class="op">)</span></span>
 <span></span>
@@ -166,7 +166,7 @@ camtrapReport
 <span><span class="co">#&gt; File size looks modest, but full object creation may still take several minutes depending on the number of records.</span></span>
 <span><span class="co">#&gt; Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span></span>
 <span><span class="co">#&gt; Setup is done!</span></span>
-<span><span class="co">#&gt; Data loaded successfully in 42 sec.</span></span>
+<span><span class="co">#&gt; Data loaded successfully in 25 sec.</span></span>
 <span><span class="co">#&gt; camReport object is ready for GMU8 LEUVEN.</span></span>
 <span></span>
 <span><span class="va">cm</span></span>
@@ -179,12 +179,30 @@ camtrapReport
 <span><span class="co">#&gt; Date/time (years) with data     :  2018, 2019, 2020, 2021, 2022, and 2023 </span></span>
 <span><span class="co">#&gt; -----------------------------------------------------</span></span></code></pre></div>
 <p><code><a href="reference/camData.html">camData()</a></code> accepts a Camtrap DP directory or ZIP archive. Optional habitat and study-area inputs support additional formats; see <code><a href="reference/camData.html">?camData</a></code> for details.</p>
-<p><strong>Generated files:</strong> <code><a href="reference/camData.html">camData()</a></code> saves <code>__camReport_Object.rds</code> alongside the extracted dataset and, when a study area is provided, also creates <code>study_area.map</code>. These files support reuse of processed data. To rebuild the cached object after changes, use <code>update = TRUE</code>. The example above uses a temporary dataset copy to avoid modifying the bundled files.</p>
+<div class="section level3">
+<h3 id="file-storage-and-caching">File storage and caching<a class="anchor" aria-label="anchor" href="#file-storage-and-caching"></a>
+</h3>
+<p>By default, <code><a href="reference/camData.html">camData()</a></code> reads folder-based datasets without modifying the input files or creating a cache. To save the processed object for reuse, specify <code>cache_file</code>. Two alternative input methods are shown below:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># From a folder</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span></span>
+<span>  <span class="st">"path/to/dataset"</span>,</span>
+<span>  cache_file <span class="op">=</span> <span class="st">"path/to/output/analysis.rds"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Alternatively, from a ZIP archive</span></span>
+<span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/camData.html">camData</a></span><span class="op">(</span></span>
+<span>  <span class="st">"path/to/dataset.zip"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"path/to/output"</span>,</span>
+<span>  cache_file <span class="op">=</span> <span class="st">"path/to/output/analysis.rds"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The output directory must already exist. To reuse a saved object, provide the same <code>cache_file</code>; to rebuild it, use <code>update = TRUE, overwrite = TRUE</code>. Legacy <code>__camReport_Object.rds</code> caches remain readable. For ZIP imports, keep the extracted files in a persistent directory to preserve source and image paths across sessions. To retain generated reports, specify an output filename; otherwise, outputs are temporary. In the GUI, select an output directory before importing ZIP files or saving results.</p>
+</div>
 <div class="section level3">
 <h3 id="generate-a-data-status-check">Generate a Data Status Check<a class="anchor" aria-label="anchor" href="#generate-a-data-status-check"></a>
 </h3>
 <p><code><a href="reference/report.html">status()</a></code> generates a Data Status Check summarizing spatial and temporal coverage, data completeness, classification consistency, and annotation quality. It highlights potential issues requiring attention before ecological analysis.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">status_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">status</a></span><span class="op">(</span><span class="va">cm</span>, view <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><a href="https://spatialecology.github.io/camtrapReport/reports/DataStatusReport_example.html"><strong>View example Data Status Check</strong></a></p>
 </div>
@@ -192,11 +210,14 @@ camtrapReport
 <h3 id="generate-an-ecological-report">Generate an Ecological Report<a class="anchor" aria-label="anchor" href="#generate-an-ecological-report"></a>
 </h3>
 <p><code><a href="reference/report.html">report()</a></code> combines selected modules, tables, figures, maps, and data-informed narratives into a reproducible Ecological Report. Modules can be selected, reordered, or extended. The function returns the output path; <code>view = TRUE</code> opens the completed report.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">report_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/report.html">report</a></span><span class="op">(</span></span>
 <span>  <span class="va">cm</span>,</span>
 <span>  view <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">report_file</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">report_file</span><span class="op">)</span>, call. <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p><a href="https://spatialecology.github.io/camtrapReport/reports/EcologicalReport_example.html"><strong>View example Ecological Report</strong></a></p>
 </div>
 </div>
@@ -217,7 +238,7 @@ camtrapReport
 <h2 id="configure-a-report">Configure a report<a class="anchor" aria-label="anchor" href="#configure-a-report"></a>
 </h2>
 <p>Inspect metadata and select report modules (this changes the sections used in subsequent reports):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/info.html">info</a></span><span class="op">(</span><span class="va">cm</span>, name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"title"</span>, <span class="st">"authors"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">selected_sections</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/section_names.html">section_names</a></span><span class="op">(</span></span>
@@ -276,7 +297,7 @@ camtrapReport
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"camtrapReport"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

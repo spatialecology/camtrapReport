@@ -202,9 +202,9 @@ child modules are also moved to the trash.</p>
 <p><code>empty_trash()</code> permanently removes modules from the trash.</p>
 <p><code>list_Modules()</code> lists active modules and can optionally include deleted
 modules stored in the trash.</p>
-<p>Supply <code>dir</code> when changing modules. If it is omitted, these functions use
-the installed package's module directory, which may be read-only and is
-replaced during package updates. Copy <code>reportSections</code> to a writable project
+<p>Supply <code>dir</code> when changing modules. If it is omitted, the
+bundled registry is available for reading only. Copy <code>reportSections</code>
+to a writable project
 directory first, then pass that copied directory to <code>add_Module()</code> and the
 other management functions. See the
 <a href="https://spatialecology.github.io/camtrapReport/articles/modules.html">module guide</a>.</p>

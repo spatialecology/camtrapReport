@@ -96,12 +96,16 @@ imports; use <code>update = TRUE</code> to rebuild a previously cached object.</
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments. These are currently reserved for future use.</p></dd>
+<dd><p>Named persistence settings: <code>path</code> is an existing parent directory
+for ZIP extraction (required for ZIP inputs); <code>cache_file</code> is an explicit
+<code>.rds</code> filename for saving or reusing the processed object. Both default to
+<code>NULL</code>. Other arguments remain reserved. No positional arguments are added.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
 <dd><p>A single logical value (default <code>FALSE</code>) allowing a ZIP
 input to replace archived files in an existing extraction directory.
+Also permits replacing an explicit <code>cache_file</code> when rebuilding.
 Other files in that directory are retained. This does not control reuse
 of a cached object when <code>data</code> is already a dataset directory; see
 <code>update</code>.</p></dd>
@@ -120,9 +124,9 @@ generate automated reports.</p>
 <p>If habitat information is provided, it is linked to camera locations and
 used in habitat-related summaries. If a study-area boundary is provided, it
 is stored with the object and used in spatial summaries where relevant.</p>
-<p>The <code>camReport</code> object is saved within an extracted dataset directory as
-<code>__camReport_Object.rds</code>. A later call using that directory reuses the saved
-object unless <code>update = TRUE</code>, in which case the object is recreated.</p>
+<p>Imports do not save a cache unless <code>cache_file</code> is supplied through <code>...</code>.
+Existing <code>__camReport_Object.rds</code> directory caches are still reused unless
+<code>update = TRUE</code>; they are never overwritten implicitly.</p>
 <p><code>data</code> currently accepts a file-system path, not an in-memory data frame or
 list. A dataset directory contains <code>datapackage.json</code>, <code>deployments.csv</code>,
 <code>media.csv</code>, and <code>observations.csv</code>. The following identifiers and columns
@@ -144,16 +148,21 @@ Merely rerunning <code><a href="report.html">status()</a></code> on the old obje
     <h2 id="files-and-cache-reuse">Files and cache reuse<a class="anchor" aria-label="anchor" href="#files-and-cache-reuse"></a></h2>
 
 
-<p><code>camData()</code> writes <code>__camReport_Object.rds</code> beside the extracted data and,
-when a study area is supplied, writes <code>study_area.map</code>. A ZIP input is
-extracted before reading into a directory named after the ZIP file (without
-its extension) in the working directory. An existing target is rejected
-unless <code>overwrite = TRUE</code>. Explicit overwriting replaces archived members
-only; unrelated old files remain, and extraction is not transactional.
-A ZIP import reads the extracted files afresh and replaces the saved object
-only after a successful import. Use a writable copy of the input dataset, as
-in the examples, rather than an installed package directory. For directory
-inputs, a cached object is reused when <code>update = FALSE</code>. Lightweight
+<p>Folder imports do not write beside the source data. Study areas remain in
+memory; existing <code>study_area.map</code> files are left untouched. ZIP imports require
+an explicit <code>path</code>, extracting into a subdirectory named after the archive.
+Choose persistent storage when retaining objects across sessions. Existing
+extraction targets require <code>overwrite = TRUE</code>; unrelated files remain and
+extraction is not transactional. Package installation directories are rejected.</p>
+<p>Use <code>camData(data_dir, cache_file = file.path(output_dir, "analysis.rds"))</code>
+to save an object explicitly. An existing cache is reused unless <code>update = TRUE</code>;
+rebuilding also requires <code>overwrite = TRUE</code>. Study areas are packed into the
+saved object and restored by <code>camData(data_dir, cache_file = ...)</code>. The GUI's
+Save object action also packs study areas. Keep the source dataset at its
+recorded location for image access and source freshness checks.
+Legacy directory caches remain readable when no <code>cache_file</code> is supplied.
+To replace one explicitly, supply its full filename as <code>cache_file</code>, together
+with <code>update = TRUE, overwrite = TRUE</code>. Lightweight
 file-size and modification-time
 checks warn if the four source CSV/JSON files were changed, added or removed
 in the dataset root or their recorded directories. The cache is still reused;
@@ -248,7 +257,7 @@ mapping.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu">camData</span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The camReport object is being created...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 164.1 KB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 164.4 KB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomic class is unavailable for 10 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>

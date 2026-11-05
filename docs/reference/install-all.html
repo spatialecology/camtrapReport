@@ -152,8 +152,8 @@ unless <code>upgrade = TRUE</code> is supplied through <code>...</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Package installation changes the user's R library, so these examples are</span></span></span>
-<span class="r-in"><span><span class="co"># deliberately restricted to interactive sessions.</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># enabled only by a deliberate environment-variable opt-in.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"CAMTRAPREPORT_INSTALL_EXAMPLE"</span><span class="op">)</span>, <span class="st">"true"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span>pkgs <span class="op">=</span> <span class="st">"readr"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">install_all</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

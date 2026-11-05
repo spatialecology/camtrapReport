@@ -175,10 +175,10 @@ protect the installed package files.</p>
 <div class="section level3">
 <h3 id="save-the-report">Save the report<a class="anchor" aria-label="anchor" href="#save-the-report"></a>
 </h3>
-<p>By default, the report is saved in <code>cm$info$directory</code>,
-the object’s data directory. Use <code>filename</code> to specify an
-output location and <code>view = FALSE</code> to generate the report
-without opening it. The destination directory must already exist.</p>
+<p>By default, the report is saved to a unique file in the R session
+temporary directory. Use <code>filename</code> to specify an output
+location and <code>view = FALSE</code> to generate the report without
+opening it. The destination directory must already exist.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"reports"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
