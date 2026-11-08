@@ -52,9 +52,10 @@ testing a module that requires access to report data. The default is
 \code{formats} field in the YAML file and otherwise defaults to \code{"both"}. For
 \code{move_Module()}, an omitted value retains the current setting.}
 
-\item{dir}{An optional path to a writable module registry containing
-\verb{__modulesList.csv}. When omitted, the package's bundled report-module
-registry is used.}
+\item{dir}{Path to a writable module registry containing
+\verb{__modulesList.csv}. This argument is required for modifying modules.
+The registry bundled with the package is read-only and cannot be
+modified directly.}
 
 \item{name}{A character string naming the module to move, remove, restore, or
 permanently delete from the trash. For \code{empty_trash()}, the default is

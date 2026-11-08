@@ -1630,9 +1630,10 @@ setGeneric(
 #'   `"both"`. For `add_Module()`, an omitted value is read from an optional
 #'   `formats` field in the YAML file and otherwise defaults to `"both"`. For
 #'   `move_Module()`, an omitted value retains the current setting.
-#' @param dir An optional path to a writable module registry containing
-#'   `__modulesList.csv`. When omitted, the package's bundled report-module
-#'   registry is used.
+#' @param dir Path to a writable module registry containing
+#'   `__modulesList.csv`. This argument is required for modifying modules.
+#'   The registry bundled with the package is read-only and cannot be
+#'   modified directly.
 #' @param name A character string naming the module to move, remove, restore, or
 #'   permanently delete from the trash. For `empty_trash()`, the default is
 #'   `NULL`.

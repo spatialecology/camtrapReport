@@ -39,7 +39,7 @@ Imports:
     knitr (>= 1.40),
     methods,
     rmarkdown (>= 2.20),
-    terra (>= 1.7-0)
+    terra (>= 1.8-10)
 Suggests:
     roxygen2,
     pak,
@@ -53,6 +53,7 @@ Suggests:
     spatstat.explore,
     camtrapDensity,
     suncalc,
+    activity,
     here
 Additional_repositories:
     https://camera-traps.r-universe.dev

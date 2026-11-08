@@ -952,6 +952,16 @@ camR <- setRefClass(
           !cacheable || is.null(.self$.act_models[[cache_key]]) ||
             !is.list(.self$.act_models[[cache_key]])
         ) {
+          if (!.require("activity")) {
+            warning(
+              'The "activity" package is not installed; it is required ',
+              "for REM activity-model estimation. ",
+              "Install it with install.packages('activity') and retry.",
+              call. = FALSE
+            )
+            return(NULL)
+          }
+
           x <- try(
             .with_preserved_seed(seed, {
               deployment_locations <- analysis_data$deployments |>
@@ -989,6 +999,16 @@ camR <- setRefClass(
         )
         return(NULL)
       }
+
+        if (!.require("activity")) {
+          warning(
+            'The "activity" package is not installed; it is required ',
+            "for REM activity-model estimation. ",
+            "Install it with install.packages('activity') and retry.",
+            call. = FALSE
+          )
+          return(NULL)
+        }
 
       x <- try(
         .with_preserved_seed(seed, {
