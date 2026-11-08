@@ -2134,8 +2134,8 @@ camR <- setRefClass(
         )
 
         # Convert to numeric hours
-        .sun_times$sunrise_hour <- .get_hour(.sun_times$sunrise)
-        .sun_times$sunset_hour <- .get_hour(.sun_times$sunset)
+        .sun_times$sunrise_hour <- .get_hour(.sun_times$sunrise, tz = .self$setting$tz)
+        .sun_times$sunset_hour <- .get_hour(.sun_times$sunset, tz = .self$setting$tz)
 
         # Compute yearly averages
         avg_sun_times <- .sun_times |>
