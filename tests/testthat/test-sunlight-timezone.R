@@ -12,12 +12,13 @@ test_that("setup retains the configured timezone in annual sunlight summaries", 
   skip_if_not_installed("suncalc")
   original <- camtrap_test_report()
   dates <- as.Date(c("2024-01-15", "2024-07-15"))
-  requested_zones <- character()
+  record <- new.env(parent = emptyenv())
+  record$requested_zones <- character()
 
   # Synthetic instants isolate clock conversion from astronomical calculations.
   local_mocked_bindings(
     getSunlightTimes = function(data, keep, tz) {
-      requested_zones <<- c(requested_zones, tz)
+      record$requested_zones <- c(record$requested_zones, tz)
       sunrise <- as.POSIXct(paste(dates, "06:15:00"), tz = "UTC")
       sunset <- as.POSIXct(paste(dates, "18:45:00"), tz = "UTC")
       attr(sunrise, "tzone") <- tz
@@ -34,11 +35,10 @@ test_that("setup retains the configured timezone in annual sunlight summaries", 
   for (case in cases) {
     cm <- original$copy(shallow = FALSE)
     capture_report_conditions(cm$setup(tz = case$tz))
-
     expect_identical(cm$setting$tz, case$tz)
     expect_equal(cm$sun_times$year, 2024)
     expect_equal(cm$sun_times$avg_sunrise, case$sunrise)
     expect_equal(cm$sun_times$avg_sunset, case$sunset)
   }
-  expect_identical(requested_zones, c("Europe/Amsterdam", "UTC"))
+  expect_identical(record$requested_zones, c("Europe/Amsterdam", "UTC"))
 })
