@@ -25,7 +25,8 @@ Description: Provides an extensible workflow for processing camera-trap data
     <https://opentopomap.org>, subject to their usage terms.
 License: MIT + file LICENSE
 URL: https://spatialecology.github.io/camtrapReport/,
-    https://github.com/spatialecology/camtrapReport
+    https://github.com/spatialecology/camtrapReport,
+    https://camera-traps.r-universe.dev/camtrapReport
 BugReports: https://github.com/spatialecology/camtrapReport/issues
 Depends:
     R (>= 4.1.0)
