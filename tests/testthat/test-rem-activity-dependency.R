@@ -90,3 +90,69 @@ test_that("cached activity and full REM parameters do not require activity", {
     .package = "camtrapReport"
   )
 })
+
+test_that("setup warns once per call for missing activity and retains suncalc warnings", {
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  required <- .require
+  activity_checks <- 0L
+  local_mocked_bindings(
+    .require = function(package) {
+      if (identical(package, "activity")) {
+        activity_checks <<- activity_checks + 1L
+        return(FALSE)
+      }
+      if (identical(package, "suncalc")) return(FALSE)
+      required(package)
+    },
+    .fit_actmodel = function(...) stop("Missing activity must prevent fitting"),
+    .package = "camtrapReport"
+  )
+  for (i in 1:2) {
+    activity_checks <- 0L
+    result <- capture_report_conditions(cm$setup())
+    expect_gt(activity_checks, 1L)
+    expect_length(result$warnings, 2L)
+    expect_equal(sum(grepl('The "activity" package is not installed',
+                           result$warnings, fixed = TRUE)), 1L)
+    expect_true(any(grepl("install.packages('activity')", result$warnings,
+                          fixed = TRUE)))
+    expect_equal(sum(grepl('The "suncalc" package is not installed',
+                           result$warnings, fixed = TRUE)), 1L)
+  }
+})
+
+test_that("setup retains activity fitting, caches and unrelated repeated warnings", {
+  skip_if_not_installed("activity")
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  required <- .require
+  fitted <- character()
+  local_mocked_bindings(
+    .require = function(package) {
+      if (identical(package, "suncalc")) return(FALSE)
+      required(package)
+    },
+    .fit_actmodel = function(data, species, reps) {
+      fitted <<- c(fitted, species)
+      warning("Unrelated activity fitting warning", call. = FALSE)
+      list(species = species, reps = reps)
+    }, .package = "camtrapReport"
+  )
+  result <- capture_report_conditions(cm$setup())
+  species <- cm$get_speciesNames(cm$setting$focus_groups)
+  expect_gt(length(species), 1L)
+  expect_setequal(fitted, species)
+  expect_length(fitted, length(species))
+  expect_equal(sum(result$warnings == "Unrelated activity fitting warning"),
+               length(species))
+  expect_equal(sum(grepl('The "suncalc" package is not installed',
+                         result$warnings, fixed = TRUE)), 1L)
+  expect_length(result$warnings, length(species) + 1L)
+  cached <- cm$.act_models
+  fitted <- character()
+  result <- capture_report_conditions(cm$setup())
+  expect_length(fitted, 0L)
+  expect_identical(cm$.act_models, cached)
+  expect_length(result$warnings, 1L)
+  expect_match(result$warnings, 'The "suncalc" package is not installed',
+               fixed = TRUE)
+})

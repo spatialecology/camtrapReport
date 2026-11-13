@@ -92,7 +92,8 @@
     },
     {
       "@type": "SoftwareApplication",
-      "name": "testthat (>= 3.1.7)"
+      "name": "testthat",
+      "version": ">= 3.1.7"
     },
     {
       "@type": "SoftwareApplication",
@@ -125,6 +126,10 @@
     {
       "@type": "SoftwareApplication",
       "name": "suncalc"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "activity"
     }
   ]
 }

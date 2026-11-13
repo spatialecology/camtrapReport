@@ -177,8 +177,12 @@ Only load datasets and saved R objects from sources you trust.</p>
 and resource limits. The defaults are 100,000 entries (including directories)
 and 20 GiB of total declared uncompressed size. To adjust these limits, set
 <code>options(camtrapReport.max_zip_entries = 100000, camtrapReport.max_zip_bytes = 20 * 1024^3)</code> before import. Each limit must be
-a positive finite number. These checks are practical safeguards, not a
-security sandbox or complete protection against malicious archives.</p>
+a positive finite number. Size checks trust the archive's declared metadata;
+they do not bound actual extraction size if that metadata is falsified, or
+the compressed archive size. The ZIP listing does not expose symlink
+attributes, so symlink members are not explicitly rejected. These checks
+are practical safeguards, not a security sandbox or complete protection
+against malicious archives.</p>
     </div>
     <div class="section level2">
     <h2 id="optional-taxonomy-enrichment">Optional taxonomy enrichment<a class="anchor" aria-label="anchor" href="#optional-taxonomy-enrichment"></a></h2>
@@ -257,11 +261,11 @@ mapping.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu">camData</span><span class="op">(</span><span class="va">example_dataset</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The camReport object is being created...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 164.4 KB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Dataset size: 164.1 KB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File size looks modest, but full object creation may still take several minutes depending on the number of records.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Taxonomic class is unavailable for 10 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setup is done!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 4 sec.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data loaded successfully in 5 sec.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> camReport object is ready for GMU8 LEUVEN.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cm</span></span></span>

@@ -1,5 +1,7 @@
 # camtrapReport 1.0.73
 
+- The GUI no longer proposes an output directory automatically. Select one
+  explicitly before importing ZIP files or saving results.
 - Submission safety: folder imports no longer write implicit cache or study-area
   files. Named `path` and `cache_file` settings use the existing `camData(...)`
   interface for explicit ZIP extraction and cache persistence. ZIP imports now

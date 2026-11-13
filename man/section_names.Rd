@@ -28,13 +28,16 @@ or, for \code{section_names()}, \code{"all"}.}
 
 \item{n}{An optional character vector of modules to include. Qualified names
 such as \code{"status::spatial"} can select from the other module pool when a
-profile is being edited.}
+profile is being edited. A supplied non-character value is ignored with
+a warning, and the current section names are returned.}
 }
 \value{
 \code{section_names()} and \code{sections(x)} return character vectors.
-\code{sections(x, n)} updates \code{x} and returns it invisibly.
-Unknown names in a partially valid \code{sections(x, n)} selection are ignored
-with a warning naming those sections. An entirely unknown selection errors.
+With a character \code{n}, \code{sections(x, n)} updates \code{x} and returns it invisibly.
+With \code{profile = NULL}, unknown names in a partially valid selection are
+ignored with a warning naming those sections; an entirely unknown selection
+errors. With a non-NULL \code{profile}, unknown module names cause an error,
+even in a partially valid selection.
 }
 \description{
 Get module names or update which sections are used by an ecological or

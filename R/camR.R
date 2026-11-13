@@ -1151,6 +1151,10 @@ camR <- setRefClass(
         }
         dat <- .self$get_data_subset(year = year)
         if (nrow(dat$observations) == 0) {
+          if (!as.character(year) %in% .self$info$rem_empty_years) {
+            message("Skipping REM for year ", year,
+                    ": deployments are present but there are no observations.")
+          }
           .self$info$rem_empty_years <- unique(c(
             .self$info$rem_empty_years, as.character(year)
           ))
@@ -1974,8 +1978,20 @@ camR <- setRefClass(
         ]])
         #----
         if (length(.sp) > 0) {
+          .activity_warning <- new.env(parent = emptyenv())
+          .activity_warning$seen <- FALSE
           for (n in .sp) {
-            .w <- .self$get_REM(n)
+            .w <- withCallingHandlers(.self$get_REM(n), warning = function(w) {
+              # Limit only this dependency diagnostic to once per setup call.
+              if (identical(conditionMessage(w), paste0(
+                'The "activity" package is not installed; it is required ',
+                "for REM activity-model estimation. ",
+                "Install it with install.packages('activity') and retry."
+              ))) {
+                if (.activity_warning$seen) invokeRestart("muffleWarning")
+                .activity_warning$seen <- TRUE
+              }
+            })
           }
           rm(.w, .sp, n)
           gc()

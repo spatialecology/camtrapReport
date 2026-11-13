@@ -94,7 +94,12 @@
     stop("The ZIP archive contains conflicting file and directory paths.",
          call. = FALSE)
   }
-  .camdp_input_files(paths[!grepl("/$", paths)])
+  core_files <- .camdp_input_files(paths[!grepl("/$", paths)])
+  empty_core <- core_files[manifest$Length[match(core_files, paths)] == 0]
+  if (length(empty_core)) {
+    stop("The ZIP archive contains zero-byte required files: ",
+         toString(empty_core), ".", call. = FALSE)
+  }
   invisible(manifest)
 }
 

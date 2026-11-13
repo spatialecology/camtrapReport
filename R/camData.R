@@ -926,8 +926,12 @@ setGeneric(
 #' and 20 GiB of total declared uncompressed size. To adjust these limits, set
 #' `options(camtrapReport.max_zip_entries = 100000,
 #' camtrapReport.max_zip_bytes = 20 * 1024^3)` before import. Each limit must be
-#' a positive finite number. These checks are practical safeguards, not a
-#' security sandbox or complete protection against malicious archives.
+#' a positive finite number. Size checks trust the archive's declared metadata;
+#' they do not bound actual extraction size if that metadata is falsified, or
+#' the compressed archive size. The ZIP listing does not expose symlink
+#' attributes, so symlink members are not explicitly rejected. These checks
+#' are practical safeguards, not a security sandbox or complete protection
+#' against malicious archives.
 #'
 #' @section Optional taxonomy enrichment:
 #' The default `enrich_taxonomy = FALSE` never initiates GBIF taxonomy requests,

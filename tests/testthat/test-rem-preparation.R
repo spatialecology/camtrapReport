@@ -155,10 +155,25 @@ test_that("empty years do not cause repeated annual preparations", {
   state <- new.env()
   local_rem_estimators(state)
   cm$data$observations <- cm$data$observations[1:2, ]
-  expect_message(cm$prepare_REM(), "Calculating annual REM")
+  empty_year <- cm$get_data_subset(2023)
+  expect_gt(nrow(empty_year$deployments), 0L)
+  expect_equal(nrow(empty_year$observations), 0L)
+  result <- capture_report_conditions(cm$prepare_REM())
+  expect_length(result$warnings, 0L)
+  expect_true(any(grepl("Calculating annual REM", result$messages, fixed = TRUE)))
+  expect_equal(sum(grepl("Skipping REM for year 2023", result$messages,
+                         fixed = TRUE)), 1L)
+  expect_true(any(grepl("no observations", result$messages, fixed = TRUE)))
+  expect_identical(cm$info$rem_empty_years, "2023")
   expect_length(state$fits, 2L)
+  expect_identical(state$results, 1L)
+  estimates <- cm$get_REM("Vulpes vulpes", "annual", 999L, 42L, fit = FALSE)
+  expect_length(estimates, 1L)
+  expect_identical(estimates[[1L]]$estimate, 1.5)
   expect_silent(cm$prepare_REM())
+  expect_silent(cm$fit_REM("Vulpes vulpes", "annual", 999L, 42L))
   expect_length(state$fits, 2L)
+  expect_identical(state$results, 1L)
 })
 
 test_that("data.table reference edits invalidate source snapshots", {

@@ -156,12 +156,15 @@ setGeneric(
 #' @template camreport-x
 #' @param n An optional character vector of modules to include. Qualified names
 #'   such as `"status::spatial"` can select from the other module pool when a
-#'   profile is being edited.
+#'   profile is being edited. A supplied non-character value is ignored with
+#'   a warning, and the current section names are returned.
 #'
 #' @return `section_names()` and `sections(x)` return character vectors.
-#'   `sections(x, n)` updates `x` and returns it invisibly.
-#'   Unknown names in a partially valid `sections(x, n)` selection are ignored
-#'   with a warning naming those sections. An entirely unknown selection errors.
+#'   With a character `n`, `sections(x, n)` updates `x` and returns it invisibly.
+#'   With `profile = NULL`, unknown names in a partially valid selection are
+#'   ignored with a warning naming those sections; an entirely unknown selection
+#'   errors. With a non-NULL `profile`, unknown module names cause an error,
+#'   even in a partially valid selection.
 #'
 #' @seealso [reportProfile()], [report()], [status()], [listReportSections()]
 #' @family report sections

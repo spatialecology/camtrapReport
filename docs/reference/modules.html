@@ -122,9 +122,10 @@ testing a module that requires access to report data. The default is
 
 
 <dt id="arg-dir">dir<a class="anchor" aria-label="anchor" href="#arg-dir"></a></dt>
-<dd><p>An optional path to a writable module registry containing
-<code>__modulesList.csv</code>. When omitted, the package's bundled report-module
-registry is used.</p></dd>
+<dd><p>Path to a writable module registry containing
+<code>__modulesList.csv</code>. This argument is required for modifying modules.
+The registry bundled with the package is read-only and cannot be
+modified directly.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>

@@ -2,10 +2,20 @@ test_that("setup diagnoses missing classification without changing counts", {
   cm <- camtrap_test_report()
   before <- list(data = cm$data, groups = cm$group_definition,
                  stats = cm$species_stats)
+  required <- .require
+  local_mocked_bindings(
+    .require = function(package) {
+      if (package %in% c("activity", "suncalc")) return(FALSE)
+      required(package)
+    }, .package = "camtrapReport"
+  )
   result <- capture_report_conditions(cm$setup())
   messages <- result$messages
-  expect_true(all(grepl('The "suncalc" package is not installed',
-                        result$warnings, fixed = TRUE)))
+  expect_length(result$warnings, 2L)
+  expect_equal(sum(grepl('The "suncalc" package is not installed',
+                         result$warnings, fixed = TRUE)), 1L)
+  expect_equal(sum(grepl('The "activity" package is not installed',
+                         result$warnings, fixed = TRUE)), 1L)
   expect_true(any(grepl("missing classification does not indicate ecological",
                         messages, fixed = TRUE)))
   expect_identical(cm$data, before$data)

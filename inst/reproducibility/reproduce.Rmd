@@ -1,0 +1,30 @@
+---
+title: "Reproduce camtrapReport outputs"
+output:
+  html_document:
+    mathjax: null
+---
+
+This workflow regenerates the configured ecological and/or data-status reports
+from the accompanying saved object. It preserves stored inputs, selected modules,
+text, settings and model caches. It does not rebuild the object from raw data.
+See `README.md` and `sessionInfo.txt` for dependencies and limitations.
+
+The same `reproduce.R` script used at the command line runs in a separate R
+process, avoiding nested report rendering and changes to this session.
+
+```{r reproduce, echo=TRUE}
+script <- file.path(dirname(knitr::current_input(dir = TRUE)), "reproduce.R")
+if (!file.exists(script)) stop("Keep reproduce.R beside reproduce.Rmd.")
+log <- system2(file.path(R.home("bin"), "Rscript"),
+               c("--vanilla", shQuote(normalizePath(script, winslash = "/"))),
+               stdout = TRUE, stderr = TRUE)
+cat(paste(log, collapse = "\n"))
+if (!is.null(attr(log, "status")) && attr(log, "status") != 0L) {
+  stop("Report reproduction failed; see the output above.")
+}
+```
+
+Outputs are saved below `reports/`. Further runs use `reports/run-001/`, etc.,
+without replacing earlier reports. Rendering this document again replaces only
+its ordinary R Markdown summary (`reproduce.html`).

@@ -244,3 +244,30 @@ test_that("ZIP stems are anchored and ordinary ZIP data match folder imports", {
   expect_identical(readLines(file.path(replaced$directory, "old.txt")),
                     "Retain unrelated old files")
 })
+
+test_that("ZIP inventories reject zero-byte core files before extraction", {
+  for (core in .camdp_core_files()) {
+    manifest <- camdp_test_manifest()
+    manifest$Name <- paste0("nested/", toupper(manifest$Name))
+    manifest$Length[tolower(basename(manifest$Name)) == core] <- 0
+    expect_error(.validate_camdp_zip_manifest(manifest),
+                 paste0("zero-byte required files: nested/", toupper(core)),
+                 fixed = TRUE)
+  }
+  manifest <- camdp_test_manifest(c("./", "nested/", "empty.txt"))
+  manifest$Length[5:7] <- 0
+  expect_identical(.validate_camdp_zip_manifest(manifest), manifest)
+
+  manifest <- camdp_test_manifest()
+  manifest$Length[1] <- 0
+  extractions <- 0L
+  local_mocked_bindings(
+    unzip = function(zipfile, list = FALSE, ...) {
+      if (list) return(manifest)
+      extractions <<- extractions + 1L
+    }, .package = "utils"
+  )
+  expect_error(.read_camdp(tempfile(fileext = ".zip")),
+               "zero-byte required files: observations.csv", fixed = TRUE)
+  expect_identical(extractions, 0L)
+})

@@ -36,5 +36,11 @@ Authors:
   \item Elham Ebrahimi \email{eebrahimi.bio@gmail.com} (\href{https://orcid.org/0000-0001-5191-9832}{ORCID})
 }
 
+Other contributors:
+\itemize{
+  \item Florian Mayer (\href{https://orcid.org/0000-0003-4269-4242}{ORCID}) (Reviewed camtrapReport (v1.0.73) for rOpenSci; see <https://github.com/ropensci/software-review/issues/799>) [reviewer]
+  \item Catherine Sun (Reviewed camtrapReport (v1.0.73) for rOpenSci; see <https://github.com/ropensci/software-review/issues/799>; GitHub: <https://github.com/catherinecsun>) [reviewer]
+}
+
 }
 \keyword{internal}
