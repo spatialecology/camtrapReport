@@ -1,4 +1,3 @@
-
 Package: camtrapReport
 Type: Package
 Title: Camera-Trap Report Generator
@@ -70,7 +69,8 @@ Suggests:
     camtrapDensity,
     suncalc,
     activity,
-    here
+    here,
+    withr
 Additional_repositories:
     https://camera-traps.r-universe.dev
 VignetteBuilder: knitr
