@@ -125,3 +125,55 @@ test_that("capturing an initialized RNG leaves its sequence unchanged", {
   expect_identical(state$seed, before)
   expect_identical(.Random.seed, before)
 })
+
+
+test_that("GUI export retains each successful report's pre-render RNG kind and seed", {
+  withr::local_seed(123, .rng_kind = "L'Ecuyer-CMRG")
+  cm <- camtrap_test_report()$copy(shallow = FALSE)
+  cm$reportObjects <- list(reportSection("rng_report"))
+  cm$statusReportObjects <- list(reportSection("rng_status"))
+  # Setup can consume RNG; the saved state must be captured after it.
+  assign("setup", function(...) invisible(stats::runif(1)), envir = cm)
+  state <- list2env(list(seen = list(), exported = list(), fail = FALSE),
+                    parent = emptyenv())
+  local_mocked_bindings(
+    report = function(...) {
+      state$seen$report <- .gui_rng_state()
+      invisible(stats::runif(1))
+      if (state$fail) return(structure("Test render failure", class = "try-error"))
+      invisible(NULL)
+    },
+    status = function(...) {
+      state$seen$status <- .gui_rng_state()
+      invisible(stats::runif(1))
+    },
+    .export_gui_workflow = function(object, parent, rng = list()) {
+      state$exported <- rng
+      parent
+    }, .package = "camtrapReport"
+  )
+  local_mocked_bindings(showNotification = function(...) invisible(NULL),
+                        .package = "shiny")
+  root <- tempfile("gui-rng-")
+  dir.create(root)
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  app <- .camtrapReport_gui_app(cm)
+  shiny::testServer(app$serverFuncSource(), {
+    session$setInputs(output_dir = root, generate_report = 1)
+    report_rng <- state$seen$report
+    RNGkind("Mersenne-Twister")
+    session$setInputs(generate_status = 1)
+    status_rng <- state$seen$status
+    session$setInputs(export_workflow = 1)
+    expect_identical(state$exported$report, report_rng)
+    expect_identical(state$exported$status, status_rng)
+    expect_identical(report_rng$kind[1], "L'Ecuyer-CMRG")
+    expect_identical(status_rng$kind[1], "Mersenne-Twister")
+    expect_false(identical(report_rng$seed, status_rng$seed))
+    state$fail <- TRUE
+    session$setInputs(generate_report = 2)
+    session$setInputs(export_workflow = 2)
+    expect_identical(state$exported$report, report_rng)
+    expect_identical(state$exported$status, status_rng)
+  })
+})

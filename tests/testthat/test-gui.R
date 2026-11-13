@@ -131,7 +131,9 @@ test_that("GUI reports use explicit paths and require overwrite opt-in", {
   dir.create(root)
   on.exit(unlink(root, recursive = TRUE, force = TRUE), add = TRUE)
   root <- normalizePath(root, winslash = "/", mustWork = TRUE)
-  paths <- file.path(root, c("report.html", "report.Rmd",
+  report_dir <- file.path(root, "GUI", "reports")
+  dir.create(report_dir, recursive = TRUE)
+  paths <- file.path(report_dir, c("ecological_report.html", "ecological_report.Rmd",
                              "data_status.html", "data_status.Rmd"))
   for (path in paths) writeLines("Original GUI output", path)
   state <- new.env(parent = emptyenv())
@@ -169,7 +171,9 @@ test_that("GUI reports use explicit paths and require overwrite opt-in", {
     for (path in paths) {
       expect_identical(readLines(path), "Original GUI output")
     }
-    expect_match(output$output_paths, file.path(root, "report.html"),
+    expect_match(output$output_paths, paths[1],
+                 fixed = TRUE)
+    expect_match(output$output_paths, file.path(root, "GUI", "reproducibility"),
                  fixed = TRUE)
     expect_identical(getwd(), old_wd)
 

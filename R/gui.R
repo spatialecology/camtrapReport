@@ -678,7 +678,16 @@ setMethod(
           "generate_report",
           "Generate ecological report",
           class = "btn btn-success btn-block"
-        )
+          ),
+
+          shiny::br(),
+          shiny::br(),
+
+          shiny::actionButton(
+            "export_workflow",
+            "Export Reproducible Workflow",
+            class = "btn btn-primary btn-block"
+          )
       ),
 
       shiny::div(
@@ -908,7 +917,7 @@ setMethod(
     #---
     initial_tree <- .gui_section_tree(object)
     rv <- shiny::reactiveValues(
-      cm = object, revision = 0L,
+      cm = object, revision = 0L, reproduction_rng = list(),
       section_tree = initial_tree, original_sections = initial_tree
     )
 
@@ -1461,11 +1470,12 @@ setMethod(
       }
 
       paste(file.path(out_dir, c(
-        "report.html",
-        "report.Rmd",
-        "data_status.html",
-        "data_status.Rmd",
-        "camtrapReport_gui_object.rds"
+        "GUI/reports/ecological_report.html",
+        "GUI/reports/ecological_report.Rmd",
+        "GUI/reports/data_status.html",
+        "GUI/reports/data_status.Rmd",
+        "camtrapReport_gui_object.rds",
+        "GUI/reproducibility/ (new bundle on each export)"
       )), collapse = "\n")
     })
 
@@ -1495,17 +1505,20 @@ setMethod(
     shiny::observeEvent(input$generate_status, {
       tryCatch(
         {
-          out_dir <- .output_directory(input$output_dir)
+          out_dir <- .gui_output_directory(.output_directory(input$output_dir), "reports")
           .check_gui_report_output(
             cm_current(), out_dir, "data_status",
             overwrite = isTRUE(input$overwrite_outputs)
           )
           cm <- apply_gui_settings(run_setup = TRUE)
+          # Replay starts at this call, after GUI setup, not at export time.
+          rng <- .gui_rng_state()
           status(
             cm, filename = file.path(out_dir, "data_status.html"),
             view = TRUE, overwrite = isTRUE(input$overwrite_outputs)
           )
 
+          rv$reproduction_rng$status <- rng
           shiny::showNotification(
             "Data status report generated.",
             type = "message"
@@ -1524,20 +1537,23 @@ setMethod(
     shiny::observeEvent(input$generate_report, {
       tryCatch(
         {
-          out_dir <- .output_directory(input$output_dir)
+          out_dir <- .gui_output_directory(.output_directory(input$output_dir), "reports")
           .check_gui_report_output(
-            cm_current(), out_dir, "report",
+            cm_current(), out_dir, "ecological_report",
             overwrite = isTRUE(input$overwrite_outputs)
           )
           cm <- apply_gui_settings(run_setup = TRUE)
+          rng <- .gui_rng_state()
           result <- report(
-            cm, filename = file.path(out_dir, "report.html"),
+            cm, filename = file.path(out_dir, "ecological_report.html"),
             view = TRUE, overwrite = isTRUE(input$overwrite_outputs)
           )
           if (inherits(result, "try-error")) {
             stop(as.character(result), call. = FALSE)
           }
 
+          # Keep the state of the last successful report if a later run fails.
+          rv$reproduction_rng$report <- rng
           shiny::showNotification(
             "Ecological report generated.",
             type = "message"
@@ -1552,6 +1568,23 @@ setMethod(
         }
       )
     })
+      shiny::observeEvent(input$export_workflow, {
+        tryCatch({
+          parent <- .output_directory(input$output_dir)
+          cm <- apply_gui_settings(run_setup = TRUE)
+          destination <- .export_gui_workflow(cm, parent, rv$reproduction_rng)
+          shiny::showNotification(
+            paste("Reproducible workflow exported:", destination),
+            type = "message", duration = 8
+          )
+        }, error = function(e) {
+          shiny::showNotification(
+            paste("Could not export workflow:", conditionMessage(e)),
+            type = "error", duration = 10
+          )
+        })
+      })
+
   }
 
   shiny::shinyApp(ui = ui, server = server)

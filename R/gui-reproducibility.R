@@ -40,7 +40,7 @@
     }
     if (nrow(media)) {
       names <- as.character(media$fileName)
-      if (length(names) != nrow(media) || anyNA(names) || any(!nzchar(names)) ||
+      if (length(names) != nrow(media) || anyNA(names) || !all(nzchar(names)) ||
           any(grepl("[/\\\\:]", names)) || any(names %in% c(".", ".."))) {
         stop("Favourite-image filenames must be simple local filenames for export.",
              call. = FALSE)

@@ -260,14 +260,14 @@ test_that("ZIP inventories reject zero-byte core files before extraction", {
 
   manifest <- camdp_test_manifest()
   manifest$Length[1] <- 0
-  extractions <- 0L
+  state <- list2env(list(extractions = 0L), parent = emptyenv())
   local_mocked_bindings(
     unzip = function(zipfile, list = FALSE, ...) {
       if (list) return(manifest)
-      extractions <<- extractions + 1L
+      state$extractions <- state$extractions + 1L
     }, .package = "utils"
   )
   expect_error(.read_camdp(tempfile(fileext = ".zip")),
                "zero-byte required files: observations.csv", fixed = TRUE)
-  expect_identical(extractions, 0L)
+  expect_identical(state$extractions, 0L)
 })

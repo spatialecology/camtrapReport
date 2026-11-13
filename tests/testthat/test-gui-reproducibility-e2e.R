@@ -28,9 +28,9 @@ test_that("GUI workflows replay after relocation in fresh R and R Markdown proce
   dir.create(gui_dir)
   local_mocked_bindings(.open_generated_report = function(...) invisible(NULL),
                         .package = "camtrapReport")
-  notifications <- character()
+  state <- list2env(list(notifications = character()), parent = emptyenv())
   local_mocked_bindings(showNotification = function(ui, ...) {
-    notifications <<- c(notifications, as.character(ui))
+    state$notifications <- c(state$notifications, as.character(ui))
   }, .package = "shiny")
   wd <- getwd()
   app <- .camtrapReport_gui_app(cm)
@@ -47,7 +47,7 @@ test_that("GUI workflows replay after relocation in fresh R and R Markdown proce
     session$setInputs(export_workflow = 1)
     session$flushReact()
   })
-  expect_false(any(grepl("Could not", notifications)), info = paste(notifications, collapse = "\n"))
+  expect_false(any(grepl("Could not", state$notifications)), info = paste(state$notifications, collapse = "\n"))
   expect_identical(getwd(), wd)
   bundle <- file.path(gui_dir, "GUI", "reproducibility")
   original <- file.path(gui_dir, "GUI", "reports")
