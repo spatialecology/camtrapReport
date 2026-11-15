@@ -98,6 +98,14 @@
 # object fields are copied in, and assignments made by a module remain outside
 # the user's global environment.
 .make_render_env <- function(object) {
+  # Direct reference-method rendering also accepts deserialized snapshots.
+  if (inherits(object, "camReport") && !identical(object$info$report_sections_revision, 2L)) {
+    upgraded <- .upgrade_camreport_analysis(object)
+    if (!identical(upgraded, object)) {
+      stop("Reopen this legacy object using camData(..., cache_file = ...) before direct rendering.",
+           call. = FALSE)
+    }
+  }
   env <- new.env(parent = parent.frame())
 
   env$object <- object

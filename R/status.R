@@ -33,6 +33,9 @@ setMethod(
     )
     .check_report_destination(destination, overwrite = overwrite)
 
+    if (!identical(object$info$report_sections_revision, 2L)) {
+      object <- .upgrade_camreport_analysis(object, warn_sections = FALSE)
+    }
     if (!is.null(profile)) {
       .apply_profile(object, profile, report_type = "status")
     }

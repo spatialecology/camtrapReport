@@ -45,6 +45,17 @@ A \code{\link[=camReport-classes]{camReport}} object.
 Create a \code{\link[=camReport-classes]{camReport}} object from a Camtrap DP dataset.
 }
 \details{
+Camtrap DP position angles are signed degrees. New imports preserve their
+values and record \code{object$setting$rem_angle_unit = "degree"}. When an older
+saved object lacks a unit declaration, set this field to \code{"degree"} or
+\code{"radian"} after verifying the stored values, or reimport the source data.
+Changing the unit invalidates cached density results and angle model fits.
+The first legacy parameter, activity and density caches remain available in
+\code{object$info$rem_legacy_calibration} when the upgraded object is saved.
+On reload, exact historical bundled richness and co-occurrence sections are
+refreshed in memory. A warning identifies modified sections that need review.
+Saved profile selections and the original cache file are preserved.
+
 The function reads the input Camtrap DP dataset and creates a \code{camReport}
 object. The resulting object contains processed camera-trap data, metadata,
 summaries, report text, report modules, and data-status information used to

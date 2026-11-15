@@ -6,7 +6,71 @@
             NULL, version = 2)
 }
 
+.require_rem_angle_unit <- function(unit) {
+  if (length(unit) != 1L || is.na(unit) || !unit %in% c("degree", "radian")) {
+    stop(errorCondition(paste0("REM angle units are unknown. Confirm 'degree' or 'radian' ",
+         "from the source of the observations or calibration. For saved observations set ",
+         "object$setting$rem_angle_unit or reimport the Camtrap DP data."),
+         class = "rem_angle_unit_error", call = NULL))
+  }
+  as.character(unit)
+}
+
+# Retain the existing per-year recovery for ordinary fit failures while giving
+# the caller the information needed to confirm an external calibration.
+.try_rem_result <- function(expr) {
+  tryCatch(expr, error = function(e) {
+    if (inherits(e, "rem_angle_unit_error")) stop(e)
+    NULL
+  })
+}
+
+.sync_rem_angle_unit <- function(object) {
+  previous <- object$info$rem_angle_cache_unit
+  # Older fitted models labelled Camtrap DP degrees as radians. Neither a
+  # fitted label nor the magnitude identifies the unit of a saved column.
+  unit <- object$setting$rem_angle_unit %||% previous %||% "unknown"
+  if (!identical(unit, "unknown") && !identical(unit, "degree") &&
+      !identical(unit, "radian")) {
+    stop("Set rem_angle_unit to 'degree' or 'radian' for the stored angle values.")
+  }
+  if (identical(previous, unit)) return(invisible(NULL))
+
+  # Keep the first pre-versioned calibration intact even if the upgraded object
+  # is explicitly saved later. Active fits are recomputed from confirmed inputs.
+  legacy <- is.null(previous) && (length(object$.rem_params) || length(object$rem) ||
+                                    length(object$.act_models))
+  if (legacy && is.null(object$info$rem_legacy_calibration)) {
+    object$info$rem_legacy_calibration <- list(parameters = object$.rem_params,
+      activity = object$.act_models, densities = object$rem, observation_unit = unit)
+    if (identical(unit, "unknown")) {
+      warning("REM angle units are unknown. Original calibration and density caches ",
+              "are retained in object$info$rem_legacy_calibration. Confirm the stored ",
+              "observation unit or reimport before fitting REM.", call. = FALSE)
+    }
+  }
+  # Rebind saved package methods, including dependencies used as bare method
+  # names by other reference methods. Preserve user-supplied functions.
+  for (name in c("get_speciesNames", "get_data_subset", ".get_REM_Param", "fit_REM",
+                 "get_REM", "prepare_REM", "setup", "richness")) {
+    method <- get0(name, envir = object, inherits = FALSE)
+    if (inherits(method, "refMethodDef") && identical(method@refClassName, "camReport")) {
+      rm(list = name, envir = object)
+      do.call("$", list(object, name))
+    }
+  }
+  object$setting$rem_angle_unit <- unit
+  object$info$rem_angle_cache_unit <- unit
+  object$rem <- list()
+  has_angle <- vapply(object$.rem_params, function(p) is.list(p) &&
+    (!is.null(p$angle_model) || "angle" %in% rownames(p)), logical(1))
+  object$.rem_params <- object$.rem_params[!has_angle]
+  object$.any_data_for_rem <- logical()
+  invisible(NULL)
+}
+
 .sync_rem_cache <- function(object) {
+  .sync_rem_angle_unit(object)
   source <- list(data = .rem_source(object$data), years = object$years,
                  signature = .rem_analysis_signature())
   if (!identical(object$info$rem_cache_source, source)) {
@@ -16,6 +80,12 @@
     object$.any_data_for_rem <- logical()
     object$info$rem_empty_years <- character()
     object$info$rem_cache_source <- source
+  }
+  # Exposure changes invalidate density results, not shared calibration models
+  # or the global analysis signature (which also migrates legacy profiles).
+  if (!identical(object$info$rem_exposure_signature, "full-exposure-v1")) {
+    object$rem <- list()
+    object$info$rem_exposure_signature <- "full-exposure-v1"
   }
   invisible(NULL)
 }
@@ -63,5 +133,5 @@
   observations <- object$data$observations[
     object$data$observations$deploymentID %in% ids, , drop = FALSE
   ]
-  any(.any_data_for_rem(list(observations = observations), sp) %in% TRUE)
+  any(.any_data_for_rem(list(observations = observations), sp, object$setting$rem_angle_unit) %in% TRUE)
 }

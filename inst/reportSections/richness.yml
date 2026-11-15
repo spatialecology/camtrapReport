@@ -2,7 +2,7 @@
 name: "richness"
 title: "## Richness {.tabset}"
 parent: "results"
-text: "Species richness refers to the number of unique species recorded at each camera-trap location. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type, if available. These features help identify biodiversity hotspots and potential detection gaps across the study area."
+text: "Observed species richness is the number of selected species recorded at each camera-trap location. Locations with positive documented sampling time but no selected-species records are included with zero richness; missing or unsampled periods are not assigned zeros. Annual summaries use observation years and deployments overlapping those years, within the years selected in the report. This is not true or detection-corrected richness: unequal effort and incomplete detection limit comparisons. It provides a useful indicator of local biodiversity and helps assess how effectively the survey captured variation in the wildlife community across the study area. The figure below shows the spatial distribution of species richness, where each point represents a camera-trap location. Circle size reflects the number of unique species detected at that site, and color indicates richness intensity, with warmer colors representing higher richness values. By selecting a point, users can view additional information on species composition, richness count, and habitat type, if available. These features help identify biodiversity hotspots and potential detection gaps across the study area."
 code: |
   #| name: Richness
   #| setting: echo=FALSE,results="asis",warning=FALSE,message=FALSE,fig.show="hold"
@@ -121,7 +121,7 @@ code: |
         radius = ~ifelse(
           is.na(Richness_num),
           2,
-          ifelse(Richness_num == 1, 2, Richness_num * 2)
+          ifelse(Richness_num <= 1, 2, Richness_num * 2)
         ),
         fillColor = ~richness_palette(Richness),
         fillOpacity = 0.7,

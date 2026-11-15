@@ -25,3 +25,4 @@
 ^logo(-1024)?\.png$
 ^GUI$
 ^validation-results$
+^validation$

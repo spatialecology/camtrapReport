@@ -320,11 +320,13 @@ camR <- setRefClass(
   methods = list(
     initialize = function() {
       #.loadlib()
+      .self$info$report_sections_revision <- 2L
 
       .self$setting <- list(
         locationLegend = FALSE,
         color = c("#CA6A28", "#6C9100", "#00A383", "#008ADF", "#D44CBF"),
         rem_parameter_scope = "pooled",
+        rem_angle_unit = "radian",
         rem_reps = 10L,
         rem_seed = 42L,
         map_basemap = "openstreetmap"
@@ -559,6 +561,9 @@ camR <- setRefClass(
                 .self$species_summary$count$Name == group
               ]
               unique(.self$species_summary[[.g]]$site_list$scientificName)
+            } else if (group %in% names(.self$group_definition)) {
+              # A defined group can have no species above the current threshold.
+              character()
             } else {
               stop('group is unknown!')
             }
@@ -671,6 +676,41 @@ camR <- setRefClass(
             dplyr::left_join(.self$data$locations, by = 'locationID')
         } else {
           stop('No records are available for the specified years...!')
+        }
+      }
+      # Preserve the existing observation-year summaries and add genuine
+      # nondetections only where a deployment documents positive sampling time.
+      if (is.null(spList) || length(spList) > 0L) {
+        .calc_effort(.self$data) # Validate join keys before constructing the frame.
+        .dep <- .self$data$deployments
+        .start <- .dep$deploymentStart
+        .end <- .dep$deploymentEnd
+        .valid <- is.finite(as.numeric(.start)) &
+          is.finite(as.numeric(.end)) & .end > .start
+        if (is.null(year)) {
+          .frame <- unique(.dep[.valid, "locationID", drop = FALSE])
+          .keys <- "locationID"
+        } else {
+          .tz <- attr(.self$data$observations$timestamp, "tzone")
+          if (is.null(.tz) || !nzchar(.tz[1L])) .tz <- "UTC"
+          .frame <- do.call(rbind, lapply(unique(year), function(.yr) {
+            .lower <- as.POSIXct(paste0(.yr, "-01-01"), tz = .tz[1L])
+            .upper <- as.POSIXct(paste0(.yr + 1, "-01-01"), tz = .tz[1L])
+            .active <- .valid & .start < .upper & .end > .lower
+            .rows <- unique(.dep[.active, "locationID", drop = FALSE])
+            .rows$year <- rep(.yr, nrow(.rows))
+            .rows
+          }))
+          .keys <- c("locationID", "year")
+        }
+        .missing <- dplyr::anti_join(.frame, .rich, by = .keys)
+        if (nrow(.missing) > 0L) {
+          .missing$Richness <- 0L
+          .missing$Species_List <- ""
+          .missing$Community_Composition <- ""
+          .missing <- dplyr::left_join(.missing, .self$data$locations,
+                                      by = "locationID")
+          .rich <- dplyr::bind_rows(.rich, .missing[, names(.rich)])
         }
       }
       .rich
@@ -943,6 +983,12 @@ camR <- setRefClass(
         seed = seed
       )
 
+      declared_unit <- attr(analysis_data, "rem_angle_unit", exact = TRUE) %||%
+        attr(analysis_data$observations, "rem_angle_unit", exact = TRUE)
+      angle_unit <- declared_unit %||% if (cacheable) .self$setting$rem_angle_unit
+      if (!is.null(declared_unit) && !identical(declared_unit, .self$setting$rem_angle_unit)) {
+        cacheable <- FALSE
+      }
       if (activity_only) {
         if (cacheable && is.list(.self$.rem_params[[cache_key]])) {
           return(.self$.rem_params[[cache_key]])
@@ -986,6 +1032,7 @@ camR <- setRefClass(
         return(NULL)
       }
 
+      angle_unit <- .require_rem_angle_unit(angle_unit)
       if (cacheable && is.list(.self$.rem_params[[cache_key]])) {
         return(.self$.rem_params[[cache_key]])
       }
@@ -1023,7 +1070,7 @@ camR <- setRefClass(
             angle ~ 1,
             analysis_data$observations,
             species = sp,
-            unit = "radian",
+            unit = angle_unit,
             quiet = TRUE
           )
           speed_model <- .fit_speedmodel(
@@ -1083,6 +1130,7 @@ camR <- setRefClass(
         stop("'seed' must be a finite integer.")
       }
 
+      .require_rem_angle_unit(.self$setting$rem_angle_unit)
       .g <- .self$get_focus_group(sp)
       if (!.g %in% names(.self$rem)) {
         .self$rem[[.g]] <- list()
@@ -1163,7 +1211,7 @@ camR <- setRefClass(
         }
 
         if (identical(parameter_scope, "annual") &&
-            !any(.any_data_for_rem(dat, sp) %in% TRUE)) {
+            !any(.any_data_for_rem(dat, sp, .self$setting$rem_angle_unit) %in% TRUE)) {
           .self$rem[[.g]][[result_key]] <- NULL
           message("Skipping annual REM for ", sp, " in ", year,
                   ": the species-year does not meet the existing REM input requirements.")
@@ -1194,8 +1242,8 @@ camR <- setRefClass(
           next
         }
 
-        x <- try(.make_result(dat, species_params, year), silent = TRUE)
-        if (!inherits(x, "try-error")) {
+        x <- .try_rem_result(.make_result(dat, species_params, year))
+        if (!is.null(x)) {
           result_key <- .rem_result_key(
             sp,
             year = year,
@@ -1223,8 +1271,8 @@ camR <- setRefClass(
           )
 
           if (!is.null(species_params) && nrow(dat$observations) > 0) {
-            x <- try(.make_result(dat, species_params, 9999), silent = TRUE)
-            if (!inherits(x, "try-error")) {
+            x <- .try_rem_result(.make_result(dat, species_params, 9999))
+            if (!is.null(x)) {
               total_key <- .rem_result_key(
                 sp,
                 parameter_scope = parameter_scope,
@@ -1240,7 +1288,7 @@ camR <- setRefClass(
       }
 
       if (length(.self$.any_data_for_rem) == 0) {
-        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data, angle_unit = .self$setting$rem_angle_unit)
       } else if (!identical(parameter_scope, "annual")) {
         .self$.any_data_for_rem[sp] <- FALSE
       }
@@ -1276,11 +1324,15 @@ camR <- setRefClass(
       .validate_rem_settings(reps, seed)
       .sync_rem_cache(.self)
 
+      if (identical(.self$setting$rem_angle_unit, "unknown")) {
+        if (isTRUE(fit)) .require_rem_angle_unit(.self$setting$rem_angle_unit)
+        return(NULL)
+      }
       if (identical(parameter_scope, "annual") ||
           length(.self$.any_data_for_rem) == 0) {
-        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data, angle_unit = .self$setting$rem_angle_unit)
       } else if (!.sp %in% names(.self$.any_data_for_rem)) {
-        .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+        .self$.any_data_for_rem <- .any_data_for_rem(.self$data, angle_unit = .self$setting$rem_angle_unit)
       }
 
       has_rem_data <- length(.self$.any_data_for_rem) > 0 &&
@@ -1381,7 +1433,7 @@ camR <- setRefClass(
       }
       sp <- unique(as.character(sp))
       sp <- sp[!is.na(sp) & nzchar(sp)]
-      eligible <- .any_data_for_rem(.self$data)
+      eligible <- .any_data_for_rem(.self$data, angle_unit = .self$setting$rem_angle_unit)
       sp <- sp[sp %in% names(eligible)[!is.na(eligible) & eligible]]
       announced <- FALSE
       for (species in sp) {
@@ -1986,7 +2038,7 @@ camR <- setRefClass(
         .sp <- .self$get_speciesNames(.self$setting$focus_groups)
 
         if (length(.self$.any_data_for_rem) == 0) {
-          .self$.any_data_for_rem <- .any_data_for_rem(.self$data)
+          .self$.any_data_for_rem <- .any_data_for_rem(.self$data, angle_unit = .self$setting$rem_angle_unit)
         }
         .sp2 <- names(.self$.any_data_for_rem[.sp][.self$.any_data_for_rem[
           .sp
@@ -3626,6 +3678,7 @@ camR <- setRefClass(
         .d$sequences <- .self$data$sequences[
           .self$data$sequences$deploymentID %in% .d$deployments$deploymentID,
         ]
+        attr(.d, "rem_angle_unit") <- .self$setting$rem_angle_unit
         .d
       }
     },

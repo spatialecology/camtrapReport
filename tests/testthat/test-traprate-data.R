@@ -50,6 +50,18 @@ make_traprate_test_data <- function() {
 }
 
 
+test_that("REM counts retain individual totals and include eligible zero-detection effort", {
+  dat <- make_traprate_test_data()
+  dat$observations <- dat$observations[1L, , drop = FALSE]
+  dat$observations$count <- factor("4")
+  result <- .get_traprate_data(dat, species = "Vulpes vulpes", unit = "day")
+  expect_equal(sum(result$n), 4)
+  expect_equal(sum(result$effort), 3)
+  expect_equal(sum(result$n == 0), 1)
+  dat$observations$count <- 1.5
+  expect_error(.get_traprate_data(dat, species = "Vulpes vulpes"), "whole numbers")
+})
+
 test_that("trap-rate data are calculated for a selected species", {
   dat <- make_traprate_test_data()
 

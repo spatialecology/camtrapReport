@@ -71,9 +71,7 @@
           "ymd HMS z", "ymd HMS",
           "ymd HM z",  "ymd HM",
           "ymd z",     "ymd",
-          "Ymd HMS z", "Ymd HMS",
-          "ymdT HMS z", "ymdT HMS",
-          "ymdT HM z",  "ymdT HM"
+          "Ymd HMS z", "Ymd HMS"
         ),
         tz = tz,
         quiet = TRUE
@@ -763,7 +761,58 @@ setGeneric(
   upgraded
 }
 
-.upgrade_camreport_analysis <- function(x) {
+# Compare whole saved sections, including titles, parent and chunk settings.
+# A matching name alone is insufficient evidence that a module is bundled.
+.refresh_saved_sections <- function(object, warn = TRUE) {
+  if (identical(object$info$report_sections_revision, 2L)) return(invisible(object))
+  keys <- c("richness", "co_occurrence")
+  read_sections <- function(dir, files) {
+    lapply(files, function(file) {
+      .read_yml(system.file(dir, paste0(file, ".yml"), package = "camtrapReport",
+                            mustWork = TRUE))
+    })
+  }
+  files <- stats::setNames(keys, keys)
+  old <- read_sections("compat/sections-v1", files)
+  if (isTRUE(object$info$review_legacy_annual_sections)) {
+    files <- c(files, population_densities_eow = "pop_densities_EOW",
+               model_parameters_eow = "model_parameters_EOW")
+  }
+  current <- read_sections("reportSections", files)
+  changed <- review <- character()
+  refresh <- function(x) {
+    if (inherits(x, ".textSection")) {
+      name <- x@name
+      if (!name %in% names(current) || identical(x, current[[name]])) return(x)
+      if (identical(x, old[[name]])) {
+        changed <<- union(changed, name)
+        return(current[[name]])
+      }
+      review <<- union(review, name)
+    } else if (is.list(x)) {
+      # Preserve names, registry attributes, order and explicit NULL elements.
+      x[] <- lapply(x, refresh)
+    }
+    x
+  }
+  for (pool in c("Modules", "Status_modules")) {
+    modules <- object$reportObjectElements[[pool]]
+    if (length(modules)) object$reportObjectElements[[pool]] <- refresh(modules)
+  }
+  object$reportObjects <- refresh(object$reportObjects)
+  object$statusReportObjects <- refresh(object$statusReportObjects)
+  if (length(changed)) message("Refreshed saved bundled report sections: ", toString(changed), ".")
+  if (length(review) && warn) {
+    warning("Retained modified or unrecognized saved report sections: ", toString(review),
+            ". Check each affected section against the installed definition before ",
+            "using its scientific output.", call. = FALSE)
+  } else if (!length(review)) {
+    object$info$report_sections_revision <- 2L
+  }
+  invisible(object)
+}
+
+.upgrade_camreport_analysis <- function(x, warn_sections = TRUE) {
   x <- .upgrade_camreport_class(x)
 
   defaults <- list(
@@ -782,6 +831,11 @@ setGeneric(
     }
   }
 
+  if (is.null(x$info$report_sections_revision) ||
+      length(x$data$observations$angle) || length(x$rem) || length(x$.rem_params) ||
+      length(x$.act_models)) {
+    .sync_rem_angle_unit(x)
+  }
   current_signature <- .rem_analysis_signature()
   stored_signature <- x$info$rem_analysis_signature
   if (!identical(stored_signature, current_signature)) {
@@ -793,35 +847,36 @@ setGeneric(
     x$info$rem_empty_years <- character()
     x$info$rem_analysis_signature <- current_signature
 
-    # Migrate only the bundled annual modules in previously saved objects.
-    # Preserve user profiles and the General module library.
-    eow <- x$reportObjectElements$Profiles$EOW
-    if (inherits(eow, "reportProfile")) {
-      eow@report <- eow@report[eow@report$module != "model_parameters_eow", , drop = FALSE]
-      x$reportObjectElements$Profiles$EOW <- eow
+    # Preserve explicitly configured EOW selections. Older objects may contain
+    # authored modules with the same names as the bundled annual modules.
+    if (length(x$reportObjectElements$Modules)) {
+      x$info$review_legacy_annual_sections <- TRUE
+      x$info$report_sections_revision <- NULL
     }
-    for (file in c("pop_densities_EOW.yml", "model_parameters_EOW.yml")) {
-      module <- .read_yml(system.file("reportSections", file, package = "camtrapReport"))
-      if (module@name %in% names(x$reportObjectElements$Modules)) {
-        x$reportObjectElements$Modules[[module@name]] <- module
-      }
-    }
-    # A saved object may already have the old EOW selection attached.
-    refresh_annual <- function(sections) {
-      if (inherits(sections, ".textSection")) {
-        if (identical(sections@name, "model_parameters_eow")) return(NULL)
-        if (identical(sections@name, "population_densities_eow")) {
-          return(x$reportObjectElements$Modules$population_densities_eow)
+    keep_parameters <- any(vapply(x$reportObjectElements$Profiles, function(profile) {
+      inherits(profile, "reportProfile") && "model_parameters_eow" %in% profile@report$module
+    }, logical(1)))
+    if (!keep_parameters && identical(stored_signature, "rem-v2-annual-scope-individual-count")) {
+      # Only this complete former bundled layout identifies the redundant
+      # parameter section. A manually attached copy remains a valid choice.
+      old_layout <- lapply(c("population_density_annual.yml", "model_parameters_EOW.yml",
+                             "pop_densities_EOW.yml"), function(file) {
+        .read_yml(system.file("reportSections", file, package = "camtrapReport", mustWork = TRUE))
+      })
+      refresh_annual <- function(sections) {
+        if (!is.list(sections)) return(sections)
+        if (identical(unname(sections), old_layout)) {
+          message("Refreshed the saved bundled annual density section layout.")
+          return(sections[-2L])
         }
-        return(sections)
+        sections[] <- lapply(sections, refresh_annual)
+        sections
       }
-      if (!is.list(sections)) return(sections)
-      sections <- lapply(sections, refresh_annual)
-      sections[!vapply(sections, is.null, logical(1))]
+      x$reportObjects <- refresh_annual(x$reportObjects)
     }
-    x$reportObjects <- refresh_annual(x$reportObjects)
   }
 
+  .refresh_saved_sections(x, warn = warn_sections)
   x
 }
 
@@ -866,6 +921,17 @@ setGeneric(
 #' `update`.
 #'
 #' @details
+#' Camtrap DP position angles are signed degrees. New imports preserve their
+#' values and record `object$setting$rem_angle_unit = "degree"`. When an older
+#' saved object lacks a unit declaration, set this field to `"degree"` or
+#' `"radian"` after verifying the stored values, or reimport the source data.
+#' Changing the unit invalidates cached density results and angle model fits.
+#' The first legacy parameter, activity and density caches remain available in
+#' `object$info$rem_legacy_calibration` when the upgraded object is saved.
+#' On reload, exact historical bundled richness and co-occurrence sections are
+#' refreshed in memory. A warning identifies modified sections that need review.
+#' Saved profile selections and the original cache file are preserved.
+#'
 #' `data` currently accepts a file-system path, not an in-memory data frame or
 #' list. A dataset directory contains `datapackage.json`, `deployments.csv`,
 #' `media.csv`, and `observations.csv`. The following identifiers and columns
@@ -1106,6 +1172,7 @@ setMethod(
     cm$setting$locationLegend <- TRUE
 
     cm$data <- .d$data
+    cm$setting$rem_angle_unit <- "degree"
     cm$info$json <- .d$json
     cm$info$directory <- .d$directory
 

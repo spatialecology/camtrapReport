@@ -14,6 +14,13 @@
   unit <- match.arg(unit)
 
   dep <- x$deployments
+  if ("deploymentID" %in% names(dep) && anyDuplicated(dep$deploymentID)) {
+    stop("Deployment identifiers must be unique when calculating effort.")
+  }
+  if ("locationID" %in% names(x$locations) &&
+      anyDuplicated(x$locations$locationID)) {
+    stop("Location identifiers must be unique when calculating effort.")
+  }
   # if (is.null(dep) || nrow(dep) == 0) stop("x$deployments is empty.")
   #
   # start_col <- .first_existing(dep, c("deploymentStart", "start"))
@@ -28,7 +35,7 @@
         units = "secs"
       ))
     ) |>
-    dplyr::filter(!is.na(.data$effort_seconds), .data$effort_seconds >= 0)',
+    dplyr::filter(is.finite(.data$effort_seconds), .data$effort_seconds >= 0)',
     environment()
   )
 
@@ -534,6 +541,10 @@
     y <- y[keep, , drop = FALSE]
   }
 
+  if (!is.null(class) && length(class) == 0L) {
+    y <- y[FALSE, , drop = FALSE]
+  }
+
   if (!is.null(class) && nrow(y) > 0L) {
     missing_class <- if ("class" %in% names(y)) {
       is.na(y$class) | !nzchar(trimws(as.character(y$class)))
@@ -562,17 +573,13 @@
   if (!is.null(class) && "class" %in% names(y)) {
     class <- intersect(class, unique(stats::na.omit(y[["class"]])))
 
-    if (length(class) > 0) {
-      y <- y[y[["class"]] %in% class, , drop = FALSE]
-    }
+    y <- y[y[["class"]] %in% class, , drop = FALSE]
   }
 
   if (!is.null(species) && "scientificName" %in% names(y)) {
     species <- intersect(species, unique(stats::na.omit(y[["scientificName"]])))
 
-    if (length(species) > 0) {
-      y <- y[y[["scientificName"]] %in% species, , drop = FALSE]
-    }
+    y <- y[y[["scientificName"]] %in% species, , drop = FALSE]
   }
 
   #---------------- choose capture unit ----------------
@@ -791,7 +798,14 @@
     stop("There are no usable position data")
   }
 
-  if (inherits(dat[[depvar]], "numeric")) {
+  if (is.numeric(dat[[depvar]])) {
+    .values <- dat[[depvar]]
+    .limit <- if (unit == "degree") 90 else pi / 2
+    if (!all(is.finite(.values)) ||
+        (unit %in% c("m", "km", "cm") && any(.values < 0)) ||
+        (unit %in% c("degree", "radian") && any(abs(.values) > .limit))) {
+      stop("Detection calibration contains invalid distances or angles.")
+    }
     colnames(dat)[which(colnames(dat) == depvar)] <- 'distance'
     dat$distance <- abs(dat$distance)
   } else {
@@ -1078,7 +1092,14 @@
   }
 
   if ("count" %in% names(obs)) {
-    individual_count <- suppressWarnings(as.numeric(obs[["count"]]))
+    raw_count <- obs[["count"]]
+    if (is.factor(raw_count)) raw_count <- as.character(raw_count)
+    individual_count <- suppressWarnings(as.numeric(raw_count))
+    invalid_count <- !is.na(raw_count) & (!is.finite(individual_count) |
+      individual_count <= 0 | individual_count != floor(individual_count))
+    if (any(invalid_count)) {
+      stop("REM observation counts must be positive, finite whole numbers, or missing.")
+    }
     if (any(is.finite(individual_count) & individual_count > 0)) {
       individual_count[
         !is.finite(individual_count) | individual_count < 0
@@ -1104,6 +1125,22 @@
   #---------------- joins ----------------
 
   res <- .base_left_join(a, dep, by = "deploymentID")
+  if (length(species) == 1L && !is.na(species)) {
+    # Survey exposure includes operational deployments without focal detections.
+    valid_ids <- eff$deploymentID[is.finite(eff$effort) & eff$effort > 0]
+    if (!all(a$deploymentID %in% valid_ids)) {
+      stop("REM observations require a deployment with positive, finite effort.")
+    }
+    missing_deployments <- dep[
+      dep$deploymentID %in% valid_ids & !dep$deploymentID %in% a$deploymentID,
+      , drop = FALSE
+    ]
+    if (nrow(missing_deployments) > 0L) {
+      missing_deployments$scientificName <- as.character(species)
+      missing_deployments$n <- 0L
+      res <- rbind(res, missing_deployments[, names(res), drop = FALSE])
+    }
+  }
   res <- .base_left_join(res, eff, by = "deploymentID")
 
   required_res <- c("locationName", "latitude", "longitude", "n", "effort")
@@ -1156,6 +1193,7 @@
   seed = 42L
 ) {
   rad <- radius_model$edd
+  .require_rem_angle_unit(angle_model$unit)
   ang <- angle_model$edd * 2
   spd <- dplyr::select(speed_model$estimate, dplyr::all_of(c("est", "se")))
   act <- activity_model@act[1:2]
@@ -1215,8 +1253,9 @@
 #-------------
 
 # checks whether required data are available for REM analysis:
-.any_data_for_rem <- function(dat, sp = NULL) {
+.any_data_for_rem <- function(dat, sp = NULL, angle_unit = "degree") {
   tab <- dat$observations
+  angle_limit <- if (identical(angle_unit, "radian")) pi / 2 else 90
 
   if (!is.null(sp)) {
     tab <- tab[tab[["scientificName"]] %in% sp, , drop = FALSE]
@@ -1248,8 +1287,12 @@
       na.rm = TRUE
     )
 
-    n_radii <- sum(!is.na(x[["radius"]]))
-    n_angles <- sum(!is.na(x[["angle"]]))
+    n_radii <- if (is.numeric(x[["radius"]])) {
+      sum(is.finite(x[["radius"]]) & x[["radius"]] >= 0)
+    } else sum(!is.na(x[["radius"]]))
+    n_angles <- if (is.numeric(x[["angle"]])) {
+      sum(is.finite(x[["angle"]]) & abs(x[["angle"]]) <= angle_limit)
+    } else sum(!is.na(x[["angle"]]))
 
     out[s] <- all(c(n_speeds, n_radii, n_angles) > 0)
   }
@@ -1271,10 +1314,25 @@
       toString(required_cols)
     )
   }
+  .require_rem_angle_unit(parameters["angle", "unit"])
   param <- .eval(
     "camtrapDensity::convert_units(parameters[required_rows, ])",
     environment()
   )
+  if (!all(is.finite(param$estimate)) ||
+      param["trap_rate", "estimate"] < 0 ||
+      any(param[c("overall_speed", "radius"), "estimate"] <= 0) ||
+      param["angle", "estimate"] < 0 ||
+      param["angle", "estimate"] > 2 * pi ||
+      any(!is.na(param$se) & (!is.finite(param$se) | param$se < 0))) {
+    stop("REM requires finite, physically valid estimates and nonnegative standard errors.")
+  }
+  if ("activity_level" %in% rownames(parameters)) {
+    .activity <- parameters["activity_level", "estimate"]
+    if (!is.finite(.activity) || .activity <= 0 || .activity > 1) {
+      stop("REM activity level must be greater than zero and at most one.")
+    }
+  }
   wtd_est <- param$estimate + c(0, 0, 0, 2)
   pwr_est <- wtd_est^c(1, -1, -1, -1)
   CVs <- param$se / wtd_est
