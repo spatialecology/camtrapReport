@@ -81,27 +81,19 @@ See
 [`pak`](https://pak.r-lib.org/):
 
 ``` r
-if (!requireNamespace("pak", quietly = TRUE)) {
-  install.packages("pak")
-}
-
+if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
 pak::pkg_install("spatialecology/camtrapReport")
 ```
 
-Alternatively, install the package from R-universe:
+Alternatively, install the package from
+[R-universe](https://camera-traps.r-universe.dev/camtrapReport):
 
 ``` r
-install.packages(
-  "camtrapReport",
-  repos = c(
-    "https://camera-traps.r-universe.dev",
-    "https://cloud.r-project.org"
-  )
-)
+install.packages("camtrapReport", repos = c("https://camera-traps.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 Some modules require additional R packages. To install optional
-dependencies for available modules, run:
+dependencies, run:
 
 ``` r
 camtrapReport::install_all()
@@ -171,7 +163,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.
 #> Setup is done!
-#> Data loaded successfully in 1 min 20 sec.
+#> Data loaded successfully in 50 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
@@ -331,6 +323,8 @@ management](https://spatialecology.github.io/camtrapReport/articles/modules.html
 
 Use `gui(cm)` to edit report metadata, select modules, and generate
 reports interactively. The R interface supports further customization.
+Users can also export reproducible reporting bundles containing saved
+analytical objects, settings, and scripts for regenerating reports.
 
 ## Interpretation and reproducibility
 
@@ -409,46 +403,3 @@ are welcome. See the [contributing
 guidelines](https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md)
 and [Code of
 Conduct](https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md).
-
-### Reproduce a GUI workflow
-
-Select an output directory in the GUI. Reports and their analytical R
-Markdown sources go in `GUI/reports/`, separately saved objects in
-`GUI/objects/`, and GUI ZIP imports in `GUI/data/`. Direct `report()`
-and `status()` calls retain their existing destination rules.
-
-In **Generate**, choose **Export Reproducible Workflow**. This saves the
-current configured object and both report types with attached modules
-under `GUI/reproducibility/`, together with `reproduce.R`,
-`reproduce.Rmd`, required local assets, a manifest and
-`sessionInfo.txt`. Further exports use numbered subdirectories; earlier
-bundles are never replaced. Move the whole bundle, install the recorded
-camtrapReport version and dependencies, then run:
-
-``` sh
-Rscript reproduce.R
-```
-
-Alternatively, use `rmarkdown::render("reproduce.Rmd")`. The document
-launches the same script in a fresh R process. The first run writes
-`reports/`; later runs write `reports/run-001/`, etc., preserving
-previous reports. Rendering the R Markdown again replaces its summary
-`reproduce.html` only.
-
-This is **snapshot-based report regeneration**, using stored inputs,
-settings, selected modules, edited narrative, spatial objects and model
-caches. Existing report functions determine what is recalculated; cache
-reuse is not independent model refitting. Full reproduction from
-original Camtrap-DP inputs requires import/construction provenance and
-remains a future enhancement.
-
-Local logos and required cached appendix photographs are included.
-Missing required assets block export. Online basemap imagery and
-arbitrary external resources in custom modules cannot be archived
-automatically; use self-contained trusted modules for portable
-reproduction. Pandoc and selected modules’ optional packages are
-required. The exported README explains version and asset limits.
-
-**Review before sharing:** objects and reports can contain sensitive
-species locations, observations and project metadata. Export never
-uploads data.
