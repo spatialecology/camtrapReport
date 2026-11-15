@@ -34,11 +34,11 @@
     .rem_cached(object$rem[[group]][[key]])
   }, logical(1))
   pending <- years[!present & !as.character(years) %in% object$info$rem_empty_years]
-  # The existing fitter skips observation-free years. Recognize these before
-  # announcing new calculations, while retaining errors for absent deployments.
+  # Skip observation-free and REM-ineligible species-years before requesting
+  # calculations, while retaining errors for absent deployments.
   pending[vapply(pending, function(year) {
     ids <- object$data$deployments$deploymentID[object$data$deployments$Year == year]
-    !length(ids) || any(object$data$observations$deploymentID %in% ids)
+    !length(ids) || .rem_year_eligible(object, sp, year)
   }, logical(1))]
 }
 
@@ -54,4 +54,14 @@
   if (length(seed) != 1L || !is.finite(seed)) {
     stop("'seed' must be a finite integer.")
   }
+}
+
+# Apply the existing REM input requirements to the same deployment-year subset
+# used by the annual fitter, without copying unrelated media or spatial data.
+.rem_year_eligible <- function(object, sp, year) {
+  ids <- object$data$deployments$deploymentID[object$data$deployments$Year == year]
+  observations <- object$data$observations[
+    object$data$observations$deploymentID %in% ids, , drop = FALSE
+  ]
+  any(.any_data_for_rem(list(observations = observations), sp) %in% TRUE)
 }

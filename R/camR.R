@@ -1145,7 +1145,8 @@ camR <- setRefClass(
       for (year in .self$years) {
         result_key <- .rem_result_key(sp, year, parameter_scope, reps, seed)
         if (identical(parameter_scope, "annual") &&
-            .rem_cached(.self$rem[[.g]][[result_key]])) {
+            .rem_cached(.self$rem[[.g]][[result_key]]) &&
+            .rem_year_eligible(.self, sp, year)) {
           .density_estimate_list[[result_key]] <- .self$rem[[.g]][[result_key]]
           next
         }
@@ -1158,6 +1159,14 @@ camR <- setRefClass(
           .self$info$rem_empty_years <- unique(c(
             .self$info$rem_empty_years, as.character(year)
           ))
+          next
+        }
+
+        if (identical(parameter_scope, "annual") &&
+            !any(.any_data_for_rem(dat, sp) %in% TRUE)) {
+          .self$rem[[.g]][[result_key]] <- NULL
+          message("Skipping annual REM for ", sp, " in ", year,
+                  ": the species-year does not meet the existing REM input requirements.")
           next
         }
 
@@ -1292,8 +1301,14 @@ camR <- setRefClass(
       }
 
       .g <- .self$get_focus_group(.sp)
+      result_years <- .self$years
+      if (identical(parameter_scope, "annual")) {
+        result_years <- result_years[vapply(result_years, function(year) {
+          .rem_year_eligible(.self, .sp, year)
+        }, logical(1))]
+      }
       storage_names <- vapply(
-        .self$years,
+        result_years,
         function(year) {
           .rem_result_key(
             .sp,
@@ -1305,7 +1320,7 @@ camR <- setRefClass(
         },
         character(1)
       )
-      display_names <- paste0(.sp, "_", .self$years)
+      display_names <- paste0(.sp, "_", result_years)
 
       if (identical(parameter_scope, "pooled")) {
         storage_names <- c(
@@ -2256,7 +2271,6 @@ camR <- setRefClass(
           "validation",
           "annotation",
           "observation_type",
-          "conclusion",
           "acknowledge"
         ),
         package = "camtrapReport",

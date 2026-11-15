@@ -87,6 +87,11 @@ available module pool, including alternative modules; it is not the same as
 a profile's selection. Reread corrected source files with
 \code{camData(..., update = TRUE)} before rerunning \code{status()} or \code{report()}.
 
+EOW preserves \code{object$setting$focus_groups} (singular \code{setting}); profiles
+select modules, not species. Import defaults to \code{large_mammals}; use
+\code{object$set_focus_group("wild_mammals")} to select that group. Annual fits
+require the existing REM inputs within each deployment-start-year subset.
+Ineligible species-years are skipped and excluded from cached annual output.
 EOW annual REM estimates are prepared before rendering and cached in \code{object}.
 To prepare them explicitly, call \code{object$prepare_REM()}. Preparation uses
 999 replicates and seed 42 by default; configure \code{object$setting$eow_rem_reps}

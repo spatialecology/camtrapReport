@@ -242,6 +242,11 @@ setGeneric(
 #' a profile's selection. Reread corrected source files with
 #' `camData(..., update = TRUE)` before rerunning `status()` or `report()`.
 #'
+#' EOW preserves `object$setting$focus_groups` (singular `setting`); profiles
+#' select modules, not species. Import defaults to `large_mammals`; use
+#' `object$set_focus_group("wild_mammals")` to select that group. Annual fits
+#' require the existing REM inputs within each deployment-start-year subset.
+#' Ineligible species-years are skipped and excluded from cached annual output.
 #' EOW annual REM estimates are prepared before rendering and cached in `object`.
 #' To prepare them explicitly, call `object$prepare_REM()`. Preparation uses
 #' 999 replicates and seed 42 by default; configure `object$setting$eow_rem_reps`

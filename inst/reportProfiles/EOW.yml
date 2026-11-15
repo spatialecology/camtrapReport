@@ -39,6 +39,5 @@ status:
   - "status::validation"
   - "status::annotation"
   - "status::observation_type"
-  - "status::conclusion"
   - "status::acknowledge"
 ---

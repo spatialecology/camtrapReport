@@ -22,3 +22,6 @@
 ^\.devcontainer$
 ^man-roxygen$
 ^cran-readiness$
+^logo(-1024)?\.png$
+^GUI$
+^validation-results$

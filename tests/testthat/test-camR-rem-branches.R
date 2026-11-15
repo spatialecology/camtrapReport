@@ -135,8 +135,10 @@ test_that("get_REM returns existing yearly results", {
 
 
 test_that("annual REM results use an independent cache namespace", {
-  original <- camtrap_test_report()
-  report <- original$copy(shallow = FALSE)
+  # This namespace test needs an eligible species-year, not a cache entry
+  # fabricated for a species without annual calibration inputs.
+  report <- rem_cache_fixture()
+  report$observed_counts <- report$data$taxonomy
   .sync_rem_cache(report)
   candidate_species <- unique(
     as.character(report$observed_counts$scientificName)

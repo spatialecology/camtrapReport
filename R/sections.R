@@ -20,7 +20,7 @@ setGeneric(
     dir <- system.file("statusSections", package = "camtrapReport")
     level0 <- c(
       "abstract", "spatial", "temporal", "availability", "validation",
-      "annotation", "observation_type", "conclusion", "acknowledge"
+      "annotation", "observation_type", "acknowledge"
     )
   }
 
