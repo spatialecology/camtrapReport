@@ -163,7 +163,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.
 #> Setup is done!
-#> Data loaded successfully in 50 sec.
+#> Data loaded successfully in 27 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm

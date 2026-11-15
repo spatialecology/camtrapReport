@@ -114,21 +114,12 @@ camtrapReport
 </h2>
 <p><code>camtrapReport</code> requires R 4.1.0 or later. Install it from GitHub using <a href="https://pak.r-lib.org/" class="external-link"><code>pak</code></a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pak"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pak"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"spatialecology/camtrapReport"</span><span class="op">)</span></span></code></pre></div>
-<p>Alternatively, install the package from R-universe:</p>
+<p>Alternatively, install the package from <a href="https://camera-traps.r-universe.dev/camtrapReport" class="external-link">R-universe</a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
-<span>  <span class="st">"camtrapReport"</span>,</span>
-<span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"https://camera-traps.r-universe.dev"</span>,</span>
-<span>    <span class="st">"https://cloud.r-project.org"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Some modules require additional R packages. To install optional dependencies for available modules, run:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"camtrapReport"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://camera-traps.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Some modules require additional R packages. To install optional dependencies, run:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">camtrapReport</span><span class="fu">::</span><span class="fu"><a href="reference/install-all.html">install_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Use the R functions directly, or configure and generate reports through the optional Shiny interface, <code>gui(cm)</code>. Shiny is not needed to run the R workflow. Report-generation time depends on dataset size and selected analyses.</p>
@@ -177,7 +168,7 @@ camtrapReport
 <span><span class="co">#&gt; File size looks modest, but full object creation may still take several minutes depending on the number of records.</span></span>
 <span><span class="co">#&gt; Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.</span></span>
 <span><span class="co">#&gt; Setup is done!</span></span>
-<span><span class="co">#&gt; Data loaded successfully in 1 min 20 sec.</span></span>
+<span><span class="co">#&gt; Data loaded successfully in 50 sec.</span></span>
 <span><span class="co">#&gt; camReport object is ready for GMU8 LEUVEN.</span></span>
 <span></span>
 <span><span class="va">cm</span></span>
@@ -272,7 +263,7 @@ camtrapReport
 <div class="section level3">
 <h3 id="graphical-user-interface">Graphical user interface<a class="anchor" aria-label="anchor" href="#graphical-user-interface"></a>
 </h3>
-<p>Use <code>gui(cm)</code> to edit report metadata, select modules, and generate reports interactively. The R interface supports further customization.</p>
+<p>Use <code>gui(cm)</code> to edit report metadata, select modules, and generate reports interactively. The R interface supports further customization. Users can also export reproducible reporting bundles containing saved analytical objects, settings, and scripts for regenerating reports.</p>
 </div>
 </div>
 <div class="section level2">
@@ -321,17 +312,6 @@ camtrapReport
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
 <p>Contributions to code, documentation, modules, and Analytical Profiles are welcome. See the <a href="https://github.com/spatialecology/camtrapReport/blob/main/.github/CONTRIBUTING.md" class="external-link">contributing guidelines</a> and <a href="https://github.com/spatialecology/camtrapReport/blob/main/.github/CODE_OF_CONDUCT.md" class="external-link">Code of Conduct</a>.</p>
-<div class="section level3">
-<h3 id="reproduce-a-gui-workflow">Reproduce a GUI workflow<a class="anchor" aria-label="anchor" href="#reproduce-a-gui-workflow"></a>
-</h3>
-<p>Select an output directory in the GUI. Reports and their analytical R Markdown sources go in <code>GUI/reports/</code>, separately saved objects in <code>GUI/objects/</code>, and GUI ZIP imports in <code>GUI/data/</code>. Direct <code><a href="reference/report.html">report()</a></code> and <code><a href="reference/report.html">status()</a></code> calls retain their existing destination rules.</p>
-<p>In <strong>Generate</strong>, choose <strong>Export Reproducible Workflow</strong>. This saves the current configured object and both report types with attached modules under <code>GUI/reproducibility/</code>, together with <code>reproduce.R</code>, <code>reproduce.Rmd</code>, required local assets, a manifest and <code>sessionInfo.txt</code>. Further exports use numbered subdirectories; earlier bundles are never replaced. Move the whole bundle, install the recorded camtrapReport version and dependencies, then run:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">Rscript</span> reproduce.R</span></code></pre></div>
-<p>Alternatively, use <code>rmarkdown::render("reproduce.Rmd")</code>. The document launches the same script in a fresh R process. The first run writes <code>reports/</code>; later runs write <code>reports/run-001/</code>, etc., preserving previous reports. Rendering the R Markdown again replaces its summary <code>reproduce.html</code> only.</p>
-<p>This is <strong>snapshot-based report regeneration</strong>, using stored inputs, settings, selected modules, edited narrative, spatial objects and model caches. Existing report functions determine what is recalculated; cache reuse is not independent model refitting. Full reproduction from original Camtrap-DP inputs requires import/construction provenance and remains a future enhancement.</p>
-<p>Local logos and required cached appendix photographs are included. Missing required assets block export. Online basemap imagery and arbitrary external resources in custom modules cannot be archived automatically; use self-contained trusted modules for portable reproduction. Pandoc and selected modules’ optional packages are required. The exported README explains version and asset limits.</p>
-<p><strong>Review before sharing:</strong> objects and reports can contain sensitive species locations, observations and project metadata. Export never uploads data.</p>
-</div>
 </div>
 
   </main><aside class="col-md-3"><div class="table-of-contents">

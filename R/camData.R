@@ -739,7 +739,7 @@ setGeneric(
   "camData",
   function(data, habitat, study_area, update, enrich_taxonomy = FALSE, ...,
            overwrite = FALSE) {
-    methods::standardGeneric("camData")
+    base::standardGeneric("camData")
   }
 )
 
@@ -779,16 +779,18 @@ setGeneric(
                model_parameters_eow = "model_parameters_EOW")
   }
   current <- read_sections("reportSections", files)
-  changed <- review <- character()
+  state <- new.env(parent = emptyenv())
+  state$changed <- character()
+  state$review <- character()
   refresh <- function(x) {
     if (inherits(x, ".textSection")) {
       name <- x@name
       if (!name %in% names(current) || identical(x, current[[name]])) return(x)
       if (identical(x, old[[name]])) {
-        changed <<- union(changed, name)
+        state$changed <- union(state$changed, name)
         return(current[[name]])
       }
-      review <<- union(review, name)
+      state$review <- union(state$review, name)
     } else if (is.list(x)) {
       # Preserve names, registry attributes, order and explicit NULL elements.
       x[] <- lapply(x, refresh)
@@ -801,12 +803,12 @@ setGeneric(
   }
   object$reportObjects <- refresh(object$reportObjects)
   object$statusReportObjects <- refresh(object$statusReportObjects)
-  if (length(changed)) message("Refreshed saved bundled report sections: ", toString(changed), ".")
-  if (length(review) && warn) {
-    warning("Retained modified or unrecognized saved report sections: ", toString(review),
+  if (length(state$changed)) message("Refreshed saved bundled report sections: ", toString(state$changed), ".")
+  if (length(state$review) && warn) {
+    warning("Retained modified or unrecognized saved report sections: ", toString(state$review),
             ". Check each affected section against the installed definition before ",
             "using its scientific output.", call. = FALSE)
-  } else if (!length(review)) {
+  } else if (!length(state$review)) {
     object$info$report_sections_revision <- 2L
   }
   invisible(object)
