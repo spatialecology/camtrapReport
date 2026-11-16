@@ -18,7 +18,7 @@ camtrapReport
 <a href="https://github.com/ropensci/software-review/issues/799"><img src="https://badges.ropensci.org/799_status.svg" alt="Status at rOpenSci Software Peer Review"></a>
 <a href="https://boninabox.geobon.org/tool-detail?id=253"><img src="https://img.shields.io/badge/GEO%20BON-BON%20in%20a%20Box-287D78" alt="Listed in the GEO BON BON in a Box tool catalogue"></a>
 <a href="https://app.codecov.io/github/spatialecology/camtrapReport"><img src="https://codecov.io/github/spatialecology/camtrapReport/graph/badge.svg?token=9VBXAR9XOD" alt="Test coverage"></a>
-<a href="https://camera-traps.r-universe.dev/camtrapReport"><img src="https://camera-traps.r-universe.dev/badges/camtrapReport" alt="camtrapReport version on R-universe"></a>
+<a href="https://camera-traps.r-universe.dev/camtrapReport"><img src="https://img.shields.io/badge/R--universe-camtrapReport-blue" alt="camtrapReport on R-universe"></a>
 <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project status: active"></a>
 <a href="https://www.r-project.org/"><img src="https://img.shields.io/badge/R-%E2%89%A5%204.1.0-276DC3?logo=r&logoColor=white" alt="R version 4.1.0 or later"></a>
 <a href="https://github.com/spatialecology/camtrapReport/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license"></a>
@@ -163,7 +163,7 @@ cm <- camData(
 #> File size looks modest, but full object creation may still take several minutes depending on the number of records.
 #> Taxonomic class is unavailable for 43 recorded taxa. Class-dependent groups and mammal counts may be incomplete; missing classification does not indicate ecological absence. Supply source classifications or explicitly enable GBIF enrichment and rebuild with update = TRUE.
 #> Setup is done!
-#> Data loaded successfully in 27 sec.
+#> Data loaded successfully in 35 sec.
 #> camReport object is ready for GMU8 LEUVEN.
 
 cm
