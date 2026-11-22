@@ -469,10 +469,11 @@ Netherlands
 <div class="section level2">
 <h2 id="configure-the-ecological-report">Configure the Ecological Report<a class="anchor" aria-label="anchor" href="#configure-the-ecological-report"></a>
 </h2>
-<p>Customise report metadata, focal species groups, years, filters, and
-sections through the <code>camReport</code> object. <strong>The
-following examples are independent</strong>; adapt species, years, file
-paths, and settings to your own dataset.</p>
+<p>Customise report metadata, focal species groups, monitoring years,
+filters and report sections through the <code>camReport</code> object.
+The examples below demonstrate independent configuration options rather
+than a sequential workflow. Adjust species, years, file paths and
+analytical settings to match your dataset and research objectives.</p>
 <div class="section level3">
 <h3 id="report-metadata">Report metadata<a class="anchor" aria-label="anchor" href="#report-metadata"></a>
 </h3>
@@ -575,7 +576,31 @@ writable project directory rather than editing installed package files.
 See <a href="modules.html">Module Management</a>.</p>
 </div>
 <div class="section level3">
-<h3 id="interpretation-and-reproducibility">Interpretation and reproducibility<a class="anchor" aria-label="anchor" href="#interpretation-and-reproducibility"></a>
+<h3 id="reproducing-gui-generated-reports">Reproducing GUI-generated reports<a class="anchor" aria-label="anchor" href="#reproducing-gui-generated-reports"></a>
+</h3>
+<p>The <em>camtrapReport</em> GUI allows users to export a
+reproducibility bundle containing the configured report object,
+analytical settings, required local assets, software-version information
+and an executable R script. The bundle can be used to regenerate the
+selected reports without reopening the GUI, provided the required
+dependencies are available.</p>
+<p>To reproduce the reports, run:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Path to the bundle exported by the GUI</span></span>
+<span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="st">"path/to/GUI/reproducibility"</span></span>
+<span></span>
+<span><span class="co"># Regenerate reports using the saved configuration</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Rhome.html" class="external-link">R.home</a></span><span class="op">(</span><span class="st">"bin"</span><span class="op">)</span>, <span class="st">"Rscript"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"--vanilla"</span>, <span class="fu"><a href="https://rdrr.io/r/base/shQuote.html" class="external-link">shQuote</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bundle</span>, <span class="st">"reproduce.R"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The script restores the saved object and generates reports in a new
+output directory without overwriting previous results. Reproduction
+starts from the processed dataset rather than re-importing the original
+camera-trap observations.</p>
+</div>
+<div class="section level3">
+<h3 id="interpreting-report-outputs">Interpreting report outputs<a class="anchor" aria-label="anchor" href="#interpreting-report-outputs"></a>
 </h3>
 <p>Interpret outputs in light of sampling design, effort, detectability,
 and method-specific assumptions. Capture-based indices are not direct

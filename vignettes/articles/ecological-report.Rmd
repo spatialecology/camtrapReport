@@ -333,7 +333,7 @@ Explore Ecological Reports from different monitoring projects. Select a preview 
 
 ## Configure the Ecological Report
 
-Customise report metadata, focal species groups, years, filters, and sections through the `camReport` object. **The following examples are independent**; adapt species, years, file paths, and settings to your own dataset.
+Customise report metadata, focal species groups, monitoring years, filters and report sections through the `camReport` object. The examples below demonstrate independent configuration options rather than a sequential workflow. Adjust species, years, file paths and analytical settings to match your dataset and research objectives.
 
 ### Report metadata
 
@@ -435,7 +435,26 @@ report(cm, filename = "ecological_custom", view = TRUE)
 
 To modify existing analyses or develop new modules, work in a writable project directory rather than editing installed package files. See [Module Management](modules.html).
 
-### Interpretation and reproducibility
+### Reproducing GUI-generated reports
+
+The *camtrapReport* GUI allows users to export a reproducibility bundle containing the configured report object, analytical settings, required local assets, software-version information and an executable R script. The bundle can be used to regenerate the selected reports without reopening the GUI, provided the required dependencies are available.
+
+To reproduce the reports, run:
+
+```r
+# Path to the bundle exported by the GUI
+bundle <- "path/to/GUI/reproducibility"
+
+# Regenerate reports using the saved configuration
+system2(
+  file.path(R.home("bin"), "Rscript"),
+  c("--vanilla", shQuote(file.path(bundle, "reproduce.R")))
+)
+```
+
+The script restores the saved object and generates reports in a new output directory without overwriting previous results. Reproduction starts from the processed dataset rather than re-importing the original camera-trap observations.
+
+### Interpreting report outputs
 
 Interpret outputs in light of sampling design, effort, detectability, and method-specific assumptions. Capture-based indices are not direct measures of abundance; density models require suitable data and parameterisation.
 
