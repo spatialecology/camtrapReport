@@ -1,5 +1,11 @@
 # camtrapReport 1.0.73
 
+- Retain `codemeta.json` in Git for software discovery, but exclude it from
+  the CRAN source tarball; `DESCRIPTION` remains the package metadata used by R.
+  Creation and modification dates are intentionally omitted rather than inferred
+  from filesystem timestamps or other unverified dates.
+- Synchronize CodeMeta dependency names and minimum versions with `DESCRIPTION`,
+  including the suggested dependency `withr`.
 - The GUI no longer proposes an output directory automatically. Select one
   explicitly before importing ZIP files or saving results.
 - Submission safety: folder imports no longer write implicit cache or study-area

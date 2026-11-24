@@ -34,31 +34,38 @@
   "softwareRequirements": [
     {
       "@type": "SoftwareApplication",
-      "name": "data.table"
+      "name": "data.table",
+      "version": ">= 1.14.0"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "dplyr"
+      "name": "dplyr",
+      "version": ">= 1.1.1"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "shiny"
+      "name": "shiny",
+      "version": ">= 1.7.0"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "glue"
+      "name": "glue",
+      "version": ">= 1.6.0"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "jsonlite"
+      "name": "jsonlite",
+      "version": ">= 1.8.0"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "lubridate"
+      "name": "lubridate",
+      "version": ">= 1.9.0"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "knitr"
+      "name": "knitr",
+      "version": ">= 1.40"
     },
     {
       "@type": "SoftwareApplication",
@@ -66,11 +73,13 @@
     },
     {
       "@type": "SoftwareApplication",
-      "name": "rmarkdown"
+      "name": "rmarkdown",
+      "version": ">= 2.20"
     },
     {
       "@type": "SoftwareApplication",
-      "name": "terra"
+      "name": "terra",
+      "version": ">= 1.8-10"
     }
   ],
   "softwareSuggestions": [
@@ -130,6 +139,10 @@
     {
       "@type": "SoftwareApplication",
       "name": "activity"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "withr"
     }
   ]
 }
